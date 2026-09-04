@@ -1,0 +1,59 @@
+{
+  "source": "Regione Lombardia \u2014 DTM 5X5, Modello digitale del terreno, edizione 2015 (metadata id: r_lombar:dfc98d60-5f02-4a2b-8113-5ad24cc53a9c)",
+  "license": "CC BY 4.0",
+  "CRS": "EPSG:32632 (WGS 84 / UTM zone 32N)",
+  "nominal_center": {
+    "latitude": 46.1629166667,
+    "longitude": 9.7651944444,
+    "easting": 559076.571,
+    "northing": 5112433.468
+  },
+  "actual_grid_center": {
+    "latitude": 46.16289666,
+    "longitude": 9.76519804,
+    "easting": 559076.869,
+    "northing": 5112431.248,
+    "offset_from_nominal_meters": {
+      "d_easting": 0.299,
+      "d_northing": -2.22
+    }
+  },
+  "bounding_box_utm": {
+    "xmin": 544076.869,
+    "ymin": 5097431.248,
+    "xmax": 574076.869,
+    "ymax": 5127431.248
+  },
+  "dimensions": {
+    "width": 6000,
+    "height": 6000,
+    "pixel_size_x_meters": 5.0,
+    "pixel_size_y_meters": 5.0,
+    "physical_width_meters": 30000.0,
+    "physical_height_meters": 30000.0
+  },
+  "elevation_meters": {
+    "minimum": 220.13600158691406,
+    "maximum": 3678.42529296875,
+    "range": 3458.289291381836
+  },
+  "r16_format": {
+    "file": "valtellina_heightmap_6000x6000.r16",
+    "encoding": "raw unsigned 16-bit integers (uint16)",
+    "byte_order": "little-endian (<u2)",
+    "row_order": "row-major (north to south, west to east)",
+    "mapping_formula": "elevation = min_height + (pixel_value / 65535.0) * (max_height - min_height)"
+  },
+  "godot_terrain3d_settings": {
+    "vertex_spacing": 5.0,
+    "region_size": 256,
+    "vertical_scale": 1.0,
+    "height_offset": 0.0,
+    "import_position_meters": [
+      -15000,
+      0,
+      -15000
+    ],
+    "godot_origin_alignment": "World (0, 0, 0) corresponds to the geographic raster center (46.1629\u00b0N, 9.7652\u00b0E)"
+  }
+}

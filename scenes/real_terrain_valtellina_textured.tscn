@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Terrain3DAssets" path="res://terrain/valtellina_assets.tres" id="1_assets"]
+
+[sub_resource type="Terrain3DMaterial" id="Terrain3DMaterial_textured"]
+show_checkered = false
+
+[node name="RealTerrainValtellinaTextured" type="Node3D"]
+
+[node name="Terrain3D" type="Terrain3D" parent="."]
+data_directory = "res://terrain/valtellina_data"
+material = SubResource("Terrain3DMaterial_textured")
+assets = ExtResource("1_assets")
+vertex_spacing = 5.0
+free_editor_textures = false
+show_checkered = false
+top_level = true
