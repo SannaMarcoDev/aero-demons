@@ -1,0 +1,11 @@
+Model Information:
+* title:	Military Control Building - Game Ready
+* source:	https://sketchfab.com/3d-models/military-control-building-game-ready-2bff5075256e4370b93ad58237567008
+* author:	3RDimens (https://sketchfab.com/3RDimens)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Military Control Building - Game Ready" (https://sketchfab.com/3d-models/military-control-building-game-ready-2bff5075256e4370b93ad58237567008) by 3RDimens (https://sketchfab.com/3RDimens) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
