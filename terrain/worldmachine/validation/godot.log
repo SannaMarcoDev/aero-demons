@@ -1,0 +1,18 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+WARNING: radv is not a conformant Vulkan implementation, testing use only.
+[2026-09-05 12:37:31.884] [MANGOHUD] [error] [overlay_params.cpp:151] Unrecognized key: '=Shift_L'
+Vulkan 1.4.335 - Forward+ - Using Device #0: AMD - AMD Radeon RX 9070 XT (RADV GFX1201)
+
+WARNING: instance_reset_physics_interpolation() is deprecated.
+     at: _instance_reset_physics_interpolation_bind_compat_104269 (servers/rendering/rendering_server.compat.inc:62)
+[godot_ai game_helper] registered mcp capture (debugger active=false, logger=true)
+Terrain3D 1.0.2 | regions 576 | max R16 height error (m): 0.00020169797745
+Screenshot: 01_overview_color
+Screenshot: 01_overview_geometry
+Screenshot: 02_valley_color
+Screenshot: 02_valley_geometry
+Screenshot: 03_slope_color
+Screenshot: 03_slope_geometry
+Screenshot: 04_summit_color
+Screenshot: 04_summit_geometry
+Screenshot: 01_overview_unlit

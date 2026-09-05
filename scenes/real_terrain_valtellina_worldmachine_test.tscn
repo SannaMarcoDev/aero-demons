@@ -1,0 +1,56 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Terrain3DAssets" path="res://terrain/valtellina_assets.tres" id="1_assets"]
+[ext_resource type="Shader" path="res://terrain/worldmachine/valtellina_worldmachine_test.gdshader" id="2_shader"]
+[ext_resource type="Texture2D" path="res://terrain/worldmachine/valtellina_worldmachine_test.png" id="3_color"]
+[ext_resource type="Script" path="res://scripts/valtellina_worldmachine_test.gd" id="4_script"]
+
+[sub_resource type="Terrain3DMaterial" id="Material"]
+_shader_parameters = {
+"worldmachine_colormap": ExtResource("3_color")
+}
+world_background = 0
+shader_override_enabled = true
+shader_override = ExtResource("2_shader")
+show_checkered = false
+
+[sub_resource type="Environment" id="Environment"]
+background_mode = 1
+background_color = Color(0.12, 0.17, 0.23, 1)
+ambient_light_source = 3
+ambient_light_color = Color(1, 1, 1, 1)
+ambient_light_energy = 0.65
+reflected_light_source = 2
+
+[sub_resource type="CameraAttributesPractical" id="CameraAttributes"]
+auto_exposure_enabled = false
+
+[node name="ValtellinaWorldMachineTest" type="Node3D"]
+script = ExtResource("4_script")
+
+[node name="Terrain3D" type="Terrain3D" parent="."]
+data_directory = "res://terrain/valtellina_data"
+material = SubResource("Material")
+assets = ExtResource("1_assets")
+vertex_spacing = 5.0
+mesh_lods = 10
+free_editor_textures = false
+show_checkered = false
+top_level = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment")
+camera_attributes = SubResource("CameraAttributes")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-50, -35, 0)
+light_energy = 0.85
+
+[node name="Camera3D" type="Camera3D" parent="."]
+position = Vector3(-360, 35000, -360)
+rotation_degrees = Vector3(-90, 0, 0)
+projection = 1
+size = 33000.0
+near = 5.0
+far = 80000.0
+current = true
