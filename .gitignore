@@ -4,3 +4,5 @@
 
 # Tooling / Agent
 .pi/
+*.TMP
+~*

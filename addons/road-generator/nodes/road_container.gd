@@ -1073,11 +1073,17 @@ func setup_road_container():
 
 
 func update_material_overrides() -> void:
+	var mat = effective_surface_material()
 	for _mesh in material_top_meshes:
 		if not is_instance_valid(_mesh) or not _mesh is MeshInstance3D:
 			push_warning("Non mesh assigned in RoadContainer %s: material_top_meshes " % self.name)
 			continue
-		_mesh.set_surface_override_material(0, material_resource)
+		_mesh.set_surface_override_material(0, mat)
+	for seg in get_segments():
+		if is_instance_valid(seg):
+			seg.material = mat
+			if is_instance_valid(seg.road_mesh):
+				seg.road_mesh.set_surface_override_material(0, mat)
 
 
 # ------------------------------------------------------------------------------
@@ -1301,8 +1307,14 @@ func segment_rebuild(road_segment:RoadSegment):
 func _process_seg(pt1:RoadPoint, pt2:RoadPoint, low_poly:bool=false) -> Array:
 	var sid = RoadSegment.get_id_for_points(pt1, pt2)
 	if sid in segid_map and is_instance_valid(segid_map[sid]):
-		var was_rebuilt = segid_map[sid].check_rebuild()
-		return [was_rebuilt, segid_map[sid]]
+		var seg = segid_map[sid]
+		var mat = effective_surface_material()
+		seg.material = mat
+		seg.material_underside = effective_underside_material()
+		if is_instance_valid(seg.road_mesh):
+			seg.road_mesh.set_surface_override_material(0, mat)
+		var was_rebuilt = seg.check_rebuild()
+		return [was_rebuilt, seg]
 	else:
 		var new_seg = RoadSegment.new(self)
 

@@ -46,6 +46,9 @@ const RoadMaterial = preload("res://addons/road-generator/resources/road_texture
 var material_resource: Material = RoadMaterial:
 	set(value):
 		material_resource = value
+		for ch in get_children():
+			if ch is RoadContainer:
+				ch.update_material_overrides()
 		if auto_refresh:
 			rebuild_all_containers(true)
 

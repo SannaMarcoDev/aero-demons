@@ -1,0 +1,25 @@
+[gd_resource type="ShaderMaterial" format=3]
+
+[ext_resource type="Shader" path="res://shaders/road_pbr_detail.gdshader" id="1_vuwvk"]
+[ext_resource type="Texture2D" path="res://assets/textures/road/asphalt_pbr/Asphalt012_2K-JPG_Color.jpg" id="2_dvofm"]
+[ext_resource type="Texture2D" path="res://assets/textures/road/asphalt_pbr/Asphalt012_2K-JPG_NormalGL.jpg" id="3_fysh1"]
+[ext_resource type="Texture2D" path="res://assets/textures/road/asphalt_pbr/Asphalt012_2K-JPG_Roughness.jpg" id="4_2bw5n"]
+[ext_resource type="Texture2D" path="res://addons/road-generator/resources/road_texture@4x.png" id="5_e7hpd"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_vuwvk")
+shader_parameter/markings_texture = ExtResource("5_e7hpd")
+shader_parameter/detail_albedo = ExtResource("2_dvofm")
+shader_parameter/detail_normal = ExtResource("3_fysh1")
+shader_parameter/detail_roughness = ExtResource("4_2bw5n")
+shader_parameter/use_world_mapping = false
+shader_parameter/uv_detail_scale = Vector2(2, 8)
+shader_parameter/world_detail_scale = Vector2(0.35, 0.35)
+shader_parameter/asphalt_tint = Color(0.85, 0.85, 0.85, 1)
+shader_parameter/asphalt_roughness_mult = 1.0
+shader_parameter/normal_depth = 1.2
+shader_parameter/markings_threshold = 0.2
+shader_parameter/markings_softness = 0.08
+shader_parameter/markings_wear = 0.25
+shader_parameter/markings_roughness = 0.55

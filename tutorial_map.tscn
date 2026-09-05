@@ -1,0 +1,150 @@
+[gd_scene format=3 uid="uid://fhmax6bwhmpg"]
+
+[ext_resource type="Terrain3DAssets" uid="uid://bt6akb7jg1cut" path="res://wc_data/WC_Terrain/wc_terrain_assets.tres" id="1_assets"]
+[ext_resource type="Script" uid="uid://bndntls4cn4a1" path="res://scripts/free_fly_camera.gd" id="2_camera"]
+[ext_resource type="Script" uid="uid://bxp3i4cnonh8y" path="res://addons/road-generator/nodes/road_manager.gd" id="3_t0na0"]
+[ext_resource type="Script" uid="uid://dg25avte7aket" path="res://addons/road-generator/connectors/terrain3d_road_connector.gd" id="4_uexk4"]
+[ext_resource type="Script" uid="uid://cph7euje06kel" path="res://addons/road-generator/nodes/road_container.gd" id="5_bqe1w"]
+[ext_resource type="Script" uid="uid://difs1qg4mpcpw" path="res://addons/road-generator/nodes/road_point.gd" id="6_so6um"]
+[ext_resource type="Material" path="res://materials/road_pbr.tres" id="7_road_mat"]
+
+[sub_resource type="Gradient" id="Gradient_tbd6r"]
+offsets = PackedFloat32Array(0.2, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_21h0u"]
+noise_type = 2
+frequency = 0.03
+cellular_jitter = 3.0
+cellular_return_type = 0
+domain_warp_enabled = true
+domain_warp_type = 1
+domain_warp_amplitude = 50.0
+domain_warp_fractal_type = 2
+domain_warp_fractal_lacunarity = 1.5
+domain_warp_fractal_gain = 1.0
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_2811o"]
+noise = SubResource("FastNoiseLite_21h0u")
+color_ramp = SubResource("Gradient_tbd6r")
+seamless = true
+
+[sub_resource type="Terrain3DMaterial" id="Terrain3DMaterial_t0na0"]
+_shader_parameters = {
+&"bias_distance": 512.0,
+&"blend_sharpness": 0.25,
+&"depth_blur": 0.0,
+&"enable_macro_variation": true,
+&"enable_projection": true,
+&"flat_terrain_normals": false,
+&"macro_variation1": Color(1.06, 0.98, 0.92, 1),
+&"macro_variation2": Color(0.96, 0.9, 0.85, 1),
+&"macro_variation_slope": 0.3,
+&"mipmap_bias": 1.0,
+&"noise1_angle": 0.0,
+&"noise1_offset": Vector2(0.5, 0.5),
+&"noise1_scale": 0.04,
+&"noise2_scale": 0.08,
+&"noise_texture": SubResource("NoiseTexture2D_2811o"),
+&"projection_threshold": 0.8
+}
+world_background = 0
+
+[sub_resource type="ProceduralSkyMaterial" id="SkyMat"]
+sky_top_color = Color(0.38, 0.55, 0.82, 1)
+sky_horizon_color = Color(0.82, 0.85, 0.88, 1)
+ground_bottom_color = Color(0.35, 0.3, 0.25, 1)
+ground_horizon_color = Color(0.82, 0.85, 0.88, 1)
+
+[sub_resource type="Sky" id="Sky"]
+sky_material = SubResource("SkyMat")
+
+[sub_resource type="Environment" id="Environment"]
+background_mode = 2
+sky = SubResource("Sky")
+ambient_light_source = 3
+ambient_light_color = Color(0.9, 0.85, 0.8, 1)
+ambient_light_energy = 0.75
+tonemap_mode = 2
+
+[node name="Node3D" type="Node3D" unique_id=6357966]
+
+[node name="WC_Terrain" type="Terrain3D" parent="." unique_id=1129375997]
+data_directory = "res://wc_data/WC_Terrain"
+material = SubResource("Terrain3DMaterial_t0na0")
+assets = ExtResource("1_assets")
+top_level = true
+metadata/_edit_lock_ = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=424323690]
+environment = SubResource("Environment")
+
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=730235234]
+transform = Transform3D(0.8191518, -0.3440757, 0.4589217, 0, 0.80012476, 0.59986323, -0.5735763, -0.49139103, 0.6554081, 0, 500, 0)
+light_color = Color(1, 0.97, 0.92, 1)
+light_energy = 2.4
+shadow_enabled = true
+
+[node name="FreeFlyCamera" type="Camera3D" parent="." unique_id=2135625243]
+transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 350, 200)
+current = true
+fov = 65.0
+near = 0.1
+far = 10000.0
+script = ExtResource("2_camera")
+
+[node name="RoadManager" type="Node3D" parent="." unique_id=818889962]
+script = ExtResource("3_t0na0")
+material_resource = ExtResource("7_road_mat")
+metadata/_custom_type_script = "uid://bxp3i4cnonh8y"
+
+[node name="RoadTerrain3DConnector" type="Node" parent="RoadManager" unique_id=2104762782 node_paths=PackedStringArray("terrain", "road_manager")]
+script = ExtResource("4_uexk4")
+terrain = NodePath("../../WC_Terrain")
+road_manager = NodePath("..")
+edge_margin = 1.0
+edge_falloff = 3.0
+
+[node name="RoadContainer" type="Node3D" parent="RoadManager" unique_id=436288644]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 205, 0)
+script = ExtResource("5_bqe1w")
+material_resource = ExtResource("7_road_mat")
+use_lowpoly_preview = true
+
+[node name="Road_001" type="Node3D" parent="RoadManager" unique_id=998117101]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3036.2012, 102.10506, -2960.7983)
+script = ExtResource("5_bqe1w")
+material_resource = ExtResource("7_road_mat")
+use_lowpoly_preview = true
+edge_containers = Array[NodePath]([NodePath(""), NodePath("")])
+edge_rp_targets = Array[NodePath]([NodePath(""), NodePath("")])
+edge_rp_target_dirs = Array[int]([-1, -1])
+edge_rp_locals = Array[NodePath]([NodePath("RP_001"), NodePath("RP_003")])
+edge_rp_local_dirs = Array[int]([0, 1])
+
+[node name="RP_001" type="Node3D" parent="RoadManager/Road_001" unique_id=1908856914]
+transform = Transform3D(-0.9870035, 0.0021760226, -0.160684, 0, 0.9999083, 0.013541006, 0.16069874, 0.01336502, -0.986913, -0.0024414063, 0.24998474, -0.0012207031)
+script = ExtResource("6_so6um")
+traffic_dir = Array[int]([2, 2, 1, 1])
+lanes = Array[int]([2, 4, 4, 2])
+next_mag = 121.008194
+prior_pt_init = NodePath("../RP_002")
+
+[node name="RP_002" type="Node3D" parent="RoadManager/Road_001" unique_id=1359916870]
+transform = Transform3D(-0.98700356, 0.007974557, -0.16050054, 1.6298145e-09, 0.998768, 0.04962434, 0.16069852, 0.04897939, -0.9857876, 38.885742, -3.0271606, 238.8479)
+script = ExtResource("6_so6um")
+traffic_dir = Array[int]([2, 2, 1, 1])
+lanes = Array[int]([2, 4, 4, 2])
+prior_mag = 16.0
+next_mag = 118.738525
+prior_pt_init = NodePath("../RP_003")
+next_pt_init = NodePath("../RP_001")
+
+[node name="RP_003" type="Node3D" parent="RoadManager/Road_001" unique_id=1489923707]
+transform = Transform3D(0.9741343, 0.012194751, 0.22564048, 0.0033024582, 0.9976678, -0.0681764, -0.22594565, 0.06715814, 0.9718222, 37.987793, -2.9447937, 239.68994)
+script = ExtResource("6_so6um")
+traffic_dir = Array[int]([2, 2, 1, 1])
+lanes = Array[int]([2, 4, 4, 2])
+prior_mag = 16.0
+next_mag = 16.0
+next_pt_init = NodePath("../RP_002")

@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Aero Demons"
-run/main_scene="res://scenes/real_terrain_valtellina.tscn"
+run/main_scene="res://tutorial_map.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
 
@@ -26,7 +26,7 @@ window/stretch/aspect="expand"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/godot_ai/plugin.cfg", "res://addons/terrain_3d/plugin.cfg")
+enabled=PackedStringArray("res://addons/godot_ai/plugin.cfg", "res://addons/road-generator/plugin.cfg", "res://addons/sky_3d/plugin.cfg", "res://addons/terrain_3d/plugin.cfg", "res://addons/wc_bridge/plugin.cfg")
 
 [physics]
 

@@ -838,6 +838,7 @@ func _generate_debug_mesh(intersection: Node3D, edges: Array[RoadPoint], contain
 	if material:
 		surface_tool.set_material(material)
 	surface_tool.generate_normals()
+	surface_tool.generate_tangents()
 	var mesh: ArrayMesh = surface_tool.commit()  # should be MeshInstance3D?
 	#mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	return mesh

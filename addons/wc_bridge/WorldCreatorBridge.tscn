@@ -1,0 +1,239 @@
+[gd_scene load_steps=6 format=3 uid="uid://qyb6k6fj30tm"]
+
+[ext_resource type="Script" uid="uid://8ft1083ruf3h" path="res://addons/wc_bridge/WorldCreatorBridge.gd" id="1_ti6kx"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tabpanel"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0.18, 0.18, 0.19, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.3, 0.3, 0.31, 1)
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tabsel"]
+content_margin_left = 16.0
+content_margin_top = 7.0
+content_margin_right = 16.0
+content_margin_bottom = 7.0
+bg_color = Color(0.24, 0.24, 0.25, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_color = Color(0.34, 0.34, 0.35, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tabunsel"]
+content_margin_left = 16.0
+content_margin_top = 7.0
+content_margin_right = 16.0
+content_margin_bottom = 7.0
+bg_color = Color(0.145, 0.15, 0.16, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tabhover"]
+content_margin_left = 16.0
+content_margin_top = 7.0
+content_margin_right = 16.0
+content_margin_bottom = 7.0
+bg_color = Color(0.2, 0.2, 0.21, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+
+[node name="WorldCreatorImporter" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ti6kx")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ErrorLabel" type="Label" parent="VBoxContainer"]
+visible = false
+custom_minimum_size = Vector2(32, 64)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.4, 0.4, 1)
+theme_override_font_sizes/font_size = 14
+text = "⚠ Terrain3D Required
+
+The bridge requires Terrain3D to be installed and enabled.
+Please install Terrain3D from the AssetLib or Github.
+
+In case you still see this message after enabling Terrain3D disabled and enable the WC Bridge once."
+autowrap_mode = 3
+
+[node name="ControlsContainer" type="VBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="TabContainer" type="TabContainer" parent="VBoxContainer/ControlsContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_selected_color = Color(0.92, 0.92, 0.92, 1)
+theme_override_colors/font_unselected_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_colors/font_hovered_color = Color(0.82, 0.82, 0.82, 1)
+theme_override_font_sizes/font_size = 15
+theme_override_styles/tab_selected = SubResource("StyleBoxFlat_tabsel")
+theme_override_styles/tab_unselected = SubResource("StyleBoxFlat_tabunsel")
+theme_override_styles/tab_hovered = SubResource("StyleBoxFlat_tabhover")
+theme_override_styles/panel = SubResource("StyleBoxFlat_tabpanel")
+
+[node name="Terrain" type="VBoxContainer" parent="VBoxContainer/ControlsContainer/TabContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer_XML" type="HBoxContainer" parent="VBoxContainer/ControlsContainer/TabContainer/Terrain"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/ControlsContainer/TabContainer/Terrain/HBoxContainer_XML"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+text = "Sync XML"
+
+[node name="XMLLineEdit" type="LineEdit" parent="VBoxContainer/ControlsContainer/TabContainer/Terrain/HBoxContainer_XML"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "C:/Users/jtras/Documents/World Creator/Sync/bridge.xml"
+
+[node name="BrowseButton" type="Button" parent="VBoxContainer/ControlsContainer/TabContainer/Terrain/HBoxContainer_XML"]
+layout_mode = 2
+text = "Browse"
+
+[node name="HBoxContainer_Name" type="HBoxContainer" parent="VBoxContainer/ControlsContainer/TabContainer/Terrain"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/ControlsContainer/TabContainer/Terrain/HBoxContainer_Name"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+text = "Terrain Asset Name"
+
+[node name="NameLineEdit" type="LineEdit" parent="VBoxContainer/ControlsContainer/TabContainer/Terrain/HBoxContainer_Name"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "WC_Terrain"
+
+[node name="HBoxContainer_VertexSpacing" type="HBoxContainer" parent="VBoxContainer/ControlsContainer/TabContainer/Terrain"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/ControlsContainer/TabContainer/Terrain/HBoxContainer_VertexSpacing"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+text = "Vertex Spacing"
+
+[node name="Control" type="Control" parent="VBoxContainer/ControlsContainer/TabContainer/Terrain/HBoxContainer_VertexSpacing"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="AutoVertexSpacingButton" type="Button" parent="VBoxContainer/ControlsContainer/TabContainer/Terrain/HBoxContainer_VertexSpacing"]
+layout_mode = 2
+text = "Auto
+"
+
+[node name="SpinBox" type="SpinBox" parent="VBoxContainer/ControlsContainer/TabContainer/Terrain/HBoxContainer_VertexSpacing"]
+layout_mode = 2
+min_value = 0.25
+max_value = 10.0
+step = 0.01
+value = 1.0
+
+[node name="HBoxContainer_Scales" type="HBoxContainer" parent="VBoxContainer/ControlsContainer/TabContainer/Terrain"]
+layout_mode = 2
+
+[node name="HBox_World" type="HBoxContainer" parent="VBoxContainer/ControlsContainer/TabContainer/Terrain/HBoxContainer_Scales"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="VBoxContainer/ControlsContainer/TabContainer/Terrain/HBoxContainer_Scales/HBox_World"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+text = "World Scale"
+
+[node name="SpinBox" type="SpinBox" parent="VBoxContainer/ControlsContainer/TabContainer/Terrain/HBoxContainer_Scales/HBox_World"]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 10.0
+step = 0.01
+value = 1.0
+
+[node name="HBox_Height" type="HBoxContainer" parent="VBoxContainer/ControlsContainer/TabContainer/Terrain/HBoxContainer_Scales"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="VBoxContainer/ControlsContainer/TabContainer/Terrain/HBoxContainer_Scales/HBox_Height"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "Height Scale"
+
+[node name="SpinBox" type="SpinBox" parent="VBoxContainer/ControlsContainer/TabContainer/Terrain/HBoxContainer_Scales/HBox_Height"]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 10.0
+step = 0.01
+value = 1.0
+
+[node name="HBoxContainer_TriplanarProjection" type="HBoxContainer" parent="VBoxContainer/ControlsContainer/TabContainer/Terrain"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/ControlsContainer/TabContainer/Terrain/HBoxContainer_TriplanarProjection"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+text = "Triplanar Projection"
+
+[node name="Control" type="Control" parent="VBoxContainer/ControlsContainer/TabContainer/Terrain/HBoxContainer_TriplanarProjection"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CheckBox" type="CheckBox" parent="VBoxContainer/ControlsContainer/TabContainer/Terrain/HBoxContainer_TriplanarProjection"]
+layout_mode = 2
+tooltip_text = "Enables the Terrain3D material's enable_projection shader parameter. Not recommended for gradient based WC terrains because the colormap has no awareness of projection; on steep slopes the projection blend can produce visible color noise."
+button_pressed = false
+
+[node name="Spacer" type="HBoxContainer" parent="VBoxContainer/ControlsContainer/TabContainer/Terrain"]
+layout_mode = 2
+
+[node name="SyncTerrainButton" type="Button" parent="VBoxContainer/ControlsContainer/TabContainer/Terrain"]
+layout_mode = 2
+text = "Sync Terrain"
+
+[node name="Objects" type="VBoxContainer" parent="VBoxContainer/ControlsContainer/TabContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer_ResetObjects" type="HBoxContainer" parent="VBoxContainer/ControlsContainer/TabContainer/Objects"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/ControlsContainer/TabContainer/Objects/HBoxContainer_ResetObjects"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+text = "Reset Objects"
+
+[node name="Control" type="Control" parent="VBoxContainer/ControlsContainer/TabContainer/Objects/HBoxContainer_ResetObjects"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CheckBox" type="CheckBox" parent="VBoxContainer/ControlsContainer/TabContainer/Objects/HBoxContainer_ResetObjects"]
+layout_mode = 2
+tooltip_text = "When enabled, clears previously imported World Creator objects before syncing (clears the Terrain3D instancer + removes scene-object nodes). Placement is not implemented yet."
+button_pressed = false
+
+[node name="Spacer2" type="HBoxContainer" parent="VBoxContainer/ControlsContainer/TabContainer/Objects"]
+layout_mode = 2
+
+[node name="SyncObjectsButton" type="Button" parent="VBoxContainer/ControlsContainer/TabContainer/Objects"]
+layout_mode = 2
+tooltip_text = "Parses instance_info.xml and detail_info.xml found next to the Sync XML and logs what was found. Object placement is not implemented yet."
+text = "Sync Objects"

@@ -980,10 +980,19 @@ func _build_geo():
 
 	# Touch ups on geometry and commiting it to mesh
 	st.index()
-	if material:
-		st.set_material(material)
+	var eff_mat = material
+	if is_instance_valid(container):
+		var c_mat = container.effective_surface_material()
+		if c_mat:
+			eff_mat = c_mat
+			material = c_mat
+	if eff_mat:
+		st.set_material(eff_mat)
 	st.generate_normals()
+	st.generate_tangents()
 	road_mesh.mesh = st.commit()
+	if eff_mat:
+		road_mesh.set_surface_override_material(0, eff_mat)
 	road_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 
 	# Generating underside
@@ -1005,6 +1014,7 @@ func _build_geo():
 			st.set_material(material_underside)
 
 		st.generate_normals()
+		st.generate_tangents()
 		st.commit(road_mesh.mesh)
 		# Enable shadows. If it has underside then its probably in air and casting some
 		road_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON

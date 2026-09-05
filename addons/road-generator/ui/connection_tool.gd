@@ -420,6 +420,39 @@ func get_click_point_with_context(intersect: Dictionary, mouse_src: Vector3, mou
 		hit_pt = plane.intersects_ray(mouse_src, mouse_nrm)
 		up = selection.global_transform.basis.y
 
+	if is_instance_valid(plg) and plg.has_method("get_connector"):
+		var connector = plg.get_connector()
+		if is_instance_valid(connector) and is_instance_valid(connector.terrain) and connector.terrain.data:
+			var t_data = connector.terrain.data
+			var t_max := camera.far
+			var step := 8.0
+			var t := 0.0
+			var found_terrain := false
+			var terrain_hit := Vector3.ZERO
+			while t <= t_max:
+				var p = mouse_src + mouse_nrm * t
+				var h = t_data.get_height(p)
+				if not is_nan(h) and p.y <= h:
+					var b_min = max(0.0, t - step)
+					var b_max = t
+					for i in 12:
+						var mid = (b_min + b_max) * 0.5
+						var p_mid = mouse_src + mouse_nrm * mid
+						var h_mid = t_data.get_height(p_mid)
+						if not is_nan(h_mid) and p_mid.y <= h_mid:
+							b_max = mid
+						else:
+							b_min = mid
+					terrain_hit = mouse_src + mouse_nrm * ((b_min + b_max) * 0.5)
+					found_terrain = true
+					break
+				t += step
+			if found_terrain:
+				hit_pt = terrain_hit
+				var norm = t_data.get_normal(terrain_hit)
+				if not is_nan(norm.x) and norm.length_squared() > 0.1:
+					up = norm.normalized()
+
 	# TODO: Finally, detect if the point is behind or in front;
 	# if behind, then skip action.
 
