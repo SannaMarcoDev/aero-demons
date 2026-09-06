@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://drfh3eo3u8ut4"]
+
+[ext_resource type="Script" uid="uid://dxjdbi1vjkp3" path="res://assets/thrusters/blue_thruster/scripts/jet_thruster_vfx.gd" id="1_thruster"]
+
+[node name="JetThrusterVFX" type="Node3D" unique_id=655002067]
+script = ExtResource("1_thruster")

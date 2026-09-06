@@ -1,7 +1,0 @@
-[gd_scene load_steps=2 format=3]
-
-[ext_resource type="PackedScene" uid="uid://tuqarexdpyob" path="res://assets/models/military_buildings/military_control_building/military_control_building.gltf" id="1_model"]
-
-[node name="MilitaryControlBuilding" type="Node3D" groups=["military_building"]]
-
-[node name="Model" parent="." instance=ExtResource("1_model")]

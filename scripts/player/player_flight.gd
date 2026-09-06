@@ -205,7 +205,9 @@ func _apply_flight(delta: float) -> void:
 
 	var engine_throttle := inverse_lerp(cruise_speed, max_speed, speed)
 	var boost := spin_dash_camera_recovery_weight()
-	_afterburners.set_throttle(maxf(engine_throttle, boost))
+	# Exhaust follows engine commands, not airspeed: braking cuts thrust immediately.
+	var commanded_throttle := lerpf(0.35, 0.5, throttle_input) * (1.0 - brake_input)
+	_afterburners.set_throttle(commanded_throttle)
 	_afterburners.set_boost(boost)
 	_update_engine_audio(maxf(engine_throttle, boost))
 
@@ -325,7 +327,7 @@ func _apply_spin_dash(delta: float) -> void:
 		var charge := clampf(_spin_dash_elapsed / maxf(spin_dash_charge_time, 0.001), 0.0, 1.0)
 		basis = _spin_dash_entry_basis
 		speed = _spin_dash_entry_speed
-		_afterburners.set_throttle(lerpf(0.35, 0.85, charge))
+		_afterburners.set_throttle(lerpf(0.35, 0.5, charge))
 		_afterburners.set_boost(0.0)
 	else:
 		var progress := clampf(
@@ -336,7 +338,7 @@ func _apply_spin_dash(delta: float) -> void:
 		var phase := progress * TAU * spin_dash_turns
 		basis = (_spin_dash_entry_basis * Basis(Vector3.FORWARD, phase)).orthonormalized()
 		speed = spin_dash_speed
-		_afterburners.set_throttle(1.0)
+		_afterburners.set_throttle(0.5)
 		_afterburners.set_boost(1.0)
 	_spin_dash_velocity = (global_position - previous_position) / maxf(step, 0.001)
 	_update_engine_audio(clampf(speed / maxf(max_speed, 0.001), 0.0, 1.0))
@@ -446,6 +448,7 @@ func reset_flight(start_transform: Transform3D) -> void:
 	_spin_dash_camera_hold_until = 0.0
 	_spin_dash_camera_recover_until = 0.0
 	_afterburners.set_boost(0.0)
+	_afterburners.set_throttle(0.35)
 	is_returning = false
 	health = max_health
 	visible = true

@@ -1,7 +1,0 @@
-[gd_scene load_steps=2 format=3]
-
-[ext_resource type="PackedScene" uid="uid://cx1ufyyxsuqtl" path="res://assets/models/military_buildings/military_hq_building/military_hq_building.gltf" id="1_model"]
-
-[node name="MilitaryHQBuilding" type="Node3D" groups=["military_building"]]
-
-[node name="Model" parent="." instance=ExtResource("1_model")]

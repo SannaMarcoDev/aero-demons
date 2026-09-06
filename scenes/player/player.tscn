@@ -1,19 +1,13 @@
 [gd_scene format=3 uid="uid://dgqm8ooyeb3c6"]
 
 [ext_resource type="Script" uid="uid://dwyo1ef6ssc5s" path="res://scripts/player/player_flight.gd" id="1_player_flight"]
-[ext_resource type="PackedScene" uid="uid://borsed5v37nxx" path="res://assets/aircraft/aircraft_game_ready.glb" id="2_aircraft"]
+[ext_resource type="PackedScene" uid="uid://p6o1wseuocmt" path="res://scenes/enemies/finished_aircraft.tscn" id="2_aircraft"]
 [ext_resource type="Script" uid="uid://qggjjy3iivfe" path="res://scripts/combat/targeting.gd" id="3_targeting"]
 [ext_resource type="Script" uid="uid://dp2rcd7rlieo6" path="res://scripts/weapons/weapon_controller.gd" id="4_weapons"]
 [ext_resource type="Script" uid="uid://cf6to0ge1naqu" path="res://scripts/vfx/afterburner.gd" id="5_afterburner"]
-[ext_resource type="Material" uid="uid://coagxptie0sl7" path="res://resources/materials/afterburner_plume.tres" id="6_plume"]
+[ext_resource type="PackedScene" uid="uid://drfh3eo3u8ut4" path="res://assets/thrusters/blue_thruster/scenes/jet_thruster_vfx.tscn" id="6_thruster"]
 [ext_resource type="PackedScene" uid="uid://biquwm5xmc1t8" path="res://scenes/vfx/damage_fire.tscn" id="7_damage"]
-[ext_resource type="Script" path="res://scripts/combat/aircraft_hitbox.gd" id="8_hitbox"]
-
-[sub_resource type="SphereShape3D" id="SphereShape3D_hitbox"]
-radius = 7.0
-
-[sub_resource type="BoxMesh" id="BoxMesh_plume"]
-material = ExtResource("6_plume")
+[ext_resource type="Script" uid="uid://dsa2yuuiidhki" path="res://scripts/combat/aircraft_hitbox.gd" id="8_hitbox"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_light_left"]
 shading_mode = 0
@@ -39,6 +33,10 @@ height = 0.22
 radial_segments = 8
 rings = 4
 
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_qek5x"]
+radius = 0.76
+height = 9.635
+
 [node name="Player" type="Node3D" unique_id=1474501909]
 physics_interpolation_mode = 1
 script = ExtResource("1_player_flight")
@@ -49,69 +47,43 @@ camera_pitch = -0.10000000000000142
 camera_acceleration_shift = 0.5
 
 [node name="AircraftModel" parent="." unique_id=1192140363 instance=ExtResource("2_aircraft")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, -1.375, 1.88)
+transform = Transform3D(-24, 0, 0, 0, 24, 0, 0, 0, -24, 0, -5.8, 1.2)
 
 [node name="Afterburners" type="Node3D" parent="." unique_id=1819991363]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.17857456)
 script = ExtResource("5_afterburner")
-plume_material = ExtResource("6_plume")
-light_energy = 0.4
-light_range = 2.6
 
-[node name="Left" type="Node3D" parent="Afterburners" unique_id=1208963078]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.96, -0.46, 5.5)
-
-[node name="Plume" type="MeshInstance3D" parent="Afterburners/Left" unique_id=1853868129]
-cast_shadow = 0
-extra_cull_margin = 8.0
-gi_mode = 0
-mesh = SubResource("BoxMesh_plume")
-
-[node name="Glow" type="OmniLight3D" parent="Afterburners/Left" unique_id=2101408512]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.5)
-light_color = Color(1, 0.44, 0.16, 1)
-light_energy = 0.4
-light_specular = 0.6
-omni_range = 2.6
-
-[node name="Right" type="Node3D" parent="Afterburners" unique_id=41007544]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.1033926, -0.46, 5.5)
-
-[node name="Plume" type="MeshInstance3D" parent="Afterburners/Right" unique_id=398138981]
-cast_shadow = 0
-extra_cull_margin = 8.0
-gi_mode = 0
-mesh = SubResource("BoxMesh_plume")
-
-[node name="Glow" type="OmniLight3D" parent="Afterburners/Right" unique_id=690821640]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.5)
-light_color = Color(1, 0.44, 0.16, 1)
-light_energy = 0.4
-light_specular = 0.6
-omni_range = 2.6
+[node name="Thruster" parent="Afterburners" unique_id=1208963078 instance=ExtResource("6_thruster")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0019104928, -0.68315357, 5.0852613)
+throttle = 0.5
+exhaust_length = 3.0
+exhaust_width = 0.44999999999999996
+flame_holder_distance = 0.35
+light_intensity = 0.05
 
 [node name="NavLightLeft" type="MeshInstance3D" parent="." unique_id=1101389108]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.45, -0.85, 1.93)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.38, -1, 1.8)
 cast_shadow = 0
 mesh = SubResource("SphereMesh_light_left")
 
 [node name="NavLightRight" type="MeshInstance3D" parent="." unique_id=1294040186]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.45, -0.85, 1.93)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.38, -1, 1.8)
 cast_shadow = 0
 mesh = SubResource("SphereMesh_light_right")
 
 [node name="WingDamage" type="Node3D" parent="." unique_id=438543592]
+visible = false
 
 [node name="Mid" parent="WingDamage" unique_id=36439695 instance=ExtResource("7_damage")]
-transform = Transform3D(1, 0, 0, 0, -0.250477, -0.96812254, 0, 0.96812254, -0.250477, 2.3067281, -0.8, 4.159317)
+transform = Transform3D(1, 0, 0, 0, -0.250477, -0.96812254, 0, 0.96812254, -0.250477, 1.8, -1, 4.159317)
 movement_randomness = 0.0
 
 [node name="Mid2" parent="WingDamage" unique_id=402618415 instance=ExtResource("7_damage")]
-transform = Transform3D(1, 0, 0, 0, -0.250477, -0.96812254, 0, 0.96812254, -0.250477, 3.2805336, -0.5401588, 1.6751704)
+transform = Transform3D(1, 0, 0, 0, -0.250477, -0.96812254, 0, 0.96812254, -0.250477, 2.3, -1, 1.6751704)
 movement_randomness = 0.0
 
 [node name="Mid3" parent="WingDamage" unique_id=2083056030 instance=ExtResource("7_damage")]
-transform = Transform3D(1, 0, 0, 0, -0.250477, -0.96812254, 0, 0.96812254, -0.250477, 4.71904, -0.7731033, 1.8693786)
+transform = Transform3D(1, 0, 0, 0, -0.250477, -0.96812254, 0, 0.96812254, -0.250477, 3, -1, 1.8693786)
 movement_randomness = 0.0
 
 [node name="Hitbox" type="Area3D" parent="." unique_id=1140277431]
@@ -120,7 +92,8 @@ collision_mask = 0
 script = ExtResource("8_hitbox")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Hitbox" unique_id=1140277432]
-shape = SubResource("SphereShape3D_hitbox")
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, -0.7763716, 0.18731451)
+shape = SubResource("CapsuleShape3D_qek5x")
 
 [node name="TargetLock" type="Node" parent="." unique_id=680068749]
 script = ExtResource("3_targeting")
@@ -129,4 +102,3 @@ lock_time = 0.0
 [node name="WeaponController" type="Node3D" parent="." unique_id=959054443]
 script = ExtResource("4_weapons")
 targeting_path = NodePath("../TargetLock")
-target_layers = 4

@@ -35,7 +35,6 @@ lod0_range = 128.0
 
 [sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_tex0"]
 name = "Mountain Side"
-albedo_color = Color(1, 1, 1, 1)
 albedo_texture = ExtResource("1_alb0")
 normal_texture = ExtResource("2_nrm0")
 uv_scale = 0.4
@@ -43,7 +42,6 @@ uv_scale = 0.4
 [sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_tex1"]
 name = "Gradient"
 id = 1
-albedo_color = Color(1, 1, 1, 1)
 albedo_texture = ExtResource("3_alb1")
 normal_texture = ExtResource("4_nrm1")
 uv_scale = 0.4
@@ -67,7 +65,6 @@ uv_scale = 0.4
 [sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_tex4"]
 name = "Snow"
 id = 4
-albedo_color = Color(1, 1, 1, 1)
 albedo_texture = ExtResource("9_alb4")
 normal_texture = ExtResource("10_nrm4")
 uv_scale = 0.4

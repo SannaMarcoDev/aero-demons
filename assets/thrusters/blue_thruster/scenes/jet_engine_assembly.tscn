@@ -1,0 +1,57 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://assets/thrusters/blue_thruster/scripts/jet_engine_assembly.gd" id="1_assembly"]
+[ext_resource type="PackedScene" path="res://assets/thrusters/blue_thruster/scenes/jet_thruster_vfx.tscn" id="2_thruster"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_casing"]
+albedo_color = Color(0.18, 0.2, 0.22, 1)
+metallic = 0.85
+roughness = 0.28
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_casing"]
+material = SubResource("StandardMaterial3D_casing")
+top_radius = 0.58
+bottom_radius = 0.58
+height = 2.4
+radial_segments = 32
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_interior"]
+albedo_color = Color(0.1, 0.1, 0.11, 1)
+metallic = 0.4
+roughness = 0.75
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_interior"]
+material = SubResource("StandardMaterial3D_interior")
+flip_faces = true
+top_radius = 0.52
+bottom_radius = 0.52
+height = 2.3
+radial_segments = 32
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_stand"]
+albedo_color = Color(0.12, 0.13, 0.14, 1)
+metallic = 0.6
+roughness = 0.5
+
+[sub_resource type="BoxMesh" id="BoxMesh_mount"]
+material = SubResource("StandardMaterial3D_stand")
+size = Vector3(0.18, 0.8, 1.6)
+
+[node name="JetEngineAssembly" type="Node3D" node_paths=PackedStringArray("thruster_vfx")]
+script = ExtResource("1_assembly")
+thruster_vfx = NodePath("JetThrusterVFX")
+
+[node name="Nacelle" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, -1.2)
+mesh = SubResource("CylinderMesh_casing")
+
+[node name="InteriorChamber" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, -1.15)
+mesh = SubResource("CylinderMesh_interior")
+
+[node name="PylonMount" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.7, -1.2)
+mesh = SubResource("BoxMesh_mount")
+
+[node name="JetThrusterVFX" parent="." instance=ExtResource("2_thruster")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
