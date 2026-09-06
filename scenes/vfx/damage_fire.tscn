@@ -1,0 +1,171 @@
+[gd_scene format=3 uid="uid://biquwm5xmc1t8"]
+
+[ext_resource type="Script" uid="uid://beu4m1k60advq" path="res://scripts/vfx/damage_fire.gd" id="1_script"]
+[ext_resource type="Material" uid="uid://dyvrorjeo6m6i" path="res://resources/materials/damage_fire.tres" id="2_fire"]
+[ext_resource type="Material" uid="uid://cubcxtcfhnvrp" path="res://resources/materials/damage_smoke.tres" id="3_smoke"]
+
+[sub_resource type="Gradient" id="Gradient_flame_alpha"]
+offsets = PackedFloat32Array(0, 0.12, 0.75, 1)
+colors = PackedColorArray(1, 1, 1, 0.28, 1, 1, 1, 0.5, 1, 1, 1, 0.42, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_flame_alpha"]
+gradient = SubResource("Gradient_flame_alpha")
+width = 64
+
+[sub_resource type="Curve" id="Curve_flame_scale"]
+_data = [Vector2(0, 0.92), 0.0, 0.0, 0, 0, Vector2(0.4, 1), 0.0, 0.0, 0, 0, Vector2(1, 0.75), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_flame_scale"]
+curve = SubResource("Curve_flame_scale")
+
+[sub_resource type="ParticleProcessMaterial" id="Process_flame"]
+resource_local_to_scene = true
+lifetime_randomness = 0.32
+emission_shape = 3
+emission_box_extents = Vector3(0.14, 0.14, 0.14)
+angle_min = -180.0
+angle_max = 180.0
+direction = Vector3(0, 1, 0)
+spread = 6.0
+initial_velocity_min = 6.0
+initial_velocity_max = 10.5
+gravity = Vector3(0, 0, 0)
+scale_min = 0.34
+scale_max = 0.66
+scale_curve = SubResource("CurveTexture_flame_scale")
+color_ramp = SubResource("GradientTexture1D_flame_alpha")
+
+[sub_resource type="QuadMesh" id="QuadMesh_flame"]
+material = ExtResource("2_fire")
+
+[sub_resource type="Gradient" id="Gradient_smoke_alpha"]
+offsets = PackedFloat32Array(0, 0.06, 0.45, 0.78, 1)
+colors = PackedColorArray(2.2, 1.05, 0.5, 0.9, 1.6, 0.95, 0.62, 1, 1, 1, 1, 0.95, 1, 1, 1, 0.45, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_smoke_alpha"]
+gradient = SubResource("Gradient_smoke_alpha")
+width = 64
+
+[sub_resource type="Curve" id="Curve_smoke_scale"]
+_limits = [0.0, 2.6, 0.0, 1.0]
+_data = [Vector2(0, 0.9), 0.0, 1.9, 0, 0, Vector2(0.3, 1.7), 1.9, 1.0, 0, 0, Vector2(1, 2.6), 0.8, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_smoke_scale"]
+curve = SubResource("Curve_smoke_scale")
+
+[sub_resource type="ParticleProcessMaterial" id="Process_smoke"]
+resource_local_to_scene = true
+lifetime_randomness = 0.35
+emission_shape = 3
+emission_box_extents = Vector3(0.14, 0.14, 0.14)
+angle_min = -180.0
+angle_max = 180.0
+direction = Vector3(0, 1, 0)
+spread = 6.0
+initial_velocity_min = 1.5
+initial_velocity_max = 3.0
+angular_velocity_min = -14.0
+angular_velocity_max = 14.0
+gravity = Vector3(0, 0.35, 0)
+damping_min = 5.0
+damping_max = 10.0
+scale_min = 0.5
+scale_max = 1.3
+scale_curve = SubResource("CurveTexture_smoke_scale")
+color_ramp = SubResource("GradientTexture1D_smoke_alpha")
+turbulence_enabled = true
+turbulence_noise_strength = 0.3
+turbulence_noise_scale = 2.8
+turbulence_noise_speed = Vector3(0, 0, 0.4)
+turbulence_influence_min = 0.05
+turbulence_influence_max = 0.2
+
+[sub_resource type="QuadMesh" id="QuadMesh_smoke"]
+material = ExtResource("3_smoke")
+
+[sub_resource type="ParticleProcessMaterial" id="Process_ember"]
+resource_local_to_scene = true
+lifetime_randomness = 0.5
+emission_shape = 1
+emission_sphere_radius = 0.12
+direction = Vector3(0, 1, 0)
+spread = 18.0
+initial_velocity_min = 16.0
+initial_velocity_max = 46.0
+damping_min = 1.0
+damping_max = 5.0
+scale_min = 0.03
+scale_max = 0.075
+
+[sub_resource type="Gradient" id="Gradient_ember"]
+offsets = PackedFloat32Array(0, 0.5, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.9, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_ember"]
+gradient = SubResource("Gradient_ember")
+width = 32
+height = 32
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ember"]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(0.045, 0.04, 0.038, 1)
+albedo_texture = SubResource("GradientTexture2D_ember")
+disable_receive_shadows = true
+billboard_mode = 3
+billboard_keep_scale = true
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_ember"]
+material = SubResource("StandardMaterial3D_ember")
+
+[node name="DamageFire" type="Node3D" unique_id=402618415]
+script = ExtResource("1_script")
+
+[node name="Flame" type="GPUParticles3D" parent="." unique_id=68816183]
+cast_shadow = 0
+gi_mode = 0
+amount = 300
+lifetime = 0.12
+randomness = 0.3
+fixed_fps = 0
+visibility_aabb = AABB(-16, -16, -16, 32, 32, 32)
+process_material = SubResource("Process_flame")
+draw_pass_1 = SubResource("QuadMesh_flame")
+
+[node name="Smoke" type="GPUParticles3D" parent="." unique_id=1158581507]
+cast_shadow = 0
+gi_mode = 0
+amount = 2000
+lifetime = 2.4
+randomness = 0.1
+fixed_fps = 0
+visibility_aabb = AABB(-260, -260, -260, 520, 520, 520)
+draw_order = 3
+process_material = SubResource("Process_smoke")
+draw_pass_1 = SubResource("QuadMesh_smoke")
+
+[node name="Embers" type="GPUParticles3D" parent="." unique_id=126965772]
+cast_shadow = 0
+gi_mode = 0
+amount = 34
+lifetime = 1.1
+randomness = 0.4
+fixed_fps = 0
+visibility_aabb = AABB(-160, -160, -160, 320, 320, 320)
+process_material = SubResource("Process_ember")
+draw_pass_1 = SubResource("QuadMesh_ember")
+
+[node name="Glow" type="OmniLight3D" parent="." unique_id=727862451]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0.6)
+light_color = Color(1, 0.5, 0.19, 1)
+light_energy = 3.2
+light_specular = 0.4
+omni_range = 7.0

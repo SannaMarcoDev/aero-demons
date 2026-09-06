@@ -1,0 +1,55 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://coagxptie0sl7"]
+
+[ext_resource type="Shader" uid="uid://bfs5ea5wmqkaj" path="res://resources/shaders/afterburner_plume.gdshader" id="1_plume"]
+
+[sub_resource type="Gradient" id="Gradient_heat"]
+offsets = PackedFloat32Array(0, 0.2, 0.42, 0.62, 0.8, 0.92, 1)
+colors = PackedColorArray(0.015, 0.001, 0, 1, 0.3, 0.025, 0.004, 1, 1, 0.17, 0.03, 1, 1.2, 0.33, 0.07, 1, 1.7, 0.6, 0.18, 1, 2.6, 1.3, 0.5, 1, 5, 4.2, 3.4, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_heat"]
+gradient = SubResource("Gradient_heat")
+width = 128
+use_hdr = true
+
+[sub_resource type="FastNoiseLite" id="FastNoise_turbulence"]
+noise_type = 0
+seed = 7
+frequency = 0.06
+fractal_octaves = 4
+fractal_lacunarity = 2.1
+fractal_gain = 0.55
+
+[sub_resource type="NoiseTexture3D" id="NoiseTexture3D_turbulence"]
+noise = SubResource("FastNoise_turbulence")
+seamless = true
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_plume")
+shader_parameter/temperature_ramp = SubResource("GradientTexture1D_heat")
+shader_parameter/turbulence = SubResource("NoiseTexture3D_turbulence")
+shader_parameter/throttle = 1.0
+shader_parameter/plume_length = 3.2
+shader_parameter/idle_length = 0.33400001423506
+shader_parameter/nozzle_radius = 0.555
+shader_parameter/spread = 0.5430000020425
+shader_parameter/radial_falloff = 3.4970001423575
+shader_parameter/radial_shape = 6.0
+shader_parameter/axial_falloff = 3.25800014823523
+shader_parameter/emission_energy = 13.52
+shader_parameter/absorption = 0.0
+shader_parameter/idle_energy = 0.482000022895
+shader_parameter/turbulence_scale = 6.0
+shader_parameter/turbulence_detail = 0.0
+shader_parameter/turbulence_amount = 0.18000000855
+shader_parameter/turbulence_onset = 0.0
+shader_parameter/turbulence_floor = 0.0
+shader_parameter/turbulence_contrast = 7.1270002910325
+shader_parameter/turbulence_stretch = 0.01999999955297
+shader_parameter/flow_speed = 8.0
+shader_parameter/core_heat = 0.82900003285773
+shader_parameter/core_focus = 8.0
+shader_parameter/cooling = 0.5730000272175
+shader_parameter/shock_count = 0.0
+shader_parameter/shock_strength = 0.7350000349125
+shader_parameter/shock_decay = 1.44400006859

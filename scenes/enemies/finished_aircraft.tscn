@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://p6o1wseuocmt"]
+
+[ext_resource type="Script" uid="uid://cppbt1insu407" path="res://scripts/player/finished_aircraft.gd" id="1_finished_aircraft"]
+[ext_resource type="PackedScene" uid="uid://clj5y1oba3bd" path="res://assets/aircraft/finished/aereo_caccia.fbx" id="2_aereo_caccia"]
+
+[node name="FinishedAircraft" type="Node3D" unique_id=1059659001]
+script = ExtResource("1_finished_aircraft")
+livery = "Brown Camo"
+
+[node name="Model" parent="." unique_id=1444592833 instance=ExtResource("2_aereo_caccia")]

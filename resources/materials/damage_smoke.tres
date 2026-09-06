@@ -1,0 +1,42 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://cubcxtcfhnvrp"]
+
+[ext_resource type="Shader" uid="uid://cmwt8fukb7exc" path="res://resources/shaders/damage_smoke.gdshader" id="1_smoke"]
+
+[sub_resource type="FastNoiseLite" id="FastNoise_smoke"]
+noise_type = 0
+seed = 29
+frequency = 0.04
+fractal_octaves = 4
+fractal_lacunarity = 2.05
+fractal_gain = 0.58
+
+[sub_resource type="NoiseTexture3D" id="NoiseTexture3D_smoke"]
+width = 48
+height = 48
+depth = 48
+noise = SubResource("FastNoise_smoke")
+seamless = true
+
+[resource]
+render_priority = 1
+shader = ExtResource("1_smoke")
+shader_parameter/smoke_noise = SubResource("NoiseTexture3D_smoke")
+shader_parameter/soot_tint = Color(0.085, 0.082, 0.085, 1)
+shader_parameter/aged_tint = Color(0.34, 0.34, 0.37, 1)
+shader_parameter/aging = 0.5
+shader_parameter/noise_scale = 1.7
+shader_parameter/noise_detail = 3.3
+shader_parameter/noise_contrast = 1.9
+shader_parameter/churn_speed = 0.35
+shader_parameter/erosion = 0.55
+shader_parameter/erosion_young = 0.28
+shader_parameter/erosion_onset = 0.35
+shader_parameter/edge_start = 0.25
+shader_parameter/edge_falloff = 1.1
+shader_parameter/opacity = 1.0
+shader_parameter/depth_fade = 0.15
+shader_parameter/near_fade = 1.2
+shader_parameter/normal_bend = 0.65
+shader_parameter/structure = 0.5
+shader_parameter/shade_variation = 0.3
+shader_parameter/intensity = 1.0

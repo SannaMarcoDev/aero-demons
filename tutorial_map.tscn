@@ -14,6 +14,9 @@
 [ext_resource type="Texture2D" uid="uid://2r8ylu6rg5dp" path="res://addons/sky_3d/assets/thirdparty/textures/moon/MoonMap.png" id="15_moon"]
 [ext_resource type="Texture2D" uid="uid://djpfuyxkryegn" path="res://addons/sky_3d/assets/textures/noise.jpg" id="16_noise"]
 [ext_resource type="Texture2D" uid="uid://bm7dot7t7u1q4" path="res://addons/sky_3d/assets/thirdparty/textures/milkyway/StarField.jpg" id="17_stars"]
+[ext_resource type="PackedScene" uid="uid://dgqm8ooyeb3c6" path="res://scenes/player/player.tscn" id="18_player"]
+[ext_resource type="Script" uid="uid://bog5ubwi3cc2q" path="res://scripts/camera/follow_camera.gd" id="19_follow_camera"]
+[ext_resource type="PackedScene" path="res://scenes/ui/combat_hud.tscn" id="20_combat_hud"]
 
 [sub_resource type="Gradient" id="Gradient_tbd6r"]
 offsets = PackedFloat32Array(0.2, 1)
@@ -212,12 +215,14 @@ day = 15
 month = 7
 
 [node name="FreeFlyCamera" type="Camera3D" parent="." unique_id=2135625243]
+process_mode = 4
 transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 350, 200)
-current = true
+current = false
 fov = 65.0
 near = 0.1
 far = 10000.0
 script = ExtResource("2_camera")
+mouse_look_enabled = false
 
 [node name="MilitaryHQBuilding" parent="." unique_id=2053333478 instance=ExtResource("13_f6uhs")]
 transform = Transform3D(-0.7105468, 0, 0.70364994, 0, 1, 0, -0.70364994, 0, -0.7105468, 186.16269, 102.1, -2183.0554)
@@ -227,3 +232,22 @@ transform = Transform3D(-0.7071068, 0, 0.7071067, 0, 1, 0, -0.7071067, 0, -0.707
 
 [node name="MilitaryControlBuilding2" parent="." unique_id=97611219 instance=ExtResource("14_e06hu")]
 transform = Transform3D(-0.7071068, 0, 0.7071067, 0, 1, 0, -0.7071067, 0, -0.7071068, 173.47443, 102.100006, -2199.3542)
+
+[node name="Player" parent="." unique_id=1819236382 instance=ExtResource("18_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 180, 350, -2100)
+min_altitude = 190.0
+max_altitude = 15000.0
+
+[node name="FlightCamera" type="Camera3D" parent="." unique_id=1671772194]
+physics_interpolation_mode = 1
+current = true
+fov = 70.0
+near = 1.0
+far = 100000.0
+script = ExtResource("19_follow_camera")
+
+[node name="CombatHUD" parent="." instance=ExtResource("20_combat_hud")]
+player_path = NodePath("../Player")
+camera_path = NodePath("../FlightCamera")
+targeting_path = NodePath("../Player/TargetLock")
+weapons_path = NodePath("../Player/WeaponController")

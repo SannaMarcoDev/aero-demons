@@ -1,0 +1,52 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/weapons/bullet.gd" id="1_bullet"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_halo"]
+transparency = 1
+blend_mode = 1
+shading_mode = 0
+albedo_color = Color(2.6, 0.72, 0.1, 0.22)
+emission_enabled = true
+emission = Color(1, 0.23, 0.025, 1)
+emission_energy_multiplier = 1.8
+disable_receive_shadows = true
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_halo"]
+material = SubResource("StandardMaterial3D_halo")
+radius = 0.18
+height = 22.0
+radial_segments = 6
+rings = 2
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_core"]
+shading_mode = 0
+albedo_color = Color(4.8, 3.2, 0.9, 1)
+emission_enabled = true
+emission = Color(1, 0.63, 0.16, 1)
+emission_energy_multiplier = 2.4
+disable_receive_shadows = true
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_core"]
+material = SubResource("StandardMaterial3D_core")
+radius = 0.05
+height = 16.0
+radial_segments = 5
+rings = 2
+
+[node name="Bullet" type="Node3D"]
+script = ExtResource("1_bullet")
+
+[node name="Tracer" type="Node3D" parent="."]
+
+[node name="Halo" type="MeshInstance3D" parent="Tracer"]
+position = Vector3(0, 0, -11)
+rotation_degrees = Vector3(90, 0, 0)
+mesh = SubResource("CapsuleMesh_halo")
+cast_shadow = 0
+
+[node name="Core" type="MeshInstance3D" parent="Tracer"]
+position = Vector3(0, 0, -8)
+rotation_degrees = Vector3(90, 0, 0)
+mesh = SubResource("CapsuleMesh_core")
+cast_shadow = 0

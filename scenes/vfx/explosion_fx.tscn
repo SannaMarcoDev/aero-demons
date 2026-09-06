@@ -1,0 +1,43 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/vfx/explosion_fx.gd" id="1_script"]
+
+[node name="ExplosionFX" type="Node3D"]
+script = ExtResource("1_script")
+
+[node name="Flash" type="GPUParticles3D" parent="."]
+emitting = false
+
+[node name="FireCore" type="GPUParticles3D" parent="."]
+emitting = false
+
+[node name="FireLobes" type="GPUParticles3D" parent="."]
+emitting = false
+
+[node name="SecondaryLobes" type="GPUParticles3D" parent="."]
+emitting = false
+
+[node name="Smoke" type="GPUParticles3D" parent="."]
+emitting = false
+
+[node name="Sparks" type="GPUParticles3D" parent="."]
+emitting = false
+
+[node name="Debris" type="GPUParticles3D" parent="."]
+emitting = false
+
+[node name="Shockwave" type="GPUParticles3D" parent="."]
+emitting = false
+
+[node name="BlastLight" type="OmniLight3D" parent="."]
+light_color = Color(1, 0.72, 0.38, 1)
+light_specular = 0.6
+shadow_enabled = false
+
+[node name="AudioPlayer" type="AudioStreamPlayer3D" parent="."]
+
+[node name="LifetimeTimer" type="Timer" parent="."]
+one_shot = true
+wait_time = 5.8
+
+[connection signal="timeout" from="LifetimeTimer" to="." method="_on_lifetime_timer_timeout"]
