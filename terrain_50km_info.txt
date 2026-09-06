@@ -1,0 +1,81 @@
+INFORMAZIONI HEIGHTMAP TERRENO 50 KM x 50 KM (WORLD MACHINE READY)
+================================================================================
+
+1. COORDINATE CENTRO
+--------------------
+- Notazione Sessagesimale: 45°54'47.6" N, 10°46'08.5" E
+- Notazione Decimale:      45.9132222° N, 10.7690278° E
+- Coordinate Metriche UTM: X = 637193.233 m, Y = 5085927.488 m
+- Sistema di Coordinate:   WGS 84 / UTM zone 32N (EPSG:32632)
+
+2. BOUNDING BOX METRICO (EPSG:32632)
+------------------------------------
+- X Min (Ovest):           612193.233 m
+- X Max (Est):             662193.233 m
+- Y Min (Sud):             5060927.488 m
+- Y Max (Nord):            5110927.488 m
+- Centro Geometrico X:     637193.233 m (Scostamento: 0.000 m)
+- Centro Geometrico Y:     5085927.488 m (Scostamento: 0.000 m)
+
+3. DIMENSIONI E RISOLUZIONE
+---------------------------
+- Dimensioni Reali:        50000.000 m × 50000.000 m (50.0 km × 50.0 km)
+- Risoluzione Geometrica:  10.000 m/pixel
+- Dimensioni Raster:       5000 × 5000 celle (totale: 25,000,000 pixel)
+- Rapporto d'Aspetto:      1:1 (Quadrato perfetto)
+
+4. ALTIMETRIA E QUOTE
+---------------------
+- Quota Minima Reale:      11.36 m slm
+- Quota Massima Reale:     3452.75 m slm
+- Escursione Altimetrica:  3441.39 m
+- Quota Media:             1129.15 m slm
+- Valori NoData / Buchi:   0 (Copertura 100% integra, nessun dato mancante)
+
+5. SORGENTE DATI E LICENZA
+--------------------------
+- Dataset:                 TINITALY v1.1 (DTM 10 m dell'intero territorio italiano)
+- Ente fornitore:          INGV (Istituto Nazionale di Geofisica e Vulcanologia)
+- DOI / Riferimento:       https://doi.org/10.13127/tinitaly/1.1
+- Citazione Ufficiale:
+  Tarquini S., I. Isola, M. Favalli, A. Battistini, G. Dotta, (2023).
+  TINITALY, a digital elevation model of Italy with a 10 meters cell size (Version 1.1).
+  Istituto Nazionale di Geofisica e Vulcanologia (INGV).
+- Licenza d'uso:           Creative Commons Attribution 4.0 International (CC BY 4.0)
+  (Consentito uso commerciale e modifiche con obbligo di attribuzione)
+
+6. FILE GENERATI
+----------------
+- terrain_50km_master.tif:
+  GeoTIFF master georeferenziato 32-bit float con quote reali in metri, proiezione EPSG:32632.
+- terrain_50km_worldmachine.r16:
+  File RAW 16-bit unsigned (uint16 little-endian, byte order Intel), normalizzato su [0, 65535].
+  Dimensione esatta: 50,000,000 byte (47.68 MB).
+- terrain_50km_preview.png:
+  Anteprima ad alta leggibilità con rilievo ombreggiato (hillshade) e tinteggiometria ipsometrica.
+- terrain_50km_info.txt:
+  Questo documento di riepilogo e configurazione.
+
+7. IMPOSTAZIONI PER L'IMPORTAZIONE IN WORLD MACHINE
+---------------------------------------------------
+Nel nodo "File Input" di World Machine configurare come segue:
+1. File: selezionare "terrain_50km_worldmachine.r16"
+2. Format:
+   - Type: RAW 16-bit
+   - Signed/Unsigned: Unsigned (0..65535)
+   - Byte Order: Little Endian (Intel / x86 PC standard)
+3. Dimensions:
+   - Width:  5000
+   - Height: 5000
+4. Extents / Placement (Terrain Sizes):
+   - Real-world size: 50 km × 50 km (50000 m × 50000 m)
+5. Altitude / Elevation Scaling:
+   - Minimum Altitude: 11.36 m
+   - Maximum Altitude: 3452.75 m
+   (Oppure impostare Elevation Scale = 3441.39 m e Offset = 11.36 m).
+   In questo modo World Machine mapperà il valore uint16 0 a 11.36 m
+   e 65535 a 3452.75 m, ripristinando al millimetro le quote reali del terreno.
+6. Orientamento assi:
+   - Il file è memorizzato top-down (riga 0 = Nord / Y_max, riga 4999 = Sud / Y_min).
+   - In World Machine, lasciare "Flip Y" deselezionato (o verificare l'anteprima se il nord è in alto).
+================================================================================

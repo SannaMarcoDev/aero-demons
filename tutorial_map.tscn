@@ -1,66 +1,17 @@
 [gd_scene format=3 uid="uid://fhmax6bwhmpg"]
 
-[ext_resource type="Terrain3DAssets" uid="uid://bt6akb7jg1cut" path="res://wc_data/WC_Terrain/wc_terrain_assets.tres" id="1_assets"]
-[ext_resource type="Script" uid="uid://bndntls4cn4a1" path="res://scripts/free_fly_camera.gd" id="2_camera"]
 [ext_resource type="Script" uid="uid://deo0gxkmk2ahd" path="res://addons/sky_3d/src/Sky3D.gd" id="8_sky3d"]
 [ext_resource type="Script" uid="uid://cjmkcj8hwm7ts" path="res://addons/sky_3d/src/TimeOfDay.gd" id="9_tod"]
 [ext_resource type="Script" uid="uid://b4tkplvh7fq40" path="res://addons/sky_3d/src/SkyDome.gd" id="10_dome"]
 [ext_resource type="Shader" uid="uid://cvd0x7lon1ur6" path="res://addons/sky_3d/shaders/SkyMaterial.gdshader" id="11_skyshader"]
 [ext_resource type="Texture2D" uid="uid://c1vwcdcdvb74a" path="res://addons/sky_3d/assets/thirdparty/textures/milkyway/Milkyway.jpg" id="12_milkyway"]
 [ext_resource type="Texture2D" uid="uid://cecwdqjol0ckd" path="res://addons/sky_3d/assets/textures/noiseClouds.png" id="13_clouds"]
-[ext_resource type="PackedScene" path="res://assets/models/military_buildings/military_hq_building.tscn" id="13_f6uhs"]
-[ext_resource type="PackedScene" path="res://assets/models/military_buildings/military_control_building.tscn" id="14_e06hu"]
 [ext_resource type="Texture2D" uid="uid://cfqk60lpl5ljv" path="res://addons/sky_3d/assets/resources/SNoise.tres" id="14_snoise"]
 [ext_resource type="Texture2D" uid="uid://2r8ylu6rg5dp" path="res://addons/sky_3d/assets/thirdparty/textures/moon/MoonMap.png" id="15_moon"]
 [ext_resource type="Texture2D" uid="uid://djpfuyxkryegn" path="res://addons/sky_3d/assets/textures/noise.jpg" id="16_noise"]
 [ext_resource type="Texture2D" uid="uid://bm7dot7t7u1q4" path="res://addons/sky_3d/assets/thirdparty/textures/milkyway/StarField.jpg" id="17_stars"]
-[ext_resource type="PackedScene" uid="uid://dgqm8ooyeb3c6" path="res://scenes/player/player.tscn" id="18_player"]
-[ext_resource type="Script" uid="uid://bog5ubwi3cc2q" path="res://scripts/camera/follow_camera.gd" id="19_follow_camera"]
-[ext_resource type="PackedScene" path="res://scenes/ui/combat_hud.tscn" id="20_combat_hud"]
 [ext_resource type="CompositorEffect" path="res://resources/tutorial_clouds.tres" id="21_sunshine"]
 [ext_resource type="Script" uid="uid://djusduuxf0voj" path="res://addons/SunshineClouds2/SunshineCloudsDriver.gd" id="22_clouds_driver"]
-
-[sub_resource type="Gradient" id="Gradient_tbd6r"]
-offsets = PackedFloat32Array(0.2, 1)
-colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
-
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_21h0u"]
-noise_type = 2
-frequency = 0.03
-cellular_jitter = 3.0
-cellular_return_type = 0
-domain_warp_enabled = true
-domain_warp_type = 1
-domain_warp_amplitude = 50.0
-domain_warp_fractal_type = 2
-domain_warp_fractal_lacunarity = 1.5
-domain_warp_fractal_gain = 1.0
-
-[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_2811o"]
-noise = SubResource("FastNoiseLite_21h0u")
-color_ramp = SubResource("Gradient_tbd6r")
-seamless = true
-
-[sub_resource type="Terrain3DMaterial" id="Terrain3DMaterial_t0na0"]
-_shader_parameters = {
-&"bias_distance": 512.0,
-&"blend_sharpness": 0.25,
-&"depth_blur": 0.0,
-&"enable_macro_variation": true,
-&"enable_projection": true,
-&"flat_terrain_normals": false,
-&"macro_variation1": Color(1.06, 0.98, 0.92, 1),
-&"macro_variation2": Color(0.96, 0.9, 0.85, 1),
-&"macro_variation_slope": 0.3,
-&"mipmap_bias": 1.0,
-&"noise1_angle": 0.0,
-&"noise1_offset": Vector2(0.5, 0.5),
-&"noise1_scale": 0.04,
-&"noise2_scale": 0.08,
-&"noise_texture": SubResource("NoiseTexture2D_2811o"),
-&"projection_threshold": 0.8
-}
-world_background = 0
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
 shader = ExtResource("11_skyshader")
@@ -157,13 +108,6 @@ compositor_effects = Array[CompositorEffect]([ExtResource("21_sunshine")])
 
 [node name="Node3D" type="Node3D" unique_id=6357966]
 
-[node name="WC_Terrain" type="Terrain3D" parent="." unique_id=1129375997]
-data_directory = "res://wc_data/WC_Terrain"
-material = SubResource("Terrain3DMaterial_t0na0")
-assets = ExtResource("1_assets")
-top_level = true
-metadata/_edit_lock_ = true
-
 [node name="Sky3D" type="WorldEnvironment" parent="." unique_id=424323690]
 environment = SubResource("Environment_sky3d")
 camera_attributes = SubResource("CameraAttributes_sky3d")
@@ -232,40 +176,3 @@ extra_large_structures_wind_speed = 90.0
 large_structures_wind_speed = 65.0
 medium_structures_wind_speed = 30.0
 small_structures_wind_speed = 10.0
-
-[node name="FreeFlyCamera" type="Camera3D" parent="." unique_id=2135625243]
-process_mode = 4
-transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 350, 200)
-fov = 65.0
-near = 0.1
-far = 10000.0
-script = ExtResource("2_camera")
-mouse_look_enabled = false
-
-[node name="MilitaryHQBuilding" parent="." unique_id=2053333478 instance=ExtResource("13_f6uhs")]
-transform = Transform3D(-0.7105468, 0, 0.70364994, 0, 1, 0, -0.70364994, 0, -0.7105468, 186.16269, 102.1, -2183.0554)
-
-[node name="MilitaryControlBuilding" parent="." unique_id=812115437 instance=ExtResource("14_e06hu")]
-transform = Transform3D(-0.7071068, 0, 0.7071067, 0, 1, 0, -0.7071067, 0, -0.7071068, 179.47443, 102.100006, -2193.3542)
-
-[node name="MilitaryControlBuilding2" parent="." unique_id=97611219 instance=ExtResource("14_e06hu")]
-transform = Transform3D(-0.7071068, 0, 0.7071067, 0, 1, 0, -0.7071067, 0, -0.7071068, 173.47443, 102.100006, -2199.3542)
-
-[node name="Player" parent="." unique_id=1819236382 instance=ExtResource("18_player")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 180, 350, -2100)
-min_altitude = 190.0
-max_altitude = 15000.0
-
-[node name="FlightCamera" type="Camera3D" parent="." unique_id=1671772194]
-physics_interpolation_mode = 1
-current = true
-fov = 70.0
-near = 1.0
-far = 100000.0
-script = ExtResource("19_follow_camera")
-
-[node name="CombatHUD" parent="." unique_id=1158908085 instance=ExtResource("20_combat_hud")]
-player_path = NodePath("../Player")
-camera_path = NodePath("../FlightCamera")
-targeting_path = NodePath("../Player/TargetLock")
-weapons_path = NodePath("../Player/WeaponController")

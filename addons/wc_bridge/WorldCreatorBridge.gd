@@ -82,6 +82,8 @@ func _ready():
 	world_scale_spinbox.value = 1
 	height_scale_spinbox.value = 1
 	vertex_spacing_spinbox.value = 1
+	if FileAccess.file_exists(defaultXmlPath):
+		_on_auto_vertex_spacing_pressed()
 
 func _show_error_message():
 	# Hide all controls
@@ -101,6 +103,7 @@ func show_file_dialog():
 	
 func _on_xml_selected(path: String):
 	path_line_edit.text = path
+	_on_auto_vertex_spacing_pressed()
 
 func _on_auto_vertex_spacing_pressed():
 	var xml_path = path_line_edit.text
@@ -161,7 +164,7 @@ func _on_sync_terrain_button_pressed() -> void:
 	var resource_dir = "res://wc_data/%s" % terrain_name
 	_create_resource_directory(resource_dir)
 
-	_import_heightmap_tiles(xml_path, metadata, terrain_name, resource_dir, vertex_spacing, world_scale, height_scale, enable_triplanar_projection)
+	await _import_heightmap_tiles(xml_path, metadata, terrain_name, resource_dir, vertex_spacing, world_scale, height_scale, enable_triplanar_projection)
 
 	print("=== IMPORT COMPLETE ===\n")
 
@@ -983,6 +986,13 @@ func _import_heightmap_tiles(xml_path: String, data: Dictionary, terrain_name: S
 		push_error("Cannot create node: No scene is currently open.")
 		return
 	
+	# Clean up any existing region files from previous syncs to avoid mixing region sizes
+	var res_dir_access := DirAccess.open(resource_dir)
+	if res_dir_access:
+		for file in res_dir_access.get_files():
+			if file.begins_with("terrain3d") and file.ends_with(".res"):
+				DirAccess.remove_absolute(ProjectSettings.globalize_path(resource_dir.path_join(file)))
+
 	# Check if terrain already exists and replace it
 	var existing_terrain = scene_root.find_child(terrain_name, false, false)
 	if existing_terrain and existing_terrain is Terrain3D:
@@ -992,10 +1002,28 @@ func _import_heightmap_tiles(xml_path: String, data: Dictionary, terrain_name: S
 	# Create and add Terrain3D node
 	var terrain_node = Terrain3D.new()
 	terrain_node.name = terrain_name
-	scene_root.add_child(terrain_node)
-	terrain_node.owner = scene_root
 	terrain_node.vertex_spacing = vertex_spacing
 	
+	# Configure material settings - set world background to none (value 0)
+	var material = terrain_node.material
+	if not material:
+		material = Terrain3DMaterial.new()
+		terrain_node.material = material
+	material.set_world_background(0)  # 0 = None/Disabled
+
+	var shader_params = material.get("_shader_parameters")
+	if typeof(shader_params) != TYPE_DICTIONARY:
+		shader_params = {}
+	shader_params["blend_sharpness"] = 0.0
+	shader_params["enable_projection"] = enable_triplanar_projection
+	material.set("_shader_parameters", shader_params)
+
+	scene_root.add_child(terrain_node)
+	terrain_node.owner = scene_root
+
+	# Wait a frame for Terrain3D to initialize internal data in the scene tree
+	await get_tree().process_frame
+
 	# Calculate required region_size based on terrain extent
 	# Terrain3D has a 32×32 region grid (16 regions in each direction from center)
 	# max_extent = 16 * region_size * vertex_spacing
@@ -1012,35 +1040,13 @@ func _import_heightmap_tiles(xml_path: String, data: Dictionary, terrain_name: S
 	if min_region_size > 1024:
 		region_size = 2048
 	
-	terrain_node.region_size = region_size
-	
-	# Set storage directory for Terrain3D data
+	terrain_node.change_region_size(region_size)
 	terrain_node.data_directory = resource_dir
-	
-	# Configure material settings - set world background to none (value 0)
-	var material = terrain_node.material
-	if material:
-		material.set_world_background(0)  # 0 = None/Disabled
 
-		# Terrain3DMaterial has no typed setter for arbitrary shader uniforms. Its UI uses
-		# RenderingServer.material_set_param() for runtime updates, but those don't survive
-		# a scene save. The persistent storage is the _shader_parameters dict on the
-		# resource itself, so we update both: dict for persistence, RenderingServer for
-		# immediate visual effect.
-		#
-		# blend_sharpness=0 drops the height-blend exponent from x^36 to x^8 — much softer
-		# transitions, suitable for WC's pre-blended splatmaps with no real height channels.
-		var shader_params = material.get("_shader_parameters")
-		if typeof(shader_params) != TYPE_DICTIONARY:
-			shader_params = {}
-		shader_params["blend_sharpness"] = 0.0
-		shader_params["enable_projection"] = enable_triplanar_projection
-		material.set("_shader_parameters", shader_params)
-
-		var mat_rid: RID = material.get_material_rid()
-		if mat_rid.is_valid():
-			RenderingServer.material_set_param(mat_rid, "blend_sharpness", 0.0)
-			RenderingServer.material_set_param(mat_rid, "enable_projection", enable_triplanar_projection)
+	var mat_rid: RID = material.get_material_rid()
+	if mat_rid.is_valid():
+		RenderingServer.material_set_param(mat_rid, "blend_sharpness", 0.0)
+		RenderingServer.material_set_param(mat_rid, "enable_projection", enable_triplanar_projection)
 	
 	# Apply textures before importing heightmaps
 	_apply_textures(terrain_node, data, heightmap_path, resource_dir)
