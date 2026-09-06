@@ -1,5 +1,6 @@
 [gd_scene format=3 uid="uid://fhmax6bwhmpg"]
 
+[ext_resource type="Terrain3DAssets" uid="uid://bt6akb7jg1cut" path="res://wc_data/WC_Terrain/wc_terrain_assets.tres" id="1_assets"]
 [ext_resource type="Script" uid="uid://deo0gxkmk2ahd" path="res://addons/sky_3d/src/Sky3D.gd" id="8_sky3d"]
 [ext_resource type="Script" uid="uid://cjmkcj8hwm7ts" path="res://addons/sky_3d/src/TimeOfDay.gd" id="9_tod"]
 [ext_resource type="Script" uid="uid://b4tkplvh7fq40" path="res://addons/sky_3d/src/SkyDome.gd" id="10_dome"]
@@ -10,7 +11,7 @@
 [ext_resource type="Texture2D" uid="uid://2r8ylu6rg5dp" path="res://addons/sky_3d/assets/thirdparty/textures/moon/MoonMap.png" id="15_moon"]
 [ext_resource type="Texture2D" uid="uid://djpfuyxkryegn" path="res://addons/sky_3d/assets/textures/noise.jpg" id="16_noise"]
 [ext_resource type="Texture2D" uid="uid://bm7dot7t7u1q4" path="res://addons/sky_3d/assets/thirdparty/textures/milkyway/StarField.jpg" id="17_stars"]
-[ext_resource type="CompositorEffect" path="res://resources/tutorial_clouds.tres" id="21_sunshine"]
+[ext_resource type="CompositorEffect" uid="uid://dnuaohkyn5spa" path="res://resources/tutorial_clouds.tres" id="21_sunshine"]
 [ext_resource type="Script" uid="uid://djusduuxf0voj" path="res://addons/SunshineClouds2/SunshineCloudsDriver.gd" id="22_clouds_driver"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
@@ -106,6 +107,48 @@ tonemap_white = 6.0
 [sub_resource type="Compositor" id="Compositor_clouds"]
 compositor_effects = Array[CompositorEffect]([ExtResource("21_sunshine")])
 
+[sub_resource type="Gradient" id="Gradient_ana4h"]
+offsets = PackedFloat32Array(0.2, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_f6uhs"]
+noise_type = 2
+frequency = 0.03
+cellular_jitter = 3.0
+cellular_return_type = 0
+domain_warp_enabled = true
+domain_warp_type = 1
+domain_warp_amplitude = 50.0
+domain_warp_fractal_type = 2
+domain_warp_fractal_lacunarity = 1.5
+domain_warp_fractal_gain = 1.0
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_e06hu"]
+noise = SubResource("FastNoiseLite_f6uhs")
+color_ramp = SubResource("Gradient_ana4h")
+seamless = true
+
+[sub_resource type="Terrain3DMaterial" id="Terrain3DMaterial_vdhxu"]
+_shader_parameters = {
+&"bias_distance": null,
+"blend_sharpness": 0.0,
+&"depth_blur": null,
+&"enable_macro_variation": null,
+"enable_projection": false,
+&"flat_terrain_normals": null,
+&"macro_variation1": null,
+&"macro_variation2": null,
+&"macro_variation_slope": null,
+&"mipmap_bias": null,
+&"noise1_angle": null,
+&"noise1_offset": null,
+&"noise1_scale": null,
+&"noise2_scale": null,
+&"noise_texture": SubResource("NoiseTexture2D_e06hu"),
+&"projection_threshold": null
+}
+world_background = 0
+
 [node name="Node3D" type="Node3D" unique_id=6357966]
 
 [node name="Sky3D" type="WorldEnvironment" parent="." unique_id=424323690]
@@ -176,3 +219,11 @@ extra_large_structures_wind_speed = 90.0
 large_structures_wind_speed = 65.0
 medium_structures_wind_speed = 30.0
 small_structures_wind_speed = 10.0
+
+[node name="WC_Terrain" type="Terrain3D" parent="." unique_id=1376324988]
+data_directory = "res://wc_data/WC_Terrain"
+material = SubResource("Terrain3DMaterial_vdhxu")
+assets = ExtResource("1_assets")
+vertex_spacing = 4.0
+top_level = true
+metadata/_edit_lock_ = true

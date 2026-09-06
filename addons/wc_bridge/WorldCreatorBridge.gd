@@ -348,6 +348,10 @@ func _on_sync_objects_pressed() -> void:
 		for o in detail_objs:
 			detail_placed += _place_detail_object(o, base_dir, terrain_node, metadata, world_scale, height_scale, objects_dir, mesh_id)
 			mesh_id += 1
+		if terrain_node.assets and terrain_node.data_directory:
+			var assets_path = terrain_node.data_directory.path_join("wc_terrain_assets.tres")
+			ResourceSaver.save(terrain_node.assets, assets_path)
+			terrain_node.assets = load(assets_path)
 
 	print("=== Sync Objects complete: %d scene-object instance(s), %d biome + %d detail instance(s) ===" % [scene_placed, biome_placed, detail_placed])
 
@@ -422,7 +426,11 @@ func _place_biome_object(obj: Dictionary, base_dir: String, terrain_node, metada
 
 	# Register the model as a mesh asset in the terrain's asset list.
 	if terrain_node.assets == null:
-		terrain_node.assets = Terrain3DAssets.new()
+		var assets_path = terrain_node.data_directory.path_join("wc_terrain_assets.tres") if terrain_node.data_directory else ""
+		if assets_path != "" and ResourceLoader.exists(assets_path):
+			terrain_node.assets = load(assets_path)
+		else:
+			terrain_node.assets = Terrain3DAssets.new()
 	var asset := Terrain3DMeshAsset.new()
 	asset.set_id(mesh_id)
 	asset.set_name(obj.name)
@@ -500,7 +508,11 @@ func _place_detail_object(obj: Dictionary, base_dir: String, terrain_node, metad
 		return 0
 
 	if terrain_node.assets == null:
-		terrain_node.assets = Terrain3DAssets.new()
+		var assets_path = terrain_node.data_directory.path_join("wc_terrain_assets.tres") if terrain_node.data_directory else ""
+		if assets_path != "" and ResourceLoader.exists(assets_path):
+			terrain_node.assets = load(assets_path)
+		else:
+			terrain_node.assets = Terrain3DAssets.new()
 	var asset := Terrain3DMeshAsset.new()
 	asset.set_id(mesh_id)
 	asset.set_name(obj.name)
@@ -1342,10 +1354,16 @@ func _apply_textures(terrain_node: Terrain3D, data: Dictionary, base_path: Strin
 	print("Applying %d texture(s)..." % data.textures.size())
 	
 	# Get or create the assets
+	var assets_path = resource_dir.path_join("wc_terrain_assets.tres")
 	var assets = terrain_node.assets
+	if not assets and ResourceLoader.exists(assets_path):
+		assets = load(assets_path)
 	if not assets:
 		assets = Terrain3DAssets.new()
-		terrain_node.assets = assets
+	terrain_node.assets = assets
+
+	var textures_dir = "res://wc_data/textures"
+	_create_resource_directory(textures_dir)
 	
 	# First pass: determine the smallest texture size and load all textures
 	var min_size = 99999
@@ -1453,17 +1471,34 @@ func _apply_textures(terrain_node: Terrain3D, data: Dictionary, base_path: Strin
 			# Convert smoothness to roughness
 			var roughness = 1.0 - tex_info.smoothness
 			
-			# Create packed albedo texture: RGB = white albedo, A = flat height (0.5)
-			var albedo_packed = Image.create(min_size, min_size, false, Image.FORMAT_RGBA8)
+			# Create 16x16 packed textures for color-only
+			var albedo_packed = Image.create(16, 16, false, Image.FORMAT_RGBA8)
 			albedo_packed.fill(Color(1.0, 1.0, 1.0, 0.5))  # White with mid-height
 			albedo_packed.generate_mipmaps()
-			var albedo_texture = ImageTexture.create_from_image(albedo_packed)
 			
-			# Create packed normal texture: RGB = flat normal (0.5, 0.5, 1.0), A = roughness
-			var normal_packed = Image.create(min_size, min_size, false, Image.FORMAT_RGBA8)
+			var normal_packed = Image.create(16, 16, false, Image.FORMAT_RGBA8)
 			normal_packed.fill(Color(0.5, 0.5, 1.0, roughness))  # Flat normal + roughness
 			normal_packed.generate_mipmaps()
-			var normal_texture = ImageTexture.create_from_image(normal_packed)
+
+			var col_name: String = tex_info.name.validate_filename()
+			var col_albedo_path = textures_dir.path_join("color_%s_albedo_packed.png" % col_name)
+			var col_normal_path = textures_dir.path_join("color_%s_normal_packed.png" % col_name)
+			albedo_packed.save_png(ProjectSettings.globalize_path(col_albedo_path))
+			normal_packed.save_png(ProjectSettings.globalize_path(col_normal_path))
+
+			var albedo_texture: Texture2D = null
+			if ResourceLoader.exists(col_albedo_path):
+				albedo_texture = load(col_albedo_path)
+			if not albedo_texture:
+				albedo_texture = ImageTexture.create_from_image(albedo_packed)
+				albedo_texture.take_over_path(col_albedo_path)
+
+			var normal_texture: Texture2D = null
+			if ResourceLoader.exists(col_normal_path):
+				normal_texture = load(col_normal_path)
+			if not normal_texture:
+				normal_texture = ImageTexture.create_from_image(normal_packed)
+				normal_texture.take_over_path(col_normal_path)
 			
 			# Create a texture asset with color tint
 			var texture_asset = Terrain3DTextureAsset.new()
@@ -1557,9 +1592,9 @@ func _apply_textures(terrain_node: Terrain3D, data: Dictionary, base_path: Strin
 		var normal_packed = Image.create_from_data(min_size, min_size, false, Image.FORMAT_RGBA8, packed_normal_data)
 		normal_packed.generate_mipmaps()
 		
-		# Save packed textures to resource directory
-		var albedo_dest_path = resource_dir.path_join(tex_info_data.albedo_file.get_basename() + "_packed.png")
-		var normal_dest_path = resource_dir.path_join(tex_info_data.albedo_file.get_basename() + "_normal_packed.png")
+		# Save packed textures to textures directory
+		var albedo_dest_path = textures_dir.path_join(tex_info_data.albedo_file.get_basename() + "_packed.png")
+		var normal_dest_path = textures_dir.path_join(tex_info_data.albedo_file.get_basename() + "_normal_packed.png")
 		
 		var albedo_dest_global = ProjectSettings.globalize_path(albedo_dest_path)
 		var normal_dest_global = ProjectSettings.globalize_path(normal_dest_path)
@@ -1576,9 +1611,20 @@ func _apply_textures(terrain_node: Terrain3D, data: Dictionary, base_path: Strin
 				push_error("Failed to save packed normal texture: %s (Error: %d)" % [tex_info_data.albedo_file, err])
 				continue
 		
-		# Create textures from packed images
-		var albedo_texture = ImageTexture.create_from_image(albedo_packed)
-		var normal_texture = ImageTexture.create_from_image(normal_packed)
+		# Create textures from packed images and ensure resource_path is set
+		var albedo_texture: Texture2D = null
+		if ResourceLoader.exists(albedo_dest_path):
+			albedo_texture = load(albedo_dest_path)
+		if not albedo_texture:
+			albedo_texture = ImageTexture.create_from_image(albedo_packed)
+			albedo_texture.take_over_path(albedo_dest_path)
+
+		var normal_texture: Texture2D = null
+		if ResourceLoader.exists(normal_dest_path):
+			normal_texture = load(normal_dest_path)
+		if not normal_texture:
+			normal_texture = ImageTexture.create_from_image(normal_packed)
+			normal_texture.take_over_path(normal_dest_path)
 		
 		# Parse tile size (format is "1500,1500")
 		# In WC: tile_size = how many meters one texture tile covers
@@ -1618,3 +1664,16 @@ func _apply_textures(terrain_node: Terrain3D, data: Dictionary, base_path: Strin
 		print("    [%d/%d] %s (packed, uv_scale: %.4f)" % [i + 1, data.textures.size(), tex_info_data.name, uv_scale])
 	
 	print("  Applied %d texture(s) with channel packing" % assets.get_texture_count())
+
+	# Save assets as external resource and assign back to terrain_node
+	var err = ResourceSaver.save(assets, assets_path)
+	if err == OK:
+		terrain_node.assets = load(assets_path)
+		print("  Saved terrain assets to: %s" % assets_path)
+	else:
+		push_error("Failed to save terrain assets to %s (Error: %d)" % [assets_path, err])
+
+	if Engine.has_singleton("EditorInterface"):
+		var efs = Engine.get_singleton("EditorInterface").get_resource_filesystem()
+		if efs:
+			efs.scan()
