@@ -17,6 +17,8 @@
 [ext_resource type="PackedScene" uid="uid://dgqm8ooyeb3c6" path="res://scenes/player/player.tscn" id="18_player"]
 [ext_resource type="Script" uid="uid://bog5ubwi3cc2q" path="res://scripts/camera/follow_camera.gd" id="19_follow_camera"]
 [ext_resource type="PackedScene" path="res://scenes/ui/combat_hud.tscn" id="20_combat_hud"]
+[ext_resource type="CompositorEffect" path="res://resources/tutorial_clouds.tres" id="21_sunshine"]
+[ext_resource type="Script" uid="uid://djusduuxf0voj" path="res://addons/SunshineClouds2/SunshineCloudsDriver.gd" id="22_clouds_driver"]
 
 [sub_resource type="Gradient" id="Gradient_tbd6r"]
 offsets = PackedFloat32Array(0.2, 1)
@@ -150,6 +152,9 @@ tonemap_white = 6.0
 
 [sub_resource type="CameraAttributesPractical" id="CameraAttributes_sky3d"]
 
+[sub_resource type="Compositor" id="Compositor_clouds"]
+compositor_effects = Array[CompositorEffect]([ExtResource("21_sunshine")])
+
 [node name="Node3D" type="Node3D" unique_id=6357966]
 
 [node name="WC_Terrain" type="Terrain3D" parent="." unique_id=1129375997]
@@ -162,6 +167,7 @@ metadata/_edit_lock_ = true
 [node name="Sky3D" type="WorldEnvironment" parent="." unique_id=424323690]
 environment = SubResource("Environment_sky3d")
 camera_attributes = SubResource("CameraAttributes_sky3d")
+compositor = SubResource("Compositor_clouds")
 script = ExtResource("8_sky3d")
 clouds_enabled = false
 fog_enabled = false
@@ -214,10 +220,22 @@ current_time = 7.82
 day = 15
 month = 7
 
+[node name="SunshineCloudsDriverGD" type="Node" parent="." unique_id=63502817 node_paths=PackedStringArray("tracked_directional_lights")]
+script = ExtResource("22_clouds_driver")
+update_continuously = true
+clouds_resource = ExtResource("21_sunshine")
+ambience_sample_environment = SubResource("Environment_sky3d")
+tracked_directional_lights = [NodePath("../Sky3D/SunLight")]
+tracked_directional_light_shadow_steps = Array[int]([32])
+wind_direction = Vector3(1.4, 0, 0.55)
+extra_large_structures_wind_speed = 90.0
+large_structures_wind_speed = 65.0
+medium_structures_wind_speed = 30.0
+small_structures_wind_speed = 10.0
+
 [node name="FreeFlyCamera" type="Camera3D" parent="." unique_id=2135625243]
 process_mode = 4
 transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 350, 200)
-current = false
 fov = 65.0
 near = 0.1
 far = 10000.0
@@ -246,7 +264,7 @@ near = 1.0
 far = 100000.0
 script = ExtResource("19_follow_camera")
 
-[node name="CombatHUD" parent="." instance=ExtResource("20_combat_hud")]
+[node name="CombatHUD" parent="." unique_id=1158908085 instance=ExtResource("20_combat_hud")]
 player_path = NodePath("../Player")
 camera_path = NodePath("../FlightCamera")
 targeting_path = NodePath("../Player/TargetLock")
