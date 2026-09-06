@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c6ee7h0a58xlo"
-path="res://.godot/imported/ProceduralGenerator_setup.png-490814624fb303b0de944e6a620f05dc.ctex"
+uid="uid://b4q1uptokxoal"
+path="res://.godot/imported/RoadActor_setup.png-38476fc48fcae1eca22b2ff908e08914.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://road_demos/procedural_generator/ProceduralGenerator_setup.png"
-dest_files=["res://.godot/imported/ProceduralGenerator_setup.png-490814624fb303b0de944e6a620f05dc.ctex"]
+source_file="res://demo/road_demos/demo_resources/actors/RoadActor_setup.png"
+dest_files=["res://.godot/imported/RoadActor_setup.png-38476fc48fcae1eca22b2ff908e08914.ctex"]
 
 [params]
 
