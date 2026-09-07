@@ -4,7 +4,7 @@
 
 Richiesta: osservare la tutorial map da diverse angolazioni, anche sopra le nuvole, e individuare le migliorie ambientali necessarie per avvicinarla a una mappa finita di qualità AAA.
 
-È stato creato e provato `tools/tutorial_survey.gd`. Dopo la review iniziale sono state abilitate le mipmap e tarata l'atmosfera SunshineClouds; sotto sono riportati interventi, confronti e limiti. Sfarfallio rinviato su richiesta dell'utente; prossimo intervento: nuvole viste da sopra.
+È stato creato e provato `tools/tutorial_survey.gd`. Dopo la review iniziale sono state abilitate le mipmap e tarata l'atmosfera SunshineClouds; sotto sono riportati interventi, confronti e limiti. Stato finale: dithering nuvole approvato e FSR2 nativo scelto come default dopo confronto visivo e benchmark. Confini e landmark rinviati. Le sezioni datate sotto conservano la cronologia, non sostituiscono questo stato.
 
 **Conclusione:** non manca soltanto arredamento. Prima va sistemata la leggibilità di materiali, atmosfera e nuvole; poi si aggiungono landmark e dettagli ambientali.
 
@@ -204,7 +204,7 @@ Esaminate le quattro coppie `01_spawn` / `06_above_clouds`. Nel preset salvato r
 
 Verifiche: survey finali senza `ERROR`; check headless verifica energia compositor 0,7, sole terreno 2 e otto viste; percorso grafico `--flight` completo (salita, attraversamento, quota e discesa) terminato con `PASS`, senza `ERROR`. Il percorso è uno smoke test runtime, non una certificazione percettiva continua né una misura di prestazioni. Check dei preset diagnostici superati e `git diff --check` pulito; persistono warning di deprecazione e RID all'uscita.
 
-Per confronto ripetibile: `--cloud-original-sun` ripristina a runtime il vecchio moltiplicatore 1; `--cloud-dim-sun` resta la prova 0,25. Senza opzioni viene usato 0,35, anche in freeroam. I due override sono mutuamente esclusivi e funzionano con `--flight`/`--check`.
+Per confronto ripetibile: `--cloud-original-sun` ripristina a runtime il vecchio moltiplicatore 1; `--cloud-dim-sun` resta la prova 0,25. La prova iniziale usava 0,35; il valore finale scelto dall'utente e salvato è **0,3**, anche in freeroam. I due override sono mutuamente esclusivi e funzionano con `--flight`/`--check`.
 
 **Restano aperti:** fascia scura all'orizzonte e reticolo nell'attraversamento, non corretti dalla taratura luminosa. Prossimo passo: isolare la fascia fra cielo, atmosfera e compositing, senza ritoccare nuovamente il terreno. La resa del nuovo compromesso va approvata dall'utente in freeroam.
 
@@ -221,6 +221,18 @@ Confronto esteso: quattro direzioni (nord, est, sud, ovest), da `(0,7800,0)` e `
 **Risultato: miglioramento parziale.** A 7.800 m la fascia scura non è più evidente nelle quattro direzioni; a 12.000 m rimane, pur più sottile. Un offset fisso non copre qualsiasi quota. Non dichiarare il difetto risolto globalmente e non aumentare alla cieca l'offset senza verificare la resa dal basso.
 
 Survey ordinario con impostazione salvata: `2026-09-07T19-04-46`, otto viste; spawn esaminato, terreno ancora leggibile. Volo grafico completo fino a 7.800 m e ritorno terminato con PASS, senza ERROR; è uno smoke test runtime, non una certificazione visiva continua. Check headless superato, energia 0,6 confermata, `git diff --check` pulito. Restano warning di deprecazione e rilascio RID. La prova è disponibile riavviando freeroam; per tornare indietro impostare Horizon Offset a 0 nel nodo e nel materiale cielo.
+
+### Prima prova applicata — dithering alla scala dei pixel (7 settembre 2026)
+
+In `addons/SunshineClouds2/SunshineCloudsCompute.glsl`, sostituito il tiling UV normalizzato ×40,037 con `(vec2(uv) + 0.5) / vec2(textureSize(dither_small, 0).xy)`: un texel della texture blue-noise per pixel del raymarch. La texture continua a ripetersi alla propria dimensione nativa, ma non viene più ricampionata alla scala dello schermo. Invariati sequenza temporale, sampler nearest, risoluzione Half, accumulo 0,7, passi, blur, luce 0,3 e offset orizzonte −0,02. Nessun nuovo campione o pass.
+
+La diagnosi precedente aveva riprodotto la trama a 4.000 m: Native, passi dimezzati con budget raddoppiato e più blur non la eliminavano. Dither costante eliminava il reticolo ma introduceva fasce nette; accumulo 0,9 migliorava da fermo senza risolvere il movimento. Baseline statica: `2026-09-07T19-32-55`; nuova prova: `2026-09-07T21-29-32`, tre quote 2.500/4.000/5.700 m, esaminata in particolare `02_north` a 4.000 m.
+
+**Esito promettente, non definitivo:** nei campioni del movimento la trama regolare e le strisce della baseline sono molto meno evidenti; resta grana fine. Non sono comparse le grosse fasce della prova con dither costante. Due registrazioni a fixed-fps 30 e 60, con salita da 2.500 a 5.500 m in 10 secondi e avanzamento 120 m/s, terminate con PASS senza ERROR. Confrontati fogli da sei fotogrammi a partire da 7 s dei video (incluso preriscaldamento di 3 s). Non è una misura degli FPS reali né una verifica percettiva di tutti i fotogrammi.
+
+Script diagnostici, baseline video 30 FPS e nuovi video/fogli di confronto sono conservati localmente in `user://tutorial_survey/grid-sampling-review/`: `grid-base.gd`, `grid-motion-base.gd`, `grid-motion-base.avi/.png`, `grid-pixel-30.avi/.png`, `grid-pixel-60.avi/.png`. Per ripetere il probe usare `Godot --path . --script <percorso-assoluto>/grid-motion-base.gd --fixed-fps 30 --write-movie <output>.avi -- --flight`; lo script usa lo shader corrente, non incorpora quello baseline.
+
+Survey ordinario `2026-09-07T21-32-52` completato senza ERROR, esaminate spawn e vista sopra le nuvole; nessuna regressione evidente in quelle viste. L'import editor ha invece segnalato errori Terrain3D (copia DLL), risorse strada mancanti e rilascio RID: non dichiarare l'import globale pulito. Le esecuzioni grafiche successive del survey e dei probe sono riuscite. `git diff --check` pulito. Da far approvare in freeroam prima di aggiungere correzioni temporali o aumentare la qualità.
 
 ### Sfarfallio a media distanza — confronto mirato (7 settembre 2026)
 
@@ -261,7 +273,7 @@ Le opzioni sono override runtime nel survey; non salvano le risorse. Documentazi
 
 **Stato: rinviato su richiesta dell'utente, non risolto.** Nel confronto manuale in freeroam l'utente giudica TAA l'unica modalità attualmente decente; baseline non accettabile e mipmap morbide peggiorative. Questo feedback in movimento prevale sulle valutazioni precedenti dei soli frame. Non è stato chiesto di abilitare TAA permanentemente: il toggle F6 resta diagnostico e la configurazione di avvio non cambia.
 
-Alternative documentate ma **non implementate né provate nel progetto**:
+Alternative inizialmente documentate, ora disponibili nel confronto F6 descritto sotto:
 
 - SSAA con scala 3D bilineare 1,25 e 1,5: prima alternativa da confrontare con TAA, senza accumulo temporale. A 1,5 si renderizzano 2,25 volte i pixel, non necessariamente 2,25 volte il tempo GPU. Verificare prima la ricreazione dei buffer con SunshineClouds attivo; il precedente crash MSAA impone un test grafico reale prima di esporre nuovi toggle.
 - FSR2 a risoluzione nativa: diversa ricostruzione temporale, non elimina per principio blur/ghosting. Compatibilità e resa con le nuvole da verificare.
@@ -270,13 +282,55 @@ Alternative documentate ma **non implementate né provate nel progetto**:
 
 Fonte per SSAA/scaling: [Godot 4.7 — antialiasing](https://docs.godotengine.org/en/4.7/tutorials/3d/3d_antialiasing.html). Alla ripresa confrontare in movimento nitidezza vicina, scintillio intermedio, scie e frame time; non aggiungere foschia per nascondere il problema.
 
-**Prossimo problema attivo della review: P1 — nuvole viste da sopra.** Ripartire dalla prova `--cloud-dim-sun`: recupera rilievo ma modifica anche l'atmosfera. Tarare prima la luce inviata al compositor confrontando sopra e sotto lo strato; fascia scura e reticolo sono difetti distinti ancora aperti.
+### Ripresa sfarfallio — confronto F6 esteso (7 settembre 2026)
+
+Su richiesta dell'utente, riaperto il confronto in `scenes/levels/freeroam.tscn`. F6 cicla: **Attuale → TAA → SSAA 1,25× → SSAA 1,5× → FSR2 nativo → FXAA → Terreno: blending a distanza → Mipmap morbide a distanza → Attuale**. Tutto esclusivo e a runtime; nessuna scelta definitiva salvata. Attuale ripristina TAA, scala, algoritmo di scaling, AA screen-space, shader originale e depth blur iniziali. MSAA non viene mai modificato.
+
+SSAA usa scaling bilineare senza TAA/FXAA; FSR2 usa scala 1,0 e la propria ricostruzione temporale, senza TAA aggiuntivo. FXAA è a scala nativa. Il candidato terreno riusa lo shader Terrain3D generato e rimuove soltanto il cutoff `region_mip < 0.0` dalla condizione del blending a quattro celle: mantiene interpolazione di materiali/normali anche in minificazione. Non è un filtro integrato sull'intera impronta del pixel, non garantisce di eliminare aliasing e aumenta il lavoro dello shading lontano. Viene creato solo in memoria, con controllo che la condizione originale sia presente una volta; nessuna copia permanente dello shader o nuova dipendenza. Il vecchio preset depth blur 2,0 resta per confronto.
+
+Verifica grafica D3D12: `Godot --path . --script tests/freeroam_filter_check.gd -- --capture` ha renderizzato due cicli completi, 60 frame per modalità, con nuvole attive; PASS e nessun ERROR nel log. Verificati ritorno ai valori iniziali, MSAA invariato, pressione prolungata e rilascio F6. PNG per ciascun preset in `user://filter_comparison/00.png`…`07.png`; la camera segue l'aereo in movimento, quindi non sono coppie pixel-identiche. Esaminate le catture FSR2 e blending terreno: scena, nuvole e HUD presenti, nessun evidente errore di compositing in quelle viste. Questa è una verifica di funzionamento e commutazione, non un verdetto su scintillio/scie né un benchmark. L'utente deve scegliere in volo; attendere qualche secondo dopo ogni cambio per la convergenza temporale. Il precedente crash MSAA resta distinto e irrisolto.
+
+### Benchmark dei due finalisti — SSAA 1,5× e FSR2 nativo
+
+Utente: SSAA 1,5× e FSR2 nativo sono i migliori visivamente. Creato ed eseguito `tools/freeroam_filter_benchmark.gd`: freeroam a 1920×1080, RX 9070 XT, Forward+/D3D12, VSync e cap FPS disattivati, nuvole e HUD presenti. Fisica del player disattivata per imporre lo stesso avanzamento rettilineo di 180 m/s per 12 s da quota 2.000 m; camera di inseguimento ancora attiva. Tre passaggi per modalità, ordine ruotato, 5 s di preriscaldamento prima di ciascuno. Nessuna registrazione video, nessun fixed-fps. Meteo/vento non congelati; benchmark locale senza combattimento, non rappresentativo di tutte le quote o del carico CPU del volo normale.
+
+Mediane dei tre risultati per modalità (FPS è la media temporale di ciascun passaggio; P99 è il percentile 99 del frame time):
+
+| Modalità | FPS | Frame mediano | Frame P99 | GPU mediana viewport |
+|---|---:|---:|---:|---:|
+| Attuale | 429,0 | 2,317 ms | 2,773 ms | 2,168 ms |
+| SSAA 1,5× | 240,5 | 4,140 ms | 4,951 ms | 3,991 ms |
+| FSR2 nativo | 373,1 | 2,667 ms | 3,286 ms | 2,514 ms |
+
+FSR2 produce circa il 55% di FPS in più di SSAA 1,5× in questo percorso, con tempo GPU mediano circa il 37% inferiore. Rispetto ad Attuale: −13% FPS per FSR2, −44% per SSAA. Intervalli FPS fra passaggi: Attuale 422,0–430,7; SSAA 239,3–242,4; FSR2 371,1–375,9. Raccomandazione prestazionale: FSR2 nativo, salvo preferenza visiva per SSAA. Successivamente approvato dall'utente e impostato come default in `project.godot` (`scaling_3d/mode=2`, scala 1,0). F6 resta disponibile; Attuale ripristina ora FSR2. Il benchmark forza invece il riferimento non filtrato prima di caricare la scena, per mantenere confrontabili i risultati.
+
+Dati locali: `user://filter_benchmark_2026-09-07T22-54-23.json`. Ripetere con `Godot --path . --script tools/freeroam_filter_benchmark.gd`, senza altri carichi GPU. Esecuzione terminata con PASS e nessun ERROR; restano warning di deprecazione e rilascio RID alla chiusura. Misura GPU tramite timestamp viewport Godot, non misura VRAM né latenza input-to-display. `git diff --check` pulito.
+
+**Nota storica — precedente problema attivo: P1 — nuvole viste da sopra.** Ripartire dalla prova `--cloud-dim-sun`: recupera rilievo ma modifica anche l'atmosfera. Tarare prima la luce inviata al compositor confrontando sopra e sotto lo strato; fascia scura e reticolo sono difetti distinti ancora aperti.
 
 ### P2 — Confini del mondo
 
 **Osservazione:** la zenitale senza nuvole rivela bordi rettangolari netti sul vuoto. `world_background = 0` nel materiale Terrain3D.
 
 **Proposta:** montagne di sfondo semplificate e una transizione periferica coerente. Non affidarsi soltanto alle nuvole per nascondere i bordi, dato che il giocatore può salire sopra lo strato nuvoloso.
+
+### P2 — Ricognizione dei confini (7 settembre 2026)
+
+Aggiunto `--edges` a `tools/tutorial_survey.gd`: otto viste aggiuntive, due per lato (bassa e 7.800 m), dalle regioni effettivamente più esterne verso l'esterno. La mappa non occupa tutto il rettangolo dei bounds: il punto medio del lato può cadere fuori dalle regioni. La selezione usa quindi le regioni presenti; il check verifica quota campionabile e coordinate finite. `--background-noise` prova `world_background = 2` esclusivamente a runtime.
+
+Tre survey completi da 16 PNG, senza ERROR nei log finali:
+
+- `2026-09-07T22-17-27`: baseline senza compositor.
+- `2026-09-07T22-18-30`: background NOISE nativo, senza compositor.
+- `2026-09-07T22-20-12`: configurazione salvata, con nuvole/atmosfera.
+
+`edge_08/09` nord, `edge_10/11` est, `edge_12/13` sud, `edge_14/15` ovest (bassa/alta). Le prime due esecuzioni erano state interrotte dal limite di frame prima dell'ultima vista; usare i tre passaggi completi sopra, non quelli parziali. Check headless `--check --edges` superato, 16 viste; `git diff --check` pulito.
+
+**Risultato:** il background NONE espone direttamente il cielo sotto il bordo. Il NOISE predefinito riempie gran parte del vuoto, ma non raccorda in modo convincente questo terreno importato: stacco netto fra montagne dettagliate e rilievi lisci, discontinuità scura particolarmente evidente a est e bordo lontano ancora riconoscibile. Con nuvole attive, nella vista alta est il vuoto resta visibile attraverso le aperture. Non è sufficiente aumentare foschia o copertura.
+
+**Decisione:** non salvare il NOISE predefinito come fix; `world_background` resta 0. Questa prova non esclude una taratura migliore dello sfondo nativo. Prossimo intervento consigliato: prototipo su un solo bordo, con una fascia di terreno semplificato raccordata alle altezze esistenti; valutare prima se i parametri del background nativo bastano, altrimenti mesh periferica statica. Non generare subito una corona su tutta la mappa. Lo sfondo NOISE è soltanto visivo e non aggiunge collisioni: il limite giocabile e la gestione dell'uscita sono una decisione separata, non risolta da montagne decorative.
+
+Ripetere con `Godot --path . --script tools/tutorial_survey.gd -- --edges --no-clouds`, aggiungendo `--background-noise` per il candidato o togliendo `--no-clouds` per la scena normale. Nessuna modifica permanente a geometria, maschere, atmosfera o confini di gameplay in questa ricognizione.
 
 ### P2 — Identità e orientamento
 
@@ -338,13 +392,19 @@ Richiede più lavoro artistico e un budget GPU misurato. Non è ancora disponibi
 
 Documentazione API consultata: Godot 4.7, cattura del viewport dopo `RenderingServer.frame_post_draw` e script standalone che estendono `SceneTree`.
 
+## Controllo finale prima del commit
+
+Rieseguiti: due cicli F6 grafici con default FSR2, check survey headless `--edges --background-noise` e `--flight --taa`, survey grafico ordinario (`2026-09-07T23-03-12`), benchmark completo e `git diff --check`. Tutti completati senza ERROR nei log; restano i warning noti di deprecazione/rilascio risorse. Isolati il riferimento senza filtri del benchmark e i probe TAA/MSAA del survey dal nuovo default FSR2.
+
+Ripetizione benchmark: `user://filter_benchmark_2026-09-07T23-06-45.json`, mediane FPS Attuale 388,4, SSAA 226,8, FSR2 343,4. Conferma il vantaggio FSR2, ma valori assoluti inferiori al primo run e un P99 di 13,604 ms nel terzo passaggio FSR2 (gli altri due 3,513 e 3,446 ms): causa dello spike non isolata, non dichiarare assenza generale di stutter. Nessun crash o errore di rendering osservato. Non modificati i punti ambientali rinviati.
+
 ## Riprendere al prossimo incontro
 
-1. Riprendere da **P1 — nuvole viste da sopra**: mipmap e prima taratura atmosferica sono già applicate; sfarfallio rinviato dall'utente.
-2. Taratura luminosa ora applicata: moltiplicatore 0,35 sul driver; far giudicare la resa in freeroam. `--cloud-original-sun` permette il confronto con il vecchio valore.
-3. Diagnosticare separatamente fascia scura all'orizzonte (prossimo difetto) e reticolo durante attraversamento, con verifica in movimento.
-4. Passare ai bordi del mondo; non riaprire lo sfarfallio senza richiesta.
-5. Confermare la direzione artistica prima di landmark e dettagli, poi misurarne il costo in movimento.
+1. Mantenere le scelte approvate: luce nuvole 0,3, atmosfera 0,8, horizon offset −0,02, dithering per pixel e FSR2 nativo.
+2. Non riaprire confini e identità/landmark senza richiesta: entrambi rinviati.
+3. Residui tecnici: distribuzione neve/roccia frammentata, fascia scura a 12.000 m, grana fine nuvole e verifica prestazioni in combattimento/ad altre quote. Il confronto sfarfallio è concluso per ora con FSR2.
+4. P3 ancora da affrontare: dettaglio ambientale, destinazione del bacino ovest, effetti locali e audio; confermare la direzione artistica prima di aggiungere asset.
+5. Problemi collaterali ancora aperti: risorse strada/import Terrain3D, warning RID e crash al cambio MSAA. DLSS/FSR3 sono opzioni future, non integrazioni già disponibili.
 
 ### Protezione del lavoro esistente
 

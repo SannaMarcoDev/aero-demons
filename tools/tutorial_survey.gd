@@ -10,6 +10,7 @@ extends SceneTree
 ## Both affect Sunshine atmosphere too, without changing the terrain sun.
 ## Terrain probes (runtime only): --taa, --msaa, --terrain-grey, --no-sun-shadows,
 ## --terrain-soft-mips, --terrain-no-normal-maps.
+## --edges adds eight boundary views; --background-noise tests native Terrain3D hills.
 ## In viewer: Left/Right change viewpoint, Escape exits. PNGs go to user://tutorial_survey/.
 
 const MAP := "res://scenes/maps/tutorial_map.tscn"
@@ -60,7 +61,36 @@ func survey() -> void:
 		eye.y = maxf(1500.0, ground + 350.0) if is_finite(ground) else 1800.0
 		views[i].eye = eye
 	var args := OS.get_cmdline_user_args()
+	if "--edges" in args:
+		# Look across each region boundary from 1 km inside, below and above clouds.
+		for side in [Vector2.UP, Vector2.RIGHT, Vector2.DOWN, Vector2.LEFT]:
+			var edge := Vector2.ZERO
+			var best := -INF
+			for region in regions:
+				var region_center := (Vector2(region) + Vector2.ONE * 0.5) * region_width
+				var offset: Vector2 = region_center - middle
+				var score: float = offset.dot(side) * 1000.0 - absf(offset.dot(side.orthogonal()))
+				if score > best:
+					best = score
+					edge = region_center + side * region_width * 0.5
+			var inside: Vector2 = edge - side * minf(1000.0, region_width * 0.5)
+			var eye := Vector3(inside.x, 0, inside.y)
+			var ground: float = terrain.data.get_height(eye)
+			assert(is_finite(ground), "Boundary viewpoint must be on a terrain region")
+			for altitude in [maxf(ground + 500.0, 1500.0), above]:
+				eye.y = altitude
+				views.append({"name": "edge_%02d" % views.size(), "eye": eye,
+					"target": Vector3(edge.x + side.x * 4000.0, 0, edge.y + side.y * 4000.0)})
+	if "--background-noise" in args:
+		terrain.material.world_background = 2
+		assert(terrain.material.world_background == 2)
 	var environment: Environment = map.get_node("Sky3D").environment
+	if "--taa" in args or "--msaa" in args:
+		# Isolate these historical probes from the project's FSR2 default.
+		root.scaling_3d_mode = Viewport.SCALING_3D_MODE_BILINEAR
+		root.scaling_3d_scale = 1.0
+		root.screen_space_aa = Viewport.SCREEN_SPACE_AA_DISABLED
+		root.use_taa = false
 	if "--taa" in args:
 		root.use_taa = true
 		assert(root.use_taa)
@@ -145,7 +175,7 @@ func survey() -> void:
 			assert(not environment.fog_enabled, "Avoid stacking fog systems")
 			var expected := 0.4 if "--atmosphere-baseline" in args else 0.8
 			assert(is_equal_approx(clouds.atmospheric_density, expected))
-		print("PASS: atmosphere preset and 8 valid viewpoints, including two above cloud ceiling")
+		print("PASS: atmosphere preset and ", views.size(), " valid viewpoints, including two above cloud ceiling")
 		quit()
 		return
 	if DisplayServer.get_name() == "headless":

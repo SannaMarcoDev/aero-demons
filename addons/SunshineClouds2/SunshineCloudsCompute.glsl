@@ -459,8 +459,8 @@ void main() {
 	// float ign_noise = fract(52.9829189 * fract(dot(ign_noise_uv, vec3(0.006711056, 0.00583715, 1.61803398875))));
 	// float ditherValue = ign_noise;
 
-	float ditherScale = 40.037;
-	vec3 ditherUV = vec3(depthUV.x * ditherScale , depthUV.y * ditherScale , genericData.data.time);
+	// One noise texel per raymarch pixel; avoid resampling a screen-scaled tile.
+	vec3 ditherUV = vec3((vec2(uv) + 0.5) / vec2(textureSize(dither_small, 0).xy), genericData.data.time);
 	float smallNoise = texture(dither_small, ditherUV).r;
 
 	float ditherValue = smallNoise;
