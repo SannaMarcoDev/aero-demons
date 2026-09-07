@@ -1,5 +1,5 @@
 extends Node3D
-class_name ExplosionFX
+class_name Explosion
 
 signal finished
 
@@ -69,6 +69,22 @@ var _elapsed := 0.0
 var _generation := 0
 var _playing := false
 var _quality_light_multiplier := 1.0
+
+
+const SCENE: PackedScene = preload("res://scenes/vfx/explosion_fx.tscn")
+
+static func spawn(parent: Node, pos: Vector3, p_scale: float = 1.0) -> Explosion:
+	if parent == null:
+		return null
+	var instance: Explosion = SCENE.instantiate()
+	instance.overall_scale = p_scale
+	parent.add_child(instance)
+	instance.global_position = pos
+	instance.play()
+	return instance
+
+static func spawn_aircraft(parent: Node, pos: Vector3, p_scale: float = 3.0) -> Explosion:
+	return spawn(parent, pos, p_scale)
 
 
 func _ready() -> void:

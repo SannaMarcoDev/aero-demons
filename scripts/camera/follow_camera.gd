@@ -3,17 +3,20 @@ extends Camera3D
 const LOOK_ORBIT_LIMIT_DEG := 180.0
 const LOOK_REAR_CURVE := 8.0
 const TRACK_PITCH_LIMIT_DEG := 80.0
-const LOOK_RESPONSE := 8.0
-const FOLLOW_RESPONSE := 8.0
+@export_category("Camera tuning")
+## Higher values follow aircraft rotation faster.
+@export_range(0.1, 30.0, 0.1) var follow_response := 8.0
+## Higher values respond to the look stick faster.
+@export_range(0.1, 30.0, 0.1) var look_response := 8.0
 const ORBIT_PIVOT_HEIGHT := 1.0
 const TRACK_RESPONSE := 6.0
-const MANEUVER_YAW_DEG := 12.0
+@export_range(0.0, 30.0, 0.5) var maneuver_yaw_deg := 12.0
 const RUDDER_FRAMING_FACTOR := 0.5
 const MANEUVER_RESPONSE := 8.0
 const MANEUVER_RETURN_RESPONSE := 4.0
 const SPEED_FOV_RESPONSE := 3.0
-const MAX_SPEED_FOV := 4.0
-const MIN_SPEED_FOV := -2.0
+@export_range(0.0, 20.0, 0.5) var max_speed_fov := 4.0
+@export_range(-20.0, 0.0, 0.5) var min_speed_fov := -2.0
 
 var _follow_transform := Transform3D.IDENTITY
 var _last_target_position := Vector3.ZERO
@@ -24,7 +27,7 @@ var _maneuver_offset := 0.0
 var _maneuver_velocity := 0.0
 var _speed_fov_offset := 0.0
 
-@onready var target: PlayerFlight = $"../Player"
+@onready var target: PlayerFlight = get_parent() as PlayerFlight
 @onready var _targeting: TargetLock = target.get_node_or_null("TargetLock") if target != null else null
 
 
@@ -38,10 +41,10 @@ func _physics_process(delta: float) -> void:
 	var target_position := target.camera_position()
 	_follow_transform.origin += target_position - _last_target_position
 	_last_target_position = target_position
-	var follow_weight := 1.0 - exp(-FOLLOW_RESPONSE * delta)
+	var follow_weight := 1.0 - exp(-follow_response * delta)
 	_follow_transform = _follow_transform.interpolate_with(_chase_transform(), follow_weight)
 	var look_input := Input.get_vector("look_left", "look_right", "look_up", "look_down")
-	_look_input = _look_input.lerp(look_input, 1.0 - exp(-LOOK_RESPONSE * delta))
+	_look_input = _look_input.lerp(look_input, 1.0 - exp(-look_response * delta))
 	if look_input.is_zero_approx() and _look_input.length_squared() < 0.000001:
 		_look_input = Vector2.ZERO
 
@@ -121,11 +124,11 @@ func _update_dynamic_camera(delta: float) -> void:
 	var desired_fov := 0.0
 	if target.spin_dash_camera_recovery_weight() <= 0.0:
 		if target.speed >= target.cruise_speed:
-			desired_fov = MAX_SPEED_FOV * clampf(
+			desired_fov = max_speed_fov * clampf(
 				inverse_lerp(target.cruise_speed, target.max_speed, target.speed), 0.0, 1.0,
 			)
 		else:
-			desired_fov = MIN_SPEED_FOV * clampf(
+			desired_fov = min_speed_fov * clampf(
 				inverse_lerp(target.cruise_speed, target.min_speed, target.speed), 0.0, 1.0,
 			)
 	_speed_fov_offset = lerpf(
@@ -137,7 +140,7 @@ func _dynamic_transform(camera_transform: Transform3D) -> Transform3D:
 	var weight := (1.0 - clampf(_look_input.length(), 0.0, 1.0)) * (1.0 - _track_weight)
 	var dynamic_rotation := Basis.from_euler(Vector3(
 		0.0,
-		deg_to_rad(-_maneuver_offset * MANEUVER_YAW_DEG * weight),
+		deg_to_rad(-_maneuver_offset * maneuver_yaw_deg * weight),
 		0.0,
 	))
 	camera_transform.basis = (camera_transform.basis * dynamic_rotation).orthonormalized()

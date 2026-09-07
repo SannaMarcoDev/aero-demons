@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://c6xk4m8u2p0vl"]
+
+[ext_resource type="PackedScene" uid="uid://fhmax6bwhmpg" path="res://scenes/maps/tutorial_map.tscn" id="1_map"]
+[ext_resource type="PackedScene" uid="uid://dgqm8ooyeb3c6" path="res://scenes/player/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://scenes/ui/combat_hud.tscn" id="4_hud"]
+
+[node name="Freeroam" type="Node3D" unique_id=1151233576]
+
+[node name="TutorialMap" parent="." unique_id=51425002 instance=ExtResource("1_map")]
+
+[node name="Player" parent="." unique_id=1784232784 instance=ExtResource("2_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2000, 0)
+camera_fov = 70.0
+camera_height = 0.8000000000000007
+camera_depth = 5.5
+camera_pitch = 7.0
+
+[node name="CombatHUD" parent="." unique_id=727810572 instance=ExtResource("4_hud")]
+player_path = NodePath("../Player")
+camera_path = NodePath("../Player/FlightCamera")
+targeting_path = NodePath("../Player/TargetLock")
+weapons_path = NodePath("../Player/WeaponController")

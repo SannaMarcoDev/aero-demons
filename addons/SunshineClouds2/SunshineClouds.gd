@@ -530,7 +530,10 @@ func _render_callback(effect_callback_type, render_data):
 					prepass_camera_uniform.add_id(general_data_buffer)
 					prepass_uniforms_array.append(prepass_camera_uniform)
 					
-					uniform_sets.append(rd.uniform_set_create(prepass_uniforms_array, prepass_shader, 0))
+					var prepass_us := rd.uniform_set_create(prepass_uniforms_array, prepass_shader, 0)
+					if not rd.uniform_set_is_valid(prepass_us):
+						printerr("SunshineClouds: prepass uniform set is invalid! depth_image valid: ", depth_image.is_valid(), " resized_depth valid: ", resized_depth.is_valid(), " general_data valid: ", general_data_buffer.is_valid())
+					uniform_sets.append(prepass_us)
 					#endregion
 
 					#region Base Compute Shader
@@ -772,6 +775,10 @@ func _render_callback(effect_callback_type, render_data):
 			var y_groups = ((size.y - 1) / 8 / resscale) + 1
 			
 			for view in view_count:
+				if view * 4 + 3 >= uniform_sets.size():
+					continue
+				if not rd.uniform_set_is_valid(uniform_sets[view * 4]) or not rd.uniform_set_is_valid(uniform_sets[view * 4 + 1]) or not rd.uniform_set_is_valid(uniform_sets[view * 4 + 2]) or not rd.uniform_set_is_valid(uniform_sets[view * 4 + 3]):
+					continue
 				var prepass_list = rd.compute_list_begin()
 				rd.compute_list_bind_compute_pipeline(prepass_list, prepass_pipeline)
 				rd.compute_list_bind_uniform_set(prepass_list, uniform_sets[view * 4], 0)

@@ -124,7 +124,7 @@ func _ready() -> void:
 
 func _scale_airframe() -> void:
 	for child in get_children():
-		if child is Node3D:
+		if child is Node3D and not child is Camera3D:
 			var spatial := child as Node3D
 			spatial.position *= airframe_scale
 			spatial.scale *= airframe_scale
