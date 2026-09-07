@@ -12,14 +12,20 @@ signal lock_lost()
 @export var select_range := 15000.0
 @export var select_cone_degrees := 50.0
 @export var lock_time := 1.0
+@export_range(0.01, 0.5, 0.01) var candidate_refresh_interval := 0.0667
 
 var target = null
 var lock_progress := 0.0
 var is_locked := false
 var in_lock_zone := false
+var _candidate_scores: Dictionary = {}
+var _candidate_snapshot: Array = []
+var _candidate_snapshot_valid := false
+var _candidate_refresh_remaining := 0.0
 
 
 func _physics_process(delta: float) -> void:
+	_candidate_refresh_remaining = maxf(_candidate_refresh_remaining - delta, 0.0)
 	if not _target_alive(target):
 		_set_target(_first_candidate())
 	if target == null:
@@ -41,7 +47,7 @@ func _physics_process(delta: float) -> void:
 
 
 func cycle_target() -> void:
-	var candidates := _get_candidates()
+	var candidates := _get_candidates(true)
 	if candidates.is_empty():
 		_set_target(null)
 		return
@@ -59,12 +65,12 @@ func distance_to_target() -> float:
 
 ## Multi-lock weapons use the same live-target, range and cone gate as the normal lock.
 ## This is a query rather than a second targeting state, so cycling the primary target stays intact.
-func locked_targets(maximum: int) -> Array:
+func locked_targets(maximum: int, force_refresh := false) -> Array:
 	if maximum <= 0:
 		return []
 	var locks: Array = []
-	for candidate in _get_candidates():
-		if not _in_lock_zone(candidate):
+	for candidate in _get_candidates(force_refresh):
+		if not _target_alive(candidate) or not _in_lock_zone(candidate):
 			continue
 		locks.append(candidate)
 		if locks.size() >= maximum:
@@ -72,28 +78,53 @@ func locked_targets(maximum: int) -> Array:
 	return locks
 
 
-func _get_candidates() -> Array:
+func _get_candidates(force_refresh := false) -> Array:
+	if not force_refresh and _candidate_snapshot_valid and _candidate_refresh_remaining > 0.0:
+		return _candidate_snapshot
+	_candidate_snapshot = _query_candidates()
+	_candidate_snapshot_valid = true
+	_candidate_refresh_remaining = candidate_refresh_interval
+	return _candidate_snapshot
+
+
+func _query_candidates() -> Array:
 	var candidates: Array = []
-	var aircraft := get_parent()
+	var aircraft := get_parent() as Node3D
+	if aircraft == null:
+		return candidates
+	_candidate_scores.clear()
+	var origin := aircraft.global_position
+	var forward := -aircraft.global_basis.z.normalized()
+	var max_distance_squared := select_range * select_range
+	var select_cone_radians := deg_to_rad(select_cone_degrees)
+	var cone_limited := select_cone_radians < PI
+	var cone_cosine := cos(maxf(select_cone_radians, 0.0))
 	for candidate in get_tree().get_nodes_in_group(target_group):
-		if candidate == aircraft:
+		if candidate == aircraft or not _target_alive(candidate):
 			continue
-		if not _target_alive(candidate) or _distance_to(candidate) > select_range:
+		var offset := _target_position(candidate) - origin
+		var distance_squared := offset.length_squared()
+		if distance_squared <= 0.000001 or distance_squared > max_distance_squared:
 			continue
-		if _target_angle(candidate) > deg_to_rad(select_cone_degrees):
+		var score := forward.dot(offset / sqrt(distance_squared))
+		if cone_limited and score < cone_cosine:
 			continue
 		candidates.append(candidate)
+		_candidate_scores[candidate] = score
 	candidates.sort_custom(Callable(self, "_sort_candidates"))
+	_candidate_scores.clear()
 	return candidates
 
 
 func _sort_candidates(first, second) -> bool:
-	return _target_angle(first) < _target_angle(second)
+	return _candidate_scores[first] > _candidate_scores[second]
 
 
 func _first_candidate():
-	var candidates := _get_candidates()
-	return null if candidates.is_empty() else candidates[0]
+	for candidate in _get_candidates():
+		if _target_alive(candidate):
+			return candidate
+	return null
 
 
 func _set_target(next_target) -> void:
@@ -127,28 +158,14 @@ func _in_lock_zone(candidate) -> bool:
 	if aircraft == null:
 		return false
 	var offset := _target_position(candidate) - aircraft.global_position
-	var distance := offset.length()
-	if distance <= 0.001 or distance > lock_range:
+	var distance_squared := offset.length_squared()
+	if distance_squared <= 0.000001 or distance_squared > lock_range * lock_range:
 		return false
+	var cone_radians := deg_to_rad(lock_cone_degrees)
+	if cone_radians >= PI:
+		return true
 	var forward := -aircraft.global_basis.z.normalized()
-	return forward.angle_to(offset / distance) <= deg_to_rad(lock_cone_degrees)
-
-
-func _distance_to(candidate) -> float:
-	var aircraft := get_parent() as Node3D
-	if aircraft == null:
-		return INF
-	return aircraft.global_position.distance_to(_target_position(candidate))
-
-
-func _target_angle(candidate) -> float:
-	var aircraft := get_parent() as Node3D
-	if aircraft == null:
-		return INF
-	var offset := _target_position(candidate) - aircraft.global_position
-	if offset.length_squared() <= 0.000001:
-		return INF
-	return (-aircraft.global_basis.z).normalized().angle_to(offset.normalized())
+	return forward.dot(offset / sqrt(distance_squared)) >= cos(maxf(cone_radians, 0.0))
 
 
 func _target_position(candidate) -> Vector3:

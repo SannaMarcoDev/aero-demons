@@ -52,6 +52,7 @@ var _target_switch_from := Vector2.ZERO
 var _engaged_until := -1.0
 var _engaged := false
 var _locked_missile_targets: Array = []
+var _target_snapshot: Array = []
 var _missile_lock_limit := 1
 
 @onready var _objectives_line: Label = $HudText/ObjectivesLine
@@ -103,6 +104,7 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
+	_refresh_target_snapshot()
 	_update_labels()
 	if is_instance_valid(_canvas):
 		_canvas.queue_redraw()
@@ -365,8 +367,8 @@ func _draw_enemy_markers(canvas: Control) -> void:
 	if camera == null or not is_instance_valid(camera) or not camera.has_method("unproject_position"):
 		return
 	var viewport_rect := canvas.get_viewport_rect()
-	for node in get_tree().get_nodes_in_group("targets"):
-		if node == _target or not _target_alive(node):
+	for node in _target_snapshot:
+		if node == _target or not is_instance_valid(node):
 			continue
 		var distance: float = player.global_position.distance_to(node.global_position)
 		if distance > MARKER_RANGE:
@@ -522,8 +524,8 @@ func _draw_radar(canvas: Control) -> void:
 		canvas.draw_arc(radar_center, radar_radius * ring, 0.0, TAU, 64, RADAR_LINE, 1.0, true)
 	canvas.draw_line(radar_center + Vector2(-radar_radius, 0.0), radar_center + Vector2(radar_radius, 0.0), RADAR_LINE, 1.0, true)
 	canvas.draw_line(radar_center + Vector2(0.0, -radar_radius), radar_center + Vector2(0.0, radar_radius), RADAR_LINE, 1.0, true)
-	for node in get_tree().get_nodes_in_group("targets"):
-		if not _target_alive(node) or player == null or not is_instance_valid(player):
+	for node in _target_snapshot:
+		if not is_instance_valid(node) or player == null or not is_instance_valid(player):
 			continue
 		var local_offset: Vector3 = player.global_transform.basis.inverse() * (node.global_position - player.global_position)
 		var planar := Vector2(local_offset.x, local_offset.z)
@@ -564,6 +566,13 @@ func _draw_text(canvas: Control, position: Vector2, text: String, size: int, col
 		return
 	canvas.draw_string(_font, position + Vector2(2.0, 2.0), text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, size, _faded(SHADOW, color.a))
 	canvas.draw_string(_font, position, text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, size, color)
+
+
+func _refresh_target_snapshot() -> void:
+	_target_snapshot.clear()
+	for node in get_tree().get_nodes_in_group("targets"):
+		if _target_alive(node):
+			_target_snapshot.append(node)
 
 
 func _current_target():

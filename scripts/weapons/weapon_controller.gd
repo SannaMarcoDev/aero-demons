@@ -64,6 +64,7 @@ var _missile_index := 0
 var _gun_sound_remaining := 0.0
 var _minigun_audio: AudioStreamPlayer3D
 var _muzzle_flash: Node3D
+var _muzzle_animation: AnimationPlayer
 
 
 func _ready() -> void:
@@ -74,6 +75,7 @@ func _ready() -> void:
 		_muzzle_flash.position = gun_muzzle
 		_muzzle_flash.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
 		_muzzle_flash.scale = Vector3.ONE * 1.4
+		_muzzle_animation = _muzzle_flash.get_node_or_null("AnimationPlayer") as AnimationPlayer
 		add_child(_muzzle_flash)
 	_minigun_audio = AudioStreamPlayer3D.new()
 	_minigun_audio.stream = MINIGUN_SOUND
@@ -127,24 +129,24 @@ func fire_gun() -> void:
 		return
 	var muzzle_transform := _muzzle_transform(gun_muzzle)
 	var direction := _spread_direction(-global_basis.z)
-	var bullet := BULLET_SCENE.instantiate() as Node3D
+	var bullet := BULLET_SCENE.instantiate() as Bullet
 	var scene_root := get_tree().current_scene
 	if bullet == null or scene_root == null:
 		return
-	bullet.set("speed", gun_projectile_speed)
-	bullet.set("gravity", gun_gravity)
-	bullet.set("tracer_visible", gun_ammo % 2 == 0)
-	bullet.set("damage", gun_damage)
-	bullet.set("max_range", gun_range)
-	bullet.set("target_layers", target_layers)
+	bullet.speed = gun_projectile_speed
+	bullet.gravity = gun_gravity
+	bullet.tracer_visible = gun_ammo % 2 == 0
+	bullet.damage = gun_damage
+	bullet.max_range = gun_range
+	bullet.target_layers = target_layers
 	scene_root.add_child(bullet)
 	bullet.add_to_group("mission_projectiles")
-	bullet.call("launch", muzzle_transform, direction, _inherited_velocity())
+	bullet.launch(muzzle_transform, direction, _inherited_velocity())
 	if _muzzle_flash != null:
 		_muzzle_flash.call("_reset_particles")
-		var flash_animation := _muzzle_flash.get_node("AnimationPlayer") as AnimationPlayer
-		flash_animation.play(&"main")
-		flash_animation.seek(0.0, true)
+		if _muzzle_animation != null:
+			_muzzle_animation.play(&"main")
+			_muzzle_animation.seek(0.0, true)
 	gun_ammo -= 1
 	_gun_cooldown += _gun_interval()
 	_gun_sound_remaining = maxf(_gun_sound_remaining, 0.12)
@@ -166,7 +168,7 @@ func can_fire_missile() -> bool:
 
 ## Standard missiles preserve the selected lock. Multi-lock types ask TargetLock for the same
 ## cone/range-qualified candidates, capped by their catalog entry.
-func get_locked_missile_targets() -> Array:
+func get_locked_missile_targets(force_refresh := false) -> Array:
 	if _targeting == null:
 		_targeting = get_node_or_null(targeting_path)
 	if _targeting == null:
@@ -176,7 +178,7 @@ func get_locked_missile_targets() -> Array:
 	if lock_limit > 1:
 		if not _targeting.has_method("locked_targets"):
 			return []
-		var locks: Array = _targeting.call("locked_targets", lock_limit)
+		var locks: Array = _targeting.call("locked_targets", lock_limit, force_refresh)
 		var valid: Array = []
 		for candidate in locks:
 			if _valid_missile_target(candidate):
@@ -237,7 +239,7 @@ func fire_missile() -> void:
 	if not can_fire_missile():
 		return
 	var def := get_equipped_def()
-	var targets := get_locked_missile_targets()
+	var targets := get_locked_missile_targets(true)
 	var scene_root := get_tree().current_scene
 	if targets.is_empty() or scene_root == null:
 		return
