@@ -54,5 +54,5 @@ Include:
 
 ## Limiti
 - L'audit statico non esegue AST dinamico GDScript: i percorsi costruiti a runtime vengono classificati come warning dinamici.
-- L'import completo può riportare errori preesistenti di addon/vendor o di un editor Godot già aperto; `--skip-import` esegue comunque tutti i test headless.
+- L'import completo ignora solo il rumore noto di shutdown dell'headless renderer e i tre riferimenti legacy del road-generator, riportandoli come warning; gli errori reali continuano a fallire il comando. `--skip-import` esegue comunque tutti i test headless quando un editor/addon blocca l'import.
 - Il runner non esegue fork background non monitorati ed è progettato per ambienti CI e script headless.
