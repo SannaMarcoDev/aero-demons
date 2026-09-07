@@ -50,6 +50,7 @@ var _vis_scale := 1.0
 const BOOST_DURATION := 0.42
 const BASE_LIGHT_ENERGY := 6.0
 const BASE_LIGHT_RANGE := 18.0
+static var _visual_cache: Dictionary = {}
 var _flame: GPUParticles3D = null
 var _smoke_core: GPUParticles3D = null
 var _smoke_trail: GPUParticles3D = null
@@ -436,27 +437,33 @@ func _apply_visual() -> void:
 		return
 	var def := MissileCatalog.get_def(missile_id)
 	var col: Color = def.get("color", Color(0.22, 0.28, 0.35, 1))
-	var mat := body.get_active_material(0) as StandardMaterial3D
+	var visual_key := "%s:%s" % [missile_id, "payload" if _payload_enabled else "standard"]
+	var body_key := visual_key + ":body"
+	var mat := _visual_cache.get(body_key) as StandardMaterial3D
+	if mat == null:
+		mat = body.get_active_material(0) as StandardMaterial3D
+		if mat != null:
+			mat = mat.duplicate()
+			mat.albedo_color = col
+			# ponytail: emissive cheap glow without extra geo, visible at 2km
+			mat.emission_enabled = true
+			if missile_id == "BAHM":
+				mat.emission = Color(0.38, 0.32, 0.30)
+				mat.emission_energy_multiplier = 1.25
+			elif missile_id == "NCGBM":
+				mat.emission = Color(1.0, 0.32, 0.08)
+				mat.emission_energy_multiplier = 1.55
+			elif missile_id == "HSSTDM":
+				mat.emission = Color(0.45, 0.72, 0.95)
+				mat.emission_energy_multiplier = 1.35
+			elif missile_id == "MTSM":
+				mat.emission = Color(0.36, 0.26, 0.50)
+				mat.emission_energy_multiplier = 1.15
+			else:
+				mat.emission = col.lightened(0.35)
+				mat.emission_energy_multiplier = 1.4
+			_visual_cache[body_key] = mat
 	if mat != null:
-		mat = mat.duplicate()
-		mat.albedo_color = col
-		# ponytail: emissive cheap glow without extra geo, visible at 2km
-		mat.emission_enabled = true
-		if missile_id == "BAHM":
-			mat.emission = Color(0.38, 0.32, 0.30)
-			mat.emission_energy_multiplier = 1.25
-		elif missile_id == "NCGBM":
-			mat.emission = Color(1.0, 0.32, 0.08)
-			mat.emission_energy_multiplier = 1.55
-		elif missile_id == "HSSTDM":
-			mat.emission = Color(0.45, 0.72, 0.95)
-			mat.emission_energy_multiplier = 1.35
-		elif missile_id == "MTSM":
-			mat.emission = Color(0.36, 0.26, 0.50)
-			mat.emission_energy_multiplier = 1.15
-		else:
-			mat.emission = col.lightened(0.35)
-			mat.emission_energy_multiplier = 1.4
 		body.material_override = mat
 	var scl: float = float(def.get("scale", 1.0))
 	# Idea D: mesh base già 2.3x (0.14→0.32), enforce minimum per non tornare invisibile
@@ -494,15 +501,30 @@ func _apply_visual() -> void:
 	# --- scala particelle proporzionale alla taglia ---
 	var payload_visual_scale := 1.0
 	if _flame != null:
-		var pm := _flame.process_material as ParticleProcessMaterial
+		var flame_key := visual_key + ":flame"
+		var pm := _visual_cache.get(flame_key) as ParticleProcessMaterial
+		if pm == null:
+			pm = _flame.process_material as ParticleProcessMaterial
+			if pm != null:
+				pm = pm.duplicate() as ParticleProcessMaterial
+				var f := (0.9 + 0.22 * _vis_scale) * payload_visual_scale
+				pm.scale_min *= f
+				pm.scale_max *= f
+			_visual_cache[flame_key] = pm
 		if pm != null:
-			pm = pm.duplicate() as ParticleProcessMaterial
-			var f := (0.9 + 0.22 * _vis_scale) * payload_visual_scale
-			pm.scale_min *= f
-			pm.scale_max *= f
 			_flame.process_material = pm
 	for emitter in [_smoke_core, _smoke_trail]:
 		if emitter == null:
+			continue
+		var emitter_key := visual_key + (":smoke_core" if emitter == _smoke_core else ":smoke_trail")
+		var cached = _visual_cache.get(emitter_key)
+		if cached is Dictionary and not cached.is_empty():
+			var cached_process := cached.get("process") as ParticleProcessMaterial
+			if cached_process != null:
+				emitter.process_material = cached_process
+			var cached_quad := cached.get("quad") as QuadMesh
+			if cached_quad != null:
+				emitter.draw_pass_1 = cached_quad
 			continue
 		var pmat := emitter.process_material as ParticleProcessMaterial
 		if pmat == null:
@@ -522,7 +544,6 @@ func _apply_visual() -> void:
 		else:
 			pmat.color = Color(0.94, 0.95, 0.97, 0.72)
 		emitter.process_material = pmat
-		# Schiarisce anche il materiale condiviso senza alterare il fumo dei danni.
 		var quad := emitter.draw_pass_1 as QuadMesh
 		if quad != null:
 			quad = quad.duplicate() as QuadMesh
@@ -544,9 +565,9 @@ func _apply_visual() -> void:
 				smat.set_shader_parameter("erosion_young", 0.25)
 				smat.set_shader_parameter("noise_contrast", 1.5)
 				smat.set_shader_parameter("opacity", 0.7)
-				# ponytail: same particle count keeps the narrower trail equally dense
 				quad.material = smat
 			emitter.draw_pass_1 = quad
+		_visual_cache[emitter_key] = {"process": pmat, "quad": quad}
 
 
 func _orient_to_velocity() -> void:

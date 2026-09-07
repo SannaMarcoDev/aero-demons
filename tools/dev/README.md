@@ -40,7 +40,15 @@ godot --headless --path . --script scripts/tests/targeting_benchmark.gd
 
 La query era circa **4326 us** per iterazione prima dell'ottimizzazione; ora è circa **0,65–0,72 ms** sullo stesso ambiente (**0,14 us** con snapshot caldo). Il percorso runtime riusa inoltre uno snapshot per **15 Hz** e il fuoco forza un refresh.
 
-### 3. Audit Statico Read-Only (`--audit`)
+### 3. Benchmark visuale missili
+Misura l'applicazione delle palette visuali su 100 lanci sintetici:
+```bash
+godot --headless --path . --script scripts/tests/missile_benchmark.gd
+```
+
+La configurazione precedente duplicava materiali/mesh a ogni lancio: circa **10988 us** per missile. La palette statica per tipo riduce il percorso caldo a circa **180 us** dopo il warm-up, senza condividere risorse mutabili per istanza.
+
+### 4. Audit Statico Read-Only (`--audit`)
 Ispezione statica non distruttiva del repository:
 ```bash
 node tools/dev/validate.mjs --audit
