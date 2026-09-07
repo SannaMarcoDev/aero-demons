@@ -2,6 +2,14 @@ extends SceneTree
 ## Run: Godot --path . --script tools/tutorial_survey.gd
 ## Add -- --check for a headless geometry check; -- --hold to keep the viewer open.
 ## Add -- --no-clouds for a diagnostic terrain pass (runtime only).
+## Compare --atmosphere-baseline / --atmosphere-sunshine / --atmosphere-godot.
+## These are runtime overrides; baseline restores the pre-polish Sunshine density.
+## Add -- --flight for a terrain-following pass, ascent and descent through clouds.
+## Record with --write-movie <absolute-path>.avi --fixed-fps 30 (project movie resolution).
+## --cloud-dim-sun tests cloud lighting at 25%; --cloud-original-sun restores the old 100%.
+## Both affect Sunshine atmosphere too, without changing the terrain sun.
+## Terrain probes (runtime only): --taa, --msaa, --terrain-grey, --no-sun-shadows,
+## --terrain-soft-mips, --terrain-no-normal-maps.
 ## In viewer: Left/Right change viewpoint, Escape exits. PNGs go to user://tutorial_survey/.
 
 const MAP := "res://scenes/maps/tutorial_map.tscn"
@@ -9,6 +17,9 @@ var camera: Camera3D
 var views: Array[Dictionary] = []
 var selected := 0
 var busy := true
+var flight_points: Array[Vector3] = []
+var flight_time := 0.0
+var flying := false
 
 func _initialize() -> void:
 	call_deferred("survey")
@@ -48,16 +59,93 @@ func survey() -> void:
 		var ground: float = terrain.data.get_height(eye)
 		eye.y = maxf(1500.0, ground + 350.0) if is_finite(ground) else 1800.0
 		views[i].eye = eye
-	if "--no-clouds" in OS.get_cmdline_user_args():
+	var args := OS.get_cmdline_user_args()
+	var environment: Environment = map.get_node("Sky3D").environment
+	if "--taa" in args:
+		root.use_taa = true
+		assert(root.use_taa)
+	if "--msaa" in args:
+		root.msaa_3d = Viewport.MSAA_4X
+		assert(root.msaa_3d == Viewport.MSAA_4X)
+	if "--terrain-grey" in args:
+		terrain.material.show_grey = true
+		assert(terrain.material.show_grey)
+	if "--terrain-no-normal-maps" in args:
+		for texture in terrain.assets.texture_list:
+			texture.normal_depth = 0.0
+			assert(is_zero_approx(texture.normal_depth))
+	if "--no-sun-shadows" in args:
+		map.get_node("Sky3D/SunLight").shadow_enabled = false
+		assert(not map.get_node("Sky3D/SunLight").shadow_enabled)
+	if "--terrain-soft-mips" in args:
+		terrain.material.set_shader_param("depth_blur", 2.0)
+		if DisplayServer.get_name() != "headless":
+			assert(is_equal_approx(terrain.material.get_shader_param("depth_blur"), 2.0))
+	print("Terrain probes: TAA=", root.use_taa, "; MSAA=", root.msaa_3d,
+		"; depth blur=", terrain.material.get_shader_param("depth_blur"))
+	assert(int("--atmosphere-baseline" in args) + int("--atmosphere-sunshine" in args)
+		+ int("--atmosphere-godot" in args) <= 1, "Choose only one atmosphere preset")
+	if "--atmosphere-baseline" in args:
+		environment.fog_enabled = false
+		clouds.atmospheric_density = 0.4
+	elif "--atmosphere-sunshine" in args:
+		environment.fog_enabled = false
+		clouds.atmospheric_density = 0.8
+	elif "--atmosphere-godot" in args:
+		clouds.atmospheric_density = 0.0
+		environment.fog_enabled = true
+		environment.fog_density = 0.000035
+		environment.fog_light_color = Color(0.74, 0.84, 0.96)
+		environment.fog_aerial_perspective = 0.65
+		environment.fog_sky_affect = 0.0
+	assert(not ("--cloud-dim-sun" in args and "--cloud-original-sun" in args), "Choose one cloud light preset")
+	var driver = map.get_node("SunshineCloudsDriverGD")
+	if "--cloud-dim-sun" in args:
+		driver.directional_light_power_multiplier = 0.25
+	elif "--cloud-original-sun" in args:
+		driver.directional_light_power_multiplier = 1.0
+	driver.retrieve_texture_data()
+	var expected_cloud_power: float = round(2.0 * driver.directional_light_power_multiplier * 10.0) / 10.0
+	assert(is_equal_approx(clouds.directional_lights_data[1].w, expected_cloud_power))
+	assert(is_equal_approx(map.get_node("Sky3D/SunLight").light_energy, 2.0), "Keep terrain lighting unchanged")
+	print("Cloud sun energy: ", clouds.directional_lights_data[1].w)
+	if "--no-clouds" in args:
 		clouds.enabled = false
+	print("Atmosphere: ", args, "; environment fog=", environment.fog_enabled,
+		"; density=", environment.fog_density, "; Sunshine density=", clouds.atmospheric_density)
 	for view in views:
 		assert(view.eye.is_finite() and view.target.is_finite())
 		assert(view.eye.distance_to(view.target) > 1.0)
 	assert(views[5].eye.y > clouds.cloud_ceiling)
 	assert(views[6].eye.y > clouds.cloud_ceiling)
 	print("Survey bounds: ", low, " .. ", high, "; heights: ", height_range)
-	if "--check" in OS.get_cmdline_user_args():
-		print("PASS: 8 valid viewpoints, including two above cloud ceiling")
+	print("Terrain texture filtering: ", terrain.material.get_texture_filtering(), " (0=linear)")
+	if DisplayServer.get_name() != "headless":
+		var shader_code := RenderingServer.shader_get_code(terrain.material.get_shader_rid())
+		for line in shader_code.split("\n"):
+			if "uniform" in line and ("_texture_array_albedo" in line or "_texture_array_normal" in line):
+				print("Terrain active sampler: ", line)
+	if "--flight" in args:
+		# Diagnostic camera, not aircraft physics: follow sampled ground with 300 m clearance.
+		for i in range(121):
+			var point := Vector3(0, 0, -i * 20.0)
+			var ground: float = terrain.data.get_height(point)
+			assert(is_finite(ground), "Flight path leaves terrain")
+			point.y = ground + 300.0
+			flight_points.append(point)
+		assert(flight_points[-1].y < clouds.cloud_floor, "Ascent must start below clouds")
+		flight_points.append(Vector3(0, above, -2400))
+		assert(flight_points[-1].y > clouds.cloud_ceiling)
+		print("Flight: 12 s low pass, 20 s ascent, 4 s above clouds, 20 s descent")
+	if "--check" in args:
+		if "--atmosphere-godot" in args:
+			assert(environment.fog_enabled and is_zero_approx(clouds.atmospheric_density))
+			assert(is_equal_approx(environment.fog_density, 0.000035))
+		else:
+			assert(not environment.fog_enabled, "Avoid stacking fog systems")
+			var expected := 0.4 if "--atmosphere-baseline" in args else 0.8
+			assert(is_equal_approx(clouds.atmospheric_density, expected))
+		print("PASS: atmosphere preset and 8 valid viewpoints, including two above cloud ceiling")
 		quit()
 		return
 	if DisplayServer.get_name() == "headless":
@@ -72,6 +160,12 @@ func survey() -> void:
 	camera.make_current()
 	terrain.set_camera(camera)
 	root.size = Vector2i(1280, 720)
+	if "--flight" in args:
+		camera.position = flight_points[0]
+		camera.look_at(camera.position + Vector3(0, -0.1, -1))
+		await create_timer(3.0).timeout
+		flying = true
+		return
 	var output := ProjectSettings.globalize_path("user://tutorial_survey/" + Time.get_datetime_string_from_system().replace(":", "-"))
 	if DirAccess.make_dir_recursive_absolute(output) != OK:
 		push_error("Cannot create " + output)
@@ -108,7 +202,24 @@ func show_view(index: int) -> void:
 	camera.look_at(view.target, Vector3.FORWARD if absf(direction.normalized().y) > 0.99 else Vector3.UP)
 	root.title = "Tutorial survey — " + view.name + " | Left/Right: view | Escape: exit"
 
-func _process(_delta: float) -> bool:
+func _process(delta: float) -> bool:
+	if flying:
+		flight_time += delta
+		if flight_time < 12.0:
+			var sample := flight_time * 10.0
+			var index := mini(int(sample), 119)
+			camera.position = flight_points[index].lerp(flight_points[index + 1], sample - index)
+		elif flight_time < 32.0:
+			camera.position = flight_points[120].lerp(flight_points[121], (flight_time - 12.0) / 20.0)
+		elif flight_time < 36.0:
+			camera.position = flight_points[121]
+		elif flight_time < 56.0:
+			camera.position = flight_points[121].lerp(flight_points[120], (flight_time - 36.0) / 20.0)
+		else:
+			print("PASS: flight completed (low pass, ascent, descent)")
+			quit()
+		camera.look_at(camera.position + Vector3(0, -0.1, -1))
+		root.title = "Tutorial flight | %.1f s | altitude %.0f m" % [flight_time, camera.position.y]
 	if Input.is_physical_key_pressed(KEY_ESCAPE):
 		quit()
 	if not busy:

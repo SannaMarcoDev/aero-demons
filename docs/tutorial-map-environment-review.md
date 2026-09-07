@@ -4,7 +4,7 @@
 
 Richiesta: osservare la tutorial map da diverse angolazioni, anche sopra le nuvole, e individuare le migliorie ambientali necessarie per avvicinarla a una mappa finita di qualità AAA.
 
-È stato creato e provato `tools/tutorial_survey.gd`. Non sono state applicate migliorie alla mappa: questa fase comprende osservazione, diagnosi preliminare e proposte.
+È stato creato e provato `tools/tutorial_survey.gd`. Dopo la review iniziale sono state abilitate le mipmap e tarata l'atmosfera SunshineClouds; sotto sono riportati interventi, confronti e limiti. Sfarfallio rinviato su richiesta dell'utente; prossimo intervento: nuvole viste da sopra.
 
 **Conclusione:** non manca soltanto arredamento. Prima va sistemata la leggibilità di materiali, atmosfera e nuvole; poi si aggiungono landmark e dettagli ambientali.
 
@@ -52,7 +52,11 @@ Le viste sopra le nuvole sono a 7.800 m con la configurazione attuale, ossia 1.8
 - Aspetta tre secondi per vista prima dello screenshot.
 - `--hold`: resta aperto dopo le catture; frecce sinistra/destra cambiano vista, Esc esce.
 - Senza `--hold`: termina dopo le catture.
-- `--no-clouds`: disabilita le nuvole solo nel processo di osservazione, per un confronto diagnostico. Non salva modifiche alla risorsa.
+- `--no-clouds`: disabilita l'intero compositor SunshineClouds, incluso il suo contributo atmosferico sul terreno, solo nel processo di osservazione. Non salva modifiche alla risorsa; non è un confronto con la sola geometria delle nuvole rimossa.
+- `--atmosphere-baseline`: ripristina a runtime la densità atmosferica SunshineClouds precedente (0,4).
+- `--atmosphere-sunshine`: prova la taratura scelta (0,8), senza nebbia Environment.
+- `--atmosphere-godot`: prova nebbia Environment con densità 0,000035, colore `(0.74, 0.84, 0.96)`, aerial perspective 0,65, sky affect 0; azzera la densità atmosferica SunshineClouds per evitare sovrapposizioni. È un candidato diagnostico, non la configurazione salvata.
+- I tre preset sono mutuamente esclusivi e combinabili con `--check` o `--hold`.
 - `--check`: verifica geometria delle otto viste, senza richiedere rendering grafico.
 
 Esempi:
@@ -101,6 +105,17 @@ Questi sono limiti delle regioni Terrain3D, non una misura del percorso effettiv
 
 **Proposta:** abilitare mipmap, verificare filtraggio e scala dei materiali, poi rendere più ampie e coerenti le zone di neve, roccia e detrito. Non attribuire tutto il rumore alle mipmap prima del confronto visivo: anche distribuzione dei materiali e contrasto possono contribuire.
 
+### Primo fix applicato — mipmap (7 settembre 2026)
+
+- Abilitato `mipmaps/generate=true` nei 14 file `wc_data/textures/Texture_*_packed.png.import`: albedo e normal dei sette asset effettivamente referenziati dalla mappa. Texture reimportate.
+- Confronto senza nuvole, stesse otto viste: prima `2026-09-07T14-20-03`, dopo `2026-09-07T14-22-00`, nella directory survey indicata sopra. Nuovo passaggio con nuvole: `2026-09-07T14-23-13`.
+- Osservate le coppie spawn/est: nettamente ridotta la grana fine sulle superfici vicine e sul fondovalle. Restano macchie neve/roccia frammentate e rumore sulle montagne lontane: **il problema non è completamente risolto dalle mipmap**.
+- Scala invariata (0,4 per gli asset 0–5, 0,2 per Debris); nessuna modifica a control map, geometria, contrasto o shader. I sampler degli shader di esempio Terrain3D usano filtraggio mipmap anisotropico; questo non costituisce una verifica dello shader generato attivo. Filtraggio runtime e distribuzione dei materiali restano da approfondire nel prossimo intervento.
+- Verifiche: due survey finali completati (otto PNG ciascuno), check headless superato, `git diff --check` pulito. Nei survey finali e nel check non compaiono errori né warning di mipmap mancanti; restano warning di deprecazione/rilascio risorse.
+- L'import globale dell'editor segnala anche risorse stradali mancanti (`road_pbr_detail.gdshader` e texture `asphalt_pbr`) e risorse non rilasciate in headless; non corrette in questo intervento. Non impediscono i survey della tutorial map.
+
+Prossimo passo: diagnosticare il rumore residuo della distribuzione e del filtraggio a distanza, poi ampliare selettivamente le zone neve/roccia/detrito. Non compensarlo sfocando indiscriminatamente tutte le texture.
+
 ### P1 — Nuvole viste da sopra
 
 **Osservazione:** sopra lo strato nuvoloso compare una distesa quasi bianca, con pochissimo rilievo leggibile e una fascia scura all'orizzonte. Lo mostrano soprattutto `06_above_clouds.png` e `07_cloud_horizon.png`.
@@ -121,6 +136,141 @@ Questi sono limiti delle regioni Terrain3D, non una misura del percorso effettiv
 **Evidenza tecnica:** la nebbia Sky3D è disattivata nella scena. Questo non significa che SunshineClouds non applichi alcun contributo atmosferico.
 
 **Proposta:** introdurre foschia atmosferica progressiva e banchi locali nelle valli, mantenendo leggibili ostacoli e percorso tutorial. Verificare l'interazione con l'atmosfera già applicata dalle nuvole, evitando sovrapposizioni eccessive.
+
+### Secondo fix applicato — taratura atmosferica (7 settembre 2026)
+
+**Scelta:** riutilizzare SunshineClouds, portando `atmospheric_density` da 0,4 a 0,8 in `resources/environments/tutorial_clouds.tres`. Nessun nuovo sistema di nebbia, shader, volume o modifica alle maschere/materiali del terreno. La nebbia Sky3D e quella Environment rimangono disattivate.
+
+Confronti effettuati, tutti con nuvole attive e otto viste:
+
+| Passaggio | Directory survey |
+|---|---|
+| SunshineClouds 0,8, candidato | `2026-09-07T16-37-19` |
+| Nebbia Godot, candidato | `2026-09-07T16-37-56` |
+| Baseline SunshineClouds 0,4 | `2026-09-07T16-39-54` |
+| Configurazione finale salvata, senza override | `2026-09-07T16-40-31` |
+
+Osservazione delle immagini: SunshineClouds 0,8 attenua e tinge maggiormente i rilievi lontani, mantenendo il primo piano sostanzialmente invariato. Nel preset Godot provato la velatura interessa maggiormente anche i rilievi vicini e risalta la fascia scura all'orizzonte. Questo confronto sceglie fra **due tarature concrete**, non dimostra un limite generale della nebbia Godot. Il bianco quasi uniforme sopra le nuvole rimane in entrambi: non è risolto da questo intervento.
+
+Verifiche: quattro survey completati, check headless della configurazione salvata e di tutti e tre i preset superati, nessun `ERROR` nei relativi log, `git diff --check` pulito. Restano warning di deprecazione e rilascio GPU. Le catture hanno il limite di convergenza/vento già descritto; non sono confronti pixel-identici.
+
+**Ancora da verificare:** scintillio durante il volo, comportamento durante salita/discesa e frame time. Questa sessione valuta immagini statiche, non certifica stabilità temporale o costo GPU. Prima di ridipingere neve/roccia, giudicare in movimento questa configurazione; intervenire sulle maschere solo dove il rumore resta effettivamente disturbante. Non aumentare ulteriormente la foschia solo per nasconderlo.
+
+### Verifica del volo e diagnosi nuvole (7 settembre 2026)
+
+Aggiunto `--flight` al survey: camera diagnostica (non fisica dell'aereo), 12 s lungo 2.400 m verso nord con quota campionata a 300 m dal terreno, 20 s di salita verticale fino a 7.800 m, 4 s in quota, 20 s di discesa. Il check verifica campioni finiti e partenza/arrivo sotto/sopra lo strato nuvoloso. È un percorso locale ripetibile, non una verifica di tutte le valli o delle collisioni del player.
+
+Registrazione locale: `tutorial_survey/flight-review/flight.avi`, 1.772 frame a 30 FPS, 1920×1080, circa 59 s inclusa attesa iniziale. Il Movie Maker ha usato la risoluzione del progetto nonostante l'argomento `--resolution`; non confrontare i pixel direttamente con i survey 1280×720. Nella stessa directory: `overview.png` (campioni ogni 5 s) e `terrain-consecutive.png` (sei frame consecutivi da 8 s).
+
+Comandi dalla root (per il movie, creare prima la directory di destinazione):
+
+```powershell
+$godot = "..\..\Godot_v4.7.1-stable_win64.exe"
+& $godot --headless --path . --script tools/tutorial_survey.gd -- --check --flight
+& $godot --path . --script tools/tutorial_survey.gd -- --flight
+& $godot --path . --script tools/tutorial_survey.gd --write-movie "$env:APPDATA\Godot\app_userdata\Aero Demons\tutorial_survey\flight-review\flight.avi" --fixed-fps 30 -- --flight
+& $godot --path . --script tools/tutorial_survey.gd -- --cloud-dim-sun
+```
+
+**Evidenze:**
+
+- Shader Terrain3D attivo interrogato nel renderer grafico: sia `_texture_array_albedo` sia `_texture_array_normal` dichiarano `filter_linear_mipmap_anisotropic`; `get_texture_filtering()` restituisce 0 (lineare). Non serve abilitare un altro filtro. Headless non è usato per giudicare il codice shader generato.
+- Nei frame consecutivi del tratto basso le creste restano leggibili e le macchie neve/roccia sono ancora frammentate. Questo esame di frame non certifica l'assenza di scintillio durante riproduzione continua.
+- I campioni durante salita/discesa mostrano una trama regolare, a celle/reticolo, all'interno delle nuvole. È un difetto distinto dalla distribuzione dei materiali del terreno; causa ancora da isolare fra campionamento, risoluzione e ricostruzione temporale. Non attribuirlo già a uno specifico algoritmo.
+- La parte superiore dello strato rimane quasi bianca e la fascia all'orizzonte resta visibile.
+
+**Prova di illuminazione:** `--cloud-dim-sun` usa a runtime `directional_light_power_multiplier = 0.25` sul driver, aggiornando i dati delle luci. Il sole inviato a SunshineClouds passa da energia 2 a 0,5, senza modificare la luce del terreno. Questo influisce anche sul contributo atmosferico SunshineClouds alimentato dalle stesse luci: non isola la sola illuminazione interna dei volumi.
+
+Survey della prova: `2026-09-07T17-33-13`, otto PNG. Nella vista `06_above_clouds` riemergono dettagli dei volumi e aperture prima quasi bianchi; la fascia all'orizzonte persiste. Questo indica che l'intensità luminosa contribuisce fortemente alla perdita di dettaglio, ma non dimostra da solo dove avvenga la saturazione nella pipeline HDR/tonemapping. **Nessuna taratura permanente delle nuvole applicata in questa sessione.**
+
+Verifiche: volo registrato completato, check finale `--check --flight --cloud-dim-sun` superato, survey diagnostico completato, nessun `ERROR` nei rispettivi log, `git diff --check` pulito. Restano warning di deprecazione/rilascio GPU. Movie Maker ha impiegato circa 95 s per 59 s di video: include cattura e scrittura, **non è un benchmark del gioco**. L'analisi video diretta tramite tool non era disponibile; sono stati ispezionati i frame estratti. Validazione percettiva continua e prestazioni real-time rimangono aperte.
+
+**Intervento consigliato ora:** tarare l'energia inviata alle nuvole confrontando anche la resa atmosferica da sotto; diagnosticare separatamente la fascia all'orizzonte e il reticolo nell'attraversamento. Non aumentare alla cieca i passi di raymarch e non modificare ancora le maschere del terreno.
+
+### Terzo fix applicato — luce delle nuvole (7 settembre 2026)
+
+In `scenes/maps/tutorial_map.tscn`, `SunshineCloudsDriverGD.directional_light_power_multiplier = 0.35` (prima default 1). Il driver aggiorna continuamente i dati: energia solare inviata al compositor **2 → 0,7**, luce del terreno sempre **2**. Non modificare soltanto `directional_lights_data` nella risorsa: il driver la sovrascrive. Nessuna modifica a esposizione globale, shader, copertura, densità, passi raymarch, antialiasing o materiali del terreno.
+
+Quattro survey grafici da otto viste, directory locali:
+
+| Moltiplicatore | Directory | Valutazione sopra/sotto lo strato |
+|---|---|---|
+| 1, baseline | `2026-09-07T18-28-29` | Distesa quasi bianca dall'alto |
+| 0,5 | `2026-09-07T18-29-46` | Migliora, ma il rilievo rimane debole |
+| 0,25 | `2026-09-07T18-32-33` | Più dettaglio dall'alto, base molto scura |
+| **0,35, salvato** | `2026-09-07T18-34-58` | Compromesso fra rilievo superiore e luminosità della base |
+
+Esaminate le quattro coppie `01_spawn` / `06_above_clouds`. Nel preset salvato riemergono dettaglio e aperture; la copertura resta estesa. La base delle nuvole è più scura della baseline, volutamente: non è una correzione limitata alla faccia superiore. La foschia rimane a 0,8, ma la luce alimenta anche lo scattering atmosferico SunshineClouds, quindi non si afferma che l'atmosfera sia pixel-identica. Il primo piano rimane leggibile nei confronti.
+
+Verifiche: survey finali senza `ERROR`; check headless verifica energia compositor 0,7, sole terreno 2 e otto viste; percorso grafico `--flight` completo (salita, attraversamento, quota e discesa) terminato con `PASS`, senza `ERROR`. Il percorso è uno smoke test runtime, non una certificazione percettiva continua né una misura di prestazioni. Check dei preset diagnostici superati e `git diff --check` pulito; persistono warning di deprecazione e RID all'uscita.
+
+Per confronto ripetibile: `--cloud-original-sun` ripristina a runtime il vecchio moltiplicatore 1; `--cloud-dim-sun` resta la prova 0,25. Senza opzioni viene usato 0,35, anche in freeroam. I due override sono mutuamente esclusivi e funzionano con `--flight`/`--check`.
+
+**Restano aperti:** fascia scura all'orizzonte e reticolo nell'attraversamento, non corretti dalla taratura luminosa. Prossimo passo: isolare la fascia fra cielo, atmosfera e compositing, senza ritoccare nuovamente il terreno. La resa del nuovo compromesso va approvata dall'utente in freeroam.
+
+### Prova applicata — raccordo orizzonte Sky3D (7 settembre 2026)
+
+L'utente ha scelto luce nuvole **0,3**, già presente nella scena e preservata. Il survey ora calcola l'energia attesa dal moltiplicatore del driver (con lo stesso arrotondamento), anziché imporre il precedente 0,7; energia verificata 0,6, sole terreno sempre 2.
+
+Diagnosi precedente, solo runtime: baseline `2026-09-07T18-49-51`, compositor spento `18-50-28`, atmosfera Sunshine azzerata `18-51-05`, max step count 600 `18-51-42`, horizon offset −0,02 `18-54-27` (tutte directory con prefisso `2026-09-07T`). Senza compositor emerge il fondo scuro Sky3D sotto l'orizzonte; senza atmosfera la fascia diventa quasi nera; raddoppiare i passi la restringe ma non la elimina. L'offset attenua il raccordo fra il fondo del cielo e il limite lontano delle nuvole. Non è un'estensione fisica dello strato nuvoloso.
+
+Su richiesta di prova, salvato **`horizon_offset = -0.02`** nel nodo `Sky3D/SkyDome` e nel parametro del materiale cielo in `scenes/maps/tutorial_map.tscn`. Nessun cambio a luce 0,3, terreno, AA, atmosfera o passi raymarch.
+
+Confronto esteso: quattro direzioni (nord, est, sud, ovest), da `(0,7800,0)` e `(0,12000,0)`, target 20 km avanti e 1.800 m sotto la camera. Baseline offset 0: `2026-09-07T19-03-32`; candidato −0,02: `2026-09-07T19-04-09`. File `horizon_00`–`03` alla quota bassa, `04`–`07` alla quota alta; coordinate nei rispettivi `views.json`. Esaminate le otto coppie in fogli di confronto.
+
+**Risultato: miglioramento parziale.** A 7.800 m la fascia scura non è più evidente nelle quattro direzioni; a 12.000 m rimane, pur più sottile. Un offset fisso non copre qualsiasi quota. Non dichiarare il difetto risolto globalmente e non aumentare alla cieca l'offset senza verificare la resa dal basso.
+
+Survey ordinario con impostazione salvata: `2026-09-07T19-04-46`, otto viste; spawn esaminato, terreno ancora leggibile. Volo grafico completo fino a 7.800 m e ritorno terminato con PASS, senza ERROR; è uno smoke test runtime, non una certificazione visiva continua. Check headless superato, energia 0,6 confermata, `git diff --check` pulito. Restano warning di deprecazione e rilascio RID. La prova è disponibile riavviando freeroam; per tornare indietro impostare Horizon Offset a 0 nel nodo e nel materiale cielo.
+
+### Sfarfallio a media distanza — confronto mirato (7 settembre 2026)
+
+Segnalazione utente: montagne vicine corrette, sfarfallio ancora presente a media distanza. Non considerare quindi chiuso il problema dopo mipmap/atmosfera.
+
+Registrati sette passaggi identici di 360 frame (12 s a 30 FPS, 1920×1080) nella directory locale `tutorial_survey/aliasing-review/`. `--quit-after 360` interrompe intenzionalmente il percorso durante il tratto basso. Tutti con `--flight --no-clouds`, quindi senza compositor né atmosfera SunshineClouds:
+
+| AVI / opzione aggiuntiva | Cosa isola | Risultato nei frame esaminati |
+|---|---|---|
+| `baseline.avi` / nessuna | Configurazione corrente | Grana fine sulle creste intermedie |
+| `no-sun-shadows.avi` / `--no-sun-shadows` | Ombre solari disattivate | La grana resta; le ombre non sono l'unica causa |
+| `terrain-no-normal-maps.avi` / `--terrain-no-normal-maps` | Forza normal depth a zero sui sette asset | Nessun miglioramento netto della zona intermedia |
+| `terrain-grey.avi` / `--terrain-grey` | Albedo grigia uniforme, illuminazione conservata | Dettaglio rumoroso ancora nei rilievi: non attribuirlo solo alle macchie neve/roccia |
+| `terrain-soft-mips.avi` / `--terrain-soft-mips` | `depth_blur = 2` nel materiale | Poco cambiamento nel dettaglio disturbante a media distanza |
+| `msaa.avi` / `--msaa` | MSAA 4× | Contorni più regolari, grana interna ancora presente |
+| `taa.avi` / `--taa` | Antialiasing temporale | Attenuazione evidente della grana, ma anche ammorbidimento del primo piano |
+
+Nella stessa directory, PNG a 6 s e fogli `*-sequence.png` con sei frame consecutivi della zona centrale (crop a `(800,380)`, 400×200 pixel, ingrandimento nearest). Giudizio qualitativo su frame estratti, **non misura quantitativa dello sfarfallio né visione continua certificata**. La camera si muove: una differenza fra frame non misura da sola aliasing. Le distanze dei singoli pixel del crop non sono state misurate.
+
+Evidenza runtime: `TAA=false`, `MSAA=0` nella configurazione attuale. Lo shader attivo usa mipmap anisotropiche per albedo/normal, ma campiona height/control map con `texelFetch(..., 0)`; l'interpolazione di più campioni dipende da `region_mip < 0`. Le mipmap delle texture di superficie non filtrano automaticamente questo dettaglio del terreno. È una pista concreta di aliasing dello shading/campionamento del terreno, non una diagnosi definitiva di una singola istruzione.
+
+Il parametro di prova `depth_blur` moltiplica le derivate delle texture a distanza: nel codice generato il fattore passa da `mipmap_bias` (default shader 1) a `depth_blur + 1`, dopo `bias_distance` (default shader 512 m), con transizione di 1.024 m. Non è una sfocatura dello schermo né un filtro della control map. I valori `null` restituiti dal getter nella baseline non vanno interpretati come zero: sono stati letti anche i default del codice shader generato.
+
+**Decisione:** nessuna modifica permanente a terreno, nebbia o antialiasing. La prova TAA è la candidata più efficace fra quelle esaminate, ma va giudicata nel gioco con aereo, bersagli e nuvole (blur/ghosting e costo GPU non ancora validati). Evitare di aumentare la foschia o degradare le texture vicine per compensare questo difetto.
+
+**Confronto direttamente in freeroam:** aprire `scenes/levels/freeroam.tscn` e avviarla con F6 dell'editor (scena corrente). Durante il gioco, premere **F6** per ciclare `Attuale → TAA → Mipmap morbide a distanza → Attuale`; il nome appare a schermo. I preset sono esclusivi, non salvano risorse e il ritorno ad Attuale ripristina i valori iniziali. MSAA è stato rimosso dal toggle: il cambio con SunshineClouds attivo su D3D12 ha prodotto perdita del device GPU (`0x887a0005` in `initialize_compute`) e una cascata di errori. La causa interna plugin/driver non è ancora isolata; il toggle non modifica più MSAA. Il primo test era insufficiente perché cambiava tutti i preset nello stesso frame. Test corretto `tests/freeroam_filter_check.gd`: 60 frame iniziali e 60 per modalità, due cicli completi con nuvole attive, ripristino e pressione prolungata/rilascio ignorati. Superato senza `ERROR`; restano warning di deprecazione e RID all'uscita.
+
+Per ripetere il confronto nel viewer automatico:
+
+```powershell
+& "..\..\Godot_v4.7.1-stable_win64.exe" --path . --script tools/tutorial_survey.gd -- --flight
+& "..\..\Godot_v4.7.1-stable_win64.exe" --path . --script tools/tutorial_survey.gd -- --flight --taa
+```
+
+Le opzioni sono override runtime nel survey; non salvano le risorse. Documentazione consultata: [Godot 4.7 — antialiasing](https://docs.godotengine.org/en/4.7/tutorials/3d/3d_antialiasing.html), [Terrain3DMaterial](https://terrain3d.readthedocs.io/en/stable/api/class_terrain3dmaterial.html). Sette catture completate senza `ERROR` nei log; non usare i tempi di Movie Maker come benchmark. Check finali headless dei probe e grafico di TAA/MSAA/depth blur superati, `git diff --check` pulito. Un primo check headless è fallito perché il getter del parametro shader restituisce `null` senza renderer: il controllo del valore GPU è stato spostato nel check grafico e i check sono stati rieseguiti.
+
+### Sfarfallio — decisione utente e ripresa futura
+
+**Stato: rinviato su richiesta dell'utente, non risolto.** Nel confronto manuale in freeroam l'utente giudica TAA l'unica modalità attualmente decente; baseline non accettabile e mipmap morbide peggiorative. Questo feedback in movimento prevale sulle valutazioni precedenti dei soli frame. Non è stato chiesto di abilitare TAA permanentemente: il toggle F6 resta diagnostico e la configurazione di avvio non cambia.
+
+Alternative documentate ma **non implementate né provate nel progetto**:
+
+- SSAA con scala 3D bilineare 1,25 e 1,5: prima alternativa da confrontare con TAA, senza accumulo temporale. A 1,5 si renderizzano 2,25 volte i pixel, non necessariamente 2,25 volte il tempo GPU. Verificare prima la ricreazione dei buffer con SunshineClouds attivo; il precedente crash MSAA impone un test grafico reale prima di esporre nuovi toggle.
+- FSR2 a risoluzione nativa: diversa ricostruzione temporale, non elimina per principio blur/ghosting. Compatibilità e resa con le nuvole da verificare.
+- Filtraggio mirato dello shading Terrain3D a distanza: possibile soluzione che preserva il vicino, ma la causa precisa va isolata prima di introdurre uno shader custom.
+- FXAA a bassa priorità: non ci si aspetta una stabilizzazione temporale paragonabile al TAA. MSAA escluso dal toggle per il crash già documentato, non riproporlo senza diagnosi separata.
+
+Fonte per SSAA/scaling: [Godot 4.7 — antialiasing](https://docs.godotengine.org/en/4.7/tutorials/3d/3d_antialiasing.html). Alla ripresa confrontare in movimento nitidezza vicina, scintillio intermedio, scie e frame time; non aggiungere foschia per nascondere il problema.
+
+**Prossimo problema attivo della review: P1 — nuvole viste da sopra.** Ripartire dalla prova `--cloud-dim-sun`: recupera rilievo ma modifica anche l'atmosfera. Tarare prima la luce inviata al compositor confrontando sopra e sotto lo strato; fascia scura e reticolo sono difetti distinti ancora aperti.
 
 ### P2 — Confini del mondo
 
@@ -190,12 +340,11 @@ Documentazione API consultata: Godot 4.7, cattura del viewport dopo `RenderingSe
 
 ## Riprendere al prossimo incontro
 
-1. Rileggere questo documento e confrontare le immagini dei due passaggi finali.
-2. Confermare la direzione artistica, se si procede oltre il polish tecnico.
-3. Iniziare con una modifica circoscritta a materiali/mipmap e ripetere il survey per il confronto.
-4. Diagnosticare il bianco delle nuvole e la fascia scura dall'alto prima di aggiungere effetti.
-5. Lavorare sulla profondità atmosferica e sui bordi.
-6. Solo dopo, collocare landmark e dettagli lungo il percorso di gioco e misurare il costo in movimento.
+1. Riprendere da **P1 — nuvole viste da sopra**: mipmap e prima taratura atmosferica sono già applicate; sfarfallio rinviato dall'utente.
+2. Taratura luminosa ora applicata: moltiplicatore 0,35 sul driver; far giudicare la resa in freeroam. `--cloud-original-sun` permette il confronto con il vecchio valore.
+3. Diagnosticare separatamente fascia scura all'orizzonte (prossimo difetto) e reticolo durante attraversamento, con verifica in movimento.
+4. Passare ai bordi del mondo; non riaprire lo sfarfallio senza richiesta.
+5. Confermare la direzione artistica prima di landmark e dettagli, poi misurarne il costo in movimento.
 
 ### Protezione del lavoro esistente
 

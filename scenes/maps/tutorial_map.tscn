@@ -19,7 +19,7 @@ shader = ExtResource("11_skyshader")
 shader_parameter/sky_visible = true
 shader_parameter/color_correction = Vector2(0, 1)
 shader_parameter/ground_color = Color(0.3, 0.3, 0.3, 1)
-shader_parameter/horizon_offset = 0.0
+shader_parameter/horizon_offset = -0.02
 shader_parameter/atm_darkness = 0.5
 shader_parameter/atm_sun_intensity = 18.0
 shader_parameter/atm_day_tint = Color(0.807843, 0.909804, 1, 1)
@@ -183,6 +183,7 @@ directional_shadow_max_distance = 256.0
 
 [node name="SkyDome" type="Node" parent="Sky3D" unique_id=1928374650]
 script = ExtResource("10_dome")
+horizon_offset = -0.02
 sun_azimuth = -1.2980918
 sun_altitude = -1.0101368
 sun_light_energy = 2.0
@@ -214,6 +215,7 @@ clouds_resource = ExtResource("21_sunshine")
 ambience_sample_environment = SubResource("Environment_sky3d")
 tracked_directional_lights = [NodePath("../Sky3D/SunLight")]
 tracked_directional_light_shadow_steps = Array[int]([32])
+directional_light_power_multiplier = 0.3
 wind_direction = Vector3(1.4, 0, 0.55)
 extra_large_structures_wind_speed = 90.0
 large_structures_wind_speed = 65.0
