@@ -533,7 +533,7 @@ func _die() -> void:
 	var explosion_parent := get_parent()
 	if explosion_parent == null:
 		explosion_parent = get_tree().current_scene
-	Explosion.spawn_aircraft(explosion_parent, global_position, 3.0)
+	ExplosionFX.spawn(explosion_parent, global_position, 3.0)
 	if _engine_audio != null:
 		_engine_audio.stop()
 	if _accelerating_audio != null:

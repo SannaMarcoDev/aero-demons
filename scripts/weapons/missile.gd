@@ -338,7 +338,7 @@ func _detonate() -> void:
 		scale = 1.7
 	elif missile_id == "NCGBM":
 		scale = 1.25
-	Explosion.spawn(get_parent(), global_position, scale)
+	ExplosionFX.spawn(get_parent(), global_position, scale)
 	_clear_threat()
 	queue_free()
 

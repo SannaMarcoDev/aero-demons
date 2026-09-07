@@ -11,6 +11,23 @@ const SMOKE_SHADER := preload("res://resources/shaders/vfx/explosion_smoke.gdsha
 const SHOCKWAVE_SHADER := preload("res://resources/shaders/vfx/explosion_shockwave.gdshader")
 const MISSILE_HIT_SOUND: AudioStream = preload("res://assets/audio/sfx/weapons/missile-hit.mp3")
 
+
+static func spawn(parent: Node, position: Vector3, scale_factor: float = 1.0) -> ExplosionFX:
+	if parent == null or not parent.is_inside_tree():
+		return null
+	var scene := load("res://scenes/vfx/explosion_fx.tscn") as PackedScene
+	if scene == null:
+		return null
+	var instance := scene.instantiate() as ExplosionFX
+	if instance == null:
+		return null
+	instance.overall_scale = scale_factor
+	parent.add_child(instance)
+	instance.global_position = position
+	instance.play()
+	return instance
+
+
 @export_range(0.1, 8.0, 0.05) var overall_scale := 1.0:
 	set(value):
 		overall_scale = maxf(value, 0.1)
