@@ -135,6 +135,14 @@ func _run_checks() -> void:
 		_fail("missile catalog definition changed")
 		return
 
+	weapons.gun_ammo = 2
+	weapons.fire_gun()
+	if weapons.gun_ammo != 1:
+		_fail("gun ammo did not decrement after firing")
+		return
+	for projectile in get_nodes_in_group("mission_projectiles"):
+		projectile.free()
+
 	# Fire once through the real controller to cover ammo decrement and cooldown gating.
 	weapons.active_missile_slot = 0
 	weapons.equip_missile("STDM")

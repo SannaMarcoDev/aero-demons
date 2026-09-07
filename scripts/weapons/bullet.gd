@@ -14,6 +14,7 @@ var velocity := Vector3.ZERO
 
 var _distance_traveled := 0.0
 var _launched := false
+var _ray_query := PhysicsRayQueryParameters3D.new()
 
 
 func launch(start_transform: Transform3D, launch_direction: Vector3, inherited_velocity: Vector3) -> void:
@@ -45,10 +46,12 @@ func _physics_process(delta: float) -> void:
 		return
 	var from := global_position
 	var to := from + displacement.normalized() * travel_distance
-	var query := PhysicsRayQueryParameters3D.create(from, to, target_layers)
-	query.collide_with_areas = true
-	query.collide_with_bodies = false
-	var result := get_world_3d().direct_space_state.intersect_ray(query)
+	_ray_query.from = from
+	_ray_query.to = to
+	_ray_query.collision_mask = target_layers
+	_ray_query.collide_with_areas = true
+	_ray_query.collide_with_bodies = false
+	var result := get_world_3d().direct_space_state.intersect_ray(_ray_query)
 	if not result.is_empty():
 		global_position = result.get("position", to)
 		var collider = result.get("collider")

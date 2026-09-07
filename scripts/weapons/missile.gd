@@ -40,6 +40,7 @@ var _flame_budget := 0.0
 var _flame_emission_scale := 1.0
 var _smoke_core_budget := 0.0
 var _smoke_trail_budget := 0.0
+var _ray_query := PhysicsRayQueryParameters3D.new()
 
 # --- Idea B/C/D/F: visibilità ---
 var _boost_remaining := 0.0
@@ -94,16 +95,11 @@ func _physics_process(delta: float) -> void:
 		var prev_pos := global_position
 		global_position += velocity * delta
 		_orient_to_velocity()
-		var space_state := get_world_3d().direct_space_state
-		if space_state != null:
-			var query := PhysicsRayQueryParameters3D.create(prev_pos, global_position)
-			query.collide_with_areas = false
-			query.collide_with_bodies = true
-			var hit := space_state.intersect_ray(query)
-			if not hit.is_empty():
-				global_position = hit.get("position", global_position)
-				_detonate()
-				return
+		var hit := _raycast_segment(prev_pos, global_position)
+		if not hit.is_empty():
+			global_position = hit.get("position", global_position)
+			_detonate()
+			return
 		if global_position.y <= 0.0 or _fall_time >= 5.0 or _age >= 25.0:
 			_detonate()
 			return
@@ -138,16 +134,23 @@ func _physics_process(delta: float) -> void:
 	if not _payload_enabled and _check_target_proximity():
 		return
 
-	var space_state := get_world_3d().direct_space_state
-	if space_state != null:
-		var query := PhysicsRayQueryParameters3D.create(prev_pos, global_position)
-		query.collide_with_areas = false
-		query.collide_with_bodies = true
-		var hit := space_state.intersect_ray(query)
-		if not hit.is_empty():
-			global_position = hit.get("position", global_position)
-			_detonate()
-			return
+	var hit := _raycast_segment(prev_pos, global_position)
+	if not hit.is_empty():
+		global_position = hit.get("position", global_position)
+		_detonate()
+		return
+
+
+func _raycast_segment(from: Vector3, to: Vector3) -> Dictionary:
+	var world := get_world_3d()
+	if world == null:
+		return {}
+	_ray_query.from = from
+	_ray_query.to = to
+	_ray_query.collision_mask = 0xffffffff
+	_ray_query.collide_with_areas = false
+	_ray_query.collide_with_bodies = true
+	return world.direct_space_state.intersect_ray(_ray_query)
 
 
 ## Arms this instance as a straight-flying carrier. Children are ordinary homing missiles.
