@@ -1,0 +1,60 @@
+# Aero Demons
+
+Progetto Godot **4.7**, renderer **Forward+**, fisica **Jolt**.
+Aprire `project.godot` e avviare con **F6** la scena desiderata o **F5** la scena principale: [`scenes/maps/tutorial_map.tscn`](scenes/maps/tutorial_map.tscn).
+La mappa principale contiene attualmente terreno, cielo e nuvole; non istanzia il giocatore.
+
+## Mappa del progetto
+
+| Percorso | Contenuto |
+| --- | --- |
+| `scenes/maps/` | Mappe e livelli; `tutorial_map.tscn` è il punto di ingresso. |
+| `scenes/player/`, `scenes/enemies/` | Scene degli aerei e del giocatore. |
+| `scenes/ui/`, `scenes/weapons/`, `scenes/vfx/` | HUD, proiettili, missili ed effetti. |
+| `scripts/` | Logica divisa per dominio: `audio`, `camera`, `combat`, `player`, `ui`, `vfx`, `weapons`. |
+| `resources/materials/` | Materiali condivisi. |
+| `resources/shaders/` | Shader del progetto, inclusi quelli VFX. |
+| `resources/environments/` | Configurazioni ambientali, come le nuvole della mappa tutorial. |
+| `assets/` | Modelli, aerei, audio, font e pacchetti VFX. |
+| `terrain/textures/` | Texture del terreno. |
+| `terrain/source/` | Heightmap master GeoTIFF, RAW per World Machine, anteprima e informazioni di origine/licenza. |
+| `wc_data/` | Dati Terrain3D e texture prodotti da World Creator Bridge. Sono dati del progetto, non cache. |
+| `addons/` | Plugin e dipendenze integrate. |
+| `demo/` | Scene dimostrative delle dipendenze, separate dal gioco. |
+| `tests/` | Controlli eseguibili, separati dagli script di gioco. |
+
+In radice rimangono la configurazione Godot/Git, questa guida, l'icona e `default_bus_layout.tres` (layout audio predefinito).
+
+## Punti di ingresso utili
+
+- Giocatore: `scenes/player/player.tscn` → `scripts/player/player_flight.gd`.
+- Armi: `scripts/weapons/weapon_controller.gd` e `missile_catalog.gd`.
+- Camera: `scripts/camera/follow_camera.gd` e `free_fly_camera.gd`.
+- Audio globale: `scripts/audio/audio_manager.gd`, registrato come autoload in `project.godot`.
+- Terreno: `wc_data/WC_Terrain/`; origine e parametri in [`terrain/source/terrain_50km_info.txt`](terrain/source/terrain_50km_info.txt).
+
+## Convenzioni
+
+- Usare `snake_case` per nuovi file e cartelle del progetto; mantenere i nomi originali dei pacchetti esterni.
+- Inserire scene e script nel rispettivo dominio esistente; aggiungere cartelle solo per contenuti reali.
+- Conservare insieme alle risorse i file `.uid` e `.import`, anche in Git. Per gli spostamenti preferire il pannello FileSystem di Godot e verificare anche i percorsi scritti nelle stringhe.
+- Non spostare `wc_data/` senza aggiornare World Creator Bridge: il plugin contiene percorsi fissi verso questa cartella.
+- Non riordinare internamente `addons/`, `demo/`, `assets/BinbunVFX/` e `assets/thrusters/`: mantenere la struttura distribuita facilita gli aggiornamenti.
+- `.godot/` e `.pi/` sono locali e già escluse da Git. Non confonderle con `wc_data/` o con i sorgenti del terreno.
+
+## Verifica
+
+Con l'eseguibile Godot disponibile come `godot`, dalla radice:
+
+```sh
+godot --headless --path . --script tests/afterburner_check.gd
+```
+
+Per la verifica grafica aprire la mappa tutorial nell'editor con Forward+; i controlli headless non validano la resa di terreno, cielo e nuvole.
+
+### Problemi preesistenti rilevati
+
+- `scripts/ui/game_session.gd` contiene ancora il percorso `res://scenes/maps/italian_alps_world.tscn`, ma quella scena non è presente nel repository. Non è la scena principale.
+- L'editor segnala `Explosion` non dichiarato in `scripts/player/player_flight.gd:536` e `scripts/weapons/missile.gd:341`; lo script VFX presente dichiara invece `ExplosionFX`.
+
+Il riordino non modifica questa logica. Il test afterburner passa, ma non copre questi errori né costituisce una verifica completa del gioco.

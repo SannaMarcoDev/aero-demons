@@ -11,7 +11,7 @@
 [ext_resource type="Texture2D" uid="uid://2r8ylu6rg5dp" path="res://addons/sky_3d/assets/thirdparty/textures/moon/MoonMap.png" id="15_moon"]
 [ext_resource type="Texture2D" uid="uid://djpfuyxkryegn" path="res://addons/sky_3d/assets/textures/noise.jpg" id="16_noise"]
 [ext_resource type="Texture2D" uid="uid://bm7dot7t7u1q4" path="res://addons/sky_3d/assets/thirdparty/textures/milkyway/StarField.jpg" id="17_stars"]
-[ext_resource type="CompositorEffect" uid="uid://dnuaohkyn5spa" path="res://resources/tutorial_clouds.tres" id="21_sunshine"]
+[ext_resource type="CompositorEffect" uid="uid://dnuaohkyn5spa" path="res://resources/environments/tutorial_clouds.tres" id="21_sunshine"]
 [ext_resource type="Script" uid="uid://djusduuxf0voj" path="res://addons/SunshineClouds2/SunshineCloudsDriver.gd" id="22_clouds_driver"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]

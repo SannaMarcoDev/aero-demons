@@ -1,5 +1,5 @@
 extends SceneTree
-## Run: godot --headless --path . --script scripts/tests/afterburner_check.gd
+## Run: godot --headless --path . --script tests/afterburner_check.gd
 
 func _initialize() -> void:
 	call_deferred("_check")

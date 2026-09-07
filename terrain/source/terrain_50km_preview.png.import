@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b1cdwl7dcwisg"
-path="res://.godot/imported/terrain_50km_preview.png-7c1136ddd5ffd67b8ad08fd78a4f74f6.ctex"
+path="res://.godot/imported/terrain_50km_preview.png-1d6be73474de492c139aa79dc623f749.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://terrain_50km_preview.png"
-dest_files=["res://.godot/imported/terrain_50km_preview.png-7c1136ddd5ffd67b8ad08fd78a4f74f6.ctex"]
+source_file="res://terrain/source/terrain_50km_preview.png"
+dest_files=["res://.godot/imported/terrain_50km_preview.png-1d6be73474de492c139aa79dc623f749.ctex"]
 
 [params]
 
