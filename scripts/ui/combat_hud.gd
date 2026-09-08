@@ -54,6 +54,7 @@ var _engaged_until := -1.0
 var _engaged := false
 var _locked_missile_targets: Array = []
 var _missile_lock_limit := 1
+var _hit_remaining := 0.0
 
 @onready var _objectives_line: Label = $HudText/ObjectivesLine
 @onready var _score_label: Label = $HudText/Score
@@ -85,6 +86,8 @@ class HudCanvas extends Control:
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_resolve_sources()
+	if is_instance_valid(weapons):
+		weapons.hit_confirmed.connect(_on_hit_confirmed)
 	if targeting != null and is_instance_valid(targeting) and targeting.has_signal("target_changed"):
 		targeting.target_changed.connect(_on_target_changed)
 	_font = load("res://assets/fonts/Michroma-Regular.ttf")
@@ -103,7 +106,13 @@ func _ready() -> void:
 	_update_labels()
 
 
-func _process(_delta: float) -> void:
+func _on_hit_confirmed() -> void:
+	_hit_remaining = 0.25
+
+
+func _process(delta: float) -> void:
+	if not get_tree().paused:
+		_hit_remaining = maxf(_hit_remaining - delta, 0.0)
 	_update_labels()
 	if is_instance_valid(_canvas):
 		_canvas.queue_redraw()
@@ -213,6 +222,11 @@ func _draw_hud(canvas: Control) -> void:
 	_draw_target(canvas)
 	_draw_radar(canvas)
 	_draw_hull(canvas)
+	_draw_boundary_warning(canvas)
+	if _hit_remaining > 0.0 and _font != null:
+		var text_size := _font.get_string_size("HIT", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 24)
+		var position := canvas.size * 0.5 + Vector2(-text_size.x * 0.5, _font.get_ascent(24) - text_size.y * 0.5)
+		_draw_text(canvas, position, "HIT", 24, WHITE)
 
 
 func _draw_missile_alert(canvas: Control) -> void:
@@ -253,8 +267,48 @@ func _draw_heading_tape(canvas: Control) -> void:
 
 
 func _draw_pipper(canvas: Control) -> void:
-	var center := canvas.size * 0.5
-	canvas.draw_circle(center, 7.0, WHITE, false, 1.2, true)
+	if not is_instance_valid(camera) or not is_instance_valid(weapons):
+		return
+	var world_point: Vector3 = weapons.get_gun_boresight_point()
+	var center: Vector2 = _gun_screen_point(canvas, world_point)
+	var bounds := Rect2(Vector2.ONE * 22.0, canvas.size - Vector2.ONE * 44.0)
+	if camera.is_position_behind(world_point) or not bounds.has_point(center):
+		var local: Vector3 = camera.global_transform.affine_inverse() * world_point
+		var edge_direction := Vector2(local.x, -local.y).normalized()
+		if edge_direction.is_zero_approx():
+			edge_direction = Vector2.DOWN
+		var half_size := bounds.size * 0.5
+		var reach := minf(half_size.x / maxf(absf(edge_direction.x), 0.0001),
+			half_size.y / maxf(absf(edge_direction.y), 0.0001))
+		var edge := canvas.size * 0.5 + edge_direction * reach
+		var side := edge_direction.orthogonal() * 5.0
+		canvas.draw_line(edge - edge_direction * 10.0 + side, edge, WHITE, 1.5, true)
+		canvas.draw_line(edge - edge_direction * 10.0 - side, edge, WHITE, 1.5, true)
+	else:
+		_draw_gun_boresight(canvas, center)
+	var solution: Dictionary = weapons.get_gun_solution(_current_target())
+	if solution.is_empty():
+		return
+	# Both barrel references use the same depth, so aligned directions overlap exactly.
+	var aim: Vector3 = weapons.get_gun_muzzle_position() + solution.direction * maxf(weapons.gun_solution_range, 1.0)
+	if camera.is_position_behind(aim):
+		return
+	var lead := _gun_screen_point(canvas, aim)
+	if bounds.has_point(lead):
+		var distance: float = weapons.get_gun_muzzle_position().distance_to(_current_target().global_position)
+		var color := GREEN if distance <= 700.0 else GREEN_DIM
+		canvas.draw_arc(lead, WeaponController.GUN_LEAD_RADIUS, 0.0, TAU, 48, color, 1.5, true)
+		canvas.draw_circle(lead, 2.0, color)
+		if distance > 700.0:
+			_draw_text(canvas, lead + Vector2(30.0, 5.0), "CLOSE IN · GUN 300–700 M", 12, color)
+
+
+func _gun_screen_point(canvas: Control, point: Vector3) -> Vector2:
+	return canvas.get_global_transform_with_canvas().affine_inverse() * camera.unproject_position(point)
+
+
+func _draw_gun_boresight(canvas: Control, center: Vector2) -> void:
+	canvas.draw_circle(center, WeaponController.GUN_BORESIGHT_RADIUS, WHITE, false, 1.2, true)
 	canvas.draw_line(center + Vector2(-15.0, 0.0), center + Vector2(-8.0, 0.0), WHITE, 1.0, true)
 	canvas.draw_line(center + Vector2(8.0, 0.0), center + Vector2(15.0, 0.0), WHITE, 1.0, true)
 	canvas.draw_line(center + Vector2(0.0, -15.0), center + Vector2(0.0, -8.0), WHITE, 1.0, true)
@@ -564,6 +618,21 @@ func _draw_hull(canvas: Control) -> void:
 	canvas.draw_rect(bar, WHITE, false, 1.5)
 	canvas.draw_rect(Rect2(bar.position, Vector2(bar.size.x * health_ratio, bar.size.y)), RED_ORANGE, true)
 
+
+func _draw_boundary_warning(canvas: Control) -> void:
+	var controller = _node_from_path("../GardaLake/TutorialBoundaryController")
+	if controller == null:
+		controller = _node_from_path("../TutorialBoundaryController")
+	if controller == null or not controller.has_method("is_boundary_warning"):
+		return
+	if not bool(controller.call("is_boundary_warning")):
+		return
+	var text := "BOUNDARY · TURN BACK"
+	var width := 0.0
+	if _font != null:
+		width = _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 26).x
+	var center := canvas.size * 0.5
+	_draw_text(canvas, Vector2(center.x - width * 0.5, 108.0), text, 26, RED_ORANGE)
 
 func _draw_text(canvas: Control, position: Vector2, text: String, size: int, color: Color) -> void:
 	if _font == null:

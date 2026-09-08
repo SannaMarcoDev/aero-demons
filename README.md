@@ -1,14 +1,14 @@
 # Aero Demons
 
 Progetto Godot **4.7**, renderer **Forward+**, fisica **Jolt**.
-Aprire `project.godot` e avviare con **F6** la scena desiderata o **F5** la scena principale: [`scenes/maps/tutorial_map.tscn`](scenes/maps/tutorial_map.tscn).
-La mappa principale contiene attualmente terreno, cielo e nuvole; non istanzia il giocatore.
+Aprire `project.godot` e avviare con **F6** la scena desiderata o **F5** la scena principale: [`scenes/levels/freeroam.tscn`](scenes/levels/freeroam.tscn).
+Il gioco principale è il livello freeroam: carica `scenes/maps/garda_lake.tscn` e vi istanzia il giocatore.
 
 ## Mappa del progetto
 
 | Percorso | Contenuto |
 | --- | --- |
-| `scenes/maps/` | Mappe e livelli; `tutorial_map.tscn` è il punto di ingresso. |
+| `scenes/maps/` | Mappe; `garda_lake.tscn` è la mappa del lago di Garda. |
 | `scenes/player/`, `scenes/enemies/` | Scene degli aerei e del giocatore. |
 | `scenes/ui/`, `scenes/weapons/`, `scenes/vfx/` | HUD, proiettili, missili ed effetti. |
 | `scripts/` | Logica divisa per dominio: `audio`, `camera`, `combat`, `player`, `ui`, `vfx`, `weapons`. |
@@ -35,8 +35,8 @@ In radice rimangono la configurazione Godot/Git, questa guida, l'icona e `defaul
 
 ## Prototipo dogfight
 
-Aprire `scenes/levels/freeroam.tscn` e avviare la scena: giocatore, due gregari e quattro nemici, senza obiettivi di missione.
-In gioco **F7** mostra ruoli, bersagli, stati, motivi di mancato fuoco e budget del direttore; i gregari hanno indicatori azzurri. **F6** mantiene il confronto dei filtri grafici.
+Aprire `scenes/levels/tutorial.tscn` e avviare la scena: giocatore, due gregari e quattro nemici, senza obiettivi di missione.
+In gioco **F7** mostra ruoli, bersagli, stati, motivi di mancato fuoco e budget del direttore; i gregari hanno indicatori azzurri. In `scenes/levels/tutorial.tscn` e `scenes/levels/freeroam.tscn`, **F6** mantiene il confronto dei filtri grafici.
 
 - `CombatDirector`: durata degli incarichi, pressione/respiro, limite di attaccanti e missili sul giocatore.
 - `EnemyFighter` (condiviso con i gregari): tempi tattici, pilotaggio, evasione, tiro e sicurezza, regolabili nell'Inspector.

@@ -23,10 +23,11 @@ func _check() -> void:
 	var session = load("res://scripts/ui/game_session.gd")
 	var saved_loadout: Array[String] = session.selected_missiles.duplicate()
 	session.selected_missiles.assign(["HSSTDM", "STDM"])
-	arena = load("res://scenes/levels/freeroam.tscn").instantiate()
+	arena = load("res://scenes/levels/tutorial.tscn").instantiate()
 	arena.set_script(null)
-	arena.get_node("TutorialMap").free()
-	arena.get_node("CombatHUD").free()
+	arena.get_node("GardaLake").free()
+	if arena.has_node("CombatHUD"):
+		arena.get_node("CombatHUD").free()
 	root.add_child(arena)
 	current_scene = arena
 	player = arena.get_node("Player")
@@ -250,7 +251,8 @@ func _check() -> void:
 	assert(director.duel_opponent == victim)
 	assert(victim.assignment_target == player)
 	assert(allies[0].assignment_target == victim and allies[1].assignment_target == victim)
-	# Keep the original player's real cannon/missile regression coverage as well.
+	# Keep the optional physical cannon path covered; arcade overlap has its own check.
+	player._weapons.gun_overlap_enabled = false
 	ally.position = Vector3(-10000, 2000, 0)
 	player.position = Vector3(0, 2000, 0)
 	player.basis = Basis.IDENTITY

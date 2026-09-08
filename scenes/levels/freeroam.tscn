@@ -1,63 +1,24 @@
 [gd_scene format=3 uid="uid://c6xk4m8u2p0vl"]
 
-[ext_resource type="PackedScene" uid="uid://fhmax6bwhmpg" path="res://scenes/maps/tutorial_map.tscn" id="1_map"]
+[ext_resource type="PackedScene" uid="uid://fhmax6bwhmpg" path="res://scenes/maps/garda_lake.tscn" id="1_map"]
 [ext_resource type="PackedScene" uid="uid://dgqm8ooyeb3c6" path="res://scenes/player/player.tscn" id="2_player"]
-[ext_resource type="PackedScene" path="res://scenes/ui/combat_hud.tscn" id="4_hud"]
 [ext_resource type="Script" uid="uid://cef3jhpp0hg8n" path="res://scripts/ui/freeroam_filter_toggle.gd" id="5_filters"]
-[ext_resource type="PackedScene" path="res://scenes/enemies/enemy_fighter.tscn" id="6_enemy"]
-[ext_resource type="Script" path="res://scripts/combat/combat_director.gd" id="7_director"]
 
 [node name="Freeroam" type="Node3D" unique_id=1151233576]
 script = ExtResource("5_filters")
 
-[node name="TutorialMap" parent="." unique_id=51425002 instance=ExtResource("1_map")]
+[node name="GardaLake" parent="." unique_id=51425002 instance=ExtResource("1_map")]
 
 [node name="Player" parent="." unique_id=1784232784 instance=ExtResource("2_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2000, 0)
+yaw_speed = 8.0
+roll_speed = 60.0
+angular_acceleration = Vector3(45, 18, 90)
+angular_braking = Vector3(65, 25, 120)
+control_curve = 1.8
+control_rise_time = 0.12
+control_release_time = 0.06
 camera_fov = 70.0
 camera_height = 0.8000000000000007
 camera_depth = 5.5
 camera_pitch = 7.0
-
-[node name="EnemyFighter" parent="." unique_id=804673695 instance=ExtResource("6_enemy")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 500, 2100, -1500)
-label = "BANDIT 1"
-
-[node name="EnemyFighter2" parent="." instance=ExtResource("6_enemy")]
-position = Vector3(0, 2050, -850)
-label = "BANDIT 2"
-
-[node name="EnemyFighter3" parent="." instance=ExtResource("6_enemy")]
-position = Vector3(-950, 2150, -1700)
-rotation = Vector3(0, 3.1415927, 0)
-label = "BANDIT 3"
-
-[node name="EnemyFighter4" parent="." instance=ExtResource("6_enemy")]
-position = Vector3(950, 1950, -1900)
-rotation = Vector3(0, 3.1415927, 0)
-label = "BANDIT 4"
-
-[node name="Wingman1" parent="." instance=ExtResource("6_enemy")]
-position = Vector3(-300, 2050, -150)
-faction_group = "allies"
-label = "WING 1 · COVER"
-policy = 1
-burst_interval = 5.5
-aim_accuracy = 0.7
-
-[node name="Wingman2" parent="." instance=ExtResource("6_enemy")]
-position = Vector3(300, 1950, -250)
-faction_group = "allies"
-label = "WING 2 · SUPPORT"
-policy = 2
-burst_interval = 5.5
-aim_accuracy = 0.7
-
-[node name="CombatDirector" type="Node" parent="."]
-script = ExtResource("7_director")
-
-[node name="CombatHUD" parent="." unique_id=727810572 instance=ExtResource("4_hud")]
-player_path = NodePath("../Player")
-camera_path = NodePath("../Player/FlightCamera")
-targeting_path = NodePath("../Player/TargetLock")
-weapons_path = NodePath("../Player/WeaponController")

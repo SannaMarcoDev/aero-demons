@@ -6,7 +6,7 @@ func _initialize() -> void:
 	call_deferred("check")
 
 func check() -> void:
-	var scene = load("res://scenes/levels/freeroam.tscn").instantiate()
+	var scene = load("res://scenes/levels/tutorial.tscn").instantiate()
 	root.add_child(scene)
 	for frame in range(60):
 		await process_frame

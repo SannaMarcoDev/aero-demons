@@ -15,7 +15,7 @@ func benchmark() -> void:
 	root.scaling_3d_scale = 1.0
 	root.use_taa = false
 	root.screen_space_aa = Viewport.SCREEN_SPACE_AA_DISABLED
-	var scene = load("res://scenes/levels/freeroam.tscn").instantiate()
+	var scene = load("res://scenes/levels/tutorial.tscn").instantiate()
 	root.add_child(scene)
 	var player: Node3D = scene.get_node("Player")
 	player.set_physics_process(false)

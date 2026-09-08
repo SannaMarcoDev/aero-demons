@@ -13,7 +13,7 @@ extends SceneTree
 ## --edges adds eight boundary views; --background-noise tests native Terrain3D hills.
 ## In viewer: Left/Right change viewpoint, Escape exits. PNGs go to user://tutorial_survey/.
 
-const MAP := "res://scenes/maps/tutorial_map.tscn"
+const MAP := "res://scenes/maps/garda_lake.tscn"
 var camera: Camera3D
 var views: Array[Dictionary] = []
 var selected := 0
@@ -156,15 +156,16 @@ func survey() -> void:
 			if "uniform" in line and ("_texture_array_albedo" in line or "_texture_array_normal" in line):
 				print("Terrain active sampler: ", line)
 	if "--flight" in args:
+		# Western valley: the old x=0 route starts above the low cloud floor.
 		# Diagnostic camera, not aircraft physics: follow sampled ground with 300 m clearance.
 		for i in range(121):
-			var point := Vector3(0, 0, -i * 20.0)
+			var point := Vector3(-16000, 0, -i * 20.0)
 			var ground: float = terrain.data.get_height(point)
 			assert(is_finite(ground), "Flight path leaves terrain")
 			point.y = ground + 300.0
 			flight_points.append(point)
 		assert(flight_points[-1].y < clouds.cloud_floor, "Ascent must start below clouds")
-		flight_points.append(Vector3(0, above, -2400))
+		flight_points.append(Vector3(flight_points[-1].x, above, flight_points[-1].z))
 		assert(flight_points[-1].y > clouds.cloud_ceiling)
 		print("Flight: 12 s low pass, 20 s ascent, 4 s above clouds, 20 s descent")
 	if "--check" in args:
