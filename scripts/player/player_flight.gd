@@ -111,6 +111,8 @@ var _accelerating_audio: AudioStreamPlayer3D
 
 func _ready() -> void:
 	add_to_group(faction_group)
+	if faction_group == "player":
+		add_to_group("combat_allies")
 	_scale_airframe()
 	health = max_health
 	_spawn_transform = global_transform

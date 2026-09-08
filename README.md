@@ -33,6 +33,22 @@ In radice rimangono la configurazione Godot/Git, questa guida, l'icona e `defaul
 - Audio globale: `scripts/audio/audio_manager.gd`, registrato come autoload in `project.godot`.
 - Terreno: `wc_data/WC_Terrain/`; origine e parametri in [`terrain/source/terrain_50km_info.txt`](terrain/source/terrain_50km_info.txt).
 
+## Prototipo dogfight
+
+Aprire `scenes/levels/freeroam.tscn` e avviare la scena: giocatore, due gregari e quattro nemici, senza obiettivi di missione.
+In gioco **F7** mostra ruoli, bersagli, stati, motivi di mancato fuoco e budget del direttore; i gregari hanno indicatori azzurri. **F6** mantiene il confronto dei filtri grafici.
+
+- `CombatDirector`: durata degli incarichi, pressione/respiro, limite di attaccanti e missili sul giocatore.
+- `EnemyFighter` (condiviso con i gregari): tempi tattici, pilotaggio, evasione, tiro e sicurezza, regolabili nell'Inspector.
+- Per provare sei nemici, duplicare due istanze nemiche nella scena: il direttore le rileva senza aumentare il budget sul giocatore.
+
+```sh
+godot --headless --path . --script tests/enemy_fighter_check.gd --fixed-fps 60
+godot --headless --path . --script tests/dogfight_simulation_check.gd --fixed-fps 60
+```
+
+Il secondo controllo simula 60 secondi con quattro nemici, sei nemici e un duello finale senza gregari. Il giocatore di test vola diritto e può essere abbattuto: verifica il funzionamento, non il bilanciamento. Aggressività, efficacia dei gregari e finestre di contrattacco richiedono ancora una prova giocata.
+
 ## Convenzioni
 
 - Usare `snake_case` per nuovi file e cartelle del progetto; mantenere i nomi originali dei pacchetti esterni.

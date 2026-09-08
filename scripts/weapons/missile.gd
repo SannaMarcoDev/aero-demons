@@ -23,6 +23,7 @@ var audio_enabled := true
 var audio_volume_db_offset := 0.0
 
 var _age := 0.0
+var _distance_traveled := 0.0
 var _current_speed := 0.0
 var _launched := false
 var _detonated := false
@@ -60,6 +61,7 @@ func launch(start_transform: Transform3D, inherited_velocity: Vector3, target_re
 	global_transform = start_transform
 	target = target_ref
 	_age = 0.0
+	_distance_traveled = 0.0
 	_fall_time = 0.0
 	_ballistic = false
 	_detonated = false
@@ -82,6 +84,9 @@ func _physics_process(delta: float) -> void:
 	if not _launched or _detonated:
 		return
 	_age += delta
+	if not _ballistic and (_age >= lifetime or _distance_traveled >= max_range):
+		_payload_enabled = false
+		_lose_tracking()
 	_update_visuals(delta)
 	if _payload_enabled and _age >= _payload_split_delay:
 		_release_payload()
@@ -130,6 +135,7 @@ func _physics_process(delta: float) -> void:
 	var prev_pos := global_position
 	var trail_from := _flame_origin()
 	global_position += velocity * delta
+	_distance_traveled += velocity.length() * delta
 	_orient_to_velocity()
 	var trail_to := _flame_origin()
 	_flame_budget = _emit_particle_segment(_flame, trail_from, trail_to, delta, _flame_budget, _flame_emission_scale)

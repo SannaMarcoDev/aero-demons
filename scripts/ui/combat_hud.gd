@@ -29,6 +29,7 @@ const SHADOW := Color(0.01, 0.03, 0.06, 0.82)
 const GREEN := Color(0.32, 1.0, 0.08, 0.95)
 const GREEN_DIM := Color(0.25, 0.8, 0.28, 0.8)
 const RED_ORANGE := Color(1.0, 0.28, 0.12, 0.95)
+const ALLY_BLUE := Color(0.25, 0.75, 1.0, 0.95)
 const RADAR_LINE := Color(0.68, 0.84, 0.9, 0.43)
 
 @export var player_path: NodePath = NodePath("")
@@ -365,7 +366,7 @@ func _draw_enemy_markers(canvas: Control) -> void:
 	if camera == null or not is_instance_valid(camera) or not camera.has_method("unproject_position"):
 		return
 	var viewport_rect := canvas.get_viewport_rect()
-	for node in get_tree().get_nodes_in_group("targets"):
+	for node in get_tree().get_nodes_in_group("targets") + get_tree().get_nodes_in_group("allies"):
 		if node == _target or not _target_alive(node):
 			continue
 		var distance: float = player.global_position.distance_to(node.global_position)
@@ -376,6 +377,11 @@ func _draw_enemy_markers(canvas: Control) -> void:
 		var screen_position: Vector2 = camera.unproject_position(node.global_position)
 		var fade := _edge_fade(screen_position, viewport_rect)
 		if fade <= 0.0:
+			continue
+		if node.is_in_group("allies"):
+			var ally_color := _faded(ALLY_BLUE, fade)
+			canvas.draw_rect(Rect2(screen_position - Vector2(9, 9), Vector2(18, 18)), ally_color, false, 2.0)
+			_draw_text(canvas, screen_position + Vector2(14, 5), _target_label(node), 12, ally_color)
 			continue
 		var multi_locked := _locked_missile_targets.has(node)
 		var color := RED_ORANGE if multi_locked else GREEN
@@ -522,7 +528,7 @@ func _draw_radar(canvas: Control) -> void:
 		canvas.draw_arc(radar_center, radar_radius * ring, 0.0, TAU, 64, RADAR_LINE, 1.0, true)
 	canvas.draw_line(radar_center + Vector2(-radar_radius, 0.0), radar_center + Vector2(radar_radius, 0.0), RADAR_LINE, 1.0, true)
 	canvas.draw_line(radar_center + Vector2(0.0, -radar_radius), radar_center + Vector2(0.0, radar_radius), RADAR_LINE, 1.0, true)
-	for node in get_tree().get_nodes_in_group("targets"):
+	for node in get_tree().get_nodes_in_group("targets") + get_tree().get_nodes_in_group("allies"):
 		if not _target_alive(node) or player == null or not is_instance_valid(player):
 			continue
 		var local_offset: Vector3 = player.global_transform.basis.inverse() * (node.global_position - player.global_position)
@@ -534,7 +540,7 @@ func _draw_radar(canvas: Control) -> void:
 		var primary: bool = node == _target
 		var multi_locked: bool = _locked_missile_targets.has(node)
 		var highlighted: bool = primary or multi_locked
-		var blip_color := Color(0.55, 1.0, 0.72, 0.9)
+		var blip_color := ALLY_BLUE if node.is_in_group("allies") else Color(0.55, 1.0, 0.72, 0.9)
 		if multi_locked:
 			blip_color = RED_ORANGE
 		elif primary:

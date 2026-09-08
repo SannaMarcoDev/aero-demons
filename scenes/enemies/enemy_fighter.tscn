@@ -1,0 +1,86 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/enemy_fighter.gd" id="1_ai"]
+[ext_resource type="PackedScene" path="res://assets/aircraft/aircraft_game_ready.glb" id="2_model"]
+[ext_resource type="Script" path="res://scripts/combat/targeting.gd" id="3_targeting"]
+[ext_resource type="Script" path="res://scripts/weapons/weapon_controller.gd" id="4_weapons"]
+[ext_resource type="Script" path="res://scripts/vfx/afterburner.gd" id="5_afterburner"]
+[ext_resource type="PackedScene" path="res://assets/thrusters/blue_thruster/scenes/jet_thruster_vfx.tscn" id="6_thruster"]
+[ext_resource type="PackedScene" path="res://scenes/vfx/damage_fire.tscn" id="7_damage"]
+[ext_resource type="Script" path="res://scripts/combat/aircraft_hitbox.gd" id="8_hitbox"]
+
+[sub_resource type="CapsuleShape3D" id="Hull"]
+radius = 0.8
+height = 11.0
+
+[sub_resource type="BoxShape3D" id="Wings"]
+size = Vector3(10.8, 0.6, 2.0)
+
+[node name="EnemyFighter" type="Node3D"]
+physics_interpolation_mode = 1
+script = ExtResource("1_ai")
+max_speed = 240.0
+min_altitude = 300.0
+faction_group = "targets"
+label = "FIGHTER"
+
+[node name="AircraftModel" parent="." instance=ExtResource("2_model")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, -1.375, 1.88)
+
+[node name="Afterburners" type="Node3D" parent="."]
+script = ExtResource("5_afterburner")
+
+[node name="Left" parent="Afterburners" instance=ExtResource("6_thruster")]
+position = Vector3(-0.96, -0.46, 5.5)
+exhaust_width = 0.45
+flame_holder_distance = 0.35
+light_intensity = 0.05
+
+[node name="Right" parent="Afterburners" instance=ExtResource("6_thruster")]
+position = Vector3(1.103, -0.46, 5.5)
+exhaust_width = 0.45
+flame_holder_distance = 0.35
+light_intensity = 0.05
+
+[node name="WingDamage" type="Node3D" parent="."]
+
+[node name="Left" parent="WingDamage" instance=ExtResource("7_damage")]
+position = Vector3(-2.3, -0.8, 1.7)
+movement_randomness = 0.0
+
+[node name="Right" parent="WingDamage" instance=ExtResource("7_damage")]
+position = Vector3(2.3, -0.8, 1.7)
+movement_randomness = 0.0
+
+[node name="Hitbox" type="Area3D" parent="."]
+collision_layer = 4
+collision_mask = 0
+script = ExtResource("8_hitbox")
+
+[node name="Hull" type="CollisionShape3D" parent="Hitbox"]
+rotation = Vector3(1.5707964, 0, 0)
+shape = SubResource("Hull")
+
+[node name="Wings" type="CollisionShape3D" parent="Hitbox"]
+position = Vector3(0, -0.85, 1.93)
+shape = SubResource("Wings")
+
+[node name="TargetLock" type="Node" parent="."]
+script = ExtResource("3_targeting")
+target_group = "player"
+select_range = 12000.0
+select_cone_degrees = 180.0
+lock_cone_degrees = 20.0
+lock_time = 2.0
+
+[node name="WeaponController" type="Node3D" parent="."]
+script = ExtResource("4_weapons")
+targeting_path = NodePath("../TargetLock")
+target_layers = 8
+gun_fire_rate = 20.0
+gun_range = 1800.0
+gun_damage = 2.0
+gun_spread_degrees = 0.55
+gun_ammo_max = 4000
+equipped_missile_ids = Array[String](["STDM"])
+missile_cooldown = 9.0

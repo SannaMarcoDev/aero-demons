@@ -7,6 +7,8 @@ signal lock_lost()
 
 ## Group the owner is allowed to hunt. The player currently hunts the "targets" group.
 @export var target_group := "targets"
+## A director-owned pilot supplies its assignment; it must not silently acquire another target.
+@export var auto_acquire := true
 @export var lock_cone_degrees := 25.0
 @export var lock_range := 5000.0
 @export var select_range := 15000.0
@@ -21,7 +23,7 @@ var in_lock_zone := false
 
 func _physics_process(delta: float) -> void:
 	if not _target_alive(target):
-		_set_target(_first_candidate())
+		_set_target(_first_candidate() if auto_acquire else null)
 	if target == null:
 		in_lock_zone = false
 		return
@@ -80,7 +82,7 @@ func _get_candidates() -> Array:
 			continue
 		if not _target_alive(candidate) or _distance_to(candidate) > select_range:
 			continue
-		if _target_angle(candidate) > deg_to_rad(select_cone_degrees):
+		if select_cone_degrees < 180.0 and _target_angle(candidate) > deg_to_rad(select_cone_degrees):
 			continue
 		candidates.append(candidate)
 	candidates.sort_custom(Callable(self, "_sort_candidates"))
@@ -97,7 +99,7 @@ func _first_candidate():
 
 
 func _set_target(next_target) -> void:
-	if target == next_target:
+	if target == next_target and (next_target != null or typeof(target) == TYPE_NIL):
 		return
 	target = next_target
 	lock_progress = 0.0

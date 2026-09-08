@@ -87,11 +87,12 @@ func _ready() -> void:
 	add_child(_minigun_audio)
 	if not targeting_path.is_empty():
 		_targeting = get_node_or_null(targeting_path)
-	# loadout scelto nel menu: sovrascrive l'export prima del reset
-	if Session.selected_missiles.size() >= 2:
-		equipped_missile_ids = Session.selected_missiles.duplicate()
-	elif Catalog.DEFS.has(Session.selected_missile_id):
-		equipped_missile_ids = [Session.selected_missile_id, "HSSTDM"]
+	# The menu loadout belongs to the player, not AI aircraft sharing this controller.
+	if get_parent().get("faction_group") == "player":
+		if Session.selected_missiles.size() >= 2:
+			equipped_missile_ids = Session.selected_missiles.duplicate()
+		elif Catalog.DEFS.has(Session.selected_missile_id):
+			equipped_missile_ids = [Session.selected_missile_id, "HSSTDM"]
 	reset_loadout()
 
 
@@ -123,7 +124,7 @@ func _gun_interval() -> float:
 
 
 func fire_gun() -> void:
-	if gun_ammo <= 0 or _gun_cooldown > 0.0:
+	if not _pilot_allows_fire("gun") or gun_ammo <= 0 or _gun_cooldown > 0.0:
 		return
 	var muzzle_transform := _muzzle_transform(gun_muzzle)
 	var direction := _spread_direction(-global_basis.z)
@@ -157,6 +158,8 @@ func fire_gun() -> void:
 ## The single gate that decides whether a missile leaves the rails right now: loaded, cooled
 ## down, pylon present and at least one acquired target. The HUD reads the same truth.
 func can_fire_missile() -> bool:
+	if not _pilot_allows_fire("missile"):
+		return false
 	var def := get_equipped_def()
 	if (missile_ammo >= 0 and missile_ammo < _missile_salvo_size(def)) \
 			or _missile_cooldown > 0.0 or missile_pylons.is_empty():
@@ -283,6 +286,13 @@ func _missile_salvo_size(def: Dictionary) -> int:
 	return maxi(int(def.get("salvo_size", 1)), 1)
 
 
+func _pilot_allows_fire(kind: String) -> bool:
+	var aircraft := get_parent()
+	if aircraft.has_method("is_alive") and not aircraft.is_alive():
+		return false
+	return not aircraft.has_method("weapon_fire_block") or aircraft.weapon_fire_block(kind) == "READY"
+
+
 func _valid_missile_target(candidate) -> bool:
 	return (
 		candidate != null
@@ -291,6 +301,8 @@ func _valid_missile_target(candidate) -> bool:
 		and candidate.is_inside_tree()
 		and candidate.has_method("is_alive")
 		and bool(candidate.call("is_alive"))
+		and candidate != get_parent()
+		and (_targeting == null or candidate.is_in_group(_targeting.target_group))
 	)
 
 
