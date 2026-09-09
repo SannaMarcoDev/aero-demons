@@ -15,7 +15,7 @@ signal destroyed(aircraft: Node3D)
 @export var acceleration := 22.5
 @export var deceleration := 30.0
 @export var cruise_return_rate := 15.0
-@export var pitch_speed := 75.0
+@export var pitch_speed := 32.0
 ## The playable speed floor is already above stall speed: control authority is strongest there,
 ## stays close to cruise handling, then falls off toward top speed.
 @export_range(1.0, 1.5, 0.05) var low_speed_turn_factor := 1.15
@@ -23,16 +23,23 @@ signal destroyed(aircraft: Node3D)
 ## Pushing into negative G is deliberately weaker than pulling positive G.
 @export_range(0.3, 1.0, 0.05) var pitch_down_factor := 0.75
 ## Rudder yaw is for fine alignment, not the aircraft's primary turning axis.
-@export var yaw_speed := 15.0
-@export var roll_speed := 110.0
+@export var yaw_speed := 8.0
+@export var roll_speed := 60.0
+## Shared player/AI angular inertia: pitch, yaw, roll in degrees/s².
+@export var angular_acceleration := Vector3(45.0, 18.0, 90.0)
+@export var angular_braking := Vector3(65.0, 25.0, 120.0)
+## Player-only precision: full stick keeps full agility, small inputs turn more gently.
+@export_range(1.0, 3.0, 0.1) var control_curve := 1.8
+@export_range(0.01, 0.3, 0.01) var control_rise_time := 0.12
+@export_range(0.01, 0.3, 0.01) var control_release_time := 0.06
 @export var min_altitude := 190.0
 @export var max_altitude := 15000.0
 @export var return_distance := 40000.0
 @export var arena_half_size := 40500.0
 
 @export_category("High-G")
-## Both analog triggers held: brake and double pitch/yaw rate. Tightens the turn; costs speed.
-@export var high_g_turn_factor := 2.0
+## Both analog triggers held: brake and increase pitch/yaw authority; inertia still applies.
+@export var high_g_turn_factor := 1.4
 @export_range(0.1, 1.0, 0.05) var high_g_trigger_threshold := 0.5
 
 @export_category("Spin dash")
@@ -72,6 +79,8 @@ var is_returning := false
 var health := 100.0
 var high_g_active := false
 var spin_dash_active := false
+
+var _angular_velocity := Vector3.ZERO
 
 var pitch_input := 0.0
 var yaw_input := 0.0
@@ -144,9 +153,10 @@ func _physics_process(delta: float) -> void:
 
 ## Fills the control fields for this tick. The player reads the gamepad; subclasses read an AI.
 func _update_controls() -> void:
-	pitch_input = Input.get_axis("pitch_up", "pitch_down")
-	yaw_input = Input.get_axis("yaw_left", "yaw_right")
-	roll_input = Input.get_axis("roll_left", "roll_right")
+	var delta := get_physics_process_delta_time()
+	pitch_input = _precision_input(pitch_input, Input.get_axis("pitch_up", "pitch_down"), delta)
+	yaw_input = _precision_input(yaw_input, Input.get_axis("yaw_left", "yaw_right"), delta)
+	roll_input = _precision_input(roll_input, Input.get_axis("roll_left", "roll_right"), delta)
 	throttle_input = Input.get_action_strength("accelerate")
 	brake_input = Input.get_action_strength("brake")
 	gun_trigger = Input.is_action_pressed("fire_gun")
@@ -171,18 +181,20 @@ func _update_controls() -> void:
 	spin_dash_trigger = _detect_accelerate_double_tap()
 
 
+func _precision_input(current: float, raw: float, delta: float) -> float:
+	var desired := signf(raw) * pow(absf(raw), control_curve)
+	# Brake input rotation faster than it builds; avoid a long aim overshoot on release.
+	var releasing := current * desired < 0.0 or absf(desired) < absf(current)
+	var ramp := control_release_time if releasing else control_rise_time
+	return move_toward(current, desired, delta / maxf(ramp, 0.001))
+
+
 func _apply_flight(delta: float) -> void:
 	if spin_dash_active:
 		_apply_spin_dash(delta)
 		return
 
-	var turn_boost := high_g_turn_factor if high_g_active else 1.0
-	var pitch_rate := _normal_pitch_rate() * turn_boost
-	var yaw_rate := yaw_speed * _normal_turn_speed_factor() * turn_boost
-	rotate_object_local(Vector3.RIGHT, deg_to_rad(-pitch_input * pitch_rate) * delta)
-	rotate_object_local(Vector3.UP, deg_to_rad(-yaw_input * yaw_rate) * delta)
-	rotate_object_local(Vector3.BACK, deg_to_rad(-roll_input * roll_speed) * delta)
-	basis = basis.orthonormalized()
+	_apply_rotation(delta)
 
 	# Without input the aircraft drifts back to cruise_speed at cruise_return_rate.
 	if throttle_input > 0.01 or brake_input > 0.01:
@@ -212,6 +224,30 @@ func _apply_flight(delta: float) -> void:
 	_afterburners.set_throttle(commanded_throttle)
 	_afterburners.set_boost(boost)
 	_update_engine_audio(maxf(engine_throttle, boost))
+
+
+## The airframe, not the input reader, owns inertia so AI gets exactly the same limits.
+func _apply_rotation(delta: float) -> void:
+	var turn_boost := high_g_turn_factor if high_g_active else 1.0
+	var desired := Vector3(
+		-clampf(pitch_input, -1.0, 1.0) * _normal_pitch_rate() * turn_boost,
+		-clampf(yaw_input, -1.0, 1.0) * yaw_speed * _normal_turn_speed_factor() * turn_boost,
+		-clampf(roll_input, -1.0, 1.0) * roll_speed,
+	)
+	var rotation_step := Vector3.ZERO
+	for axis in 3:
+		var previous := _angular_velocity[axis]
+		var braking := previous * desired[axis] < 0.0 or absf(desired[axis]) < absf(previous)
+		var acceleration_limit := maxf(angular_braking[axis] if braking else angular_acceleration[axis], 0.001)
+		var ramp_time := minf(absf(desired[axis] - previous) / acceleration_limit, delta)
+		_angular_velocity[axis] = move_toward(previous, desired[axis], acceleration_limit * delta)
+		# Integrate the ramp and any time at the requested rate, independent of tick length.
+		rotation_step[axis] = (previous + _angular_velocity[axis]) * 0.5 * ramp_time \
+			+ _angular_velocity[axis] * (delta - ramp_time)
+	rotate_object_local(Vector3.RIGHT, deg_to_rad(rotation_step.x))
+	rotate_object_local(Vector3.UP, deg_to_rad(rotation_step.y))
+	rotate_object_local(Vector3.BACK, deg_to_rad(rotation_step.z))
+	basis = basis.orthonormalized()
 
 
 func _normal_pitch_rate() -> float:
@@ -298,6 +334,7 @@ func _update_spin_dash() -> void:
 
 
 func _begin_spin_dash() -> void:
+	_angular_velocity = Vector3.ZERO
 	spin_dash_active = true
 	_spin_dash_elapsed = 0.0
 	_spin_dash_entry_basis = global_basis
@@ -439,6 +476,10 @@ func reset_flight(start_transform: Transform3D) -> void:
 	high_g_active = false
 	spin_dash_active = false
 	spin_dash_trigger = false
+	pitch_input = 0.0
+	yaw_input = 0.0
+	roll_input = 0.0
+	_angular_velocity = Vector3.ZERO
 	_accelerate_held = false
 	_last_accelerate_tap = -1000.0
 	_spin_dash_elapsed = 0.0
