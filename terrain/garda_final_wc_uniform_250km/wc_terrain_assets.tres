@@ -1,7 +1,19 @@
 [gd_resource type="Terrain3DAssets" format=3 uid="uid://cgcr8dwmk1n5w"]
 
-[ext_resource type="Texture2D" path="res://terrain/garda_final_wc_uniform_250km/baked_albedo.tres" id="1_eeyht"]
-[ext_resource type="Texture2D" path="res://terrain/garda_final_wc_uniform_250km/baked_normal.tres" id="2_ojgjn"]
+[ext_resource type="Texture2D" path="res://textures/terrain/cliff_side_albedo_packed.png" id="1_alb0"]
+[ext_resource type="Texture2D" path="res://textures/terrain/cliff_side_normal_packed.png" id="2_nrm0"]
+[ext_resource type="Texture2D" path="res://textures/terrain/rocky_terrain_02_albedo_packed.png" id="3_alb1"]
+[ext_resource type="Texture2D" path="res://textures/terrain/rocky_terrain_02_normal_packed.png" id="4_nrm1"]
+[ext_resource type="Texture2D" path="res://textures/terrain/leafy_grass_albedo_packed.png" id="5_alb2"]
+[ext_resource type="Texture2D" path="res://textures/terrain/leafy_grass_normal_packed.png" id="6_nrm2"]
+[ext_resource type="Texture2D" path="res://textures/terrain/withered_grass_albedo_packed.png" id="7_alb3"]
+[ext_resource type="Texture2D" path="res://textures/terrain/withered_grass_normal_packed.png" id="8_nrm3"]
+[ext_resource type="Texture2D" path="res://textures/terrain/snow_02_albedo_packed.png" id="9_alb4"]
+[ext_resource type="Texture2D" path="res://textures/terrain/snow_02_normal_packed.png" id="10_nrm4"]
+[ext_resource type="Texture2D" path="res://textures/terrain/dry_river_pebbles_albedo_packed.png" id="11_alb5"]
+[ext_resource type="Texture2D" path="res://textures/terrain/dry_river_pebbles_normal_packed.png" id="12_nrm5"]
+[ext_resource type="Texture2D" path="res://textures/terrain/rocks_ground_03_albedo_packed.png" id="13_alb6"]
+[ext_resource type="Texture2D" path="res://textures/terrain/rocks_ground_03_normal_packed.png" id="14_nrm6"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yq1fy"]
 transparency = 4
@@ -23,44 +35,51 @@ lod0_range = 128.0
 
 [sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_j32yp"]
 name = "Mountain Side"
-albedo_texture = ExtResource("1_eeyht")
-normal_texture = ExtResource("2_ojgjn")
+albedo_texture = ExtResource("1_alb0")
+normal_texture = ExtResource("2_nrm0")
+uv_scale = 0.4
 
 [sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_mcxbt"]
 name = "Gradient"
 id = 1
-albedo_texture = ExtResource("1_eeyht")
-normal_texture = ExtResource("2_ojgjn")
+albedo_texture = ExtResource("3_alb1")
+normal_texture = ExtResource("4_nrm1")
+uv_scale = 0.4
 
 [sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_iimil"]
 name = "Vegetation 01"
 id = 2
-albedo_texture = ExtResource("1_eeyht")
-normal_texture = ExtResource("2_ojgjn")
+albedo_texture = ExtResource("5_alb2")
+normal_texture = ExtResource("6_nrm2")
+uv_scale = 0.4
 
 [sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_h1u8l"]
 name = "Vegetation 02"
 id = 3
-albedo_texture = ExtResource("1_eeyht")
-normal_texture = ExtResource("2_ojgjn")
+albedo_texture = ExtResource("7_alb3")
+normal_texture = ExtResource("8_nrm3")
+uv_scale = 0.4
 
 [sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_eva7c"]
 name = "Snow"
 id = 4
-albedo_texture = ExtResource("1_eeyht")
-normal_texture = ExtResource("2_ojgjn")
+albedo_texture = ExtResource("9_alb4")
+normal_texture = ExtResource("10_nrm4")
+uv_scale = 0.4
 
 [sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_je5lq"]
 name = "Flow"
 id = 5
-albedo_texture = ExtResource("1_eeyht")
-normal_texture = ExtResource("2_ojgjn")
+albedo_texture = ExtResource("11_alb5")
+normal_texture = ExtResource("12_nrm5")
+uv_scale = 0.4
 
 [sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_dgaqm"]
 name = "Debris"
 id = 6
-albedo_texture = ExtResource("1_eeyht")
-normal_texture = ExtResource("2_ojgjn")
+albedo_texture = ExtResource("13_alb6")
+normal_texture = ExtResource("14_nrm6")
+uv_scale = 0.2
 
 [resource]
 mesh_list = Array[Terrain3DMeshAsset]([SubResource("Terrain3DMeshAsset_82oby")])

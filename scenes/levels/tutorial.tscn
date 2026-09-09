@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://cef3jhpp0hg8n" path="res://scripts/ui/freeroam_filter_toggle.gd" id="5_filters"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/enemy_fighter.tscn" id="6_enemy"]
 [ext_resource type="Script" uid="uid://7erqguvfj2as" path="res://scripts/combat/combat_director.gd" id="7_director"]
+[ext_resource type="Script" path="res://scripts/ui/horizon_graphics.gd" id="8_horizon"]
 
 [node name="Tutorial" type="Node3D" unique_id=1151233576]
 script = ExtResource("5_filters")
@@ -59,3 +60,6 @@ player_path = NodePath("../Player")
 camera_path = NodePath("../Player/FlightCamera")
 targeting_path = NodePath("../Player/TargetLock")
 weapons_path = NodePath("../Player/WeaponController")
+
+[node name="HorizonGraphics" type="CanvasLayer" parent="."]
+script = ExtResource("8_horizon")

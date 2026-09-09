@@ -53,7 +53,7 @@ func run() -> void:
 	check(not dome.fog_visible, "SkyDome fog disabled: Sunshine is sole atmosphere")
 	check(not map.get_node("Sky3D").fog_enabled, "Sky3D fog_enabled stays off")
 	var clouds = map.get_node("SunshineCloudsDriverGD").clouds_resource
-	check(is_equal_approx(clouds.atmospheric_density, 1.25), "cloud atmospheric_density tuned in resource")
+	check(is_equal_approx(clouds.atmospheric_density, 2.0), "cloud atmospheric_density uses standard horizon preset C")
 
 	# Effectors: registered through the driver and uploaded to the resource.
 	var driver = map.get_node("SunshineCloudsDriverGD")

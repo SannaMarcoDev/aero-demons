@@ -3,6 +3,7 @@
 [ext_resource type="PackedScene" uid="uid://bckioquhk2auh" path="res://scenes/maps/garda_final.tscn" id="1_map"]
 [ext_resource type="PackedScene" uid="uid://dgqm8ooyeb3c6" path="res://scenes/player/player.tscn" id="2_player"]
 [ext_resource type="Script" uid="uid://cef3jhpp0hg8n" path="res://scripts/ui/freeroam_filter_toggle.gd" id="5_filters"]
+[ext_resource type="Script" path="res://scripts/ui/horizon_graphics.gd" id="6_horizon"]
 
 [node name="Freeroam" type="Node3D" unique_id=1151233576]
 script = ExtResource("5_filters")
@@ -15,3 +16,6 @@ camera_fov = 70.0
 camera_height = 0.8000000000000007
 camera_depth = 5.5
 camera_pitch = 7.0
+
+[node name="HorizonGraphics" type="CanvasLayer" parent="."]
+script = ExtResource("6_horizon")

@@ -1,0 +1,16 @@
+﻿[
+    {
+        "view":  "12000",
+        "a_repeat_background_mae":  4.2403240192422987E-06,
+        "a_repeat_full_frame_mae":  0.00024408940530944889,
+        "a_b_full_frame_mae":  0.054483781166787704,
+        "c_d_full_frame_mae":  0.0023392439280238843
+    },
+    {
+        "view":  "19500",
+        "a_repeat_background_mae":  9.8697196999605219E-07,
+        "a_repeat_full_frame_mae":  0.00023446703784394415,
+        "a_b_full_frame_mae":  0.048873870330025014,
+        "c_d_full_frame_mae":  0.00470721374969741
+    }
+]

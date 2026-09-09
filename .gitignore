@@ -2,6 +2,9 @@
 .godot/
 /android/
 
+# Documentation images are not game assets
+/docs/**/*.import
+
 # Tooling / Agent
 .pi/
 *.TMP
