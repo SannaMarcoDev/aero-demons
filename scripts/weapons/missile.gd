@@ -11,6 +11,7 @@ const MISSILE_THRUSTER_SOUND: AudioStream = preload("res://assets/audio/sfx/weap
 @export var max_range := 5000.0
 @export var lifetime := 12.0
 @export var damage := 60.0
+var hit_callback := Callable()
 @export var proximity_radius := 25.0
 @export var missile_id := "STDM"
 @export var burn_total := 0.0
@@ -229,6 +230,7 @@ func _release_payload() -> void:
 			child.max_range = max_range
 			child.lifetime = lifetime
 			child.damage = damage
+			child.hit_callback = hit_callback
 			child.proximity_radius = proximity_radius
 			child.burn_total = burn_total
 			child.burn_duration = burn_duration
@@ -270,6 +272,8 @@ func _check_target_proximity() -> bool:
 	elif burn_total > 0.0 and target.has_method("apply_damage"):
 		# fallback se il bersaglio non ha DoT: applica subito il burn come danno unico
 		target.call("apply_damage", burn_total)
+	if (damage > 0.0 or burn_total > 0.0) and hit_callback.is_valid():
+		hit_callback.call()
 	_detonate()
 	return true
 

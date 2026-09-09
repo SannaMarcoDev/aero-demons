@@ -1,10 +1,12 @@
 extends Node3D
 class_name WeaponController
 
+const GunSolver = preload("res://scripts/weapons/gun_solution.gd")
 const Catalog = preload("res://scripts/weapons/missile_catalog.gd")
 const Session = preload("res://scripts/ui/game_session.gd")
 
 signal gun_fired()
+signal hit_confirmed()
 signal missile_launched(missile: Node3D)
 signal ammo_changed()
 signal missile_switched(active_id: String, slot_index: int)
@@ -26,8 +28,19 @@ const MINIGUN_SOUND: AudioStream = preload("res://assets/audio/sfx/weapons/minig
 @export var gun_gravity := 9.8
 @export var gun_range := 2500.0
 @export var gun_damage := 6.0
-@export var gun_spread_degrees := 0.3
+@export var gun_spread_degrees := 0.12
 @export var gun_ammo_max: int = 2000
+@export var gun_solution_range := 1500.0
+@export var gun_overlap_enabled := false
+const GUN_LEAD_RADIUS := 24.0
+const GUN_BORESIGHT_RADIUS := 7.0
+const GUN_HIT_INTERVAL := 0.1
+var _gun_requested := false
+var _overlap_time := 0.0
+var _overlap_target: Node3D
+@export var gun_aim_assist_enabled := false
+@export_range(0.0, 3.0) var gun_aim_assist_cone_degrees := 2.5
+@export_range(0.0, 1.0) var gun_aim_assist_strength := 0.35
 
 @export_category("Missile")
 @export var equipped_missile_ids: Array[String] = ["STDM", "HSSTDM"]
@@ -97,6 +110,8 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	_update_gun_overlap(delta, _gun_requested)
+	_gun_requested = false
 	_gun_cooldown = maxf(_gun_cooldown - delta, -_gun_interval())
 	_missile_cooldown = maxf(_missile_cooldown - delta, 0.0)
 	_gun_sound_remaining = maxf(_gun_sound_remaining - delta, 0.0)
@@ -105,6 +120,9 @@ func _physics_process(delta: float) -> void:
 
 
 func reset_loadout() -> void:
+	_gun_requested = false
+	_overlap_time = 0.0
+	_overlap_target = null
 	gun_ammo = maxi(gun_ammo_max, 0)
 	active_missile_slot = 0
 	missile_ammos.resize(equipped_missile_ids.size())
@@ -119,15 +137,86 @@ func reset_loadout() -> void:
 	ammo_changed.emit()
 
 
+func get_gun_forward() -> Vector3:
+	return (-global_basis.z).normalized()
+
+
+func get_gun_muzzle_position() -> Vector3:
+	return _muzzle_transform(gun_muzzle).origin
+
+
+func get_gun_boresight_point() -> Vector3:
+	return get_gun_muzzle_position() + get_gun_forward() * maxf(gun_solution_range, 1.0)
+
+
+func get_gun_solution(target: Node3D) -> Dictionary:
+	if not is_instance_valid(target) or not target.is_inside_tree() or target == get_parent():
+		return {}
+	if target.has_method("is_alive") and not target.is_alive():
+		return {}
+	var target_velocity := Vector3.ZERO
+	if target.has_method("velocity"):
+		target_velocity = target.call("velocity")
+	return GunSolver.solve(get_gun_muzzle_position(), _inherited_velocity(),
+		target.global_position, target_velocity, gun_projectile_speed, gun_gravity,
+		gun_solution_range, gun_range)
+
+
+func _update_gun_overlap(delta: float, firing: bool) -> void:
+	var target = _targeting.get("target") if is_instance_valid(_targeting) else null
+	if not gun_overlap_enabled or not firing or not is_instance_valid(target) or not _pilot_allows_fire("gun") or not _gun_pippers_overlap(target):
+		_overlap_time = 0.0
+		_overlap_target = null
+		return
+	if target != _overlap_target:
+		_overlap_time = 0.0
+		_overlap_target = target
+	_overlap_time += delta
+	while _overlap_time + 0.000001 >= GUN_HIT_INTERVAL:
+		_overlap_time = maxf(_overlap_time - GUN_HIT_INTERVAL, 0.0)
+		if not is_instance_valid(target) or (target.has_method("is_alive") and not target.is_alive()):
+			break
+		target.call("apply_damage", gun_damage)
+		hit_confirmed.emit()
+
+
+func _gun_pippers_overlap(target: Node3D) -> bool:
+	if not is_instance_valid(target) or not target.has_method("apply_damage"):
+		return false
+	var solution := get_gun_solution(target)
+	var camera := get_viewport().get_camera_3d()
+	if solution.is_empty() or camera == null:
+		return false
+	var muzzle := get_gun_muzzle_position()
+	var boresight := get_gun_boresight_point()
+	var aim: Vector3 = muzzle + solution.direction * maxf(gun_solution_range, 1.0)
+	if camera.is_position_behind(boresight) or camera.is_position_behind(aim):
+		return false
+	var a := camera.unproject_position(boresight)
+	var b := camera.unproject_position(aim)
+	var bounds := get_viewport().get_visible_rect().grow(-22.0)
+	if not bounds.has_point(a) or not bounds.has_point(b) or a.distance_to(b) > GUN_LEAD_RADIUS + GUN_BORESIGHT_RADIUS:
+		return false
+	# Only solid bodies occlude: combat Areas must not hide the intended target.
+	var query := PhysicsRayQueryParameters3D.create(muzzle, target.global_position)
+	return get_world_3d().direct_space_state.intersect_ray(query).is_empty()
+
+
 func _gun_interval() -> float:
 	return 1.0 / maxf(gun_fire_rate, 0.001)
 
 
 func fire_gun() -> void:
-	if not _pilot_allows_fire("gun") or gun_ammo <= 0 or _gun_cooldown > 0.0:
+	_gun_requested = _pilot_allows_fire("gun") and gun_ammo > 0
+	if not _gun_requested or _gun_cooldown > 0.0:
 		return
 	var muzzle_transform := _muzzle_transform(gun_muzzle)
-	var direction := _spread_direction(-global_basis.z)
+	var direction := get_gun_forward()
+	if gun_aim_assist_enabled:
+		var target = _targeting.get("target") if is_instance_valid(_targeting) else null
+		direction = GunSolver.assisted_direction(direction, get_gun_solution(target),
+			gun_aim_assist_cone_degrees, gun_aim_assist_strength)
+	direction = _spread_direction(direction)
 	var bullet := BULLET_SCENE.instantiate() as Node3D
 	var scene_root := get_tree().current_scene
 	if bullet == null or scene_root == null:
@@ -135,9 +224,11 @@ func fire_gun() -> void:
 	bullet.set("speed", gun_projectile_speed)
 	bullet.set("gravity", gun_gravity)
 	bullet.set("tracer_visible", gun_ammo % 2 == 0)
-	bullet.set("damage", gun_damage)
+	bullet.set("damage", 0.0 if gun_overlap_enabled else gun_damage)
+	bullet.set("hit_callback", hit_confirmed.emit)
 	bullet.set("max_range", gun_range)
-	bullet.set("target_layers", target_layers)
+	# Layer 5 adds enemy gun forgiveness; missile masks and solid collisions stay unchanged.
+	bullet.set("target_layers", target_layers | (16 if target_layers & 4 else 0))
 	scene_root.add_child(bullet)
 	bullet.add_to_group("mission_projectiles")
 	bullet.call("launch", muzzle_transform, direction, _inherited_velocity())
@@ -259,6 +350,7 @@ func fire_missile() -> void:
 	for index in missiles.size():
 		var missile: HomingMissile = missiles[index]
 		_apply_missile_def(missile, def)
+		missile.hit_callback = hit_confirmed.emit
 		var muzzle_transform := _muzzle_transform(missile_pylons[(_missile_index + index) % missile_pylons.size()])
 		scene_root.add_child(missile)
 		missile.add_to_group("mission_projectiles")

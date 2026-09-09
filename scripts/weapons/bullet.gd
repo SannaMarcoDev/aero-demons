@@ -11,6 +11,7 @@ const HIT_VFX_SCENE: PackedScene = preload("res://assets/BinbunVFX/impact_explos
 @export_flags_3d_physics var target_layers := 4
 
 var velocity := Vector3.ZERO
+var hit_callback := Callable()
 
 var _distance_traveled := 0.0
 var _launched := false
@@ -52,8 +53,12 @@ func _physics_process(delta: float) -> void:
 	if not result.is_empty():
 		global_position = result.get("position", to)
 		var collider = result.get("collider")
-		if collider != null and collider.has_method("apply_damage"):
+		if collider != null and collider.has_method("apply_damage") and damage > 0.0:
+			var receiver: Node = collider if collider.has_method("is_alive") else collider.get_parent()
+			var alive := is_instance_valid(receiver) and (not receiver.has_method("is_alive") or bool(receiver.call("is_alive")))
 			collider.call("apply_damage", damage)
+			if alive and hit_callback.is_valid():
+				hit_callback.call()
 		var audio_manager := get_node_or_null("/root/AudioManager")
 		if audio_manager != null:
 			audio_manager.call("play_bullet_hit", get_parent(), global_position)
