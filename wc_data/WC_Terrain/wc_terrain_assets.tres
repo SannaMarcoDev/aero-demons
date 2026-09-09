@@ -1,21 +1,21 @@
 [gd_resource type="Terrain3DAssets" format=3 uid="uid://bt6akb7jg1cut"]
 
-[ext_resource type="Texture2D" uid="uid://b3c7ahvq7qgeo" path="res://wc_data/textures/Texture_0_Albedo_packed.png" id="1_alb0"]
-[ext_resource type="Texture2D" uid="uid://urk3cvcjymgk" path="res://wc_data/textures/Texture_0_Albedo_normal_packed.png" id="2_nrm0"]
-[ext_resource type="Texture2D" uid="uid://dk7awdx3g223d" path="res://wc_data/textures/Texture_1_Albedo_packed.png" id="3_alb1"]
-[ext_resource type="Texture2D" uid="uid://poi5g2ujatb7" path="res://wc_data/textures/Texture_1_Albedo_normal_packed.png" id="4_nrm1"]
-[ext_resource type="Texture2D" uid="uid://0ddmgfhjwgdm" path="res://wc_data/textures/Texture_2_Albedo_packed.png" id="5_alb2"]
-[ext_resource type="Texture2D" uid="uid://b85ln4q71g0ll" path="res://wc_data/textures/Texture_2_Albedo_normal_packed.png" id="6_nrm2"]
-[ext_resource type="Texture2D" uid="uid://dga74n2ags0x7" path="res://wc_data/textures/Texture_3_Albedo_packed.png" id="7_alb3"]
-[ext_resource type="Texture2D" uid="uid://bmueui48cjile" path="res://wc_data/textures/Texture_3_Albedo_normal_packed.png" id="8_nrm3"]
-[ext_resource type="Texture2D" uid="uid://ck73j4vcm3h7x" path="res://wc_data/textures/Texture_4_Albedo_packed.png" id="9_alb4"]
-[ext_resource type="Texture2D" uid="uid://bl4ywj6ux6rmh" path="res://wc_data/textures/Texture_4_Albedo_normal_packed.png" id="10_nrm4"]
-[ext_resource type="Texture2D" uid="uid://b0nsnjkdeuhip" path="res://wc_data/textures/Texture_5_Albedo_packed.png" id="11_alb5"]
-[ext_resource type="Texture2D" uid="uid://cgjm3s5xp50jd" path="res://wc_data/textures/Texture_5_Albedo_normal_packed.png" id="12_nrm5"]
-[ext_resource type="Texture2D" uid="uid://dyufnw6e1buai" path="res://wc_data/textures/Texture_6_Albedo_packed.png" id="13_alb6"]
-[ext_resource type="Texture2D" uid="uid://crwi6xl0lmjj1" path="res://wc_data/textures/Texture_6_Albedo_normal_packed.png" id="14_nrm6"]
+[ext_resource type="Texture2D" uid="uid://b0gth6qqpvunf" path="res://wc_data/textures/color_Mountain Side_albedo_packed.png" id="1_ctujw"]
+[ext_resource type="Texture2D" uid="uid://cgc8ebopsb0f4" path="res://wc_data/textures/color_Mountain Side_normal_packed.png" id="2_ykoug"]
+[ext_resource type="Texture2D" uid="uid://fn2nnybfsg0i" path="res://wc_data/textures/color_Gradient_albedo_packed.png" id="3_c7x62"]
+[ext_resource type="Texture2D" uid="uid://dohj36li0nn0e" path="res://wc_data/textures/color_Gradient_normal_packed.png" id="4_tjd3x"]
+[ext_resource type="Texture2D" uid="uid://bqshwm3gfe1ss" path="res://wc_data/textures/color_Vegetation 01_albedo_packed.png" id="5_d0dxu"]
+[ext_resource type="Texture2D" uid="uid://c3f6tdq7cn1jj" path="res://wc_data/textures/color_Vegetation 01_normal_packed.png" id="6_lslnn"]
+[ext_resource type="Texture2D" uid="uid://yx8jem8n62go" path="res://wc_data/textures/color_Vegetation 02_albedo_packed.png" id="7_k1wkw"]
+[ext_resource type="Texture2D" uid="uid://bthidqvtpjgo1" path="res://wc_data/textures/color_Vegetation 02_normal_packed.png" id="8_hj8xh"]
+[ext_resource type="Texture2D" uid="uid://u0xdxjp1jbj" path="res://wc_data/textures/color_Snow_albedo_packed.png" id="9_j82ce"]
+[ext_resource type="Texture2D" uid="uid://4ky5woik1phi" path="res://wc_data/textures/color_Snow_normal_packed.png" id="10_884oi"]
+[ext_resource type="Texture2D" uid="uid://6uf1fug57w6" path="res://wc_data/textures/color_Flow_albedo_packed.png" id="11_455ut"]
+[ext_resource type="Texture2D" uid="uid://bvcbrgmns3ea6" path="res://wc_data/textures/color_Flow_normal_packed.png" id="12_kfyav"]
+[ext_resource type="Texture2D" uid="uid://cbau44y1nwxlm" path="res://wc_data/textures/color_Debris_albedo_packed.png" id="13_ev8ln"]
+[ext_resource type="Texture2D" uid="uid://lhn683n58nu" path="res://wc_data/textures/color_Debris_normal_packed.png" id="14_gryjk"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4bn48"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vtmof"]
 transparency = 4
 cull_mode = 2
 vertex_color_use_as_albedo = true
@@ -25,66 +25,59 @@ distance_fade_mode = 1
 distance_fade_min_distance = 128.0
 distance_fade_max_distance = 96.0
 
-[sub_resource type="Terrain3DMeshAsset" id="Terrain3DMeshAsset_pnwa5"]
+[sub_resource type="Terrain3DMeshAsset" id="Terrain3DMeshAsset_07xqr"]
 generated_type = 1
 height_offset = 0.5
-material_override = SubResource("StandardMaterial3D_4bn48")
+material_override = SubResource("StandardMaterial3D_vtmof")
 last_lod = 0
 last_shadow_lod = 0
 lod0_range = 128.0
 
-[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_tex0"]
-name = "Mountain Side"
-albedo_texture = ExtResource("1_alb0")
-normal_texture = ExtResource("2_nrm0")
-uv_scale = 0.4
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_dsn4r"]
+name = "color_Mountain Side_albedo_packed"
+albedo_texture = ExtResource("1_ctujw")
+normal_texture = ExtResource("2_ykoug")
 
-[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_tex1"]
-name = "Gradient"
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_0kf1i"]
+name = "color_Gradient_albedo_packed"
 id = 1
-albedo_texture = ExtResource("3_alb1")
-normal_texture = ExtResource("4_nrm1")
-uv_scale = 0.4
+albedo_texture = ExtResource("3_c7x62")
+normal_texture = ExtResource("4_tjd3x")
 
-[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_tex2"]
-name = "Vegetation 01"
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_xxcq0"]
+name = "color_Vegetation 01_albedo_packed"
 id = 2
-albedo_color = Color(0.658824, 0.658824, 0.658824, 1)
-albedo_texture = ExtResource("5_alb2")
-normal_texture = ExtResource("6_nrm2")
-uv_scale = 0.4
+albedo_color = Color(0.65882355, 0.65882355, 0.65882355, 1)
+albedo_texture = ExtResource("5_d0dxu")
+normal_texture = ExtResource("6_lslnn")
 
-[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_tex3"]
-name = "Vegetation 02"
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_hx630"]
+name = "color_Vegetation 02_albedo_packed"
 id = 3
-albedo_color = Color(0.639216, 0.580392, 0.541176, 1)
-albedo_texture = ExtResource("7_alb3")
-normal_texture = ExtResource("8_nrm3")
-uv_scale = 0.4
+albedo_color = Color(0.6392157, 0.5803922, 0.5411765, 1)
+albedo_texture = ExtResource("7_k1wkw")
+normal_texture = ExtResource("8_hj8xh")
 
-[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_tex4"]
-name = "Snow"
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_se5hw"]
+name = "color_Snow_albedo_packed"
 id = 4
-albedo_texture = ExtResource("9_alb4")
-normal_texture = ExtResource("10_nrm4")
-uv_scale = 0.4
+albedo_texture = ExtResource("9_j82ce")
+normal_texture = ExtResource("10_884oi")
 
-[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_tex5"]
-name = "Flow"
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_hlm1y"]
+name = "color_Flow_albedo_packed"
 id = 5
-albedo_color = Color(0.752941, 0.752941, 0.752941, 1)
-albedo_texture = ExtResource("11_alb5")
-normal_texture = ExtResource("12_nrm5")
-uv_scale = 0.4
+albedo_color = Color(0.7529412, 0.7529412, 0.7529412, 1)
+albedo_texture = ExtResource("11_455ut")
+normal_texture = ExtResource("12_kfyav")
 
-[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_tex6"]
-name = "Debris"
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_o6sus"]
+name = "color_Debris_albedo_packed"
 id = 6
-albedo_color = Color(0.32549, 0.32549, 0.32549, 1)
-albedo_texture = ExtResource("13_alb6")
-normal_texture = ExtResource("14_nrm6")
-uv_scale = 0.2
+albedo_color = Color(0.3254902, 0.3254902, 0.3254902, 1)
+albedo_texture = ExtResource("13_ev8ln")
+normal_texture = ExtResource("14_gryjk")
 
 [resource]
-mesh_list = Array[Terrain3DMeshAsset]([SubResource("Terrain3DMeshAsset_pnwa5")])
-texture_list = Array[Terrain3DTextureAsset]([SubResource("Terrain3DTextureAsset_tex0"), SubResource("Terrain3DTextureAsset_tex1"), SubResource("Terrain3DTextureAsset_tex2"), SubResource("Terrain3DTextureAsset_tex3"), SubResource("Terrain3DTextureAsset_tex4"), SubResource("Terrain3DTextureAsset_tex5"), SubResource("Terrain3DTextureAsset_tex6")])
+mesh_list = Array[Terrain3DMeshAsset]([SubResource("Terrain3DMeshAsset_07xqr")])
+texture_list = Array[Terrain3DTextureAsset]([SubResource("Terrain3DTextureAsset_dsn4r"), SubResource("Terrain3DTextureAsset_0kf1i"), SubResource("Terrain3DTextureAsset_xxcq0"), SubResource("Terrain3DTextureAsset_hx630"), SubResource("Terrain3DTextureAsset_se5hw"), SubResource("Terrain3DTextureAsset_hlm1y"), SubResource("Terrain3DTextureAsset_o6sus")])

@@ -2,13 +2,13 @@
 
 Progetto Godot **4.7**, renderer **Forward+**, fisica **Jolt**.
 Aprire `project.godot` e avviare con **F6** la scena desiderata o **F5** la scena principale: [`scenes/levels/freeroam.tscn`](scenes/levels/freeroam.tscn).
-Il gioco principale è il livello freeroam: carica `scenes/maps/garda_lake.tscn` e vi istanzia il giocatore.
+Il gioco principale è il livello freeroam: carica `scenes/maps/garda_final.tscn` e vi istanzia il giocatore.
 
 ## Mappa del progetto
 
 | Percorso | Contenuto |
 | --- | --- |
-| `scenes/maps/` | Mappe; `garda_lake.tscn` è la mappa del lago di Garda. |
+| `scenes/maps/` | `garda_final.tscn` è l'unica mappa effettiva, condivisa da freeroam e tutorial, con terreno, cielo, nuvole e controllo dei confini. |
 | `scenes/player/`, `scenes/enemies/` | Scene degli aerei e del giocatore. |
 | `scenes/ui/`, `scenes/weapons/`, `scenes/vfx/` | HUD, proiettili, missili ed effetti. |
 | `scripts/` | Logica divisa per dominio: `audio`, `camera`, `combat`, `player`, `ui`, `vfx`, `weapons`. |
@@ -31,7 +31,7 @@ In radice rimangono la configurazione Godot/Git, questa guida, l'icona e `defaul
 - Armi: `scripts/weapons/weapon_controller.gd` e `missile_catalog.gd`.
 - Camera: `scripts/camera/follow_camera.gd` e `free_fly_camera.gd`.
 - Audio globale: `scripts/audio/audio_manager.gd`, registrato come autoload in `project.godot`.
-- Terreno: `wc_data/WC_Terrain/`; origine e parametri in [`terrain/source/terrain_50km_info.txt`](terrain/source/terrain_50km_info.txt).
+- Terreno attivo: `terrain/garda_final_wc_uniform_250km/` (250 × 250 km); origine e parametri in `import_manifest.json` nella stessa cartella. Gli export World Creator restano la fonte di verità.
 
 ## Prototipo dogfight
 

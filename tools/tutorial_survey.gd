@@ -13,7 +13,7 @@ extends SceneTree
 ## --edges adds eight boundary views; --background-noise tests native Terrain3D hills.
 ## In viewer: Left/Right change viewpoint, Escape exits. PNGs go to user://tutorial_survey/.
 
-const MAP := "res://scenes/maps/garda_lake.tscn"
+const MAP := "res://scenes/maps/garda_final.tscn"
 var camera: Camera3D
 var views: Array[Dictionary] = []
 var selected := 0
@@ -29,7 +29,7 @@ func survey() -> void:
 	var map := load(MAP).instantiate() as Node3D
 	root.add_child(map)
 	current_scene = map
-	var terrain = map.get_node("WC_Terrain")
+	var terrain = map.get_node("GardaTerrain")
 	var regions = terrain.data.get_region_locations()
 	assert(not regions.is_empty(), "Terrain has no regions")
 	var low := Vector2(INF, INF)

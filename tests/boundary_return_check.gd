@@ -24,7 +24,7 @@ func run() -> void:
 	root.add_child(camera)
 	camera.make_current()
 	# --- Map-only: controller must resolve terrain, sky and driver as siblings ---
-	var map: Node3D = load("res://scenes/maps/garda_lake.tscn").instantiate()
+	var map: Node3D = load("res://scenes/maps/garda_final.tscn").instantiate()
 	root.add_child(map)
 	await process_frame
 	await physics_frame
@@ -33,7 +33,7 @@ func run() -> void:
 	check(controller != null, "controller present in map")
 	check(controller._bounds_ready, "controller resolved real terrain bounds")
 	var bounds: Rect2 = controller.get_terrain_bounds()
-	var terrain = map.get_node("WC_Terrain")
+	var terrain = map.get_node("GardaTerrain")
 	var locs = terrain.data.get_region_locations()
 	check(not locs.is_empty(), "terrain regions loaded")
 	var region_size: float = float(terrain.get_region_size()) * terrain.vertex_spacing

@@ -6,3 +6,19 @@
 .pi/
 *.TMP
 ~*
+subagent-artifacts/
+nul
+
+# Redundant local terrain variants (active data lives in terrain/garda_final_wc_uniform_250km/)
+terrain/garda_final_wc/
+terrain/garda_outer_height_5x/
+# Retired local experiment; its original source regions are no longer present
+/tools/scale_garda_outer_height.gd
+/tools/scale_garda_outer_height.gd.uid
+
+# Root World Machine/heightmap exports; not runtime dependencies, keep local
+/terrain_250km_master.tif
+/terrain_250km_worldmachine.r16
+/terrain_250km_info.txt
+/terrain_250km_preview.png
+/terrain_250km_preview.png.import

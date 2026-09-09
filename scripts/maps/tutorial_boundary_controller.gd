@@ -1,5 +1,5 @@
 ## Tutorial map edge hiding and safe return controller.
-## Child of the tutorial map root. Reads the real terrain extents from the WC_Terrain
+## Child of the tutorial map root. Reads the real terrain extents from the GardaTerrain
 ## Terrain3D node, keeps Sunshine as the sole atmosphere, and drives the aircraft's own
 ## return-to-arena logic (PlayerFlight._return_to_arena) so the player is turned
 ## back well before the terrain ends. No invisible wall: the aircraft's existing
@@ -37,7 +37,7 @@ func _ready() -> void:
 func _try_initialize() -> void:
 	if _bounds_ready or _failed:
 		return
-	var terrain := get_node_or_null("../WC_Terrain") as Terrain3D
+	var terrain := get_node_or_null("../GardaTerrain") as Terrain3D
 	if not _read_terrain_bounds(terrain):
 		return
 	_bounds_ready = true

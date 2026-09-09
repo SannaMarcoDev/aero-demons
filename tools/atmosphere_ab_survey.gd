@@ -9,7 +9,7 @@ extends SceneTree
 ## After editing .comp includes: --headless --editor --script <this file> -- --reimport.
 ## PNGs and manifest: user://atmosphere_ab/<timestamp>/ (never overwrite a run).
 
-const MAP := "res://scenes/maps/garda_lake.tscn"
+const MAP := "res://scenes/maps/garda_final.tscn"
 const SETTLE_FRAMES := 96
 # Diagnostic lower-sky tint only; never saved to the scene or shared resources.
 const CANDIDATE_GROUND := Color(0.4, 0.4, 0.4, 1.0)
@@ -87,9 +87,9 @@ func survey() -> void:
 		await process_frame
 	assert(boundary.get_return_distance() > 0.0, "Boundary must initialize before capturing baseline")
 	boundary.set_physics_process(false) # No player in this diagnostic scene.
-	var terrain = map.get_node("WC_Terrain")
-	assert(terrain.data.get_region_locations().size() == 626)
-	assert(is_equal_approx(terrain.vertex_spacing, 4.0))
+	var terrain = map.get_node("GardaTerrain")
+	assert(terrain.data.get_region_locations().size() == 256)
+	assert(is_equal_approx(terrain.vertex_spacing, 15.258789))
 	assert(terrain.material.world_background == 0)
 	assert(not map.get_node("Sky3D/TimeOfDay").game_time_enabled)
 	effectors = driver.tracked_point_effectors.duplicate()
@@ -170,7 +170,7 @@ func survey() -> void:
 		"sun_transform": map.get_node("Sky3D/SunLight").global_transform,
 		"sun_energy": map.get_node("Sky3D/SunLight").light_energy,
 		"time_of_day": map.get_node("Sky3D/TimeOfDay").current_time,
-		"bounds": boundary.get_terrain_bounds(), "regions": 626,
+		"bounds": boundary.get_terrain_bounds(), "regions": terrain.data.get_region_locations().size(),
 		"cloud_state": frozen_clouds, "color_match": color_match,
 		"original_ground": original_ground, "candidate_ground": CANDIDATE_GROUND,
 		"ground_probe": ground_probe, "no_scattering_control": no_scattering,
