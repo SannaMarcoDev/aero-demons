@@ -16,6 +16,14 @@ height = 11.0
 [sub_resource type="BoxShape3D" id="Wings"]
 size = Vector3(10.8, 0.6, 2.0)
 
+; Gun-only padding: 1.5 m per side after the inherited 0.5 airframe scale.
+[sub_resource type="CapsuleShape3D" id="GunHull"]
+radius = 3.8
+height = 17.0
+
+[sub_resource type="BoxShape3D" id="GunWings"]
+size = Vector3(16.8, 6.6, 8.0)
+
 [node name="EnemyFighter" type="Node3D"]
 physics_interpolation_mode = 1
 script = ExtResource("1_ai")
@@ -64,6 +72,20 @@ shape = SubResource("Hull")
 [node name="Wings" type="CollisionShape3D" parent="Hitbox"]
 position = Vector3(0, -0.85, 1.93)
 shape = SubResource("Wings")
+
+[node name="GunHitbox" type="Area3D" parent="."]
+collision_layer = 16
+collision_mask = 0
+monitoring = false
+script = ExtResource("8_hitbox")
+
+[node name="Hull" type="CollisionShape3D" parent="GunHitbox"]
+rotation = Vector3(1.5707964, 0, 0)
+shape = SubResource("GunHull")
+
+[node name="Wings" type="CollisionShape3D" parent="GunHitbox"]
+position = Vector3(0, -0.85, 1.93)
+shape = SubResource("GunWings")
 
 [node name="TargetLock" type="Node" parent="."]
 script = ExtResource("3_targeting")

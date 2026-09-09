@@ -98,6 +98,7 @@ func _ready() -> void:
 	if faction_group != "targets":
 		add_to_group("combat_allies")
 		_hitbox.collision_layer = 8
+		$GunHitbox.collision_layer = 0
 		_weapons.target_layers = 4
 	else:
 		_hitbox.collision_layer = 4
@@ -383,7 +384,7 @@ func _update_fire_solution(delta: float) -> void:
 		_gun_stable_time = 0.0
 		_missile_stable_time = 0.0
 		return
-	_gun_stable_time = _gun_stable_time + delta if _miss_distance(_lead_point(assignment_target)) <= gun_miss_tolerance else 0.0
+	_gun_stable_time = _gun_stable_time + delta if _gun_miss_distance(assignment_target) <= gun_miss_tolerance else 0.0
 	_missile_stable_time = _missile_stable_time + delta if _targeting._in_lock_zone(assignment_target) else 0.0
 
 
@@ -410,7 +411,7 @@ func weapon_fire_block(kind: String) -> String:
 			return "NO_AMMO"
 		if distance > gun_open_range:
 			return "OUT_OF_RANGE"
-		if _miss_distance(_lead_point(assignment_target)) > gun_miss_tolerance:
+		if _gun_miss_distance(assignment_target) > gun_miss_tolerance:
 			return "OUT_OF_CONE"
 		if _gun_stable_time < aim_stable_duration:
 			return "AIM_UNSTABLE"
@@ -445,6 +446,7 @@ func _clear_shot(kind: String) -> bool:
 		var start := _weapons._muzzle_transform(offset).origin
 		var endpoint := start - global_basis.z * global_position.distance_to(assignment_target.global_position)
 		var query := PhysicsRayQueryParameters3D.create(start, endpoint)
+		query.collision_mask &= ~16 # Gun forgiveness must not block missile/AI sight lines.
 		query.exclude = [_hitbox.get_rid()]
 		query.collide_with_areas = true
 		var hit := get_world_3d().direct_space_state.intersect_ray(query)
@@ -515,22 +517,29 @@ func _steer_toward(point: Vector3) -> void:
 ## How far the nose ray passes from the aim point, which is the only number that decides whether
 ## bullets connect.
 func _miss_distance(aim: Vector3) -> float:
-	var offset := aim - global_position
-	var forward := -global_basis.z
+	var offset := aim - _weapons.get_gun_muzzle_position()
+	var forward := _weapons.get_gun_forward()
 	var along := offset.dot(forward)
 	if along <= 0.0:
 		return INF
 	return (offset - forward * along).length()
 
 
+func _gun_miss_distance(target: Node3D) -> float:
+	var solution := _weapons.get_gun_solution(target)
+	return INF if solution.is_empty() else _miss_distance(solution.aim_point)
+
+
 func _lead_point(target: Node3D) -> Vector3:
-	var offset := target.global_position - global_position
-	var closing := maxf(_weapons.gun_projectile_speed + speed, 1.0)
-	var travel_time := offset.length() / closing
-	return target.global_position + target.velocity() * travel_time * aim_accuracy
+	var solution := _weapons.get_gun_solution(target)
+	if solution.is_empty():
+		return target.global_position
+	# Pilot skill affects steering, never the shared physical intercept or firing gate.
+	return target.global_position.lerp(solution.aim_point, aim_accuracy)
 
 
 func _die() -> void:
+	$GunHitbox.collision_layer = 0
 	if state == State.DESTROYED:
 		return
 	_set_state(State.DESTROYED, "AIRCRAFT_DESTROYED")
