@@ -19,6 +19,10 @@ func _initialize() -> void:
 	call_deferred("run")
 
 func run() -> void:
+	# Give the bare terrain a viewer before its first physics tick.
+	var camera := Camera3D.new()
+	root.add_child(camera)
+	camera.make_current()
 	# --- Map-only: controller must resolve terrain, sky and driver as siblings ---
 	var map: Node3D = load("res://scenes/maps/garda_lake.tscn").instantiate()
 	root.add_child(map)
@@ -46,13 +50,14 @@ func run() -> void:
 
 	# Fog / haze on the real Sky3D nodes.
 	var dome = map.get_node("Sky3D/SkyDome")
-	check(dome.fog_visible, "SkyDome fog enabled")
-	check(map.get_node("Sky3D").fog_enabled, "Sky3D fog_enabled set")
+	check(not dome.fog_visible, "SkyDome fog disabled: Sunshine is sole atmosphere")
+	check(not map.get_node("Sky3D").fog_enabled, "Sky3D fog_enabled stays off")
 	var clouds = map.get_node("SunshineCloudsDriverGD").clouds_resource
-	check(is_equal_approx(clouds.atmospheric_density, 0.85), "cloud atmospheric_density tuned")
+	check(is_equal_approx(clouds.atmospheric_density, 1.25), "cloud atmospheric_density tuned in resource")
 
 	# Effectors: registered through the driver and uploaded to the resource.
 	var driver = map.get_node("SunshineCloudsDriverGD")
+	check(controller.cloud_ring_count == 0, "saturating boundary cloud ring disabled by default")
 	check(driver.tracked_point_effectors.size() == controller.cloud_ring_count,
 		"driver tracks %d effectors" % controller.cloud_ring_count)
 	check(clouds.point_effector_data.size() == controller.cloud_ring_count * 2,
