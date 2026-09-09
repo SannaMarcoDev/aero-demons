@@ -172,7 +172,7 @@ func add_sample(callable : Callable, position : Vector3):
 	positionQueryCallables.append(callable)
 
 func _init():
-	effect_callback_type = CompositorEffect.EFFECT_CALLBACK_TYPE_POST_TRANSPARENT
+	effect_callback_type = CompositorEffect.EFFECT_CALLBACK_TYPE_PRE_TRANSPARENT
 	access_resolved_depth = true
 	access_resolved_color = true
 	needs_motion_vectors = true
