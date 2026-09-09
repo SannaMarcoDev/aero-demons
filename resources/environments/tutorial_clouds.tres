@@ -47,6 +47,7 @@ wind_swept_range = 0.6
 wind_swept_strength = 100.0
 cloud_floor = 2000.0
 cloud_ceiling = 5500.0
+ground_shadow_strength = 0.9
 max_step_count = 700.0
 resolution_scale = 0
 lod_bias = 0.9

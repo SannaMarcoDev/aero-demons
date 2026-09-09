@@ -3,3 +3,4 @@
 
 #include "./CloudsInc.comp"
 #include "./SunshineCloudsPostCompute.comp"
+#include "./CloudsCoarseDensity.comp"

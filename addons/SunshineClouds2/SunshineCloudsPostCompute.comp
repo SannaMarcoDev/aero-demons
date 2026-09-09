@@ -26,10 +26,56 @@ layout(binding = 8, std140) uniform SceneDataBlock {
 	SceneData prev_data;
 } scene_data_block;
 
+layout(binding = 9) uniform sampler2D extra_large_noise;
+layout(binding = 10) uniform sampler3D large_noise;
+layout(binding = 11) uniform sampler2D heightmask;
+
+layout(push_constant, std430) uniform GroundShadowParams {
+	float strength;
+	float height_fraction;
+	vec2 reserved;
+} ground_shadow;
 
 // Helpers
 float remap(float value, float min1, float max1, float min2, float max2) {
   return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
+}
+
+// Defined by the entrypoint's shared include (Godot does not expand nested includes).
+float sampleSceneCoarse(vec3 largeNoisePos, vec3 worldPosition, float cloudceiling,
+	float cloudfloor, float extralargeNoiseValue, float largenoisescale, float coverage, float lod);
+
+float sampleGroundShadow(vec3 worldPosition) {
+	float cloudfloor = genericData.data.cloud_floor;
+	float cloudceiling = genericData.data.cloud_ceiling;
+	if (ground_shadow.strength <= 0.0 || genericData.data.cloud_density <= 0.0 ||
+		genericData.data.cloud_coverage <= 0.0 || cloudceiling <= cloudfloor ||
+		genericData.data.directionalLightsCount < 1.0) {
+		return 0.0;
+	}
+
+	// ponytail: one macro-density slice and the first tracked light (sun).
+	// Add a few height samples only if the thick cloud layer needs closer silhouettes.
+	DirectionalLight sun = directionalLights[0];
+	if (sun.color.a <= 0.0 || sun.direction.y <= 0.02) {
+		return 0.0;
+	}
+	vec3 sunDirection = normalize(sun.direction.xyz);
+	float shadowHeight = mix(cloudfloor, cloudceiling, clamp(ground_shadow.height_fraction, 0.05, 0.95));
+	if (worldPosition.y >= shadowHeight) {
+		return 0.0;
+	}
+	float travel = (shadowHeight - worldPosition.y) / sunDirection.y;
+	vec3 samplePosition = worldPosition + sunDirection * travel;
+	float extraLarge = texture(extra_large_noise, (samplePosition.xz - genericData.data.extralargenoiseposition.xz) / genericData.data.extralargenoisescale).a;
+	float shape = sampleSceneCoarse(genericData.data.largenoiseposition, samplePosition,
+		cloudceiling, cloudfloor, extraLarge, genericData.data.large_noise_scale,
+		genericData.data.cloud_coverage * 1.01, 1.0);
+	float sharpness = clamp(1.0 - genericData.data.cloud_sharpness, 0.001, 1.0) * 2.0;
+	float density = pow(shape * genericData.data.cloud_density, sharpness);
+	float opacity = 1.0 - exp(-density * (cloudceiling - cloudfloor) / max(genericData.data.max_step_distance, 1.0));
+	float receiverFade = 1.0 - smoothstep(shadowHeight - (cloudceiling - cloudfloor) * 0.1, shadowHeight, worldPosition.y);
+	return clamp(ground_shadow.strength, 0.0, 1.0) * opacity * receiverFade * smoothstep(0.02, 0.12, sunDirection.y);
 }
 
 float w0(float a)
@@ -263,11 +309,13 @@ void main() {
     ivec2 lowres_size = ivec2(genericData.data.raster_size);
 
     int resolutionScale = int(genericData.data.resolutionscale);
-    ivec2 size = lowres_size * resolutionScale;
+    ivec2 size = textureSizeMSAA(depth_image);
+	if (uv.x >= size.x || uv.y >= size.y) {
+		return;
+	}
 
-
-	vec2 depthUV = (uv - 0.5) / vec2(size);
-	depthUV = clamp(depthUV, vec2(0.0), vec2(1.0));
+	// Reconstruct the receiver at the actual full-resolution pixel center.
+	vec2 depthUV = (vec2(uv) + 0.5) / vec2(size);
 
 	vec2 accumUV = depthUV;
 
@@ -347,6 +395,12 @@ void main() {
 		float groundLinearFade = mix(step(maxTheoreticalStep, linear_depth), 1.0, genericData.data.fogEffectGround);
 
 		vec4 color = texelFetchMSAA(input_screen_image, uv, sampleIdx);
+		// Reverse-Z clear depth is sky, not a shadow receiver. Apply before haze/clouds.
+		if (depth > 0.0 && ground_shadow.strength > 0.0) {
+			vec3 worldPosition = (scene_data_block.data.main_cam_inv_view_matrix * vec4(view.xyz, 1.0)).xyz;
+			// ponytail: post-lighting approximation also dims ambient; material light integration if needed.
+			color.rgb *= 1.0 - sampleGroundShadow(worldPosition);
+		}
 
 		vec3 ambientfogdistancecolor = genericData.data.ambientfogdistancecolor.rgb * genericData.data.ambientfogdistancecolor.a;
 		float atmosphericDensity = genericData.data.atmospheric_density;

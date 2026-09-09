@@ -39,6 +39,12 @@ class_name SunshineCloudsGD
 @export var cloud_floor : float = 1500.0
 @export var cloud_ceiling : float = 25000.0
 
+@export_subgroup("Ground Shadows")
+## Approximate projected macro-noise shadows. Zero disables them.
+@export_range(0, 1, 0.01) var ground_shadow_strength : float = 0.0
+## Representative slice between cloud_floor (0) and cloud_ceiling (1).
+@export_range(0.05, 0.95, 0.01) var ground_shadow_height_fraction : float = 0.5
+
 @export_subgroup("Performance")
 @export var max_step_count : float = 300
 @export var max_lighting_steps : float = 32
@@ -116,6 +122,8 @@ var prepass_pipeline : RID = RID()
 
 var postpass_shader : RID = RID()
 var postpass_pipeline : RID = RID()
+# Keep the bytecode, not the mutable RDShaderSPIRV resource, to detect editor reloads.
+var postpass_bytecode := PackedByteArray()
 
 var display_shader : RID = RID()
 var display_pipeline : RID = RID()
@@ -207,6 +215,7 @@ func clear_compute():
 		if postpass_shader.is_valid():
 			rd.free_rid(postpass_shader)
 		postpass_shader = RID()
+		postpass_bytecode = PackedByteArray()
 
 		if display_pipeline.is_valid():
 			rd.free_rid(display_pipeline)
@@ -319,10 +328,10 @@ func initialize_compute():
 		pre_pass_compute_shader = ResourceLoader.load("res://addons/SunshineClouds2/SunshineCloudsPreCompute.glsl")
 	var display_shader_file : RDShaderFile
 	if msaa_mode == RenderingServer.ViewportMSAA.VIEWPORT_MSAA_DISABLED:
-		post_pass_compute_shader = ResourceLoader.load("res://addons/SunshineClouds2/SunshineCloudsPostCompute.glsl")
+		post_pass_compute_shader = ResourceLoader.load("res://addons/SunshineClouds2/SunshineCloudsPostCompute.glsl", "RDShaderFile", ResourceLoader.CACHE_MODE_REPLACE)
 		display_shader_file = ResourceLoader.load("res://addons/SunshineClouds2/SunshineCloudsDisplay.glsl")
 	else:
-		post_pass_compute_shader = ResourceLoader.load("res://addons/SunshineClouds2/SunshineCloudsPostCompute.msaa.glsl")
+		post_pass_compute_shader = ResourceLoader.load("res://addons/SunshineClouds2/SunshineCloudsPostCompute.msaa.glsl", "RDShaderFile", ResourceLoader.CACHE_MODE_REPLACE)
 		display_shader_file = ResourceLoader.load("res://addons/SunshineClouds2/SunshineCloudsDisplay.msaa.glsl")
 
 	if not compute_shader or not pre_pass_compute_shader or not post_pass_compute_shader or not display_shader_file:
@@ -355,6 +364,7 @@ func initialize_compute():
 	
 	
 	var postpass_shader_spirv = post_pass_compute_shader.get_spirv()
+	postpass_bytecode = postpass_shader_spirv.bytecode_compute
 	postpass_shader = rd.shader_create_from_spirv(postpass_shader_spirv)
 	if postpass_shader.is_valid():
 		postpass_pipeline = rd.compute_pipeline_create(postpass_shader)
@@ -459,8 +469,10 @@ func _render_callback(effect_callback_type, render_data):
 			var view_count = buffers.get_view_count()
 			var rendersceneData : RenderSceneData = render_data.get_render_scene_data();
 			
-			if size != last_size or uniform_sets == null or uniform_sets.size() != view_count * 4 or color_images.size() == 0 or color_images[0] != buffers.get_color_layer(0) or blit_screen_images.size() == 0 or msaa_mode != last_msaa_mode:
+			if size != last_size or uniform_sets == null or uniform_sets.size() != view_count * 4 or color_images.size() == 0 or color_images[0] != buffers.get_color_layer(0) or blit_screen_images.size() == 0 or msaa_mode != last_msaa_mode or postpass_bytecode != post_pass_compute_shader.get_spirv().bytecode_compute:
 				initialize_compute()
+				if not postpass_pipeline.is_valid():
+					return
 				initialize_raster_pipelines(buffers.get_color_layer(0, is_msaa_on), buffers.get_depth_layer(0, is_msaa_on))
 
 				accumulation_textures.clear()
@@ -728,7 +740,16 @@ func _render_callback(effect_callback_type, render_data):
 					postpass_camera_data_uniform.binding = 8
 					postpass_camera_data_uniform.add_id(cameraData)
 					postpass_uniforms_array.append(postpass_camera_data_uniform)
-					
+
+					# Reuse the exact cloud textures/samplers, including a painted weather mask.
+					for source_uniform in [extra_noise_uniform, noise_uniform, height_gradient_uniform]:
+						var shadow_uniform := RDUniform.new()
+						shadow_uniform.uniform_type = RenderingDevice.UNIFORM_TYPE_SAMPLER_WITH_TEXTURE
+						shadow_uniform.binding = postpass_uniforms_array.size() # 9, 10, 11
+						for texture_id in source_uniform.get_ids():
+							shadow_uniform.add_id(texture_id)
+						postpass_uniforms_array.append(shadow_uniform)
+
 					uniform_sets.append(rd.uniform_set_create(postpass_uniforms_array, postpass_shader, 0))
 					#endregion
 
@@ -774,6 +795,7 @@ func _render_callback(effect_callback_type, render_data):
 			var x_groups = ((size.x - 1) / 8 / resscale) + 1
 			var y_groups = ((size.y - 1) / 8 / resscale) + 1
 			
+			var shadow_params := PackedFloat32Array([ground_shadow_strength, ground_shadow_height_fraction, 0.0, 0.0]).to_byte_array()
 			for view in view_count:
 				if view * 4 + 3 >= uniform_sets.size():
 					continue
@@ -794,6 +816,7 @@ func _render_callback(effect_callback_type, render_data):
 				var postpass_list = rd.compute_list_begin()
 				rd.compute_list_bind_compute_pipeline(postpass_list, postpass_pipeline)
 				rd.compute_list_bind_uniform_set(postpass_list, uniform_sets[view * 4 + 2], 0)
+				rd.compute_list_set_push_constant(postpass_list, shadow_params, shadow_params.size())
 				rd.compute_list_dispatch(postpass_list, prepass_x_groups, prepass_y_groups, 1)
 				rd.compute_list_end()
 
