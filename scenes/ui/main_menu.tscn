@@ -543,14 +543,14 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.96, 0.98, 1, 1)
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 20
-text = "OPERAZIONE STORIA"
+text = "OPERAZIONI AEREE"
 
 [node name="DossierSubtitle" type="Label" parent="MarginContainer/MainLayout/ContentArea/RightPanel/Margin/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.45, 0.65, 0.85, 1)
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 11
-text = "INGAGGIO TATTICO MULTI-ONDATE // PREPARAZIONE SORTITA"
+text = "TUTORIAL SUL GARDA // PREPARA LA MISSIONE"
 
 [node name="DossierDesc" type="Label" parent="MarginContainer/MainLayout/ContentArea/RightPanel/Margin/VBox"]
 custom_minimum_size = Vector2(0, 80)
@@ -558,7 +558,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.85, 0.9, 0.96, 0.95)
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 12
-text = "Seleziona il teatro operativo per la sortita aerea. Configura il payload d'armamento missilistico nel loadout avionico prima del decollo."
+text = "Scegli la missione, prepara due tipi di missile e decolla con la tua squadra."
 autowrap_mode = 2
 
 [node name="RadarContainer" type="Control" parent="MarginContainer/MainLayout/ContentArea/RightPanel/Margin/VBox"]

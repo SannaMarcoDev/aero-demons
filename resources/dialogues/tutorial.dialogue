@@ -1,0 +1,47 @@
+~ intro
+Pilota: Squadra, mi ricevete?
+if wing_alive(1)
+	Wing 1: Ti sento. Sono alla tua sinistra.
+if wing_alive(2)
+	Wing 2: Forte e chiaro. Ti seguo sulla destra.
+if wing_alive(1)
+	Wing 1: Contatti davanti a noi! Caccia nemici, li vedi sul radar? [#spawn=1]
+else
+	Pilota: Caccia nemici davanti a me. Eccoli sul radar. [#spawn=1]
+Pilota: Bersagli in vista. Attacchiamo!
+=> END
+
+~ after_1
+Pilota: Primo gruppo abbattuto. Come va là dietro?
+if wing_alive(2)
+	Wing 2: Tutto a posto. Ti copriamo.
+if wing_alive(1)
+	Wing 1: Altri caccia da est! Nuovi contatti sul radar. [#spawn=2]
+elif wing_alive(2)
+	Wing 2: Altri caccia da est! Nuovi contatti sul radar. [#spawn=2]
+else
+	Pilota: Altri caccia da est. Nuovi contatti sul radar. [#spawn=2]
+Pilota: Ricevuto. Occupiamoci di loro.
+=> END
+
+~ after_2
+Pilota: Anche il secondo gruppo è abbattuto. Controlliamo la zona.
+if wing_alive(1)
+	Wing 1: Sono con te. Tengo d'occhio il radar.
+if wing_alive(2)
+	Wing 2: Ne arrivano altri da ovest! Questa volta sono parecchi. [#spawn=3]
+elif wing_alive(1)
+	Wing 1: Ne arrivano altri da ovest! Questa volta sono parecchi. [#spawn=3]
+else
+	Pilota: Altri contatti da ovest. Questa volta sono parecchi. [#spawn=3]
+Pilota: Li vedo. Abbattiamo anche questi.
+=> END
+
+~ outro
+Pilota: Ultimo nemico abbattuto. Vedete altri contatti?
+if wing_alive(1)
+	Wing 1: Negativo. Radar libero.
+if wing_alive(2)
+	Wing 2: Anche da qui, tutto tranquillo. Bel lavoro.
+Pilota: Missione completata. Si torna alla base.
+=> END

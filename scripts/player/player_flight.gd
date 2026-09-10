@@ -58,6 +58,8 @@ signal destroyed(aircraft: Node3D)
 
 @export_category("Combat")
 @export var max_health := 100.0
+## Per-aircraft protection; enabled only on the tutorial wingmen, not their shared scene.
+@export var invulnerable := false
 @export var faction_group := "player"
 @export var label := "PLAYER"
 ## Health ratios where the airframe starts smoking and where the fire reaches full strength.
@@ -145,7 +147,7 @@ func _scale_airframe() -> void:
 
 ## NCGBM uses the source project's refresh/strongest-burn rule on every airframe.
 func apply_napalm(total: float, duration: float, _source = null) -> void:
-	if total <= 0.0 or duration <= 0.0 or not is_alive():
+	if invulnerable or total <= 0.0 or duration <= 0.0 or not is_alive():
 		return
 	_napalm_dps = maxf(_napalm_dps if _napalm_time > 0.0 else 0.0, total / duration)
 	_napalm_time = maxf(_napalm_time, duration)
@@ -546,7 +548,7 @@ func _on_solid_collision(_body: Node3D) -> void:
 
 
 func apply_damage(amount: float) -> void:
-	if amount <= 0.0 or not is_alive():
+	if invulnerable or amount <= 0.0 or not is_alive():
 		return
 	health = maxf(health - amount, 0.0)
 	_update_damage_effects()

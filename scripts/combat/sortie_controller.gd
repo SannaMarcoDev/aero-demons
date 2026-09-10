@@ -23,13 +23,13 @@ func objectives_text() -> String:
 
 
 func _on_player_destroyed(_aircraft: Node3D) -> void:
-	_finish("SORTITA FALLITA", "VELIVOLO DISTRUTTO")
+	_finish("MISSIONE FALLITA", "IL TUO AEREO È STATO DISTRUTTO")
 
 
 func _on_enemy_destroyed(_aircraft: Node3D) -> void:
 	remaining = maxi(remaining - 1, 0)
 	if remaining == 0:
-		_finish("SORTITA COMPLETATA", "TUTTI I CACCIA OSTILI ELIMINATI")
+		_finish("MISSIONE COMPLETATA", "TUTTI I NEMICI ABBATTUTI")
 
 
 func _finish(title: String, detail: String) -> void:

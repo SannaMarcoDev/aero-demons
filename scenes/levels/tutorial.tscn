@@ -7,7 +7,9 @@
 [ext_resource type="PackedScene" path="res://scenes/enemies/enemy_fighter.tscn" id="6_enemy"]
 [ext_resource type="Script" uid="uid://7erqguvfj2as" path="res://scripts/combat/combat_director.gd" id="7_director"]
 [ext_resource type="Script" uid="uid://bheh07h6v4hg5" path="res://scripts/ui/horizon_graphics.gd" id="8_horizon"]
-[ext_resource type="Script" uid="uid://xj5o3oegucop" path="res://scripts/combat/sortie_controller.gd" id="9_sortie"]
+[ext_resource type="Script" path="res://scripts/combat/tutorial_mission.gd" id="9_mission"]
+[ext_resource type="PackedScene" path="res://scenes/ui/radio_dialogue.tscn" id="10_radio"]
+[ext_resource type="Resource" path="res://resources/dialogues/tutorial.dialogue" id="11_dialogue"]
 
 [node name="Tutorial" type="Node3D" unique_id=1151233576]
 script = ExtResource("5_filters")
@@ -21,50 +23,113 @@ camera_height = 0.8000000000000007
 camera_depth = 5.5
 camera_pitch = 7.0
 
-[node name="EnemyFighter" parent="." unique_id=804673695 instance=ExtResource("6_enemy")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 500, 2100, -1500)
-label = "BANDIT 1"
-
-[node name="EnemyFighter2" parent="." unique_id=450980962 instance=ExtResource("6_enemy")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2050, -850)
-label = "BANDIT 2"
-
-[node name="EnemyFighter3" parent="." unique_id=1569472204 instance=ExtResource("6_enemy")]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -950, 2150, -1700)
-label = "BANDIT 3"
-
-[node name="EnemyFighter4" parent="." unique_id=1237770604 instance=ExtResource("6_enemy")]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 950, 1950, -1900)
-label = "BANDIT 4"
-
 [node name="Wingman1" parent="." unique_id=1943898831 instance=ExtResource("6_enemy")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -300, 2050, -150)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -300, 8050, -150)
 policy = 1
 burst_interval = 5.5
 aim_accuracy = 0.7
 faction_group = "allies"
+invulnerable = true
 label = "WING 1 · COVER"
 
 [node name="Wingman2" parent="." unique_id=79740025 instance=ExtResource("6_enemy")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, 1950, -250)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, 7950, -250)
 policy = 2
 burst_interval = 5.5
 aim_accuracy = 0.7
 faction_group = "allies"
+invulnerable = true
 label = "WING 2 · SUPPORT"
 
 [node name="CombatDirector" type="Node" parent="." unique_id=432296202]
 script = ExtResource("7_director")
+allow_player_attacks = false
 
 [node name="CombatHUD" parent="." unique_id=727810572 instance=ExtResource("4_hud")]
 player_path = NodePath("../Player")
 camera_path = NodePath("../Player/FlightCamera")
 targeting_path = NodePath("../Player/TargetLock")
 weapons_path = NodePath("../Player/WeaponController")
-mission_controller_path = NodePath("SortieController")
+mission_controller_path = NodePath("MissionController")
+mode_label = "TUTORIAL"
 
-[node name="SortieController" type="Node" parent="CombatHUD" unique_id=326801568]
-script = ExtResource("9_sortie")
+[node name="MissionController" type="Node" parent="CombatHUD" unique_id=326801568]
+script = ExtResource("9_mission")
+dialogue = ExtResource("11_dialogue")
+
+[node name="RadioDialogue" parent="CombatHUD/HudText" instance=ExtResource("10_radio")]
+
+[node name="SpawnedEnemies" type="Node3D" parent="."]
+
+[node name="EnemySpawnMarkers" type="Node3D" parent="."]
+
+[node name="Encounter1" type="Node3D" parent="EnemySpawnMarkers"]
+position = Vector3(0, 8000, -5000)
+rotation_degrees = Vector3(0, 180, 0)
+
+[node name="Bandit01" type="Marker3D" parent="EnemySpawnMarkers/Encounter1"]
+position = Vector3(-300, 80, 0)
+gizmo_extents = 100.0
+
+[node name="Bandit02" type="Marker3D" parent="EnemySpawnMarkers/Encounter1"]
+position = Vector3(300, -80, 150)
+gizmo_extents = 100.0
+
+[node name="Encounter2" type="Node3D" parent="EnemySpawnMarkers"]
+position = Vector3(4500, 8000, -3500)
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="Bandit03" type="Marker3D" parent="EnemySpawnMarkers/Encounter2"]
+position = Vector3(-450, 120, 0)
+gizmo_extents = 100.0
+
+[node name="Bandit04" type="Marker3D" parent="EnemySpawnMarkers/Encounter2"]
+position = Vector3(-150, -120, 200)
+gizmo_extents = 100.0
+
+[node name="Bandit05" type="Marker3D" parent="EnemySpawnMarkers/Encounter2"]
+position = Vector3(150, 120, 200)
+gizmo_extents = 100.0
+
+[node name="Bandit06" type="Marker3D" parent="EnemySpawnMarkers/Encounter2"]
+position = Vector3(450, -120, 0)
+gizmo_extents = 100.0
+
+[node name="Encounter3" type="Node3D" parent="EnemySpawnMarkers"]
+position = Vector3(-5000, 8000, -2500)
+rotation_degrees = Vector3(0, -90, 0)
+
+[node name="Bandit07" type="Marker3D" parent="EnemySpawnMarkers/Encounter3"]
+position = Vector3(-900, 150, 0)
+gizmo_extents = 100.0
+
+[node name="Bandit08" type="Marker3D" parent="EnemySpawnMarkers/Encounter3"]
+position = Vector3(-300, -150, 0)
+gizmo_extents = 100.0
+
+[node name="Bandit09" type="Marker3D" parent="EnemySpawnMarkers/Encounter3"]
+position = Vector3(300, 150, 0)
+gizmo_extents = 100.0
+
+[node name="Bandit10" type="Marker3D" parent="EnemySpawnMarkers/Encounter3"]
+position = Vector3(900, -150, 0)
+gizmo_extents = 100.0
+
+[node name="Bandit11" type="Marker3D" parent="EnemySpawnMarkers/Encounter3"]
+position = Vector3(-900, -150, 700)
+gizmo_extents = 100.0
+
+[node name="Bandit12" type="Marker3D" parent="EnemySpawnMarkers/Encounter3"]
+position = Vector3(-300, 150, 700)
+gizmo_extents = 100.0
+
+[node name="Bandit13" type="Marker3D" parent="EnemySpawnMarkers/Encounter3"]
+position = Vector3(300, -150, 700)
+gizmo_extents = 100.0
+
+[node name="Bandit14" type="Marker3D" parent="EnemySpawnMarkers/Encounter3"]
+position = Vector3(900, 150, 700)
+gizmo_extents = 100.0
 
 [node name="HorizonGraphics" type="CanvasLayer" parent="." unique_id=1374869459]
 script = ExtResource("8_horizon")

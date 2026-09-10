@@ -5,6 +5,8 @@ class_name CombatDirector
 enum Mode { NORMAL, RELIEF }
 
 @export var player_path := NodePath("../Player")
+## Scene-local rule: tutorial hostiles engage wingmen, never the player. Normal arenas opt in by default.
+@export var allow_player_attacks := true
 @export var assignment_interval := 0.5
 @export var assignment_duration := 8.0
 @export var duel_range := 3200.0
@@ -76,6 +78,9 @@ func _refresh_pilots() -> void:
 
 
 func _prune_permissions() -> void:
+	if not allow_player_attacks:
+		permissions.clear()
+		return
 	for pilot in permissions.keys():
 		if not alive(pilot) or clock >= float(permissions[pilot]) \
 				or pilot.assignment_target != player or not alive(player):
@@ -96,6 +101,8 @@ func request_attack(pilot: Node3D) -> bool:
 		return false
 	if pilot.assignment_target != player:
 		return true
+	if not allow_player_attacks:
+		return false
 	if has_permission(pilot):
 		return true
 	if mode == Mode.RELIEF or permissions.size() >= max_player_attackers:
@@ -114,7 +121,7 @@ func missile_slot_available(count: int = 1) -> bool:
 
 
 func _update_pressure(delta: float) -> void:
-	if not alive(player):
+	if not allow_player_attacks or not alive(player):
 		permissions.clear()
 		pressure_time = 0.0
 		mode = Mode.NORMAL
@@ -166,7 +173,7 @@ func most_dangerous_to(subject: Node3D) -> Node3D:
 
 
 func _assign_roles() -> void:
-	if not alive(duel_opponent):
+	if not allow_player_attacks or not alive(duel_opponent):
 		duel_opponent = null
 	for pilot in pilots:
 		if not alive(pilot.assignment_target):
@@ -179,7 +186,7 @@ func _assign_roles() -> void:
 			ally.assign("COVER" if ally.policy == 1 else "SUPPORT", null)
 		return
 	var selected: Node3D
-	if alive(player):
+	if allow_player_attacks and alive(player):
 		var targeting = player.get_node_or_null("TargetLock")
 		if targeting != null and alive(targeting.target) and enemies.has(targeting.target):
 			var offset: Vector3 = targeting.target.global_position - player.global_position
@@ -187,18 +194,18 @@ func _assign_roles() -> void:
 				selected = targeting.target
 	if alive(selected):
 		duel_opponent = selected
-	elif not alive(player):
+	elif not allow_player_attacks or not alive(player):
 		duel_opponent = null
 	elif not enemies.has(duel_opponent) or player.global_position.distance_to(duel_opponent.global_position) > duel_range * 1.5:
 		duel_opponent = _nearest(enemies, player)
 
 	var pressure: Node3D
 	for enemy in enemies:
-		if enemy != duel_opponent and enemy.role == "PLAYER_PRESSURE" \
+		if allow_player_attacks and enemy != duel_opponent and enemy.role == "PLAYER_PRESSURE" \
 				and (enemy.assignment_age < assignment_duration or enemy.state == enemy.State.ATTACK):
 			pressure = enemy
 			break
-	if pressure == null and alive(player):
+	if pressure == null and allow_player_attacks and alive(player):
 		var candidates: Array = enemies.filter(func(e): return e != duel_opponent)
 		# Rotate only expired pressure roles, without breaking the player's ongoing duel.
 		for enemy in candidates:
@@ -221,7 +228,7 @@ func _assign_roles() -> void:
 			enemy.assign("ENGAGE_WINGMAN" if index < allies.size() else "SUPPORT", opponent)
 			index += 1
 		else:
-			enemy.assign("SUPPORT", player if alive(player) else null)
+			enemy.assign("SUPPORT", player if allow_player_attacks and alive(player) else null)
 
 	var danger := most_dangerous_to(player)
 	var cover: Node3D
@@ -271,6 +278,7 @@ func _update_debug() -> void:
 	_debug_label.text = "F7 · Dogfight AI"
 	if not debug_visible:
 		return
+	_debug_label.text += "\nPLAYER ATTACKS: %s" % ("ON" if allow_player_attacks else "OFF")
 	_debug_label.text += "\nMODE: %s | PLAYER_ATTACKERS: %d / %d | ACTIVE_PLAYER_MISSILES: %d / %d\nPLAYER_DUEL_OPPONENT: %s" % [
 		Mode.keys()[mode], permissions.size(), max_player_attackers, active_player_missiles(), max_player_missiles,
 		duel_opponent.name if alive(duel_opponent) else "NONE"]

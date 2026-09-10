@@ -421,7 +421,7 @@ theme_override_styles/normal = SubResource("StyleBox_pause_button")
 theme_override_styles/hover = SubResource("StyleBox_pause_button_hover")
 theme_override_styles/focus = SubResource("StyleBox_pause_button_hover")
 theme_override_styles/pressed = SubResource("StyleBox_pause_button_hover")
-text = "RIPROVA SORTITA"
+text = "RIPROVA MISSIONE"
 
 [node name="LoadoutButton" type="Button" parent="HudText/PauseOverlay/Panel/Menu"]
 custom_minimum_size = Vector2(320, 52)

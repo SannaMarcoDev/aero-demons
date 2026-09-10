@@ -17,10 +17,7 @@ func _check() -> void:
 		gun_shots = {"targets": 0, "allies": 0}
 		launches = {"targets": 0, "allies": 0}
 		visited.clear()
-		var arena: Node3D = load("res://scenes/levels/tutorial.tscn").instantiate()
-		arena.set_script(null)
-		arena.get_node("GardaLake").free()
-		if arena.has_node("CombatHUD"): arena.get_node("CombatHUD").free()
+		var arena: Node3D = load("res://tests/dogfight_arena.tscn").instantiate()
 		if count == 1:
 			# Final one-on-one also works when both wingmen have already been lost.
 			arena.get_node("Wingman1").free()

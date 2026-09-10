@@ -36,27 +36,32 @@ In radice rimangono la configurazione Godot/Git, questa guida, l'icona e `defaul
 
 ## Menu e armamento
 
-- **Operazioni → Garda → Armamento → Avvia sortita**; **Free Flight → Armamento → Decolla** per il volo senza nemici.
+- **Operazioni → Garda → Armamento → Avvia missione**; **Free Flight → Armamento → Decolla** per il volo senza nemici.
 - Due slot indipendenti: **STDM** standard, **HSSTDM** veloce, **BAHM** pesante, **NCGBM** incendiario (75 danni in 10 secondi oltre all'impatto), **MTSM** multi-bersaglio. Le statistiche provengono dal catalogo effettivamente usato dalle armi.
 - Menu: mouse, frecce/WASD, D-Pad o stick sinistro; Invio/A conferma, Esc/B torna indietro. In volo **Q / D-Pad su** cambia slot, **TAB / Y** cambia bersaglio, **Spazio / A** lancia.
-- **Esc / Start** apre la pausa: riprendi, riprova, cambia armamento, menu principale o esci. **R** riavvia la sortita mantenendo il loadout.
+- **Esc / Start** apre la pausa: riprendi, riprova, cambia armamento, menu principale o esci. **R** riavvia la missione mantenendo il loadout.
 - Opzioni: volume Master/Music/SFX, fullscreen e V-Sync. **Indietro / Esc** salva in `user://settings.cfg`; la selezione dei missili dura per la sessione corrente.
 
-## Prototipo dogfight
+## Tutorial: radio e tre incontri
 
-Dal menu scegliere Operazioni → Garda, oppure avviare `scenes/levels/tutorial.tscn`: giocatore, due gregari e quattro nemici. La sortita termina quando tutti i nemici sono distrutti o il giocatore viene abbattuto; pausa e riavvio rimangono disponibili.
-In gioco **F7** mostra ruoli, bersagli, stati, motivi di mancato fuoco e budget del direttore; i gregari hanno indicatori azzurri. In `scenes/levels/tutorial.tscn` e `scenes/levels/freeroam.tscn`, **F6** mantiene il confronto dei filtri grafici.
+Dal menu scegliere Operazioni → Garda, oppure avviare `scenes/levels/tutorial.tscn`. Si parte con due gregari, senza ostili: comunicazione iniziale → avvistamento e **2 nemici** → comunicazione e **4 nemici da est** → comunicazione e **8 nemici da ovest** → comunicazione finale e vittoria. Ogni incontro richiede di eliminare l'intera formazione, inclusi gli abbattimenti dei gregari. I relitti non bloccano la progressione.
 
-- `CombatDirector`: durata degli incarichi, pressione/respiro, limite di attaccanti e missili sul giocatore.
-- `EnemyFighter` (condiviso con i gregari): tempi tattici, pilotaggio, evasione, tiro e sicurezza, regolabili nell'Inspector.
-- Per provare sei nemici, duplicare due istanze nemiche nella scena: il direttore le rileva senza aumentare il budget sul giocatore.
+**Solo nel tutorial i nemici non attaccano il giocatore**: `CombatDirector.allow_player_attacks = false` esclude duello/pressione sul protagonista e nega i permessi di fuoco contro di lui. Gli ostili combattono contro i gregari. **I due compagni sono immortali solo in questa missione**: `invulnerable = true` sulle istanze `Wingman1` e `Wingman2` blocca danni da armi, incendi e collisioni, senza togliere loro bersagli o armi. Il giocatore e i nemici restano vulnerabili; nelle altre scene gli aerei hanno `invulnerable = false` e il director conserva `allow_player_attacks = true`.
+
+- **Posizioni e numero:** `Tutorial/EnemySpawnMarkers/Encounter1`, `Encounter2`, `Encounter3`. Ogni `Marker3D` genera un aereo con posizione e orientamento del marker. Spostare/ruotare i gruppi cambia la provenienza; duplicare marker aumenta il numero. Tenere i punti nella stessa zona di combattimento, entro portata radar (20 km) dalle posizioni plausibili del giocatore. Non vengono spostati automaticamente.
+- **Sequenza:** `scripts/combat/tutorial_mission.gd`, collegato a `CombatHUD/MissionController`, riusa gli esiti di `SortieController` senza la vittoria automatica tra incontri. Non ci sono waypoint obbligatori né trigger di zona.
+- **Battute:** `resources/dialogues/tutorial.dialogue`, con Dialogue Manager 4.1 abilitato. Le sezioni sono `intro`, `after_1`, `after_2`, `outro`; i tag `[#spawn=1]`, `[#spawn=2]`, `[#spawn=3]` fanno apparire i nemici esattamente alla visualizzazione dell'avvistamento. Le condizioni `wing_alive()` offrono alternative del pilota anche se si rimuove un gregario dalla scena.
+- **Radio:** `scenes/ui/radio_dialogue.tscn`, sottotitoli automatici senza bloccare il volo o catturare input. Tempi di lettura regolabili nell'Inspector. Pausa ferma la radio; sconfitta e riavvio annullano la sequenza. La vittoria arriva dopo l'ultima battuta, non dopo l'ultimo colpo.
+- **AI:** `EnemyFighter` resta condiviso tra nemici e gregari. **F7** mostra ruoli, bersagli, stati, permessi e regola degli attacchi al giocatore. **F6** mantiene il confronto dei filtri grafici. Terreno e freeroam non sono modificati.
 
 ```sh
+godot --headless --path . --script tests/tutorial_mission_check.gd --fixed-fps 60
+godot --path . --script tests/tutorial_mission_check.gd --fixed-fps 60 -- --capture
 godot --headless --path . --script tests/enemy_fighter_check.gd --fixed-fps 60
 godot --headless --path . --script tests/dogfight_simulation_check.gd --fixed-fps 60
 ```
 
-Il secondo controllo simula 60 secondi con quattro nemici, sei nemici e un duello finale senza gregari. Il giocatore di test vola diritto e può essere abbattuto: verifica il funzionamento, non il bilanciamento. Aggressività, efficacia dei gregari e finestre di contrattacco richiedono ancora una prova giocata.
+Il controllo tutorial verifica i tre incontri, trasformazioni, sincronizzazione radio/radar, divieto di fuoco sul giocatore, combattimento contro i gregari, immunità dei compagni a danni/incendi/collisioni, pausa e sconfitta. La variante grafica usa la mappa reale e salva sei schermate in `user://tutorial_mission_check/`. I test del dogfight ordinario usano `tests/dogfight_arena.tscn`, una scena fissa senza terreno né missione, con il giocatore a quota di combattimento. La simulazione tenta 60 secondi con 4, 6 e 1 nemici; il bilanciamento richiede comunque una prova giocata.
 
 ## Acqua e catture
 
@@ -86,5 +91,5 @@ Per la verifica grafica usare Forward+; i controlli headless non validano la res
 
 ### Limiti della verifica
 
-- I test dogfight precedenti eliminano la mappa ma lasciano `HorizonGraphics`, che segnala `Sky3D` mancante. `dogfight_simulation_check.gd` fallisce inoltre sull'ingaggio dei gregari; riprodotto anche ripristinando in memoria gli script di volo/audio precedenti al port.
-- Godot 4.7.1 segnala risorse audio ancora in uso alla chiusura; il giro grafico completo segnala anche RID di rendering non liberati. Il controllo funzionale del menu passa, ma questi warning di teardown rimangono.
+- `enemy_fighter_check.gd`, il controllo tutorial e quello menu passano. `dogfight_simulation_check.gd` continua a fallire su `Wingmen must actually engage`, anche con la scena di test separata: il limite d'ingaggio già documentato non è risolto da questa modifica.
+- Godot 4.7.1 segnala risorse audio ancora in uso alla chiusura; il giro grafico completo segnala anche RID di rendering non liberati. Il controllo tutorial segnala inoltre riferimenti alla risorsa dialogo trattenuti da Dialogue Manager 4.1. I controlli funzionali passano, ma questi warning di teardown rimangono.

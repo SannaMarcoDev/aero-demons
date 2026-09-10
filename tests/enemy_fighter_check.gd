@@ -1,6 +1,6 @@
 extends SceneTree
 ## Run: godot --headless --path . --script tests/enemy_fighter_check.gd
-## Real freeroam aircraft/weapon scenes, without loading the terrain into the physics world.
+## Real aircraft/weapon scenes in a fixed combat fixture, independent of the tutorial.
 
 var arena: Node3D
 var player: PlayerFlight
@@ -23,11 +23,7 @@ func _check() -> void:
 	var session = load("res://scripts/ui/game_session.gd")
 	var saved_loadout: Array[String] = session.selected_missiles.duplicate()
 	session.selected_missiles.assign(["HSSTDM", "STDM"])
-	arena = load("res://scenes/levels/tutorial.tscn").instantiate()
-	arena.set_script(null)
-	arena.get_node("GardaLake").free()
-	if arena.has_node("CombatHUD"):
-		arena.get_node("CombatHUD").free()
+	arena = load("res://tests/dogfight_arena.tscn").instantiate()
 	root.add_child(arena)
 	current_scene = arena
 	player = arena.get_node("Player")
@@ -35,7 +31,9 @@ func _check() -> void:
 	director.set_physics_process(false)
 	player.set_physics_process(false)
 	player._targeting.set_physics_process(false)
+	assert(not player.invulnerable)
 	for pilot: EnemyFighter in get_nodes_in_group("combat_ai"):
+		assert(not pilot.invulnerable, "Tutorial protection must not leak into ordinary combat")
 		pilot.set_physics_process(false)
 		pilot._targeting.set_physics_process(false)
 		if pilot.faction_group == "targets":
@@ -302,6 +300,15 @@ func _check() -> void:
 	director.debug_visible = true
 	director._update_debug()
 	assert("PLAYER_ATTACKERS" in director._debug_label.text and "FIRE_BLOCK" in director._debug_label.text)
+	# Ordinary wingmen still take weapon, burn and fatal collision damage.
+	for wing in allies:
+		var wing_health := wing.health
+		wing._hitbox.apply_damage(5.0)
+		wing.apply_napalm(10.0, 1.0)
+		wing._process(1.0)
+		assert(is_equal_approx(wing.health, wing_health - 15.0))
+		wing._on_solid_collision(null)
+		assert(not wing.is_alive() and wing.state == EnemyFighter.State.DESTROYED)
 	arena.queue_free()
 	await process_frame
 	print("Dogfight check passed: scene, teams, roles, permissions, relief, FSM, cover, real weapons, missile lifecycle, wrecks, debug")

@@ -230,8 +230,8 @@ func _set_dossier(mode_key: String) -> void:
 			threat_badge.text = "THREAT: HIGH"
 			threat_badge.modulate = Color(1.0, 0.4, 0.2)
 			dossier_title.text = "OPERAZIONI AEREE"
-			dossier_subtitle.text = "DOGFIGHT SUL GARDA // PREPARAZIONE SORTITA"
-			dossier_desc.text = "Seleziona la sortita e configura due tipi di missile prima del decollo.\n\nDogfight sul Garda: quattro caccia ostili e due gregari. Elimina i nemici e torna alla selezione armamento per una nuova sortita."
+			dossier_subtitle.text = "TUTORIAL SUL GARDA // PREPARA LA MISSIONE"
+			dossier_desc.text = "Scegli due tipi di missile e decolla con la tua squadra.\n\nAffronta tre gruppi di caccia nemici: 2, poi 4, infine 8. Ascolta gli avvistamenti alla radio e cerca i contatti sul radar. In questa missione i tuoi compagni non possono essere abbattuti e i nemici non ti attaccano."
 			dossier_telemetry.text = "STATO: AUTORIZZATO  •  PAYLOAD: ARMATO  •  RADAR: ATTIVO  •  DATALINK: CONNESSO"
 
 		"free_flight":
@@ -266,9 +266,9 @@ func _set_dossier(mode_key: String) -> void:
 			threat_badge.text = "THREAT: HIGH"
 			threat_badge.modulate = Color(1.0, 0.3, 0.2)
 			dossier_title.text = "SETTORE 01: GARDA"
-			dossier_subtitle.text = "QUATTRO BANDIT // DUE GREGARI"
-			dossier_desc.text = "Intercetta i caccia ostili con il supporto dei gregari. Scegli fra missili standard, veloci, pesanti, incendiari e multi-bersaglio.\n\nIn volo: Q / D-Pad su cambia slot; TAB / Y cambia bersaglio; SPAZIO / A lancia. ESC / START apre il menu di pausa."
-			dossier_telemetry.text = "SETTORE: GARDA  •  SORTITA: DOGFIGHT  •  PAYLOAD: DUE SLOT"
+			dossier_subtitle.text = "TRE GRUPPI NEMICI // DUE COMPAGNI DI SQUADRA"
+			dossier_desc.text = "Abbatti i tre gruppi di caccia con l'aiuto dei tuoi compagni. I nemici compaiono sul radar quando la squadra li avvista; la missione si conclude dopo l'ultima comunicazione.\n\nQ / D-Pad su cambia missile; TAB / Y cambia bersaglio; SPAZIO / A lancia. ESC / START apre la pausa."
+			dossier_telemetry.text = "SETTORE: GARDA  •  MISSIONE: TUTORIAL  •  MISSILI: DUE SLOT"
 
 
 func _unhandled_input(event: InputEvent) -> void:

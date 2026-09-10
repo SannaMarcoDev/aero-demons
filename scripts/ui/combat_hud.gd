@@ -38,6 +38,7 @@ const RADAR_LINE := Color(0.68, 0.84, 0.9, 0.43)
 @export var weapons_path: NodePath = NodePath("")
 @export var wave_spawner_path: NodePath = NodePath("")
 @export var mission_controller_path: NodePath = NodePath("")
+@export var mode_label := "DOGFIGHT"
 
 var player
 var camera
@@ -195,7 +196,7 @@ func _update_labels() -> void:
 	if GameSession.free_flight:
 		_score_label.text = "MODE : FREE FLIGHT"
 	elif wave_spawner == null:
-		_score_label.text = "MODE : DOGFIGHT"
+		_score_label.text = "MODE : " + mode_label
 	else:
 		_score_label.text = "TOTAL SCORE : %s" % _format_int(_read_int(wave_spawner, "score", 0))
 	_speed_value.text = "%d" % roundi(_read_float(player, "speed", 0.0) * 3.6)

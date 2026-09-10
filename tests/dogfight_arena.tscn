@@ -1,0 +1,46 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="1_player"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/enemy_fighter.tscn" id="2_enemy"]
+[ext_resource type="Script" path="res://scripts/combat/combat_director.gd" id="3_director"]
+
+; Fixed combat fixture, independent of the tutorial's radio, spawns and no-player-attacks rule.
+[node name="DogfightArena" type="Node3D"]
+
+[node name="Player" parent="." instance=ExtResource("1_player")]
+position = Vector3(0, 2000, 0)
+
+[node name="EnemyFighter" parent="." instance=ExtResource("2_enemy")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 500, 2100, -1500)
+label = "BANDIT 1"
+
+[node name="EnemyFighter2" parent="." instance=ExtResource("2_enemy")]
+position = Vector3(0, 2050, -850)
+label = "BANDIT 2"
+
+[node name="EnemyFighter3" parent="." instance=ExtResource("2_enemy")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -950, 2150, -1700)
+label = "BANDIT 3"
+
+[node name="EnemyFighter4" parent="." instance=ExtResource("2_enemy")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 950, 1950, -1900)
+label = "BANDIT 4"
+
+[node name="Wingman1" parent="." instance=ExtResource("2_enemy")]
+position = Vector3(-300, 2050, -150)
+policy = 1
+burst_interval = 5.5
+aim_accuracy = 0.7
+faction_group = "allies"
+label = "WING 1 · COVER"
+
+[node name="Wingman2" parent="." instance=ExtResource("2_enemy")]
+position = Vector3(300, 1950, -250)
+policy = 2
+burst_interval = 5.5
+aim_accuracy = 0.7
+faction_group = "allies"
+label = "WING 2 · SUPPORT"
+
+[node name="CombatDirector" type="Node" parent="."]
+script = ExtResource("3_director")

@@ -30,6 +30,7 @@ func _run() -> void:
 	await scene_changed
 	var menu = current_scene
 	assert(menu.root_menu.visible and menu.storia_btn.has_focus())
+	assert(menu.dossier_subtitle.text.contains("TUTORIAL") and menu.dossier_desc.text.contains("tre gruppi"))
 	await _capture("01_main")
 	menu.options_btn.pressed.emit()
 	assert(menu.options_menu.visible and menu.master_slider.has_focus())
@@ -44,6 +45,7 @@ func _run() -> void:
 	assert(current_scene.scene_file_path == Session.LOADOUT and not Session.free_flight)
 	var loadout = current_scene
 	assert(loadout._missile_buttons.size() == 5)
+	assert(loadout.avvia_btn.text == "AVVIA MISSIONE" and loadout.map_label.text == "GARDA · TUTORIAL")
 	for slot in 2:
 		loadout._select_slot(slot)
 		for id in Catalog.ids():
@@ -72,7 +74,8 @@ func _run() -> void:
 	var weapons: WeaponController = player.get_node("WeaponController")
 	var hud: CombatHUD = current_scene.get_node("CombatHUD")
 	assert(weapons.equipped_missile_ids == ["NCGBM", "MTSM"])
-	assert(not Session.free_flight and hud.mission_controller.remaining == 4)
+	assert(not Session.free_flight and hud.mission_controller.remaining == 0)
+	assert(get_nodes_in_group("targets").is_empty())
 	hud._open_pause_menu()
 	assert(paused and Input.mouse_mode == Input.MOUSE_MODE_VISIBLE)
 	var position := player.position
@@ -82,6 +85,8 @@ func _run() -> void:
 	hud._on_resume_pressed()
 	assert(not paused)
 	assert(DisplayServer.get_name() == "headless" or Input.mouse_mode == Input.MOUSE_MODE_HIDDEN)
+	# The second encounter supplies four real targets for the existing multi-lock checks.
+	await _advance_to_encounter(hud, 1)
 	paused = true
 	assert(_check_weapons(player, weapons))
 	weapons.equipped_missile_ids = Session.selected_missiles.duplicate()
@@ -92,8 +97,19 @@ func _run() -> void:
 	await _capture("06_flight")
 	for target in get_nodes_in_group("targets"):
 		target.apply_damage(target.max_health)
+	assert(not hud.mission_result_visible(), "Clearing an intermediate encounter is not victory")
+	paused = false
+	await _advance_to_encounter(hud, 2)
+	for target in get_nodes_in_group("targets"):
+		target.apply_damage(target.max_health)
+	assert(not hud.mission_result_visible(), "Final radio precedes victory")
+	for frame in 300:
+		if hud.mission_result_visible():
+			break
+		hud.mission_controller.radio._process(30.0)
+		await process_frame
 	assert(paused and hud.mission_result_visible())
-	assert(hud._mission_title.text == "SORTITA COMPLETATA")
+	assert(hud._mission_title.text == "MISSIONE COMPLETATA")
 	await _capture("07_victory")
 	hud._open_pause_menu()
 	assert(hud._resume_button.disabled and hud._restart_button.has_focus())
@@ -101,10 +117,10 @@ func _run() -> void:
 	await scene_changed
 	hud = current_scene.get_node("CombatHUD")
 	assert(not paused and not hud.mission_result_visible())
-	assert(hud.mission_controller.remaining == 4)
+	assert(hud.mission_controller.remaining == 0 and get_nodes_in_group("targets").is_empty())
 	assert(current_scene.get_node("Player/WeaponController").equipped_missile_ids == Session.selected_missiles)
 	current_scene.get_node("Player").apply_damage(1000.0)
-	assert(paused and hud._mission_title.text == "SORTITA FALLITA")
+	assert(paused and hud._mission_title.text == "MISSIONE FALLITA")
 	await _capture("08_defeat")
 	hud._open_pause_menu()
 	hud._on_loadout_pressed()
@@ -130,9 +146,24 @@ func _run() -> void:
 	quit()
 
 
+func _advance_to_encounter(hud: CombatHUD, index: int) -> void:
+	var mission: TutorialMission = hud.mission_controller
+	for frame in 300:
+		mission.player.set_physics_process(false)
+		for aircraft in get_nodes_in_group("combat_ai"):
+			aircraft.set_physics_process(false)
+		if mission.encounter_index == index and mission.remaining > 0:
+			return
+		for target in mission.active_enemies.duplicate():
+			target.apply_damage(target.health)
+		mission.radio._process(30.0)
+		await process_frame
+	assert(false, "Tutorial encounter did not arrive through its radio sequence")
+
+
 func _check_weapons(player: PlayerFlight, weapons: WeaponController) -> bool:
 	var targeting: TargetLock = player.get_node("TargetLock")
-	var targets := get_nodes_in_group("targets")
+	var targets := get_nodes_in_group("targets").filter(CombatDirector.alive)
 	for i in targets.size():
 		targets[i].global_position = player.global_position + Vector3(i * 80.0, 0, -1200)
 	targeting._set_target(targets[0])

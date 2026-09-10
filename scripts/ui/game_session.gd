@@ -22,7 +22,7 @@ static var selected_missile_id: String:
 
 
 static func level_name() -> String:
-	return "GARDA · VOLO LIBERO" if free_flight else "GARDA · DOGFIGHT"
+	return "GARDA · VOLO LIBERO" if free_flight else "GARDA · TUTORIAL"
 
 
 static func change_scene(tree: SceneTree, path: String) -> Error:

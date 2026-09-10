@@ -32,7 +32,7 @@ func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	_group = ButtonGroup.new()
 	map_label.text = Session.level_name()
-	avvia_btn.text = "DECOLLA" if Session.free_flight else "AVVIA SORTITA"
+	avvia_btn.text = "DECOLLA" if Session.free_flight else "AVVIA MISSIONE"
 	if Session.selected_missiles.size() >= 2:
 		_selected_missiles = Session.selected_missiles.duplicate()
 	else:
@@ -233,7 +233,7 @@ func _on_avvia_pressed() -> void:
 		avvia_btn.disabled = false
 		back_btn.disabled = false
 		avvia_btn.text = "RIPROVA"
-		detail_label.text = "Impossibile caricare la sortita. Torna al menu e riprova."
+		detail_label.text = "Impossibile caricare la missione. Torna al menu e riprova."
 
 func _on_back_pressed() -> void:
 	if not _launching:
