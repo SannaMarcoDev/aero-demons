@@ -1,7 +1,7 @@
-[gd_resource type="ShaderMaterial" format=3]
+[gd_resource type="ShaderMaterial" format=3 uid="uid://30yhc4wq6lxr"]
 
-[ext_resource type="Shader" path="res://resources/shaders/garda_water.gdshader" id="1_shader"]
-[ext_resource type="Texture2D" path="res://assets/BinbunWater/src/texture/wave/wave_03/wave_texture_03.tres" id="2_patches"]
+[ext_resource type="Shader" uid="uid://defbalsjhy5l1" path="res://resources/shaders/garda_water.gdshader" id="1_shader"]
+[ext_resource type="Texture2D" uid="uid://ban0efe0gbxeh" path="res://assets/BinbunWater/src/texture/wave/wave_03/wave_texture_03.tres" id="2_patches"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_ripples"]
 noise_type = 0
@@ -14,16 +14,20 @@ domain_warp_amplitude = 18.0
 domain_warp_frequency = 0.012
 
 [sub_resource type="NoiseTexture2D" id="NoiseTexture2D_ripples"]
-width = 512
-height = 512
-generate_mipmaps = true
+noise = SubResource("FastNoiseLite_ripples")
 seamless = true
 as_normal_map = true
 bump_strength = 3.0
-noise = SubResource("FastNoiseLite_ripples")
 
 [resource]
 resource_name = "Garda / cold deep water"
+render_priority = 0
 shader = ExtResource("1_shader")
+shader_parameter/water_color = Color(0.055, 0.145, 0.18, 1)
+shader_parameter/surface_roughness = 0.35
+shader_parameter/normal_strength = 0.38
 shader_parameter/wave_normal = SubResource("NoiseTexture2D_ripples")
 shader_parameter/surface_noise = ExtResource("2_patches")
+shader_parameter/ripple_size = 32.0
+shader_parameter/wave_size = 240.0
+shader_parameter/swell_size = 1800.0

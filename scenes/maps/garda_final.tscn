@@ -57,11 +57,9 @@ _shader_parameters = {
 }
 world_background = 0
 
-; Fine, wind-stretched cirrus for the shared clear-day Sky3D. Not a terrain mask.
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_clear_cirrus"]
 seed = 42137
 frequency = 0.006
-fractal_octaves = 5
 fractal_gain = 0.55
 domain_warp_enabled = true
 domain_warp_amplitude = 35.0
@@ -70,8 +68,8 @@ domain_warp_frequency = 0.003
 [sub_resource type="NoiseTexture2D" id="NoiseTexture2D_clear_cirrus"]
 width = 2048
 height = 2048
-seamless = true
 noise = SubResource("FastNoiseLite_clear_cirrus")
+seamless = true
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
 shader = ExtResource("11_skyshader")
@@ -88,7 +86,7 @@ shader_parameter/atm_level_params = Vector3(1, 0, 0)
 shader_parameter/atm_thickness = 0.65
 shader_parameter/atm_beta_ray = Vector3(5.804544e-06, 1.3562913e-05, 3.311258e-05)
 shader_parameter/atm_beta_mie = Vector3(1.519e-08, 1.519e-08, 1.519e-08)
-shader_parameter/sun_light_color = Color(1, 0.98, 0.95, 1)
+shader_parameter/sun_light_color = Color(1, 0.98, 0.95000005, 1)
 shader_parameter/sun_disk_color = Color(1, 0.97, 0.9, 1)
 shader_parameter/sun_disk_intensity = 18.0
 shader_parameter/sun_disk_size = 0.009
@@ -110,8 +108,8 @@ shader_parameter/starmap_flip_u = false
 shader_parameter/starmap_flip_v = false
 shader_parameter/starmap_alignment = Vector3(2.68288, -0.25891, 0.40101)
 shader_parameter/star_rotation_offset = 9.38899
-shader_parameter/star_rotation = -7.220899335591166
-shader_parameter/star_tilt = -1.2915436464758039
+shader_parameter/star_rotation = -7.5352342500885685
+shader_parameter/star_tilt = -0.7740535232594852
 shader_parameter/star_field_color = Color(1, 1, 1, 1)
 shader_parameter/star_field_texture = ExtResource("17_stars")
 shader_parameter/star_scintillation = 0.75
@@ -126,8 +124,8 @@ shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.7
 shader_parameter/cirrus_size = 1.0
 shader_parameter/cirrus_uv = Vector2(0.045, 0.14)
-shader_parameter/cirrus_position1 = Vector2(0, 0)
-shader_parameter/cirrus_position2 = Vector2(0, 0)
+shader_parameter/cirrus_position1 = Vector2(0.0068258382, 0.0068258382)
+shader_parameter/cirrus_position2 = Vector2(0.0068258382, 0.0068258382)
 shader_parameter/cirrus_texture = SubResource("NoiseTexture2D_clear_cirrus")
 shader_parameter/cumulus_visible = false
 shader_parameter/cumulus_intensity = 0.6
@@ -147,18 +145,17 @@ shader_parameter/azimuthal_grid_rotation_offset = 0.03
 shader_parameter/show_equatorial_grid = false
 shader_parameter/equatorial_grid_color = Color(0, 0.75, 1, 1)
 shader_parameter/equatorial_grid_rotation_offset = 0.03
-shader_parameter/moon_matrix = Basis(0.4174987, 0.8734768, 0.25046542, -0.084909506, 0.31193236, -0.94630253, -0.90470165, 0.37381324, 0.20439784)
+shader_parameter/moon_matrix = Basis(0.1402001, 0.6921353, 0.7080202, -0.079742484, 0.7206532, -0.6886945, -0.98690677, 0.040095735, 0.15622824)
 
 [sub_resource type="Sky" id="Sky_sky3d"]
-; High-quality filtering amortized across frames; cirrus drift slowly, sun stays fixed.
-process_mode = 2
 sky_material = SubResource("ShaderMaterial_sky")
+process_mode = 2
 
 [sub_resource type="Environment" id="Environment_sky3d"]
 background_mode = 2
 sky = SubResource("Sky_sky3d")
 ambient_light_source = 3
-ambient_light_color = Color(1, 0.98, 0.95, 1)
+ambient_light_color = Color(1, 0.98, 0.95000005, 1)
 reflected_light_source = 2
 tonemap_mode = 3
 tonemap_white = 6.0
@@ -188,7 +185,6 @@ environment = SubResource("Environment_sky3d")
 camera_attributes = SubResource("CameraAttributes_sky3d")
 compositor = SubResource("Compositor_clouds")
 script = ExtResource("8_sky3d")
-clouds_enabled = true
 fog_enabled = false
 editor_time_enabled = false
 game_time_enabled = false
@@ -201,7 +197,7 @@ metadata/_custom_type_script = "uid://deo0gxkmk2ahd"
 
 [node name="SunLight" type="DirectionalLight3D" parent="Sky3D" unique_id=730235234]
 transform = Transform3D(0.3373567, -0.69178027, 0.63845956, 0, 0.6782189, 0.73486, -0.9413769, -0.24790993, 0.22880165, 0.63845956, 0.73486, 0.22880165)
-light_color = Color(1, 0.98, 0.95, 1)
+light_color = Color(1, 0.98, 0.95000005, 1)
 light_energy = 1.8
 shadow_enabled = true
 shadow_opacity = 0.8
@@ -209,7 +205,7 @@ directional_shadow_blend_splits = true
 directional_shadow_max_distance = 4000.0
 
 [node name="MoonLight" type="DirectionalLight3D" parent="Sky3D" unique_id=1847293641]
-transform = Transform3D(0, -0.42604557, -0.9047017, 0.4797559, -0.7937871, 0.37381324, -0.877402, -0.434036, 0.20439787, -0.9047017, 0.37381324, 0.20439787)
+transform = Transform3D(0, -0.16129145, -0.9869068, 0.9686083, -0.24533698, 0.04009574, -0.24859184, -0.9559262, 0.15622824, -0.9869068, 0.04009574, 0.15622824)
 light_color = Color(0.572549, 0.776471, 0.956863, 1)
 light_energy = 0.0
 directional_shadow_blend_splits = true
@@ -218,16 +214,15 @@ directional_shadow_max_distance = 256.0
 [node name="SkyDome" type="Node" parent="Sky3D" unique_id=1928374650]
 script = ExtResource("10_dome")
 ground_color = Color(1, 1, 1, 1)
-horizon_offset = 0.0
 sun_disk_size = 0.009
-sun_azimuth = -1.91490387916565
-sun_altitude = -0.74533611536026
+sun_azimuth = -1.9149039
+sun_altitude = -0.7453361
 sun_disk_color = Color(1, 0.97, 0.9, 1)
 sun_disk_intensity = 18.0
 sun_light_color = Color(1, 0.98, 0.95, 1)
 sun_light_energy = 1.8
-moon_azimuth = -4.490191
-moon_altitude = -1.1876794
+moon_azimuth = -4.555391
+moon_altitude = -1.5306898
 atm_darkness = 0.4
 atm_sun_intensity = 16.0
 atm_day_tint = Color(0.74, 0.89, 1, 1)
@@ -244,7 +239,6 @@ fog_falloff = 0.0
 wind_speed = 0.35
 wind_direction = 2.35619451204804
 cirrus_speed_reduction = 0.12
-cirrus_visible = true
 cirrus_intensity = 2.6
 cirrus_thickness = 0.9
 cirrus_coverage = 0.42
@@ -258,7 +252,6 @@ script = ExtResource("9_tod")
 editor_time_enabled = false
 game_time_enabled = false
 dome_path = NodePath("../SkyDome")
-; Garda, 15 July at 10:30 CEST. Fixed clear summer morning in both levels.
 current_time = 10.5
 day = 15
 month = 7
