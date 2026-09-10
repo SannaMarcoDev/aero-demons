@@ -1,0 +1,82 @@
+INFORMAZIONI HEIGHTMAP STROMBOLI 5 KM x 5 KM (DTM LIDAR 2 m)
+================================================================================
+
+1. COORDINATE CENTRO
+--------------------
+- Notazione Sessagesimale: 38°47'26.6" N, 15°12'57.2" E
+- Notazione Decimale:      38.7907222° N, 15.2158889° E
+- Coordinate Metriche UTM: X = 518749.2 m, Y = 4293575.3 m
+- Sistema di Coordinate:   ETRS89 / UTM zone 33N (EPSG:25833)
+  (equivalente a WGS 84 / UTM 33N entro ~1 mm per questo uso)
+
+2. BOUNDING BOX METRICO (EPSG:25833)
+------------------------------------
+- X Min (Ovest):           516249.0 m
+- X Max (Est):             521249.0 m
+- Y Min (Sud):             4291075.0 m
+- Y Max (Nord):            4296075.0 m
+- Centro Geometrico X:     518749.0 m (Scostamento: ~0.2 m)
+- Centro Geometrico Y:     4293575.0 m (Scostamento: ~0.3 m)
+
+3. DIMENSIONI E RISOLUZIONE
+---------------------------
+- Dimensioni Reali:        5000.0 m × 5000.0 m (5.0 km × 5.0 km)
+- Risoluzione Geometrica:  2.0 m/pixel
+- Dimensioni Raster:       2500 × 2500 celle (totale: 6,250,000 pixel)
+- Rapporto d'Aspetto:      1:1 (Quadrato perfetto)
+
+4. ALTIMETRIA E QUOTE
+---------------------
+- Quota Minima Reale:      ~0 m slm (linea di costa)
+- Quota Massima Reale:     924.07 m slm (sommità del vulcano)
+- Copertura dati:          86.4% pixel validi; il resto è mare aperto (NoData)
+- Artefatti sorgente:      13,175 pixel spike (>950 m, valori fino a 4035 m)
+  rimossi nella versione "_ready" mediante mediana 3×3 dei vicini.
+
+5. SORGENTE DATI E LICENZA
+--------------------------
+- Dataset:                 Modello Digitale del Terreno (MDT) 2 m — Volo ATA 2012-2013
+- Ente fornitore:          Regione Siciliana — S.I.T.R. (Infrastruttura Dati Territoriali)
+- Servizio:                OGC WCS 2.0.1
+  https://map.sitr.regione.sicilia.it/gis/services/modelli_digitali/mdt_2013/ImageServer/WCSServer
+- Scheda metadati:         https://www.sitr.regione.sicilia.it/geoportale/it/metadata/details/947
+- Tipo di modello:         DTM (suolo nudo, bare ground — vegetazione e manufatti rimossi)
+- Acquisizione:            Scansione LiDAR aerea (volo 2012-2013)
+- Licenza d'uso:           Open data Regione Siciliana (verificare scheda metadati SITR
+  per le condizioni specifiche; uso generalmente libero con attribuzione)
+- Nota:                    il rilievo è del 2012-13. Per la morfologia aggiornata
+  post-eruzioni 2019-2022 esiste il DSM INGV 2023 a 50 cm (DTM→DSM, include
+  vegetazione): https://doi.org/10.13127/stromboli/airborne-lidar-2023
+
+6. FILE GENERATI
+----------------
+- stromboli_5km_dtm2m_master.tif:
+  GeoTIFF master 32-bit float, byte-faithful alla risposta WCS (georeferenziato
+  EPSG:25833). Contiene i NoData originali (-3.4e38) e gli spike non corretti.
+  Conservato come sorgente autorevole: non modificarlo.
+- stromboli_5km_dtm2m_ready.tif:
+  GeoTIFF 32-bit float georeferenziato EPSG:25833, pronto per l'import.
+  Spike interpolati; NoData e quote <0 m portate a -2.0 m (mare piatto
+  appena sotto il piano d'acqua, evita z-fighting con il piano a Y=0).
+  Range finale: -2.0 .. 924.07 m.
+- stromboli_5km_dtm2m_worldmachine.r16:
+  RAW 16-bit unsigned (uint16 little-endian), 2500×2500 = 12,500,000 byte.
+  Normalizzato su [-2.0, 925.0] m → [0, 65535].
+- stromboli_5km_preview.png:
+  Anteprima in scala di grigi (mare = nero).
+- stromboli_5km_info.txt:
+  Questo documento di riepilogo e configurazione.
+
+7. IMPOSTAZIONI PER L'IMPORTAZIONE
+----------------------------------
+World Machine (nodo "File Input") o World Creator (import RAW):
+1. File: stromboli_5km_dtm2m_worldmachine.r16
+2. Format: RAW 16-bit, Unsigned, Little Endian (Intel)
+3. Dimensions: Width 2500, Height 2500
+4. Real-world size: 5 km × 5 km (5000 m × 5000 m)
+5. Elevation scaling: Minimum -2.0 m, Maximum 925.0 m
+   (0 → -2 m mare; 65535 → 925 m; il livello del mare 0 m cade a ~71 counts)
+6. Orientamento: riga 0 = Nord (Y_max). Il mare circonda l'isola su tutti
+   i lati; il fondale non è incluso (piatto a -2 m).
+   Per batimetria reale: EMODnet (~115 m) o rilievi INGV del fondale di Stromboli.
+================================================================================
