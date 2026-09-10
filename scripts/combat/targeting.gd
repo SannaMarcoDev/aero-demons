@@ -45,6 +45,9 @@ func _physics_process(delta: float) -> void:
 func cycle_target() -> void:
 	var candidates := _get_candidates()
 	if candidates.is_empty():
+		# Nothing in the select cone: keep a focus anyway, cycling every live enemy by distance.
+		candidates = _get_alive_candidates()
+	if candidates.is_empty():
 		_set_target(null)
 		return
 	_set_target(candidates[(candidates.find(target) + 1) % candidates.size()])
@@ -95,7 +98,26 @@ func _sort_candidates(first, second) -> bool:
 
 func _first_candidate():
 	var candidates := _get_candidates()
+	if candidates.is_empty():
+		candidates = _get_alive_candidates()
 	return null if candidates.is_empty() else candidates[0]
+
+
+## Every live enemy in the group, nearest first, ignoring the select cone and range so the
+## focus never drops while hostiles remain. Locking still needs the lock cone and range.
+func _get_alive_candidates() -> Array:
+	var candidates: Array = []
+	var aircraft := get_parent()
+	for candidate in get_tree().get_nodes_in_group(target_group):
+		if candidate == aircraft or not _target_alive(candidate):
+			continue
+		candidates.append(candidate)
+	candidates.sort_custom(Callable(self, "_sort_by_distance"))
+	return candidates
+
+
+func _sort_by_distance(first, second) -> bool:
+	return _distance_to(first) < _distance_to(second)
 
 
 func _set_target(next_target) -> void:
