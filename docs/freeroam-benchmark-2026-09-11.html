@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aero Demons — Benchmark Freeroam · 11/09/2026</title>
+<style>
+  :root{
+    --bg:#0e1420; --panel:#16202f; --panel2:#1b2839; --ink:#e8eef7; --dim:#9fb0c6;
+    --accent:#5ec1ff; --cloud:#ff9d5c; --rest:#4ade80; --warn:#ff6b6b; --line:#2a3a50;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.55 "Segoe UI",system-ui,sans-serif}
+  main{max-width:1060px;margin:0 auto;padding:32px 24px 64px}
+  header{padding:40px 24px 28px;border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,#101a2b,#0e1420)}
+  .headwrap{max-width:1060px;margin:0 auto}
+  h1{font-size:28px;margin:0 0 6px;letter-spacing:.3px}
+  h1 .em{color:var(--accent)}
+  .sub{color:var(--dim);font-size:14px}
+  .sub b{color:var(--ink);font-weight:600}
+  h2{font-size:19px;margin:0 0 4px}
+  h3{font-size:15px;margin:18px 0 6px;color:var(--accent)}
+  p.lead{color:var(--dim);margin:0 0 14px;max-width:70ch}
+  section{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    padding:20px 22px;margin-top:22px}
+  .callout{border-left:4px solid var(--cloud);background:#1c2233}
+  .callout b{color:var(--cloud)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:820px){.grid2{grid-template-columns:1fr}}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+  .stat{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .stat .v{font-size:22px;font-weight:700}
+  .stat .k{font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:.6px}
+  table{border-collapse:collapse;width:100%;font-size:13px;margin-top:10px}
+  th,td{padding:6px 8px;text-align:right;white-space:nowrap}
+  th{color:var(--dim);font-weight:600;border-bottom:1px solid var(--line)}
+  td:first-child,th:first-child{text-align:left}
+  tr+tr td{border-top:1px solid #1e2c40}
+  td.hm{border-radius:4px;color:#0b1220;font-weight:600}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-size:12.5px;color:var(--dim);margin:8px 0 2px}
+  .dot{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+  svg{display:block;width:100%;height:auto}
+  .barlab{font:11.5px "Segoe UI";fill:var(--dim)}
+  .barval{font:11.5px "Segoe UI";fill:var(--ink);font-weight:600}
+  .axis{stroke:var(--line);stroke-width:1}
+  ol.recs{margin:8px 0 0;padding-left:20px}
+  ol.recs li{margin:8px 0}
+  code{background:#0b1220;border:1px solid var(--line);border-radius:5px;
+    padding:1px 6px;font-size:12.5px;color:#9fd8ff}
+  footer{color:var(--dim);font-size:12.5px;margin-top:26px;line-height:1.7}
+  .cap{font-size:12px;color:var(--dim);margin-top:6px}
+</style>
+</head>
+<body>
+<header><div class="headwrap">
+  <h1>Aero Demons · <span class="em">Benchmark scena Freeroam</span></h1>
+  <div class="sub">11 settembre 2026 · Godot 4.7.1 Forward+ (D3D12) · <b>AMD Radeon RX 9070 XT</b> ·
+  finestra 1920×1080 · 143 celle di misura · <code>tools/freeroam_benchmark.gd</code></div>
+</div></header>
+<main>
+
+<section class="callout">
+  <h2>Il risultato in una riga</h2>
+  <p style="margin:6px 0 0">Le <b>nuvole volumetriche SunshineClouds</b> coprono il
+  <b>72–88%</b> del tempo GPU nei punti caldi: spente, l'intera scena
+  (terreno 250 km, cielo, acqua, aereo, HUD) costa <b>1,1–1,9 ms</b>.
+  CPU e draw call sono irrilevanti: il gioco è al 100% GPU-bound sul fill-rate
+  del raymarching.</p>
+</section>
+
+<section>
+  <h2>1 · Quanto costano le nuvole</h2>
+  <p class="lead">Tempo GPU mediano a 1080p, preset FXAA (default del progetto).
+  La parte arancione è il contributo di SunshineClouds, misurato spegnendo l'effetto
+  nel compositor; il verde è tutto il resto della scena.</p>
+  <div class="legend">
+    <span><span class="dot" style="background:var(--cloud)"></span>SunshineClouds</span>
+    <span><span class="dot" style="background:var(--rest)"></span>Terreno + cielo + acqua + resto</span>
+  </div>
+  <div id="chart-clouds"></div>
+  <div class="cap">Misurato nei 4 punti della fase B. Le ombre direzionali
+  (non mostrate) valgono ~0,3–1 ms: marginali.</div>
+</section>
+
+<section>
+  <h2>2 · FPS stimati senza cap del monitor</h2>
+  <p class="lead">Il VSync è rimasto attivo durante il run (cap a 120 Hz), quindi
+  qui sotto: FPS reali stimati = 1000 / tempo GPU mediano, preset FXAA.</p>
+  <div id="chart-fps"></div>
+</section>
+
+<section>
+  <h2>3 · Matrice punti × preset — tempo GPU (ms)</h2>
+  <p class="lead">Verde = veloce, rosso = lento. I downscaler (0,67 / 0,50) e SSAA
+  sono i veri divisori; TAA e FSR2 nativo sono scelte di qualità, non di performance.</p>
+  <div id="heatmap"></div>
+</section>
+
+<section>
+  <h2>4 · Scaling in risoluzione</h2>
+  <p class="lead">Vista «lago sotto le nuvole» (la più pesante), FXAA, finestra ridimensionata.
+  La crescita è quasi perfettamente lineare nei pixel: ~4–5 ms per megapixel.</p>
+  <div class="grid2">
+    <div id="chart-res"></div>
+    <div>
+      <h3>Lettura</h3>
+      <p style="color:var(--dim);font-size:14px">
+      A 1440p questa vista scende a ~50 fps e a 2160p a ~26 fps <em>solo per colpa
+      delle nuvole</em> — il resto della scena resta sotto i 2 ms. Senza
+      <code>resolution_scale=1</code> o un upscaler, il 1440p resta fuori portata
+      per GPU di fascia media.</p>
+      <div class="stats" style="margin-top:14px">
+        <div class="stat"><div class="v" id="mpx1"></div><div class="k">ms/MPx @1080p</div></div>
+        <div class="stat"><div class="v" id="mpx2"></div><div class="k">ms/MPx @2160p</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>5 · Il resto dei numeri</h2>
+  <div class="stats">
+    <div class="stat"><div class="v">104–189</div><div class="k">draw call / frame</div></div>
+    <div class="stat"><div class="v">0,3–0,5 ms</div><div class="k">CPU render submit</div></div>
+    <div class="stat"><div class="v">460–730 k</div><div class="k">primitive / frame</div></div>
+    <div class="stat"><div class="v">4,0–5,5 GB</div><div class="k">VRAM usata</div></div>
+    <div class="stat"><div class="v">±5–10%</div><div class="k">varianza tra round</div></div>
+    <div class="stat"><div class="v">~0 ms</div><div class="k">costo streaming in volo</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>Raccomandazioni</h2>
+  <ol class="recs">
+    <li><b>Mezza risoluzione per le nuvole</b>: in <code>tutorial_clouds.tres</code>
+      portare <code>resolution_scale</code> da 0 (Native) a 1 (Half — il default
+      dell'addon). Atteso ~×3–4 più veloce sul pass nuvole: è il singolo
+      intervento più efficace.</li>
+    <li><b>Limitare il raymarch</b>: <code>max_step_count</code> 700→300
+      (default addon); se serve altro margine, <code>lighting_travel_distance</code>
+      3000→~2000.</li>
+    <li><b>Preset «performance»</b>: FSR2 a scala 0,67 dà ~×1,8 nelle viste
+      cloud-bound; bilinear 0,67 costa uguale ma degrada di più la qualità.</li>
+    <li><b>Non toccare</b>: ombre (≤1 ms), terreno/LOD e draw call — già economici.
+      SSAA 1,25 costa +40% GPU: da escludere come default.</li>
+  </ol>
+</section>
+
+<footer>
+  <b>Metodo</b> — SceneTree standalone, player teletrasportato in 8 punti
+  (spawn 7,1 km · dentro nuvole 3,8 km · lago sotto nuvole 1,2 km · raso acqua
+  650 m · costa→monti 1 km · cime 7 km · nadir 1,2 km · volo radente ~900 m/s),
+  chase camera reale, warmup 3,5 s + misura 6 s, 2 round rotati. Tempo GPU via
+  <code>viewport_get_measured_render_time_gpu</code>.<br>
+  <b>Caveat</b> — VSync attivo (FPS reali ≥120 dove indicato «cap»); varianza
+  ±5–10% sulle viste pesanti; la camera di benchmark non include il modello
+  dell'aereo in primo piano (&lt;0,1 ms, trascurabile).<br>
+  Dati grezzi: <code>user://freeroam_benchmark_2026-09-11T00-46-21.json</code> ·
+  Report testuale: <code>docs/freeroam-benchmark-2026-09-11.md</code>
+</footer>
+</main>
+
+<script>
+const LOC_ORDER = ["spawn_orizzonte","dentro_nuvole","lago_sotto_nuvole","raso_acqua",
+  "costa_monti","cime_alte","nadir_terreno","volo_radente"];
+const LABELS = {spawn_orizzonte:"Spawn · orizzonte (7,1 km)",dentro_nuvole:"Dentro le nuvole (3,8 km)",
+  lago_sotto_nuvole:"Lago sotto le nuvole (1,2 km)",raso_acqua:"Raso all'acqua (650 m)",
+  costa_monti:"Costa → montagne (1 km)",cime_alte:"Cime alte (7 km)",
+  nadir_terreno:"Nadir sul terreno (1,2 km)",volo_radente:"Volo radente ~900 m/s"};
+const PRESETS = ["default_fxaa","no_aa","taa","fsr2_100","fsr2_067","bilinear_067","bilinear_050","ssaa_125"];
+const PLAB = {default_fxaa:"FXAA (default)",no_aa:"Senza AA",taa:"TAA",fsr2_100:"FSR2 1,0×",
+  fsr2_067:"FSR2 0,67×",bilinear_067:"Bilin. 0,67×",bilinear_050:"Bilin. 0,50×",ssaa_125:"SSAA 1,25×"};
+// GPU median ms, media dei 2 round
+const GPU = {
+spawn_orizzonte:[6.78,6.9,7.4,7.78,4.9,4.44,4.05,10.5],
+dentro_nuvole:[9.44,9.1,7.84,8.6,4.68,4.26,3.65,13.68],
+lago_sotto_nuvole:[10.14,10.5,10.52,10.66,5.78,5.8,4.84,14.26],
+raso_acqua:[9.4,9.62,9.86,10.3,5.99,5.72,4.2,13.96],
+costa_monti:[6.66,7.34,6.22,6.32,4.81,4.45,4.16,8.93],
+cime_alte:[5.18,5.36,5.28,5.24,5.46,5.06,3.62,7.54],
+nadir_terreno:[2.38,2.4,2.55,2.99,1.82,1.39,1.04,3.18],
+volo_radente:[9.94,9.7,9.46,9.56,5.44,5.3,4.3,13.16]};
+// Fase B: [totale, senza nuvole]
+const CLOUDS = {dentro_nuvole:[9.44,1.21],lago_sotto_nuvole:[10.14,1.22],
+  costa_monti:[6.66,1.89],cime_alte:[5.18,1.42]};
+const RES = [["720p",0.92,6.07],["1080p",2.07,10.14],["1440p",3.69,16.94],["2160p",8.29,32.94]];
+
+const NS = "http://www.w3.org/2000/svg";
+function el(n,a){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);return e}
+function txt(x,y,s,cls,anchor){const t=el("text",{x,y,class:cls||"barlab","text-anchor":anchor||"start"});t.textContent=s;return t}
+
+// ---- Chart 1: stacked cloud share ----
+(function(){
+  const rows = Object.keys(CLOUDS), W=1000, rh=34, pad=190, H=rows.length*(rh+10)+30;
+  const max=11, sx=(W-pad-70)/max;
+  const s=el("svg",{viewBox:`0 0 ${W} ${H}`});
+  rows.forEach((id,i)=>{
+    const y=10+i*(rh+10), [tot,rest]=CLOUDS[id], cloud=tot-rest;
+    s.appendChild(txt(pad-10,y+rh/2+4,LABELS[id],"barlab","end"));
+    s.appendChild(el("rect",{x:pad,y,width:rest*sx,height:rh,rx:4,fill:"var(--rest)"}));
+    s.appendChild(el("rect",{x:pad+rest*sx,y,width:cloud*sx,height:rh,rx:4,fill:"var(--cloud)"}));
+    const pct=Math.round(cloud/tot*100);
+    s.appendChild(txt(pad+tot*sx+8,y+rh/2+4,`${tot.toFixed(1)} ms · nuvole ${pct}%`,"barval"));
+  });
+  document.getElementById("chart-clouds").appendChild(s);
+})();
+
+// ---- Chart 2: estimated FPS ----
+(function(){
+  const W=1000,rh=30,pad=190,H=LOC_ORDER.length*(rh+8)+30;
+  const fps=LOC_ORDER.map(l=>1000/GPU[l][0]), max=Math.max(...fps)*1.08, sx=(W-pad-80)/max;
+  const s=el("svg",{viewBox:`0 0 ${W} ${H}`});
+  LOC_ORDER.forEach((l,i)=>{
+    const y=8+i*(rh+8), v=fps[i], col=v<120?"var(--warn)":(v<150?"var(--accent)":"var(--rest)");
+    s.appendChild(txt(pad-10,y+rh/2+4,LABELS[l],"barlab","end"));
+    s.appendChild(el("rect",{x:pad,y,width:v*sx,height:rh,rx:4,fill:col}));
+    s.appendChild(txt(pad+v*sx+8,y+rh/2+4,"~"+Math.round(v),"barval"));
+  });
+  const x120=pad+120*sx;
+  s.appendChild(el("line",{x1:x120,y1:0,x2:x120,y2:H-8,stroke:"#e8eef7","stroke-dasharray":"5 4","stroke-width":1.4}));
+  s.appendChild(txt(x120+4,10,"120 fps","barlab"));
+  document.getElementById("chart-fps").appendChild(s);
+})();
+
+// ---- Chart 3: heatmap table ----
+(function(){
+  const flat=PRESETS.flatMap((p,pi)=>LOC_ORDER.map(l=>GPU[l][pi]));
+  const lo=Math.min(...flat),hi=Math.max(...flat);
+  const col=v=>{const t=(v-lo)/(hi-lo); // green->amber->red
+    const h=140-t*140; return `hsl(${h},75%,62%)`};
+  let h='<table><tr><th>vista</th>'+PRESETS.map(p=>`<th>${PLAB[p]}</th>`).join("")+"</tr>";
+  LOC_ORDER.forEach(l=>{h+=`<tr><td>${LABELS[l]}</td>`+
+    PRESETS.map((p,pi)=>`<td class="hm" style="background:${col(GPU[l][pi])}">${GPU[l][pi].toFixed(1)}</td>`).join("")+"</tr>"});
+  document.getElementById("heatmap").innerHTML=h+"</table>";
+})();
+
+// ---- Chart 4: resolution ----
+(function(){
+  const W=480,rh=42,pad=64,H=RES.length*(rh+14)+20, max=34, sx=(W-pad-60)/max;
+  const s=el("svg",{viewBox:`0 0 ${W} ${H}`});
+  RES.forEach((r,i)=>{
+    const y=8+i*(rh+14);
+    s.appendChild(txt(pad-10,y+rh/2+4,r[0],"barlab","end"));
+    s.appendChild(el("rect",{x:pad,y,width:r[2]*sx,height:rh,rx:5,fill:"var(--accent)"}));
+    s.appendChild(txt(pad+r[2]*sx+8,y+rh/2+4,`${r[2].toFixed(1)} ms`,"barval"));
+  });
+  document.getElementById("chart-res").appendChild(s);
+  document.getElementById("mpx1").textContent=(RES[1][2]/RES[1][1]).toFixed(1);
+  document.getElementById("mpx2").textContent=(RES[3][2]/RES[3][1]).toFixed(1);
+})();
+</script>
+</body>
+</html>
