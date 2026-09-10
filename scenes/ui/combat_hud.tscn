@@ -1,7 +1,8 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/combat_hud.gd" id="1_hud"]
 [ext_resource type="FontFile" path="res://assets/fonts/Michroma-Regular.ttf" id="2_font"]
+[ext_resource type="PackedScene" path="res://scenes/ui/options_panel.tscn" id="3_options_panel"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_pause_panel"]
 bg_color = Color(0.025, 0.055, 0.09, 0.98)
@@ -423,6 +424,20 @@ theme_override_styles/focus = SubResource("StyleBox_pause_button_hover")
 theme_override_styles/pressed = SubResource("StyleBox_pause_button_hover")
 text = "RIPROVA MISSIONE"
 
+[node name="OptionsButton" type="Button" parent="HudText/PauseOverlay/Panel/Menu"]
+custom_minimum_size = Vector2(320, 52)
+layout_mode = 2
+focus_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.98, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("StyleBox_pause_button")
+theme_override_styles/hover = SubResource("StyleBox_pause_button_hover")
+theme_override_styles/focus = SubResource("StyleBox_pause_button_hover")
+theme_override_styles/pressed = SubResource("StyleBox_pause_button_hover")
+text = "OPZIONI"
+
 [node name="LoadoutButton" type="Button" parent="HudText/PauseOverlay/Panel/Menu"]
 custom_minimum_size = Vector2(320, 52)
 layout_mode = 2
@@ -465,8 +480,63 @@ theme_override_font_sizes/font_size = 10
 text = "[INVIO / A] SELEZIONA  ·  [ESC / B] INDIETRO"
 horizontal_alignment = 1
 
+[node name="PauseOptions" type="PanelContainer" parent="HudText/PauseOverlay"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -370.0
+offset_top = -340.0
+offset_right = 370.0
+offset_bottom = 340.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBox_pause_panel")
+visible = false
+
+[node name="Menu" type="VBoxContainer" parent="HudText/PauseOverlay/PauseOptions"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="HudText/PauseOverlay/PauseOptions/Menu"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.98, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 26
+text = "OPZIONI"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="HudText/PauseOverlay/PauseOptions/Menu"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.75, 0.82, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 11
+text = "CONFIGURAZIONE AVIONICA // SALVATAGGIO AUTOMATICO"
+horizontal_alignment = 1
+
+[node name="OptionsPanel" parent="HudText/PauseOverlay/PauseOptions/Menu" instance=ExtResource("3_options_panel")]
+layout_mode = 2
+
+[node name="OptionsBackButton" type="Button" parent="HudText/PauseOverlay/PauseOptions/Menu"]
+custom_minimum_size = Vector2(320, 46)
+layout_mode = 2
+focus_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.98, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBox_pause_button")
+theme_override_styles/hover = SubResource("StyleBox_pause_button_hover")
+theme_override_styles/focus = SubResource("StyleBox_pause_button_hover")
+theme_override_styles/pressed = SubResource("StyleBox_pause_button_hover")
+text = "INDIETRO (SALVA)"
+
 [connection signal="pressed" from="HudText/PauseOverlay/Panel/Menu/ResumeButton" to="." method="_on_resume_pressed"]
 [connection signal="pressed" from="HudText/PauseOverlay/Panel/Menu/RestartButton" to="." method="_on_restart_pressed"]
+[connection signal="pressed" from="HudText/PauseOverlay/Panel/Menu/OptionsButton" to="." method="_on_options_pressed"]
 [connection signal="pressed" from="HudText/PauseOverlay/Panel/Menu/LoadoutButton" to="." method="_on_loadout_pressed"]
 [connection signal="pressed" from="HudText/PauseOverlay/Panel/Menu/MainMenuButton" to="." method="_on_main_menu_pressed"]
 [connection signal="pressed" from="HudText/PauseOverlay/Panel/Menu/QuitButton" to="." method="_on_quit_pressed"]
+[connection signal="pressed" from="HudText/PauseOverlay/PauseOptions/Menu/OptionsBackButton" to="." method="_on_options_back_pressed"]

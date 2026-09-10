@@ -1,6 +1,8 @@
 extends CanvasLayer
 class_name CombatHUD
 
+const OptionsPanel = preload("res://scripts/ui/options_panel.gd")
+
 const TAPE_Y := 286.0
 const TAPE_HALF_WIDTH := 290.0
 const TAPE_PIXELS_PER_DEGREE := 4.0
@@ -71,8 +73,12 @@ var _hit_remaining := 0.0
 @onready var _mission_title: Label = $HudText/MissionOverlay/Title
 @onready var _mission_detail: Label = $HudText/MissionOverlay/Detail
 @onready var _pause_overlay: Control = $HudText/PauseOverlay
+@onready var _pause_panel: PanelContainer = $HudText/PauseOverlay/Panel
 @onready var _resume_button: Button = $HudText/PauseOverlay/Panel/Menu/ResumeButton
 @onready var _restart_button: Button = $HudText/PauseOverlay/Panel/Menu/RestartButton
+@onready var _options_button: Button = $HudText/PauseOverlay/Panel/Menu/OptionsButton
+@onready var _pause_options: PanelContainer = $HudText/PauseOverlay/PauseOptions
+@onready var _options_panel: OptionsPanel = $HudText/PauseOverlay/PauseOptions/Menu/OptionsPanel
 var _pause_menu_was_paused := false
 var _flight_mouse_mode := Input.MOUSE_MODE_VISIBLE
 
@@ -130,6 +136,8 @@ func _open_pause_menu() -> void:
 	_pause_menu_was_paused = get_tree().paused
 	_flight_mouse_mode = Input.mouse_mode
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	_pause_panel.visible = true
+	_pause_options.visible = false
 	_pause_overlay.visible = true
 	get_tree().paused = true
 	_resume_button.disabled = mission_result_visible()
@@ -140,6 +148,10 @@ func _open_pause_menu() -> void:
 
 
 func _close_pause_menu() -> void:
+	if _pause_options.visible:
+		_options_panel.save()
+		_pause_options.visible = false
+		_pause_panel.visible = true
 	_pause_overlay.visible = false
 	get_tree().paused = _pause_menu_was_paused
 	Input.mouse_mode = _flight_mouse_mode
@@ -147,6 +159,19 @@ func _close_pause_menu() -> void:
 
 func _on_resume_pressed() -> void:
 	_close_pause_menu()
+
+
+func _on_options_pressed() -> void:
+	_pause_panel.visible = false
+	_pause_options.visible = true
+	_options_panel.grab_first_focus()
+
+
+func _on_options_back_pressed() -> void:
+	_options_panel.save()
+	_pause_options.visible = false
+	_pause_panel.visible = true
+	_options_button.grab_focus()
 
 
 func _on_restart_pressed() -> void:
@@ -545,13 +570,18 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		_on_restart_pressed()
 	elif event.is_action_pressed("pause_menu"):
-		if _pause_overlay.visible:
+		if _pause_options.visible:
+			_on_options_back_pressed()
+		elif _pause_overlay.visible:
 			_close_pause_menu()
 		else:
 			_open_pause_menu()
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("ui_cancel"):
-		if _pause_overlay.visible:
+		if _pause_options.visible:
+			_on_options_back_pressed()
+			get_viewport().set_input_as_handled()
+		elif _pause_overlay.visible:
 			_close_pause_menu()
 			get_viewport().set_input_as_handled()
 

@@ -43,7 +43,10 @@ func _physics_process(delta: float) -> void:
 	_last_target_position = target_position
 	var follow_weight := 1.0 - exp(-follow_response * delta)
 	_follow_transform = _follow_transform.interpolate_with(_chase_transform(), follow_weight)
-	var look_input := Input.get_vector("look_left", "look_right", "look_up", "look_down")
+	var look_input := Input.get_vector("look_left", "look_right", "look_up", "look_down") * SettingsManager.controls_sensitivity
+	if SettingsManager.controls_invert_y:
+		look_input.y = -look_input.y
+	look_input = look_input.limit_length(1.0)
 	_look_input = _look_input.lerp(look_input, 1.0 - exp(-look_response * delta))
 	if look_input.is_zero_approx() and _look_input.length_squared() < 0.000001:
 		_look_input = Vector2.ZERO

@@ -1,7 +1,7 @@
 extends CanvasLayer
 
 const Session = preload("res://scripts/ui/game_session.gd")
-const Settings = preload("res://scripts/ui/settings_manager.gd")
+const OptionsPanel = preload("res://scripts/ui/options_panel.gd")
 
 # Root Menu Buttons
 @onready var root_menu: VBoxContainer = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/RootMenu
@@ -17,15 +17,9 @@ const Settings = preload("res://scripts/ui/settings_manager.gd")
 
 # Options Submenu
 @onready var options_menu: VBoxContainer = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu
-@onready var master_slider: HSlider = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/AudioBox/MasterRow/MasterSlider
-@onready var master_val_label: Label = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/AudioBox/MasterRow/MasterVal
-@onready var music_slider: HSlider = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/AudioBox/MusicRow/MusicSlider
-@onready var music_val_label: Label = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/AudioBox/MusicRow/MusicVal
-@onready var sfx_slider: HSlider = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/AudioBox/SFXRow/SFXSlider
-@onready var sfx_val_label: Label = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/AudioBox/SFXRow/SFXVal
-@onready var window_mode_btn: Button = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/DisplayBox/WindowModeBtn
-@onready var vsync_btn: Button = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/DisplayBox/VSyncBtn
+@onready var options_panel: OptionsPanel = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/OptionsPanel
 @onready var options_back_btn: Button = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/OptionsBackButton
+var master_slider: HSlider
 
 # Dossier / Intel Panel
 @onready var dossier_tag: Label = $MarginContainer/MainLayout/ContentArea/RightPanel/Margin/VBox/HeaderRow/DossierTag
@@ -37,15 +31,12 @@ const Settings = preload("res://scripts/ui/settings_manager.gd")
 @onready var radar_widget: Control = $MarginContainer/MainLayout/ContentArea/RightPanel/Margin/VBox/RadarContainer/TacticalRadarWidget
 @onready var section_header: Label = $MarginContainer/MainLayout/ContentArea/LeftPanel/SectionHeader
 
-var _current_settings: Dictionary = {}
 var _focused_mode: String = "storia"
 
 
 func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-	_current_settings = Settings.load_settings()
-	Settings.apply_settings(_current_settings)
-	_init_options_ui()
+	master_slider = options_panel.master_slider
 	_wire_signals()
 	if Session.menu_section == "sorties":
 		_on_storia_pressed()
@@ -85,11 +76,6 @@ func _wire_signals() -> void:
 	storia_back_btn.focus_entered.connect(func(): _set_dossier("storia"))
 
 	# Options submenu signals
-	master_slider.value_changed.connect(_on_master_slider_changed)
-	music_slider.value_changed.connect(_on_music_slider_changed)
-	sfx_slider.value_changed.connect(_on_sfx_slider_changed)
-	window_mode_btn.pressed.connect(_on_toggle_window_mode)
-	vsync_btn.pressed.connect(_on_toggle_vsync)
 	options_back_btn.pressed.connect(_on_options_back_pressed)
 
 
@@ -145,7 +131,7 @@ func _on_storia_back_pressed() -> void:
 
 func _on_options_back_pressed() -> void:
 	_play_sfx()
-	var error := Settings.save_settings(_current_settings)
+	var error := options_panel.save()
 	if error != OK:
 		dossier_desc.text = "Impossibile salvare le impostazioni: %s" % error_string(error)
 		return
@@ -163,60 +149,6 @@ func _select_storia_map(map_path: String) -> void:
 func _open_loadout() -> void:
 	if Session.change_scene(get_tree(), Session.LOADOUT) != OK:
 		dossier_desc.text = "Impossibile aprire la selezione armamento."
-
-
-func _init_options_ui() -> void:
-	var master_vol: float = float(_current_settings.get("master_volume", 1.0))
-	var music_vol: float = float(_current_settings.get("music_volume", 0.8))
-	var sfx_vol: float = float(_current_settings.get("sfx_volume", 0.9))
-	var is_fullscreen: bool = bool(_current_settings.get("fullscreen", false))
-	var is_vsync: bool = bool(_current_settings.get("vsync", true))
-
-	master_slider.value = master_vol * 100.0
-	master_val_label.text = "%3d%%" % roundi(master_slider.value)
-
-	music_slider.value = music_vol * 100.0
-	music_val_label.text = "%3d%%" % roundi(music_slider.value)
-
-	sfx_slider.value = sfx_vol * 100.0
-	sfx_val_label.text = "%3d%%" % roundi(sfx_slider.value)
-
-	window_mode_btn.text = "MODALITA': FULLSCREEN" if is_fullscreen else "MODALITA': FINESTRA"
-	vsync_btn.text = "V-SYNC: ATTIVO" if is_vsync else "V-SYNC: DISATTIVO"
-
-
-func _on_master_slider_changed(val: float) -> void:
-	_current_settings["master_volume"] = val / 100.0
-	master_val_label.text = "%3d%%" % roundi(val)
-	Settings.apply_settings(_current_settings)
-
-
-func _on_music_slider_changed(val: float) -> void:
-	_current_settings["music_volume"] = val / 100.0
-	music_val_label.text = "%3d%%" % roundi(val)
-	Settings.apply_settings(_current_settings)
-
-
-func _on_sfx_slider_changed(val: float) -> void:
-	_current_settings["sfx_volume"] = val / 100.0
-	sfx_val_label.text = "%3d%%" % roundi(val)
-	Settings.apply_settings(_current_settings)
-
-
-func _on_toggle_window_mode() -> void:
-	_play_sfx()
-	var current: bool = bool(_current_settings.get("fullscreen", false))
-	_current_settings["fullscreen"] = not current
-	window_mode_btn.text = "MODALITA': FULLSCREEN" if not current else "MODALITA': FINESTRA"
-	Settings.apply_settings(_current_settings)
-
-
-func _on_toggle_vsync() -> void:
-	_play_sfx()
-	var current: bool = bool(_current_settings.get("vsync", true))
-	_current_settings["vsync"] = not current
-	vsync_btn.text = "V-SYNC: ATTIVO" if not current else "V-SYNC: DISATTIVO"
-	Settings.apply_settings(_current_settings)
 
 
 func _set_dossier(mode_key: String) -> void:
@@ -249,7 +181,7 @@ func _set_dossier(mode_key: String) -> void:
 			threat_badge.modulate = Color(0.2, 0.75, 1.0)
 			dossier_title.text = "CONFIGURAZIONE SISTEMI"
 			dossier_subtitle.text = "PARAMETRI AVIONICI // CALIBRAZIONE AUDIO & GRAFICA"
-			dossier_desc.text = "Regolazione canali mixer audio Master, Colonna Sonora (Music) e Ritorno Sonoro Armamenti (SFX).\n\nConfigurazione display, risoluzione d'aggiornamento e sincronizzazione verticale (V-Sync) per la massima fluidità di puntamento."
+			dossier_desc.text = "Regolazione canali mixer audio Master, Colonna Sonora (Music) e Ritorno Sonoro Armamenti (SFX).\n\nConfigurazione schermo, risoluzione, V-Sync, limite FPS, upscaler (FSR 1.0/2.2), anti-aliasing e controlli di volo. Salvataggio automatico all'uscita."
 			dossier_telemetry.text = "BUS AUDIO: 3 ATTIVI  •  SALVA CON INDIETRO / ESC"
 
 		"quit":

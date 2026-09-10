@@ -5,6 +5,7 @@
 [ext_resource type="Shader" path="res://resources/shaders/menu_tactical_vignette.gdshader" id="3_vignette"]
 [ext_resource type="Script" path="res://scripts/ui/tactical_radar_widget.gd" id="4_radar"]
 [ext_resource type="PackedScene" path="res://scenes/ui/menu_aircraft_stage.tscn" id="5_aircraft_stage"]
+[ext_resource type="PackedScene" path="res://scenes/ui/options_panel.tscn" id="6_options_panel"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_tactical_vignette"]
 shader = ExtResource("3_vignette")
@@ -347,143 +348,13 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 16
 
-[node name="AudioBox" type="VBoxContainer" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu"]
+[node name="OptionsPanel" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu" instance=ExtResource("6_options_panel")]
 layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="AudioHeader" type="Label" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/AudioBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.35, 0.75, 1, 1)
-theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 11
-text = "// AUDIO BUS MIXER"
-
-[node name="MasterRow" type="HBoxContainer" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/AudioBox"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="Label" type="Label" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/AudioBox/MasterRow"]
-custom_minimum_size = Vector2(100, 0)
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 12
-text = "MASTER:"
-
-[node name="MasterSlider" type="HSlider" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/AudioBox/MasterRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-focus_neighbor_top = NodePath("../../../OptionsBackButton")
-focus_neighbor_bottom = NodePath("../../MusicRow/MusicSlider")
-step = 5.0
-value = 100.0
-
-[node name="MasterVal" type="Label" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/AudioBox/MasterRow"]
-custom_minimum_size = Vector2(50, 0)
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 12
-text = "100%"
-horizontal_alignment = 2
-
-[node name="MusicRow" type="HBoxContainer" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/AudioBox"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="Label" type="Label" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/AudioBox/MusicRow"]
-custom_minimum_size = Vector2(100, 0)
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 12
-text = "MUSIC:"
-
-[node name="MusicSlider" type="HSlider" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/AudioBox/MusicRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-focus_neighbor_top = NodePath("../../MasterRow/MasterSlider")
-focus_neighbor_bottom = NodePath("../../SFXRow/SFXSlider")
-step = 5.0
-value = 80.0
-
-[node name="MusicVal" type="Label" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/AudioBox/MusicRow"]
-custom_minimum_size = Vector2(50, 0)
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 12
-text = "80%"
-horizontal_alignment = 2
-
-[node name="SFXRow" type="HBoxContainer" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/AudioBox"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="Label" type="Label" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/AudioBox/SFXRow"]
-custom_minimum_size = Vector2(100, 0)
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 12
-text = "SFX:"
-
-[node name="SFXSlider" type="HSlider" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/AudioBox/SFXRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-focus_neighbor_top = NodePath("../../MusicRow/MusicSlider")
-focus_neighbor_bottom = NodePath("../../../DisplayBox/WindowModeBtn")
-step = 5.0
-value = 90.0
-
-[node name="SFXVal" type="Label" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/AudioBox/SFXRow"]
-custom_minimum_size = Vector2(50, 0)
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 12
-text = "90%"
-horizontal_alignment = 2
-
-[node name="DisplayBox" type="VBoxContainer" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="DisplayHeader" type="Label" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/DisplayBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.35, 0.75, 1, 1)
-theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 11
-text = "// DISPLAY & SYNC"
-
-[node name="WindowModeBtn" type="Button" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/DisplayBox"]
-custom_minimum_size = Vector2(0, 44)
-layout_mode = 2
-focus_neighbor_top = NodePath("../../AudioBox/SFXRow/SFXSlider")
-focus_neighbor_bottom = NodePath("../VSyncBtn")
-theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 13
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
-theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
-text = "MODALITA': FINESTRA"
-
-[node name="VSyncBtn" type="Button" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/DisplayBox"]
-custom_minimum_size = Vector2(0, 44)
-layout_mode = 2
-focus_neighbor_top = NodePath("../WindowModeBtn")
-focus_neighbor_bottom = NodePath("../../OptionsBackButton")
-theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 13
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
-theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
-text = "V-SYNC: ATTIVO"
+size_flags_vertical = 3
 
 [node name="OptionsBackButton" type="Button" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu"]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
-focus_neighbor_top = NodePath("../DisplayBox/VSyncBtn")
-focus_neighbor_bottom = NodePath("../AudioBox/MasterRow/MasterSlider")
 theme_override_colors/font_color = Color(0.7, 0.85, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 theme_override_colors/font_focus_color = Color(1, 1, 1, 1)

@@ -126,6 +126,7 @@ func _ready() -> void:
 	add_to_group(faction_group)
 	if faction_group == "player":
 		add_to_group("combat_allies")
+		SettingsManager.ensure_controls_loaded()
 	_scale_airframe()
 	health = max_health
 	_spawn_transform = global_transform
@@ -174,9 +175,13 @@ func _physics_process(delta: float) -> void:
 ## Fills the control fields for this tick. The player reads the gamepad; subclasses read an AI.
 func _update_controls() -> void:
 	var delta := get_physics_process_delta_time()
-	pitch_input = _precision_input(pitch_input, Input.get_axis("pitch_up", "pitch_down"), delta)
-	yaw_input = _precision_input(yaw_input, Input.get_axis("yaw_left", "yaw_right"), delta)
-	roll_input = _precision_input(roll_input, Input.get_axis("roll_left", "roll_right"), delta)
+	var sensitivity := SettingsManager.controls_sensitivity
+	var pitch_axis := Input.get_axis("pitch_up", "pitch_down")
+	if SettingsManager.controls_invert_y:
+		pitch_axis = -pitch_axis
+	pitch_input = _precision_input(pitch_input, clampf(pitch_axis * sensitivity, -1.0, 1.0), delta)
+	yaw_input = _precision_input(yaw_input, clampf(Input.get_axis("yaw_left", "yaw_right") * sensitivity, -1.0, 1.0), delta)
+	roll_input = _precision_input(roll_input, clampf(Input.get_axis("roll_left", "roll_right") * sensitivity, -1.0, 1.0), delta)
 	throttle_input = Input.get_action_strength("accelerate")
 	brake_input = Input.get_action_strength("brake")
 	gun_trigger = Input.is_action_pressed("fire_gun")
@@ -239,9 +244,9 @@ func _apply_flight(delta: float) -> void:
 
 	var engine_throttle := inverse_lerp(cruise_speed, max_speed, speed)
 	var boost := spin_dash_camera_recovery_weight()
-	# Exhaust follows engine commands, not airspeed: braking cuts thrust immediately.
-	var commanded_throttle := lerpf(0.35, 0.5, throttle_input) * (1.0 - brake_input)
-	_afterburners.set_throttle(commanded_throttle)
+	# Exhaust follows airspeed: the plume grows and shrinks as the aircraft gains or loses speed.
+	var speed_ratio := clampf(inverse_lerp(min_speed, max_speed, speed), 0.0, 1.0)
+	_afterburners.set_throttle(lerpf(0.25, 0.5, speed_ratio))
 	_afterburners.set_boost(boost)
 	_update_engine_audio(maxf(engine_throttle, boost))
 
@@ -313,7 +318,7 @@ func _setup_aircraft_audio() -> void:
 func _update_engine_audio(throttle: float) -> void:
 	if _engine_audio != null:
 		_engine_audio.pitch_scale = lerpf(0.86, 1.14, throttle)
-	var accelerating := throttle > 0.6 and throttle_input > 0.1
+	var accelerating := throttle > 0.6
 	if accelerating and not _accelerating_audio_active and _accelerating_audio != null:
 		_accelerating_audio.play()
 	_accelerating_audio_active = accelerating
