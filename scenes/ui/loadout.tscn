@@ -1,0 +1,371 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/loadout.gd" id="1_loadout"]
+[ext_resource type="FontFile" path="res://assets/fonts/Michroma-Regular.ttf" id="2_font"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/finished_aircraft.tscn" id="3_aircraft"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_stats_background"]
+bg_color = Color(0.14, 0.16, 0.19, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_stats_speed"]
+bg_color = Color(0.32, 0.78, 0.95, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_stats_tracking"]
+bg_color = Color(0.52, 0.84, 0.42, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_stats_damage"]
+bg_color = Color(0.96, 0.36, 0.28, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_stats_ammo"]
+bg_color = Color(0.96, 0.78, 0.32, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="Environment" id="Environment_preview"]
+background_mode = 1
+background_color = Color(0.08, 0.09, 0.12, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.78, 0.82, 0.9, 1)
+ambient_light_energy = 1.0
+
+[node name="Loadout" type="CanvasLayer"]
+script = ExtResource("1_loadout")
+
+[node name="Background" type="ColorRect" parent="."]
+color = Color(0.05, 0.07, 0.11, 1)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Main" type="HBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+offset_left = 24.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = -24.0
+theme_override_constants/separation = 22
+
+[node name="LeftPanel" type="PanelContainer" parent="Main"]
+custom_minimum_size = Vector2(560, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 3
+
+[node name="VBox" type="VBoxContainer" parent="Main/LeftPanel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+offset_left = 14.0
+offset_top = 14.0
+offset_right = -14.0
+offset_bottom = -14.0
+
+[node name="Title" type="Label" parent="Main/LeftPanel/VBox"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.95, 0.98, 1, 1)
+text = "SCEGLI ARMAMENTO"
+horizontal_alignment = 0
+
+[node name="MapLabel" type="Label" parent="Main/LeftPanel/VBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.72, 0.78, 0.86, 1)
+text = "Mappa: —"
+
+[node name="Sep" type="HSeparator" parent="Main/LeftPanel/VBox"]
+layout_mode = 2
+
+[node name="Info" type="Label" parent="Main/LeftPanel/VBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.72, 0.78, 0.86, 1)
+text = "Missili — Scegline 2 per la sortita"
+
+[node name="SlotRow" type="HBoxContainer" parent="Main/LeftPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Slot1Button" type="Button" parent="Main/LeftPanel/VBox/SlotRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 11
+toggle_mode = true
+button_pressed = true
+text = "Slot 1: STDM"
+
+[node name="Slot2Button" type="Button" parent="Main/LeftPanel/VBox/SlotRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 11
+toggle_mode = true
+text = "Slot 2: HSSTDM"
+
+[node name="MissileList" type="VBoxContainer" parent="Main/LeftPanel/VBox"]
+custom_minimum_size = Vector2(0, 180)
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="StatsBox" type="VBoxContainer" parent="Main/LeftPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Title" type="Label" parent="Main/LeftPanel/VBox/StatsBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.62, 0.67, 0.76, 1)
+text = "STATISTICHE"
+
+[node name="Separator" type="HSeparator" parent="Main/LeftPanel/VBox/StatsBox"]
+layout_mode = 2
+
+[node name="SpeedRow" type="HBoxContainer" parent="Main/LeftPanel/VBox/StatsBox"]
+custom_minimum_size = Vector2(0, 18)
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Label" type="Label" parent="Main/LeftPanel/VBox/StatsBox/SpeedRow"]
+custom_minimum_size = Vector2(72, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 9
+theme_override_colors/font_color = Color(0.78, 0.82, 0.9, 1)
+text = "SPEED"
+vertical_alignment = 1
+
+[node name="SpeedBar" type="ProgressBar" parent="Main/LeftPanel/VBox/StatsBox/SpeedRow"]
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 100.0
+step = 1.0
+show_percentage = false
+theme_override_styles/background = SubResource("StyleBox_stats_background")
+theme_override_styles/fill = SubResource("StyleBox_stats_speed")
+
+[node name="SpeedValue" type="Label" parent="Main/LeftPanel/VBox/StatsBox/SpeedRow"]
+custom_minimum_size = Vector2(38, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 9
+theme_override_colors/font_color = Color(0.88, 0.9, 0.94, 1)
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="TrackingRow" type="HBoxContainer" parent="Main/LeftPanel/VBox/StatsBox"]
+custom_minimum_size = Vector2(0, 18)
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Label" type="Label" parent="Main/LeftPanel/VBox/StatsBox/TrackingRow"]
+custom_minimum_size = Vector2(72, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 9
+theme_override_colors/font_color = Color(0.78, 0.82, 0.9, 1)
+text = "TRACKING"
+vertical_alignment = 1
+
+[node name="TrackingBar" type="ProgressBar" parent="Main/LeftPanel/VBox/StatsBox/TrackingRow"]
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 100.0
+step = 1.0
+show_percentage = false
+theme_override_styles/background = SubResource("StyleBox_stats_background")
+theme_override_styles/fill = SubResource("StyleBox_stats_tracking")
+
+[node name="TrackingValue" type="Label" parent="Main/LeftPanel/VBox/StatsBox/TrackingRow"]
+custom_minimum_size = Vector2(38, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 9
+theme_override_colors/font_color = Color(0.88, 0.9, 0.94, 1)
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="DamageRow" type="HBoxContainer" parent="Main/LeftPanel/VBox/StatsBox"]
+custom_minimum_size = Vector2(0, 18)
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Label" type="Label" parent="Main/LeftPanel/VBox/StatsBox/DamageRow"]
+custom_minimum_size = Vector2(72, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 9
+theme_override_colors/font_color = Color(0.78, 0.82, 0.9, 1)
+text = "DAMAGE"
+vertical_alignment = 1
+
+[node name="DamageBar" type="ProgressBar" parent="Main/LeftPanel/VBox/StatsBox/DamageRow"]
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 100.0
+step = 1.0
+show_percentage = false
+theme_override_styles/background = SubResource("StyleBox_stats_background")
+theme_override_styles/fill = SubResource("StyleBox_stats_damage")
+
+[node name="DamageValue" type="Label" parent="Main/LeftPanel/VBox/StatsBox/DamageRow"]
+custom_minimum_size = Vector2(38, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 9
+theme_override_colors/font_color = Color(0.88, 0.9, 0.94, 1)
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="AmmoRow" type="HBoxContainer" parent="Main/LeftPanel/VBox/StatsBox"]
+custom_minimum_size = Vector2(0, 18)
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Label" type="Label" parent="Main/LeftPanel/VBox/StatsBox/AmmoRow"]
+custom_minimum_size = Vector2(72, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 9
+theme_override_colors/font_color = Color(0.78, 0.82, 0.9, 1)
+text = "AMMO"
+vertical_alignment = 1
+
+[node name="AmmoBar" type="ProgressBar" parent="Main/LeftPanel/VBox/StatsBox/AmmoRow"]
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 100.0
+step = 1.0
+show_percentage = false
+theme_override_styles/background = SubResource("StyleBox_stats_background")
+theme_override_styles/fill = SubResource("StyleBox_stats_ammo")
+
+[node name="AmmoValue" type="Label" parent="Main/LeftPanel/VBox/StatsBox/AmmoRow"]
+custom_minimum_size = Vector2(38, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 9
+theme_override_colors/font_color = Color(0.88, 0.9, 0.94, 1)
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="AvviaButton" type="Button" parent="Main/LeftPanel/VBox"]
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 18
+text = "AVVIA MISSIONE"
+
+[node name="BackButton" type="Button" parent="Main/LeftPanel/VBox"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 13
+text = "INDIETRO"
+
+[node name="Hint" type="Label" parent="Main/LeftPanel/VBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.58, 0.62, 0.7, 1)
+text = "Frecce / D-Pad: naviga · Invio / A: equipaggia · ESC / B: indietro"
+autowrap_mode = 2
+
+[node name="RightPanel" type="PanelContainer" parent="Main"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="VBox" type="VBoxContainer" parent="Main/RightPanel"]
+layout_mode = 2
+offset_left = 14.0
+offset_top = 14.0
+offset_right = -14.0
+offset_bottom = -14.0
+theme_override_constants/separation = 12
+
+[node name="RightTitle" type="Label" parent="Main/RightPanel/VBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.95, 0.98, 1, 1)
+text = "VELIVOLO"
+horizontal_alignment = 1
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="Main/RightPanel/VBox"]
+custom_minimum_size = Vector2(0, 420)
+layout_mode = 2
+size_flags_vertical = 3
+stretch = true
+
+[node name="PreviewViewport" type="SubViewport" parent="Main/RightPanel/VBox/SubViewportContainer"]
+handle_input_locally = false
+size = Vector2i(900, 600)
+render_target_update_mode = 4
+own_world_3d = true
+
+[node name="PreviewRoot" type="Node3D" parent="Main/RightPanel/VBox/SubViewportContainer/PreviewViewport"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.9, 0)
+
+[node name="Aircraft" parent="Main/RightPanel/VBox/SubViewportContainer/PreviewViewport/PreviewRoot" instance=ExtResource("3_aircraft")]
+position = Vector3(0, -5.8, -1.2)
+scale = Vector3(24, 24, 24)
+
+[node name="PreviewCamera" type="Camera3D" parent="Main/RightPanel/VBox/SubViewportContainer/PreviewViewport"]
+transform = Transform3D(1, 0, 0, 0, 0.86, 0.5, 0, -0.5, 0.86, 6.2, 2.1, 14.5)
+current = true
+fov = 38.0
+near = 0.1
+far = 100.0
+
+[node name="PreviewLight" type="DirectionalLight3D" parent="Main/RightPanel/VBox/SubViewportContainer/PreviewViewport"]
+transform = Transform3D(0.8, -0.45, 0.4, 0, 0.66, 0.75, -0.6, -0.6, 0.53, 0, 0, 0)
+light_energy = 1.6
+shadow_enabled = true
+
+[node name="PreviewEnv" type="WorldEnvironment" parent="Main/RightPanel/VBox/SubViewportContainer/PreviewViewport"]
+environment = SubResource("Environment_preview")
+
+[node name="DetailLabel" type="Label" parent="Main/RightPanel/VBox"]
+custom_minimum_size = Vector2(0, 140)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.85, 0.88, 0.92, 1)
+autowrap_mode = 3
+text = "—"
+
+[connection signal="pressed" from="Main/LeftPanel/VBox/AvviaButton" to="." method="_on_avvia_pressed"]
+[connection signal="pressed" from="Main/LeftPanel/VBox/BackButton" to="." method="_on_back_pressed"]

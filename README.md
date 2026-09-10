@@ -1,8 +1,8 @@
 # Aero Demons
 
 Progetto Godot **4.7**, renderer **Forward+**, fisica **Jolt**.
-Aprire `project.godot` e avviare con **F6** la scena desiderata o **F5** la scena principale: [`scenes/levels/freeroam.tscn`](scenes/levels/freeroam.tscn).
-Il gioco principale è il livello freeroam: carica `scenes/maps/garda_final.tscn` e vi istanzia il giocatore.
+Aprire `project.godot` e avviare con **F5** il [menu principale](scenes/ui/main_menu.tscn), oppure con **F6** la scena desiderata.
+Dal menu si scelgono dogfight sul Garda o volo libero, poi due tipi di missile prima del decollo. Entrambi i livelli usano `scenes/maps/garda_final.tscn`.
 
 ## Mappa del progetto
 
@@ -27,15 +27,24 @@ In radice rimangono la configurazione Godot/Git, questa guida, l'icona e `defaul
 
 ## Punti di ingresso utili
 
+- Menu e armamento: `scenes/ui/main_menu.tscn`, `loadout.tscn`; selezione cross-scena in `scripts/ui/game_session.gd`.
 - Giocatore: `scenes/player/player.tscn` → `scripts/player/player_flight.gd`.
 - Armi: `scripts/weapons/weapon_controller.gd` e `missile_catalog.gd`.
 - Camera: `scripts/camera/follow_camera.gd` e `free_fly_camera.gd`.
 - Audio globale: `scripts/audio/audio_manager.gd`, registrato come autoload in `project.godot`.
 - Terreno attivo: `terrain/garda_final_wc_uniform_250km/` (250 × 250 km); origine e parametri in `import_manifest.json` nella stessa cartella. Gli export World Creator restano la fonte di verità.
 
+## Menu e armamento
+
+- **Operazioni → Garda → Armamento → Avvia sortita**; **Free Flight → Armamento → Decolla** per il volo senza nemici.
+- Due slot indipendenti: **STDM** standard, **HSSTDM** veloce, **BAHM** pesante, **NCGBM** incendiario (75 danni in 10 secondi oltre all'impatto), **MTSM** multi-bersaglio. Le statistiche provengono dal catalogo effettivamente usato dalle armi.
+- Menu: mouse, frecce/WASD, D-Pad o stick sinistro; Invio/A conferma, Esc/B torna indietro. In volo **Q / D-Pad su** cambia slot, **TAB / Y** cambia bersaglio, **Spazio / A** lancia.
+- **Esc / Start** apre la pausa: riprendi, riprova, cambia armamento, menu principale o esci. **R** riavvia la sortita mantenendo il loadout.
+- Opzioni: volume Master/Music/SFX, fullscreen e V-Sync. **Indietro / Esc** salva in `user://settings.cfg`; la selezione dei missili dura per la sessione corrente.
+
 ## Prototipo dogfight
 
-Aprire `scenes/levels/tutorial.tscn` e avviare la scena: giocatore, due gregari e quattro nemici, senza obiettivi di missione.
+Dal menu scegliere Operazioni → Garda, oppure avviare `scenes/levels/tutorial.tscn`: giocatore, due gregari e quattro nemici. La sortita termina quando tutti i nemici sono distrutti o il giocatore viene abbattuto; pausa e riavvio rimangono disponibili.
 In gioco **F7** mostra ruoli, bersagli, stati, motivi di mancato fuoco e budget del direttore; i gregari hanno indicatori azzurri. In `scenes/levels/tutorial.tscn` e `scenes/levels/freeroam.tscn`, **F6** mantiene il confronto dei filtri grafici.
 
 - `CombatDirector`: durata degli incarichi, pressione/respiro, limite di attaccanti e missili sul giocatore.
@@ -48,6 +57,10 @@ godot --headless --path . --script tests/dogfight_simulation_check.gd --fixed-fp
 ```
 
 Il secondo controllo simula 60 secondi con quattro nemici, sei nemici e un duello finale senza gregari. Il giocatore di test vola diritto e può essere abbattuto: verifica il funzionamento, non il bilanciamento. Aggressività, efficacia dei gregari e finestre di contrattacco richiedono ancora una prova giocata.
+
+## Acqua e catture
+
+La mappa usa `resources/materials/garda_water.tres`: increspature conservate ma ferme, senza schiuma, terreno invariato. FXAA sostituisce FSR2 come antialiasing globale per evitare il tremolio dell'acqua. [Confronti visivi, comandi e limiti](docs/water-lookdev.md); `tools/water_capture.gd` offre nove viste A/B, viewer e passaggio diagnostico. `--still --view=low` verifica 32 fotogrammi consecutivi a camera ferma, senza salvare modifiche alla scena.
 
 ## Convenzioni
 
@@ -64,13 +77,14 @@ Con l'eseguibile Godot disponibile come `godot`, dalla radice:
 
 ```sh
 godot --headless --path . --script tests/afterburner_check.gd
+godot --headless --path . --script tests/menu_flow_check.gd
 ```
 
-Per la verifica grafica aprire la mappa tutorial nell'editor con Forward+; i controlli headless non validano la resa di terreno, cielo e nuvole.
+Il controllo menu copre opzioni, focus, cinque missili, due slot, entrambi i livelli reali, pausa, vittoria/sconfitta, riavvio e ritorno ai menu. Senza `--headless` salva nove schermate in `user://menu_port_check/`; non sovrascrive le impostazioni personali né i dati del terreno.
 
-### Problemi preesistenti rilevati
+Per la verifica grafica usare Forward+; i controlli headless non validano la resa di terreno, cielo e nuvole.
 
-- `scripts/ui/game_session.gd` contiene ancora il percorso `res://scenes/maps/italian_alps_world.tscn`, ma quella scena non è presente nel repository. Non è la scena principale.
-- L'editor segnala `Explosion` non dichiarato in `scripts/player/player_flight.gd:536` e `scripts/weapons/missile.gd:341`; lo script VFX presente dichiara invece `ExplosionFX`.
+### Limiti della verifica
 
-Il riordino non modifica questa logica. Il test afterburner passa, ma non copre questi errori né costituisce una verifica completa del gioco.
+- I test dogfight precedenti eliminano la mappa ma lasciano `HorizonGraphics`, che segnala `Sky3D` mancante. `dogfight_simulation_check.gd` fallisce inoltre sull'ingaggio dei gregari; riprodotto anche ripristinando in memoria gli script di volo/audio precedenti al port.
+- Godot 4.7.1 segnala risorse audio ancora in uso alla chiusura; il giro grafico completo segnala anche RID di rendering non liberati. Il controllo funzionale del menu passa, ma questi warning di teardown rimangono.

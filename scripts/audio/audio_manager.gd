@@ -1,5 +1,18 @@
 extends Node
 
+const MUSIC_TRACKS: Array[AudioStream] = [
+	preload("res://assets/audio/music/Chris Christodoulou - Disdrometer ｜ Risk of Rain 2 (2020).wav"),
+	preload("res://assets/audio/music/Chris Christodoulou - It Can't Rain All the Time ｜ ROR2： Seekers of the Storm OST (2024).wav"),
+	preload("res://assets/audio/music/Chris Christodoulou - Nocturnal Emission ｜ Risk of Rain 2 (2020).wav"),
+	preload("res://assets/audio/music/Chris Christodoulou - Out of Whose Womb Came the Ice？ ｜ ROR2： Survivors of the Void (2022).wav"),
+	preload("res://assets/audio/music/Chris Christodoulou - Risk of Rain 2 ｜ Risk of Rain 2 (2020).wav"),
+	preload("res://assets/audio/music/Chris Christodoulou - Terra Pluviam ｜ Risk of Rain 2 (2020).wav"),
+	preload("res://assets/audio/music/Stavros Markonis -  I Should Build the Man a Statue ｜ ROR2： Seekers of the Storm OST (2024).wav"),
+]
+
+var _music_player: AudioStreamPlayer
+var _last_track_index := -1
+
 const TARGET_LOCK_SOUND: AudioStream = preload("res://assets/audio/sfx/ui/target-lock.mp3")
 const ALARM_SOUND: AudioStream = preload("res://assets/audio/sfx/ui/alarm.mp3")
 const BULLET_HIT_SOUND: AudioStream = preload("res://assets/audio/sfx/weapons/bullet-hit.mp3")
@@ -13,9 +26,21 @@ var _alarm_active := false
 
 
 func _ready() -> void:
+	_music_player = _make_2d_player(&"Music", -14.0)
+	_music_player.finished.connect(_play_random_music)
+	_play_random_music()
 	_ui_player = _make_2d_player(&"SFX", -20.0)
 	_alarm_player = _make_2d_player(&"SFX", -20.0)
 	_alarm_player.finished.connect(_on_alarm_finished)
+
+
+func _play_random_music() -> void:
+	var next_index := randi_range(0, MUSIC_TRACKS.size() - 1)
+	if next_index == _last_track_index:
+		next_index = (next_index + 1) % MUSIC_TRACKS.size()
+	_last_track_index = next_index
+	_music_player.stream = MUSIC_TRACKS[next_index]
+	_music_player.play()
 
 
 func _on_alarm_finished() -> void:

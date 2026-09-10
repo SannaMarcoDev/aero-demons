@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://bh0tn6m8kkheg"
+path="res://.godot/imported/Chris Christodoulou - Out of Whose Womb Came the Ice？ ｜ ROR2： Survivors of the Void (2022).wav-5167e4512f980580bc530b70623630bc.sample"
+
+[deps]
+
+source_file="res://assets/audio/music/Chris Christodoulou - Out of Whose Womb Came the Ice？ ｜ ROR2： Survivors of the Void (2022).wav"
+dest_files=["res://.godot/imported/Chris Christodoulou - Out of Whose Womb Came the Ice？ ｜ ROR2： Survivors of the Void (2022).wav-5167e4512f980580bc530b70623630bc.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://bvx2nysn128m1"
+path="res://.godot/imported/Chris Christodoulou - Risk of Rain 2 ｜ Risk of Rain 2 (2020).wav-a5c25166edb0e26edba82cf4a4598ed6.sample"
+
+[deps]
+
+source_file="res://assets/audio/music/Chris Christodoulou - Risk of Rain 2 ｜ Risk of Rain 2 (2020).wav"
+dest_files=["res://.godot/imported/Chris Christodoulou - Risk of Rain 2 ｜ Risk of Rain 2 (2020).wav-a5c25166edb0e26edba82cf4a4598ed6.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

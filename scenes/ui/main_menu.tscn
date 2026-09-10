@@ -1,0 +1,611 @@
+[gd_scene format=3 uid="uid://d07o5esrtjed"]
+
+[ext_resource type="Script" uid="uid://c80tahrhrw2wq" path="res://scripts/ui/main_menu.gd" id="1_script"]
+[ext_resource type="FontFile" uid="uid://c7l25udrry74o" path="res://assets/fonts/Michroma-Regular.ttf" id="2_font"]
+[ext_resource type="Shader" path="res://resources/shaders/menu_tactical_vignette.gdshader" id="3_vignette"]
+[ext_resource type="Script" path="res://scripts/ui/tactical_radar_widget.gd" id="4_radar"]
+[ext_resource type="PackedScene" path="res://scenes/ui/menu_aircraft_stage.tscn" id="5_aircraft_stage"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_tactical_vignette"]
+shader = ExtResource("3_vignette")
+shader_parameter/overlay_color = Color(0.02, 0.04, 0.08, 0.85)
+shader_parameter/left_gradient_width = 0.54
+shader_parameter/vignette_strength = 0.4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_normal"]
+content_margin_left = 24.0
+content_margin_top = 15.0
+content_margin_right = 20.0
+content_margin_bottom = 15.0
+bg_color = Color(0.03, 0.07, 0.12, 0.75)
+border_width_left = 3
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.35, 0.5, 0.55)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_hover"]
+content_margin_left = 28.0
+content_margin_top = 15.0
+content_margin_right = 20.0
+content_margin_bottom = 15.0
+bg_color = Color(0.06, 0.16, 0.28, 0.92)
+border_width_left = 6
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.3, 0.85, 1, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_pressed"]
+content_margin_left = 28.0
+content_margin_top = 15.0
+content_margin_right = 20.0
+content_margin_bottom = 15.0
+bg_color = Color(0.1, 0.28, 0.48, 0.95)
+border_width_left = 6
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.4, 0.9, 1, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dossier_panel"]
+content_margin_left = 26.0
+content_margin_top = 22.0
+content_margin_right = 26.0
+content_margin_bottom = 22.0
+bg_color = Color(0.02, 0.05, 0.09, 0.72)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.4, 0.6, 0.55)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_telemetry_box"]
+content_margin_left = 16.0
+content_margin_top = 8.0
+content_margin_right = 16.0
+content_margin_bottom = 8.0
+bg_color = Color(0.02, 0.05, 0.09, 0.75)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.4, 0.6, 0.5)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[node name="MainMenu" type="CanvasLayer"]
+script = ExtResource("1_script")
+
+[node name="AircraftViewportContainer" type="SubViewportContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="AircraftViewportContainer"]
+handle_input_locally = false
+size = Vector2i(1920, 1080)
+render_target_update_mode = 3
+
+[node name="MenuAircraftStage" parent="AircraftViewportContainer/SubViewport" instance=ExtResource("5_aircraft_stage")]
+
+[node name="TacticalVignette" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_tactical_vignette")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 70
+theme_override_constants/margin_top = 40
+theme_override_constants/margin_right = 70
+theme_override_constants/margin_bottom = 35
+
+[node name="MainLayout" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="HeaderBar" type="HBoxContainer" parent="MarginContainer/MainLayout"]
+layout_mode = 2
+
+[node name="TitleBox" type="VBoxContainer" parent="MarginContainer/MainLayout/HeaderBar"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="SubHeader" type="Label" parent="MarginContainer/MainLayout/HeaderBar/TitleBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.75, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 11
+text = "// AIR DEFENSE COMMAND  •  THEATER OPERATIONS"
+
+[node name="Title" type="Label" parent="MarginContainer/MainLayout/HeaderBar/TitleBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.98, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 32
+text = "AERO DEMONS"
+
+[node name="VersionTag" type="Label" parent="MarginContainer/MainLayout/HeaderBar/TitleBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.65, 0.8, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 10
+text = "AVIONICS SYSTEM VER 4.7.2  •  FLIGHT STATUS: READY"
+
+[node name="Spacer" type="Control" parent="MarginContainer/MainLayout/HeaderBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TelemetryBox" type="PanelContainer" parent="MarginContainer/MainLayout/HeaderBar"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_telemetry_box")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/MainLayout/HeaderBar/TelemetryBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="StatusDot" type="ColorRect" parent="MarginContainer/MainLayout/HeaderBar/TelemetryBox/HBoxContainer"]
+custom_minimum_size = Vector2(8, 8)
+layout_mode = 2
+size_flags_vertical = 4
+color = Color(0.2, 0.9, 0.45, 1)
+
+[node name="StatusLabel" type="Label" parent="MarginContainer/MainLayout/HeaderBar/TelemetryBox/HBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.92, 1, 0.95)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 10
+text = "SYS: COMBAT READY
+SAT-NET: SECURE
+LINK: ACTIVE"
+
+[node name="HeaderDivider" type="ColorRect" parent="MarginContainer/MainLayout"]
+custom_minimum_size = Vector2(0, 1)
+layout_mode = 2
+color = Color(0.3, 0.6, 0.9, 0.5)
+
+[node name="ContentArea" type="HBoxContainer" parent="MarginContainer/MainLayout"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 50
+
+[node name="LeftPanel" type="VBoxContainer" parent="MarginContainer/MainLayout/ContentArea"]
+custom_minimum_size = Vector2(440, 0)
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="SectionHeader" type="Label" parent="MarginContainer/MainLayout/ContentArea/LeftPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.75, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 12
+text = "// OPERATIONAL DIRECTIVES"
+
+[node name="MenuContainer" type="Control" parent="MarginContainer/MainLayout/ContentArea/LeftPanel"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="RootMenu" type="VBoxContainer" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 14
+
+[node name="StoriaButton" type="Button" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/RootMenu"]
+custom_minimum_size = Vector2(0, 62)
+layout_mode = 2
+focus_neighbor_top = NodePath("../QuitButton")
+focus_neighbor_bottom = NodePath("../FreeFlightButton")
+theme_override_colors/font_color = Color(0.9, 0.94, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "[01]   OPERAZIONI"
+alignment = 0
+
+[node name="FreeFlightButton" type="Button" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/RootMenu"]
+custom_minimum_size = Vector2(0, 62)
+layout_mode = 2
+focus_neighbor_top = NodePath("../StoriaButton")
+focus_neighbor_bottom = NodePath("../OptionsButton")
+theme_override_colors/font_color = Color(0.9, 0.94, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "[02]   FREE FLIGHT"
+alignment = 0
+
+[node name="OptionsButton" type="Button" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/RootMenu"]
+custom_minimum_size = Vector2(0, 62)
+layout_mode = 2
+focus_neighbor_top = NodePath("../FreeFlightButton")
+focus_neighbor_bottom = NodePath("../QuitButton")
+theme_override_colors/font_color = Color(0.9, 0.94, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "[03]   OPTIONS"
+alignment = 0
+
+[node name="QuitButton" type="Button" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/RootMenu"]
+custom_minimum_size = Vector2(0, 62)
+layout_mode = 2
+focus_neighbor_top = NodePath("../OptionsButton")
+focus_neighbor_bottom = NodePath("../StoriaButton")
+theme_override_colors/font_color = Color(0.9, 0.94, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "[04]   QUIT"
+alignment = 0
+
+[node name="StoriaMenu" type="VBoxContainer" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 14
+
+[node name="GardaButton" type="Button" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/StoriaMenu"]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+focus_neighbor_top = NodePath("../StoriaBackButton")
+focus_neighbor_bottom = NodePath("../StoriaBackButton")
+theme_override_colors/font_color = Color(0.9, 0.95, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "[01]   GARDA · DOGFIGHT"
+alignment = 0
+
+[node name="StoriaBackButton" type="Button" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/StoriaMenu"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+focus_neighbor_top = NodePath("../GardaButton")
+focus_neighbor_bottom = NodePath("../GardaButton")
+theme_override_colors/font_color = Color(0.7, 0.85, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "[ < ]   INDIETRO (MAIN MENU)"
+alignment = 0
+
+[node name="OptionsMenu" type="VBoxContainer" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 16
+
+[node name="AudioBox" type="VBoxContainer" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="AudioHeader" type="Label" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/AudioBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.75, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 11
+text = "// AUDIO BUS MIXER"
+
+[node name="MasterRow" type="HBoxContainer" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/AudioBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/AudioBox/MasterRow"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 12
+text = "MASTER:"
+
+[node name="MasterSlider" type="HSlider" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/AudioBox/MasterRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+focus_neighbor_top = NodePath("../../../OptionsBackButton")
+focus_neighbor_bottom = NodePath("../../MusicRow/MusicSlider")
+step = 5.0
+value = 100.0
+
+[node name="MasterVal" type="Label" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/AudioBox/MasterRow"]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 12
+text = "100%"
+horizontal_alignment = 2
+
+[node name="MusicRow" type="HBoxContainer" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/AudioBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/AudioBox/MusicRow"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 12
+text = "MUSIC:"
+
+[node name="MusicSlider" type="HSlider" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/AudioBox/MusicRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+focus_neighbor_top = NodePath("../../MasterRow/MasterSlider")
+focus_neighbor_bottom = NodePath("../../SFXRow/SFXSlider")
+step = 5.0
+value = 80.0
+
+[node name="MusicVal" type="Label" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/AudioBox/MusicRow"]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 12
+text = "80%"
+horizontal_alignment = 2
+
+[node name="SFXRow" type="HBoxContainer" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/AudioBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/AudioBox/SFXRow"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 12
+text = "SFX:"
+
+[node name="SFXSlider" type="HSlider" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/AudioBox/SFXRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+focus_neighbor_top = NodePath("../../MusicRow/MusicSlider")
+focus_neighbor_bottom = NodePath("../../../DisplayBox/WindowModeBtn")
+step = 5.0
+value = 90.0
+
+[node name="SFXVal" type="Label" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/AudioBox/SFXRow"]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 12
+text = "90%"
+horizontal_alignment = 2
+
+[node name="DisplayBox" type="VBoxContainer" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="DisplayHeader" type="Label" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/DisplayBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.75, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 11
+text = "// DISPLAY & SYNC"
+
+[node name="WindowModeBtn" type="Button" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/DisplayBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+focus_neighbor_top = NodePath("../../AudioBox/SFXRow/SFXSlider")
+focus_neighbor_bottom = NodePath("../VSyncBtn")
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "MODALITA': FINESTRA"
+
+[node name="VSyncBtn" type="Button" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/DisplayBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+focus_neighbor_top = NodePath("../WindowModeBtn")
+focus_neighbor_bottom = NodePath("../../OptionsBackButton")
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "V-SYNC: ATTIVO"
+
+[node name="OptionsBackButton" type="Button" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+focus_neighbor_top = NodePath("../DisplayBox/VSyncBtn")
+focus_neighbor_bottom = NodePath("../AudioBox/MasterRow/MasterSlider")
+theme_override_colors/font_color = Color(0.7, 0.85, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "[ < ]   INDIETRO (SALVA)"
+alignment = 0
+
+[node name="RightPanel" type="PanelContainer" parent="MarginContainer/MainLayout/ContentArea"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_dossier_panel")
+
+[node name="Margin" type="MarginContainer" parent="MarginContainer/MainLayout/ContentArea/RightPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 4
+
+[node name="VBox" type="VBoxContainer" parent="MarginContainer/MainLayout/ContentArea/RightPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="HeaderRow" type="HBoxContainer" parent="MarginContainer/MainLayout/ContentArea/RightPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="DossierTag" type="Label" parent="MarginContainer/MainLayout/ContentArea/RightPanel/Margin/VBox/HeaderRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.75, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 12
+text = "// TACTICAL INTELLIGENCE DOSSIER"
+
+[node name="Spacer" type="Control" parent="MarginContainer/MainLayout/ContentArea/RightPanel/Margin/VBox/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ThreatBadge" type="Label" parent="MarginContainer/MainLayout/ContentArea/RightPanel/Margin/VBox/HeaderRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.45, 0.2, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 11
+text = "THREAT: HIGH"
+
+[node name="DossierDivider" type="ColorRect" parent="MarginContainer/MainLayout/ContentArea/RightPanel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 1)
+layout_mode = 2
+color = Color(0.25, 0.45, 0.7, 0.5)
+
+[node name="DossierTitle" type="Label" parent="MarginContainer/MainLayout/ContentArea/RightPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.98, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 20
+text = "OPERAZIONE STORIA"
+
+[node name="DossierSubtitle" type="Label" parent="MarginContainer/MainLayout/ContentArea/RightPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.45, 0.65, 0.85, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 11
+text = "INGAGGIO TATTICO MULTI-ONDATE // PREPARAZIONE SORTITA"
+
+[node name="DossierDesc" type="Label" parent="MarginContainer/MainLayout/ContentArea/RightPanel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.9, 0.96, 0.95)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 12
+text = "Seleziona il teatro operativo per la sortita aerea. Configura il payload d'armamento missilistico nel loadout avionico prima del decollo."
+autowrap_mode = 2
+
+[node name="RadarContainer" type="Control" parent="MarginContainer/MainLayout/ContentArea/RightPanel/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="TacticalRadarWidget" type="Control" parent="MarginContainer/MainLayout/ContentArea/RightPanel/Margin/VBox/RadarContainer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("4_radar")
+
+[node name="TelemetryFooter" type="HBoxContainer" parent="MarginContainer/MainLayout/ContentArea/RightPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="TelemetryLabel" type="Label" parent="MarginContainer/MainLayout/ContentArea/RightPanel/Margin/VBox/TelemetryFooter"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.6, 0.8, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 10
+text = "STATO: AUTORIZZATO  •  PAYLOAD: ARMATO  •  RADAR: ATTIVO"
+
+[node name="FooterDivider" type="ColorRect" parent="MarginContainer/MainLayout"]
+custom_minimum_size = Vector2(0, 1)
+layout_mode = 2
+color = Color(0.2, 0.35, 0.55, 0.4)
+
+[node name="FooterBar" type="HBoxContainer" parent="MarginContainer/MainLayout"]
+layout_mode = 2
+
+[node name="NavHints" type="Label" parent="MarginContainer/MainLayout/FooterBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.72, 0.85, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 11
+text = "[D-PAD / FRECCE] Naviga   •   [A / INVIO / SPAZIO] Seleziona   •   [B / ESC] Indietro / Esci"
+
+[node name="Spacer" type="Control" parent="MarginContainer/MainLayout/FooterBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SecurityLabel" type="Label" parent="MarginContainer/MainLayout/FooterBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.5, 0.65, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 10
+text = "AIR DEFENSE TACTICAL NETWORK // CLASSIFIED"

@@ -1,0 +1,68 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/enemies/finished_aircraft.tscn" id="1_aircraft"]
+[ext_resource type="Script" path="res://scripts/ui/menu_aircraft_rotator.gd" id="2_rotator"]
+[ext_resource type="Sky" path="res://resources/materials/skyboxes/epic_blue_sunset.tres" id="3_sky"]
+[ext_resource type="Script" path="res://scripts/ui/menu_camera_aim.gd" id="4_aim"]
+[ext_resource type="Script" path="res://scripts/vfx/afterburner.gd" id="5_afterburner"]
+[ext_resource type="PackedScene" path="res://assets/thrusters/blue_thruster/scenes/jet_thruster_vfx.tscn" id="6_thruster"]
+
+[sub_resource type="Environment" id="Environment_sunset_sky"]
+background_mode = 2
+sky = ExtResource("3_sky")
+ambient_light_source = 3
+ambient_light_color = Color(0.72, 0.8, 0.9, 1)
+ambient_light_sky_contribution = 0.9
+ambient_light_energy = 1.2
+reflected_light_source = 2
+tonemap_mode = 4
+tonemap_agx_contrast = 1.18
+glow_enabled = true
+glow_normalized = true
+glow_intensity = 0.18
+glow_strength = 0.9
+glow_bloom = 0.06
+
+[node name="MenuAircraftStage" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_sunset_sky")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-24, 47, 0)
+light_color = Color(1, 0.9, 0.78, 1)
+light_energy = 2.2
+
+[node name="FrontKeyLight" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-30, -30, 0)
+light_color = Color(0.95, 0.98, 1, 1)
+light_energy = 2.5
+
+[node name="Camera3D" type="Camera3D" parent="."]
+position = Vector3(3.2, 1.4, 9.2)
+current = true
+fov = 40.0
+near = 0.1
+far = 1000.0
+script = ExtResource("4_aim")
+target_position = Vector3(-0.4, 0, 0)
+
+[node name="AircraftRotator" type="Node3D" parent="."]
+position = Vector3(-0.4, 0, 0)
+script = ExtResource("2_rotator")
+
+[node name="AircraftModel" parent="AircraftRotator" instance=ExtResource("1_aircraft")]
+position = Vector3(0, -5.8, -1.2)
+scale = Vector3(24, 24, 24)
+
+[node name="Afterburners" type="Node3D" parent="AircraftRotator"]
+rotation_degrees = Vector3(0, 180, 0)
+script = ExtResource("5_afterburner")
+
+[node name="Thruster" parent="AircraftRotator/Afterburners" instance=ExtResource("6_thruster")]
+position = Vector3(0, -0.68, 4.9)
+throttle = 0.5
+exhaust_length = 3.0
+exhaust_width = 0.45
+flame_holder_distance = 0.35
+light_intensity = 0.05

@@ -71,8 +71,9 @@ var _hit_remaining := 0.0
 @onready var _mission_detail: Label = $HudText/MissionOverlay/Detail
 @onready var _pause_overlay: Control = $HudText/PauseOverlay
 @onready var _resume_button: Button = $HudText/PauseOverlay/Panel/Menu/ResumeButton
-@onready var _skip_button: Button = $HudText/PauseOverlay/Panel/Menu/SkipButton
+@onready var _restart_button: Button = $HudText/PauseOverlay/Panel/Menu/RestartButton
 var _pause_menu_was_paused := false
+var _flight_mouse_mode := Input.MOUSE_MODE_VISIBLE
 
 
 class HudCanvas extends Control:
@@ -100,9 +101,7 @@ func _ready() -> void:
 	$HudText.move_child(_canvas, 0)
 	$HudText.move_child(_mission_overlay, $HudText.get_child_count() - 1)
 	$HudText.move_child(_pause_overlay, $HudText.get_child_count() - 1)
-	_skip_button.disabled = mission_controller == null \
-			or not mission_controller.has_method("is_timed_mission") \
-			or not bool(mission_controller.call("is_timed_mission"))
+	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
 	_update_labels()
 
 
@@ -120,7 +119,7 @@ func _process(delta: float) -> void:
 
 func show_mission_result(title: String, detail: String) -> void:
 	_mission_title.text = title
-	_mission_detail.text = "%s  ·  [R] RESTART  ·  [START] MENU" % detail
+	_mission_detail.text = "%s\n[R] RIPROVA  ·  [ESC / START] MENU" % detail
 	_mission_overlay.visible = true
 
 
@@ -128,24 +127,38 @@ func _open_pause_menu() -> void:
 	if _pause_overlay.visible:
 		return
 	_pause_menu_was_paused = get_tree().paused
+	_flight_mouse_mode = Input.mouse_mode
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_pause_overlay.visible = true
 	get_tree().paused = true
-	_resume_button.grab_focus()
+	_resume_button.disabled = mission_result_visible()
+	if _resume_button.disabled:
+		_restart_button.grab_focus()
+	else:
+		_resume_button.grab_focus()
 
 
 func _close_pause_menu() -> void:
 	_pause_overlay.visible = false
 	get_tree().paused = _pause_menu_was_paused
+	Input.mouse_mode = _flight_mouse_mode
 
 
 func _on_resume_pressed() -> void:
 	_close_pause_menu()
 
 
-func _on_skip_to_boss_pressed() -> void:
-	_close_pause_menu()
-	if mission_controller != null and is_instance_valid(mission_controller) and mission_controller.has_method("skip_to_boss"):
-		mission_controller.call("skip_to_boss")
+func _on_restart_pressed() -> void:
+	GameSession.change_scene(get_tree(), get_parent().scene_file_path)
+
+
+func _on_loadout_pressed() -> void:
+	GameSession.change_scene(get_tree(), GameSession.LOADOUT)
+
+
+func _on_main_menu_pressed() -> void:
+	GameSession.menu_section = ""
+	GameSession.change_scene(get_tree(), GameSession.MAIN_MENU)
 
 
 func _on_quit_pressed() -> void:
@@ -181,6 +194,8 @@ func _update_labels() -> void:
 	_objectives_line.text = _objectives_text()
 	if GameSession.free_flight:
 		_score_label.text = "MODE : FREE FLIGHT"
+	elif wave_spawner == null:
+		_score_label.text = "MODE : DOGFIGHT"
 	else:
 		_score_label.text = "TOTAL SCORE : %s" % _format_int(_read_int(wave_spawner, "score", 0))
 	_speed_value.text = "%d" % roundi(_read_float(player, "speed", 0.0) * 3.6)
@@ -525,7 +540,10 @@ func _faded(color: Color, fade: float) -> Color:
 ## marker slides from its old screen position instead of teleporting. Initial acquisition and
 ## switches after a kill skip the animation.
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("pause_menu"):
+	if event.is_action_pressed("reset_run"):
+		get_viewport().set_input_as_handled()
+		_on_restart_pressed()
+	elif event.is_action_pressed("pause_menu"):
 		if _pause_overlay.visible:
 			_close_pause_menu()
 		else:
@@ -670,6 +688,8 @@ func _target_distance(node) -> float:
 
 
 func _objectives_text() -> String:
+	if is_instance_valid(mission_controller) and mission_controller.has_method("objectives_text"):
+		return mission_controller.objectives_text()
 	if GameSession.free_flight:
 		return ">FREE FLIGHT"
 	if wave_spawner == null or not is_instance_valid(wave_spawner):

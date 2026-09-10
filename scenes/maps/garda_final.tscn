@@ -14,7 +14,7 @@
 [ext_resource type="CompositorEffect" uid="uid://dnuaohkyn5spa" path="res://resources/environments/tutorial_clouds.tres" id="21_sunshine"]
 [ext_resource type="Script" uid="uid://djusduuxf0voj" path="res://addons/SunshineClouds2/SunshineCloudsDriver.gd" id="22_clouds_driver"]
 [ext_resource type="Script" uid="uid://bke3xwkhruy37" path="res://scripts/maps/tutorial_boundary_controller.gd" id="23_boundary"]
-[ext_resource type="Material" path="res://resources/materials/barnegat_water.tres" id="24_water"]
+[ext_resource type="Material" path="res://resources/materials/garda_water.tres" id="24_water"]
 
 [sub_resource type="Gradient" id="Gradient_maued"]
 offsets = PackedFloat32Array(0.2, 1)
@@ -154,8 +154,6 @@ compositor_effects = Array[CompositorEffect]([ExtResource("21_sunshine")])
 [sub_resource type="PlaneMesh" id="PlaneMesh_garda_water"]
 material = ExtResource("24_water")
 size = Vector2(150000, 250000)
-subdivide_width = 853
-subdivide_depth = 853
 
 [node name="GardaFinal" type="Node3D" unique_id=1907416372]
 

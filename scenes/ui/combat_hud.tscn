@@ -367,9 +367,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -240.0
-offset_top = -205.0
+offset_top = -285.0
 offset_right = 240.0
-offset_bottom = 205.0
+offset_bottom = 285.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBox_pause_panel")
@@ -409,7 +409,7 @@ theme_override_styles/focus = SubResource("StyleBox_pause_button_hover")
 theme_override_styles/pressed = SubResource("StyleBox_pause_button_hover")
 text = "RIPRENDI"
 
-[node name="SkipButton" type="Button" parent="HudText/PauseOverlay/Panel/Menu"]
+[node name="RestartButton" type="Button" parent="HudText/PauseOverlay/Panel/Menu"]
 custom_minimum_size = Vector2(320, 52)
 layout_mode = 2
 focus_mode = 2
@@ -421,7 +421,27 @@ theme_override_styles/normal = SubResource("StyleBox_pause_button")
 theme_override_styles/hover = SubResource("StyleBox_pause_button_hover")
 theme_override_styles/focus = SubResource("StyleBox_pause_button_hover")
 theme_override_styles/pressed = SubResource("StyleBox_pause_button_hover")
-text = "SKIP TO BOSS"
+text = "RIPROVA SORTITA"
+
+[node name="LoadoutButton" type="Button" parent="HudText/PauseOverlay/Panel/Menu"]
+custom_minimum_size = Vector2(320, 52)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("StyleBox_pause_button")
+theme_override_styles/hover = SubResource("StyleBox_pause_button_hover")
+theme_override_styles/focus = SubResource("StyleBox_pause_button_hover")
+text = "CAMBIA ARMAMENTO"
+
+[node name="MainMenuButton" type="Button" parent="HudText/PauseOverlay/Panel/Menu"]
+custom_minimum_size = Vector2(320, 52)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("StyleBox_pause_button")
+theme_override_styles/hover = SubResource("StyleBox_pause_button_hover")
+theme_override_styles/focus = SubResource("StyleBox_pause_button_hover")
+text = "MENU PRINCIPALE"
 
 [node name="QuitButton" type="Button" parent="HudText/PauseOverlay/Panel/Menu"]
 custom_minimum_size = Vector2(320, 52)
@@ -442,9 +462,11 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.48, 0.61, 0.68, 1)
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 10
-text = "[A] SELEZIONA  ·  [B] RIPRENDI"
+text = "[INVIO / A] SELEZIONA  ·  [ESC / B] INDIETRO"
 horizontal_alignment = 1
 
 [connection signal="pressed" from="HudText/PauseOverlay/Panel/Menu/ResumeButton" to="." method="_on_resume_pressed"]
-[connection signal="pressed" from="HudText/PauseOverlay/Panel/Menu/SkipButton" to="." method="_on_skip_to_boss_pressed"]
+[connection signal="pressed" from="HudText/PauseOverlay/Panel/Menu/RestartButton" to="." method="_on_restart_pressed"]
+[connection signal="pressed" from="HudText/PauseOverlay/Panel/Menu/LoadoutButton" to="." method="_on_loadout_pressed"]
+[connection signal="pressed" from="HudText/PauseOverlay/Panel/Menu/MainMenuButton" to="." method="_on_main_menu_pressed"]
 [connection signal="pressed" from="HudText/PauseOverlay/Panel/Menu/QuitButton" to="." method="_on_quit_pressed"]

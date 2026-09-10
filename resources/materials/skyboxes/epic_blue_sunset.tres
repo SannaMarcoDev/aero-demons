@@ -1,0 +1,17 @@
+[gd_resource type="Sky" format=3 uid="uid://ca6856g43f1tv"]
+
+[ext_resource type="Texture2D" uid="uid://bhag2l1qm4k4d" path="res://assets/skyboxes/epic_blue_sunset.webp" id="1_panorama"]
+[ext_resource type="Shader" uid="uid://dvdv462ujqvps" path="res://resources/shaders/horizon_haze_sky.gdshader" id="2_haze"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_epic_blue_sunset"]
+shader = ExtResource("2_haze")
+shader_parameter/panorama = ExtResource("1_panorama")
+shader_parameter/haze_color = Color(0.6, 0.66, 0.74, 1)
+shader_parameter/haze_top = 0.22
+shader_parameter/haze_bottom = 0.0
+shader_parameter/haze_curve = 3.0
+shader_parameter/haze_strength = 1.0
+
+[resource]
+sky_material = SubResource("ShaderMaterial_epic_blue_sunset")
+radiance_size = 4

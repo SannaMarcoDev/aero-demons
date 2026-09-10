@@ -96,6 +96,8 @@ var spin_dash_trigger := false
 var _spawn_transform := Transform3D.IDENTITY
 var _incoming_missiles: Array = []
 var _damage_emitters: Array = []
+var _napalm_time := 0.0
+var _napalm_dps := 0.0
 var _flight_time := 0.0
 var _accelerate_held := false
 var _last_accelerate_tap := -1000.0
@@ -139,6 +141,22 @@ func _scale_airframe() -> void:
 			var spatial := child as Node3D
 			spatial.position *= airframe_scale
 			spatial.scale *= airframe_scale
+
+
+## NCGBM uses the source project's refresh/strongest-burn rule on every airframe.
+func apply_napalm(total: float, duration: float, _source = null) -> void:
+	if total <= 0.0 or duration <= 0.0 or not is_alive():
+		return
+	_napalm_dps = maxf(_napalm_dps if _napalm_time > 0.0 else 0.0, total / duration)
+	_napalm_time = maxf(_napalm_time, duration)
+	_update_damage_effects()
+
+
+func _process(delta: float) -> void:
+	if _napalm_time > 0.0 and is_alive():
+		var burn_step := minf(delta, _napalm_time)
+		_napalm_time -= burn_step
+		apply_damage(_napalm_dps * burn_step)
 
 
 func _physics_process(delta: float) -> void:
@@ -498,6 +516,8 @@ func reset_flight(start_transform: Transform3D) -> void:
 	if _hitbox != null:
 		_hitbox.collision_layer = 8
 	_incoming_missiles.clear()
+	_napalm_time = 0.0
+	_napalm_dps = 0.0
 	if faction_group == "player":
 		_play_ui_audio(&"stop_alarm")
 	_setup_collision_detection()
@@ -587,6 +607,8 @@ func _die() -> void:
 func _update_damage_effects() -> void:
 	var ratio := health / maxf(max_health, 0.001)
 	var intensity := clampf(inverse_lerp(damage_start_ratio, damage_full_ratio, ratio), 0.0, 1.0)
+	if _napalm_time > 0.0:
+		intensity = maxf(intensity, 0.65)
 	for emitter in _damage_emitters:
 		emitter.set_intensity(intensity)
 
