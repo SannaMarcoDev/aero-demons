@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://bckioquhk2auh"]
 
 [ext_resource type="Terrain3DAssets" uid="uid://cgcr8dwmk1n5w" path="res://terrain/garda_final_wc_uniform_250km/wc_terrain_assets.tres" id="1_assets"]
+[ext_resource type="Shader" path="res://resources/terrain/terrain_wc_override.gdshader" id="3_wcover"]
 [ext_resource type="Script" uid="uid://deo0gxkmk2ahd" path="res://addons/sky_3d/src/Sky3D.gd" id="8_sky3d"]
 [ext_resource type="Script" uid="uid://cjmkcj8hwm7ts" path="res://addons/sky_3d/src/TimeOfDay.gd" id="9_tod"]
 [ext_resource type="Script" uid="uid://b4tkplvh7fq40" path="res://addons/sky_3d/src/SkyDome.gd" id="10_dome"]
@@ -56,6 +57,8 @@ _shader_parameters = {
 &"projection_threshold": 0.8
 }
 world_background = 0
+shader_override = ExtResource("3_wcover")
+shader_override_enabled = true
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_clear_cirrus"]
 seed = 42137

@@ -34,6 +34,7 @@ const WC_TO_GODOT := Basis(Vector3(0, 0, 1), Vector3(1, 0, 0), Vector3(0, 1, 0))
 const WC_MODEL_YAW_DEG: float = 0.0    # extra model-facing yaw about up. Blender needs +90 (its glTF import pre-rotates models); Godot keeps models Y-up, so none is needed.
 const WC_SCALE_CONST: float = 1000.0   # size_m ~= |scale| * WC_SCALE_CONST * ModelScale (10x obj * 100x point scale)
 const WC_POSITION_SCALE: float = 1024.0 # WC normalizes instance positions so 1.0 = this many meters (FIXED reference, not the terrain size; matches the Blender bridge's *1024)
+const WC_OVERRIDE_SHADER := "res://resources/terrain/terrain_wc_override.gdshader" # shared patched Terrain3D shader, built by tools/build_terrain_override.gd
 
 func _enter_tree():
 	# Signals are connected in _ready()
@@ -1028,7 +1029,22 @@ func _import_heightmap_tiles(xml_path: String, data: Dictionary, terrain_name: S
 		shader_params = {}
 	shader_params["blend_sharpness"] = 0.0
 	shader_params["enable_projection"] = enable_triplanar_projection
+	# The patched override shader samples noise_texture for its index-domain
+	# warp; make sure one exists even on a fresh material.
+	if shader_params.get("noise_texture") == null:
+		var wc_noise := NoiseTexture2D.new()
+		wc_noise.width = 512
+		wc_noise.height = 512
+		wc_noise.seamless = true
+		wc_noise.noise = FastNoiseLite.new()
+		shader_params["noise_texture"] = wc_noise
 	material.set("_shader_parameters", shader_params)
+
+	# Shared patched shader (sharper index blending + warp + colormap strength).
+	var wc_shader: Shader = load(WC_OVERRIDE_SHADER)
+	if wc_shader:
+		material.shader_override = wc_shader
+		material.shader_override_enabled = true
 
 	scene_root.add_child(terrain_node)
 	terrain_node.owner = scene_root
