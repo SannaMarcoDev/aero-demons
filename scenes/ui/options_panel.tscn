@@ -68,36 +68,251 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 16
 
-[node name="AudioBox" type="VBoxContainer" parent="Scroll/Sections"]
+[node name="PresetBox" type="VBoxContainer" parent="Scroll/Sections"]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="AudioHeader" type="Label" parent="Scroll/Sections/AudioBox"]
+[node name="PresetHeader" type="Label" parent="Scroll/Sections/PresetBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.35, 0.75, 1, 1)
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 11
-text = "// AUDIO BUS MIXER"
+text = "// PRESET QUALITA'"
 
-[node name="MasterRow" type="HBoxContainer" parent="Scroll/Sections/AudioBox"]
+[node name="PresetBtn" type="Button" parent="Scroll/Sections/PresetBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "PRESET: ULTRA"
+
+[node name="CloudBox" type="VBoxContainer" parent="Scroll/Sections"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="CloudHeader" type="Label" parent="Scroll/Sections/CloudBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.75, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 11
+text = "// NUVOLE VOLUMETRICHE"
+
+[node name="CloudsBtn" type="Button" parent="Scroll/Sections/CloudBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "NUVOLE: ULTRA"
+
+[node name="CoverageRow" type="HBoxContainer" parent="Scroll/Sections/CloudBox"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="Label" type="Label" parent="Scroll/Sections/AudioBox/MasterRow"]
-custom_minimum_size = Vector2(100, 0)
+[node name="Label" type="Label" parent="Scroll/Sections/CloudBox/CoverageRow"]
+custom_minimum_size = Vector2(110, 0)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 12
-text = "MASTER:"
+text = "COPERTURA:"
 
-[node name="MasterSlider" type="HSlider" parent="Scroll/Sections/AudioBox/MasterRow"]
+[node name="CoverageSlider" type="HSlider" parent="Scroll/Sections/CloudBox/CoverageRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
+step = 1.0
+value = 83.0
+
+[node name="CoverageVal" type="Label" parent="Scroll/Sections/CloudBox/CoverageRow"]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 12
+text = "83%"
+horizontal_alignment = 2
+
+[node name="SkyBox" type="VBoxContainer" parent="Scroll/Sections"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SkyHeader" type="Label" parent="Scroll/Sections/SkyBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.75, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 11
+text = "// CIELO & ATMOSFERA"
+
+[node name="CirrusBtn" type="Button" parent="Scroll/Sections/SkyBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "CIRRI: ATTIVI"
+
+[node name="CumulusBtn" type="Button" parent="Scroll/Sections/SkyBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "CUMULI: DISATTIVI"
+
+[node name="SkyFogBtn" type="Button" parent="Scroll/Sections/SkyBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "FOSCHIA: DISATTIVA"
+
+[node name="ShadowBox" type="VBoxContainer" parent="Scroll/Sections"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ShadowHeader" type="Label" parent="Scroll/Sections/ShadowBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.75, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 11
+text = "// OMBRE DIREZIONALI"
+
+[node name="ShadowsBtn" type="Button" parent="Scroll/Sections/ShadowBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "OMBRE: ALTE"
+
+[node name="EffectsBox" type="VBoxContainer" parent="Scroll/Sections"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="EffectsHeader" type="Label" parent="Scroll/Sections/EffectsBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.75, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 11
+text = "// EFFETTI & POST-PROCESSING"
+
+[node name="SsaoBtn" type="Button" parent="Scroll/Sections/EffectsBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "SSAO: DISATTIVO"
+
+[node name="SsilBtn" type="Button" parent="Scroll/Sections/EffectsBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "SSIL: DISATTIVO"
+
+[node name="SsrBtn" type="Button" parent="Scroll/Sections/EffectsBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "RIFLESSI SSR: DISATTIVI"
+
+[node name="GlowBtn" type="Button" parent="Scroll/Sections/EffectsBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "BLOOM: DISATTIVO"
+
+[node name="VolFogBtn" type="Button" parent="Scroll/Sections/EffectsBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "FOG VOLUMETRICA: DISATTIVA"
+
+[node name="HorizonBtn" type="Button" parent="Scroll/Sections/EffectsBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "SFOCATURA ORIZZONTE: DISATTIVA"
+
+[node name="TonemapBtn" type="Button" parent="Scroll/Sections/EffectsBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "TONEMAP: ACES"
+
+[node name="ExposureRow" type="HBoxContainer" parent="Scroll/Sections/EffectsBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="Scroll/Sections/EffectsBox/ExposureRow"]
+custom_minimum_size = Vector2(110, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 12
+text = "ESPOSIZIONE:"
+
+[node name="ExposureSlider" type="HSlider" parent="Scroll/Sections/EffectsBox/ExposureRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = 50.0
+max_value = 200.0
 step = 5.0
 value = 100.0
 
-[node name="MasterVal" type="Label" parent="Scroll/Sections/AudioBox/MasterRow"]
+[node name="ExposureVal" type="Label" parent="Scroll/Sections/EffectsBox/ExposureRow"]
 custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_font")
@@ -105,56 +320,75 @@ theme_override_font_sizes/font_size = 12
 text = "100%"
 horizontal_alignment = 2
 
-[node name="MusicRow" type="HBoxContainer" parent="Scroll/Sections/AudioBox"]
+[node name="RenderBox" type="VBoxContainer" parent="Scroll/Sections"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="RenderHeader" type="Label" parent="Scroll/Sections/RenderBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.75, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 11
+text = "// RENDER & UPSCALING"
+
+[node name="UpscalerBtn" type="Button" parent="Scroll/Sections/RenderBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "UPSCALER: NATIVO"
+
+[node name="RenderScaleBtn" type="Button" parent="Scroll/Sections/RenderBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "SCALA RENDER: 100%"
+
+[node name="AntiAliasingBtn" type="Button" parent="Scroll/Sections/RenderBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "ANTI-ALIASING: FXAA"
+
+[node name="SharpnessRow" type="HBoxContainer" parent="Scroll/Sections/RenderBox"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="Label" type="Label" parent="Scroll/Sections/AudioBox/MusicRow"]
-custom_minimum_size = Vector2(100, 0)
+[node name="Label" type="Label" parent="Scroll/Sections/RenderBox/SharpnessRow"]
+custom_minimum_size = Vector2(110, 0)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 12
-text = "MUSIC:"
+text = "NITIDEZZA FSR1:"
 
-[node name="MusicSlider" type="HSlider" parent="Scroll/Sections/AudioBox/MusicRow"]
+[node name="SharpnessSlider" type="HSlider" parent="Scroll/Sections/RenderBox/SharpnessRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
+max_value = 200.0
 step = 5.0
-value = 80.0
+value = 20.0
 
-[node name="MusicVal" type="Label" parent="Scroll/Sections/AudioBox/MusicRow"]
+[node name="SharpnessVal" type="Label" parent="Scroll/Sections/RenderBox/SharpnessRow"]
 custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 12
-text = "80%"
-horizontal_alignment = 2
-
-[node name="SFXRow" type="HBoxContainer" parent="Scroll/Sections/AudioBox"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="Label" type="Label" parent="Scroll/Sections/AudioBox/SFXRow"]
-custom_minimum_size = Vector2(100, 0)
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 12
-text = "SFX:"
-
-[node name="SFXSlider" type="HSlider" parent="Scroll/Sections/AudioBox/SFXRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-step = 5.0
-value = 90.0
-
-[node name="SFXVal" type="Label" parent="Scroll/Sections/AudioBox/SFXRow"]
-custom_minimum_size = Vector2(50, 0)
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 12
-text = "90%"
+text = "0.20"
 horizontal_alignment = 2
 
 [node name="DisplayBox" type="VBoxContainer" parent="Scroll/Sections"]
@@ -212,49 +446,94 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
 theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
 text = "LIMITE FPS: ILLIMITATO"
 
-[node name="RenderBox" type="VBoxContainer" parent="Scroll/Sections"]
+[node name="AudioBox" type="VBoxContainer" parent="Scroll/Sections"]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="RenderHeader" type="Label" parent="Scroll/Sections/RenderBox"]
+[node name="AudioHeader" type="Label" parent="Scroll/Sections/AudioBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.35, 0.75, 1, 1)
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 11
-text = "// RENDER & UPSCALING"
+text = "// AUDIO BUS MIXER"
 
-[node name="UpscalerBtn" type="Button" parent="Scroll/Sections/RenderBox"]
-custom_minimum_size = Vector2(0, 44)
+[node name="MasterRow" type="HBoxContainer" parent="Scroll/Sections/AudioBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="Scroll/Sections/AudioBox/MasterRow"]
+custom_minimum_size = Vector2(110, 0)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 13
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
-theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
-text = "UPSCALER: NATIVO"
+theme_override_font_sizes/font_size = 12
+text = "MASTER:"
 
-[node name="RenderScaleBtn" type="Button" parent="Scroll/Sections/RenderBox"]
-custom_minimum_size = Vector2(0, 44)
+[node name="MasterSlider" type="HSlider" parent="Scroll/Sections/AudioBox/MasterRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+step = 5.0
+value = 100.0
+
+[node name="MasterVal" type="Label" parent="Scroll/Sections/AudioBox/MasterRow"]
+custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 13
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
-theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
-text = "SCALA RENDER: 100%"
+theme_override_font_sizes/font_size = 12
+text = "100%"
+horizontal_alignment = 2
 
-[node name="AntiAliasingBtn" type="Button" parent="Scroll/Sections/RenderBox"]
-custom_minimum_size = Vector2(0, 44)
+[node name="MusicRow" type="HBoxContainer" parent="Scroll/Sections/AudioBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="Scroll/Sections/AudioBox/MusicRow"]
+custom_minimum_size = Vector2(110, 0)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 13
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
-theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
-text = "ANTI-ALIASING: FXAA"
+theme_override_font_sizes/font_size = 12
+text = "MUSIC:"
+
+[node name="MusicSlider" type="HSlider" parent="Scroll/Sections/AudioBox/MusicRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+step = 5.0
+value = 80.0
+
+[node name="MusicVal" type="Label" parent="Scroll/Sections/AudioBox/MusicRow"]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 12
+text = "80%"
+horizontal_alignment = 2
+
+[node name="SFXRow" type="HBoxContainer" parent="Scroll/Sections/AudioBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="Scroll/Sections/AudioBox/SFXRow"]
+custom_minimum_size = Vector2(110, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 12
+text = "SFX:"
+
+[node name="SFXSlider" type="HSlider" parent="Scroll/Sections/AudioBox/SFXRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+step = 5.0
+value = 90.0
+
+[node name="SFXVal" type="Label" parent="Scroll/Sections/AudioBox/SFXRow"]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 12
+text = "90%"
+horizontal_alignment = 2
 
 [node name="ControlsBox" type="VBoxContainer" parent="Scroll/Sections"]
 layout_mode = 2
@@ -283,7 +562,7 @@ layout_mode = 2
 theme_override_constants/separation = 10
 
 [node name="Label" type="Label" parent="Scroll/Sections/ControlsBox/SensRow"]
-custom_minimum_size = Vector2(100, 0)
+custom_minimum_size = Vector2(110, 0)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 12

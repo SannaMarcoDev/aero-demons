@@ -181,7 +181,7 @@ func _set_dossier(mode_key: String) -> void:
 			threat_badge.modulate = Color(0.2, 0.75, 1.0)
 			dossier_title.text = "CONFIGURAZIONE SISTEMI"
 			dossier_subtitle.text = "PARAMETRI AVIONICI // CALIBRAZIONE AUDIO & GRAFICA"
-			dossier_desc.text = "Regolazione canali mixer audio Master, Colonna Sonora (Music) e Ritorno Sonoro Armamenti (SFX).\n\nConfigurazione schermo, risoluzione, V-Sync, limite FPS, upscaler (FSR 1.0/2.2), anti-aliasing e controlli di volo. Salvataggio automatico all'uscita."
+			dossier_desc.text = "Preset qualità rapidi (Basso→Ultra) oppure controllo fine su nuvole volumetriche (fino a spegnerle), cielo, ombre, effetti post, tonemap, upscaler FSR 1.0/2.2, scala di rendering con supersampling, anti-aliasing, V-Sync e limite FPS.\n\nMixer audio, risoluzione e controlli di volo in coda alla lista. Salvataggio automatico all'uscita."
 			dossier_telemetry.text = "BUS AUDIO: 3 ATTIVI  •  SALVA CON INDIETRO / ESC"
 
 		"quit":
