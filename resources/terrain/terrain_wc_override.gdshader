@@ -5,6 +5,16 @@ uniform float wc_blend_power : hint_range(0.5, 16.0) = 6.0;
 uniform float wc_warp_texels : hint_range(0.0, 1.0) = 0.6;
 uniform float wc_warp_scale : hint_range(5.0, 500.0) = 60.0;
 uniform float wc_colormap_strength : hint_range(0.0, 1.0) = 0.75;
+uniform float wc_detile_rot : hint_range(0.0, 1.0) = 0.2;
+uniform float wc_detile_shift : hint_range(0.0, 1.0) = 0.5;
+uniform float wc_uv_scale_mult : hint_range(0.05, 4.0) = 1.0;
+uniform float wc_uv_warp : hint_range(0.0, 60.0) = 3.0;
+uniform float wc_uv_warp_scale : hint_range(5.0, 4000.0) = 90.0;
+uniform float wc_ms_amount : hint_range(0.0, 1.0) = 0.0;
+uniform float wc_ms_ratio : hint_range(0.05, 8.0) = 2.4;
+uniform float wc_ms_mask_scale : hint_range(5.0, 8000.0) = 300.0;
+uniform float wc_ms_near : hint_range(0.0, 20000.0) = 0.0;
+uniform float wc_ms_far : hint_range(1.0, 40000.0) = 1.0;
 
 
 /* The terrain depends on this shader to function. Don't change most things in vertex() or 
@@ -259,12 +269,12 @@ void accumulate_material(const vec3 base_ddx, const vec3 base_ddy, const float w
 			) {
 		int id = texture_id[0];
 		float id_w = texture_weight[0];
-		float id_scale = _texture_uv_scale_array[id];
+		float id_scale = _texture_uv_scale_array[id] * wc_uv_scale_mult;
 		vec4 id_dd = i_dd * id_scale;
 
 		// Detiling and Control map rotation
 		vec2 uv_center = floor(fma(i_pos, vec2(id_scale), vec2(0.5)));
-		vec2 id_detile = fma(random(uv_center), 2.0, -1.0) * _texture_detile_array[id] * TAU;
+		vec2 id_detile = fma(random(uv_center), 2.0, -1.0) * ( _texture_detile_array[id] + vec2(wc_detile_rot, wc_detile_shift) ) * TAU;
 		vec2 id_cs_angle = vec2(cos(id_detile.x), sin(id_detile.x));
 		// Apply UV rotation and shift around pivot.
 		vec2 id_uv = rotate_vec2(fma(i_uv, vec2(id_scale), -uv_center), id_cs_angle) + uv_center + id_detile.y - 0.5;
@@ -277,8 +287,28 @@ void accumulate_material(const vec3 base_ddx, const vec3 base_ddy, const float w
 		id_dd.xy = rotate_vec2(id_dd.xy, id_cs_angle);
 		id_dd.zw = rotate_vec2(id_dd.zw, id_cs_angle);
 
+
+		// wc anti-tile: continuous UV domain warp (world meters), no seams.
+		if (wc_uv_warp > 0.0) {
+			vec2 w_uv = v_vertex.xz / wc_uv_warp_scale;
+			vec2 w_off = vec2(
+				texture(noise_texture, w_uv).r,
+				texture(noise_texture, w_uv * 1.7 + vec2(0.31, 0.77)).r) - 0.5;
+			id_uv += w_off * (wc_uv_warp * id_scale);
+		}
 		vec4 alb = textureGrad(_texture_array_albedo, vec3(id_uv, float(id)), id_dd.xy, id_dd.zw);
 		vec4 nrm = textureGrad(_texture_array_normal, vec3(id_uv, float(id)), id_dd.xy, id_dd.zw);
+		// wc anti-tile: blend a second sample at an incommensurate scale.
+		if (wc_ms_amount > 0.0) {
+			float ms_m = texture(noise_texture, v_vertex.xz / wc_ms_mask_scale + vec2(0.53, 0.19)).r;
+			float ms_w = wc_ms_amount * smoothstep(0.25, 0.75, ms_m)
+				* smoothstep(wc_ms_near, wc_ms_far, v_vertex_xz_dist);
+			vec2 ms_uv = id_uv * wc_ms_ratio;
+			vec4 ms_alb = textureGrad(_texture_array_albedo, vec3(ms_uv, float(id)), id_dd.xy * wc_ms_ratio, id_dd.zw * wc_ms_ratio);
+			vec4 ms_nrm = textureGrad(_texture_array_normal, vec3(ms_uv, float(id)), id_dd.xy * wc_ms_ratio, id_dd.zw * wc_ms_ratio);
+			alb = mix(alb, ms_alb, ms_w);
+			nrm = mix(nrm, ms_nrm, ms_w);
+		}
 
 		alb.rgb *= _texture_color_array[id].rgb;
 		nrm.a = clamp(nrm.a + _texture_roughness_mod_array[id], 0., 1.);
@@ -301,12 +331,12 @@ void accumulate_material(const vec3 base_ddx, const vec3 base_ddy, const float w
 		) {
 		int id = texture_id[1];
 		float id_w = texture_weight[1];
-		float id_scale = _texture_uv_scale_array[id];
+		float id_scale = _texture_uv_scale_array[id] * wc_uv_scale_mult;
 		vec4 id_dd = i_dd * id_scale;
 
 		// Detiling and Control map rotation
 		vec2 uv_center = floor(fma(i_pos, vec2(id_scale), vec2(0.5)));
-		vec2 id_detile = _texture_detile_array[id] * fma(random(uv_center), 2.0, -1.0) * TAU;
+		vec2 id_detile = ( _texture_detile_array[id] + vec2(wc_detile_rot, wc_detile_shift) ) * fma(random(uv_center), 2.0, -1.0) * TAU;
 		vec2 id_cs_angle = vec2(cos(id_detile.x), sin(id_detile.x));
 		// Apply UV rotation and shift around pivot.
 		vec2 id_uv = rotate_vec2(fma(i_uv, vec2(id_scale), -uv_center), id_cs_angle) + uv_center + id_detile.y - 0.5;
@@ -319,8 +349,28 @@ void accumulate_material(const vec3 base_ddx, const vec3 base_ddy, const float w
 		id_dd.xy = rotate_vec2(id_dd.xy, id_cs_angle);
 		id_dd.zw = rotate_vec2(id_dd.zw, id_cs_angle);
 
+
+		// wc anti-tile: continuous UV domain warp (world meters), no seams.
+		if (wc_uv_warp > 0.0) {
+			vec2 w_uv = v_vertex.xz / wc_uv_warp_scale;
+			vec2 w_off = vec2(
+				texture(noise_texture, w_uv).r,
+				texture(noise_texture, w_uv * 1.7 + vec2(0.31, 0.77)).r) - 0.5;
+			id_uv += w_off * (wc_uv_warp * id_scale);
+		}
 		vec4 alb = textureGrad(_texture_array_albedo, vec3(id_uv, float(id)), id_dd.xy, id_dd.zw);
 		vec4 nrm = textureGrad(_texture_array_normal, vec3(id_uv, float(id)), id_dd.xy, id_dd.zw);
+		// wc anti-tile: blend a second sample at an incommensurate scale.
+		if (wc_ms_amount > 0.0) {
+			float ms_m = texture(noise_texture, v_vertex.xz / wc_ms_mask_scale + vec2(0.53, 0.19)).r;
+			float ms_w = wc_ms_amount * smoothstep(0.25, 0.75, ms_m)
+				* smoothstep(wc_ms_near, wc_ms_far, v_vertex_xz_dist);
+			vec2 ms_uv = id_uv * wc_ms_ratio;
+			vec4 ms_alb = textureGrad(_texture_array_albedo, vec3(ms_uv, float(id)), id_dd.xy * wc_ms_ratio, id_dd.zw * wc_ms_ratio);
+			vec4 ms_nrm = textureGrad(_texture_array_normal, vec3(ms_uv, float(id)), id_dd.xy * wc_ms_ratio, id_dd.zw * wc_ms_ratio);
+			alb = mix(alb, ms_alb, ms_w);
+			nrm = mix(nrm, ms_nrm, ms_w);
+		}
 		alb.rgb *= _texture_color_array[id].rgb;
 		nrm.a = clamp(nrm.a + _texture_roughness_mod_array[id], 0., 1.);
 		// Unpack and rotate normal map.

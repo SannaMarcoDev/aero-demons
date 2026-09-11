@@ -15,6 +15,16 @@ uniform float wc_blend_power : hint_range(0.5, 16.0) = 6.0;
 uniform float wc_warp_texels : hint_range(0.0, 1.0) = 0.6;
 uniform float wc_warp_scale : hint_range(5.0, 500.0) = 60.0;
 uniform float wc_colormap_strength : hint_range(0.0, 1.0) = 0.75;
+uniform float wc_detile_rot : hint_range(0.0, 1.0) = 0.2;
+uniform float wc_detile_shift : hint_range(0.0, 1.0) = 0.5;
+uniform float wc_uv_scale_mult : hint_range(0.05, 4.0) = 1.0;
+uniform float wc_uv_warp : hint_range(0.0, 60.0) = 3.0;
+uniform float wc_uv_warp_scale : hint_range(5.0, 4000.0) = 90.0;
+uniform float wc_ms_amount : hint_range(0.0, 1.0) = 0.0;
+uniform float wc_ms_ratio : hint_range(0.05, 8.0) = 2.4;
+uniform float wc_ms_mask_scale : hint_range(5.0, 8000.0) = 300.0;
+uniform float wc_ms_near : hint_range(0.0, 20000.0) = 0.0;
+uniform float wc_ms_far : hint_range(1.0, 40000.0) = 1.0;
 """
 const SNIPPET_WARP := """
 	vec2 uv_c = uv;
@@ -33,6 +43,34 @@ const SNIPPET_WARP := """
 	c_index[1] = get_index_coord(c_index_id + offsets.yy, FRAGMENT_PASS);
 	c_index[2] = get_index_coord(c_index_id + offsets.yx, FRAGMENT_PASS);
 	c_index[3] = get_index_coord(c_index_id + offsets.xx, FRAGMENT_PASS);
+"""
+# The two texture fetches inside each accumulate_material() texture block.
+const SNIPPET_SAMPLES := """
+		vec4 alb = textureGrad(_texture_array_albedo, vec3(id_uv, float(id)), id_dd.xy, id_dd.zw);
+		vec4 nrm = textureGrad(_texture_array_normal, vec3(id_uv, float(id)), id_dd.xy, id_dd.zw);
+"""
+const SNIPPET_SAMPLES_NEW := """
+		// wc anti-tile: continuous UV domain warp (world meters), no seams.
+		if (wc_uv_warp > 0.0) {
+			vec2 w_uv = v_vertex.xz / wc_uv_warp_scale;
+			vec2 w_off = vec2(
+				texture(noise_texture, w_uv).r,
+				texture(noise_texture, w_uv * 1.7 + vec2(0.31, 0.77)).r) - 0.5;
+			id_uv += w_off * (wc_uv_warp * id_scale);
+		}
+		vec4 alb = textureGrad(_texture_array_albedo, vec3(id_uv, float(id)), id_dd.xy, id_dd.zw);
+		vec4 nrm = textureGrad(_texture_array_normal, vec3(id_uv, float(id)), id_dd.xy, id_dd.zw);
+		// wc anti-tile: blend a second sample at an incommensurate scale.
+		if (wc_ms_amount > 0.0) {
+			float ms_m = texture(noise_texture, v_vertex.xz / wc_ms_mask_scale + vec2(0.53, 0.19)).r;
+			float ms_w = wc_ms_amount * smoothstep(0.25, 0.75, ms_m)
+				* smoothstep(wc_ms_near, wc_ms_far, v_vertex_xz_dist);
+			vec2 ms_uv = id_uv * wc_ms_ratio;
+			vec4 ms_alb = textureGrad(_texture_array_albedo, vec3(ms_uv, float(id)), id_dd.xy * wc_ms_ratio, id_dd.zw * wc_ms_ratio);
+			vec4 ms_nrm = textureGrad(_texture_array_normal, vec3(ms_uv, float(id)), id_dd.xy * wc_ms_ratio, id_dd.zw * wc_ms_ratio);
+			alb = mix(alb, ms_alb, ms_w);
+			nrm = mix(nrm, ms_nrm, ms_w);
+		}
 """
 
 func _initialize() -> void:
@@ -116,6 +154,11 @@ func _swap(haystack: String, pattern: String, replacement: String) -> String:
 	assert(haystack.count(pattern) == 1, "Pattern not unique in generated shader: " + pattern.left(60))
 	return haystack.replace(pattern, replacement)
 
+func _swap_all(haystack: String, pattern: String, replacement: String, expected: int) -> String:
+	assert(haystack.count(pattern) == expected,
+		"Pattern count %d != %d in generated shader: %s" % [haystack.count(pattern), expected, pattern.left(60)])
+	return haystack.replace(pattern, replacement)
+
 # Replaces index[/weights[ with c_index[/c_weights[ inside the slice bounded by
 # the two markers. Word boundaries keep t_weights[/index_normal[ intact.
 func _rewire_slice(code: String, start_marker: String, end_marker: String) -> String:
@@ -154,4 +197,13 @@ func make_override_code(code: String) -> String:
 	code = _swap(code, "weights_id_1 *= weights;", "weights_id_1 *= c_weights;")
 	code = _swap(code, "ALBEDO = mat.albedo_height.rgb * color_map.rgb * macrov;",
 		"ALBEDO = mat.albedo_height.rgb * mix(vec3(1.0), color_map.rgb, wc_colormap_strength) * macrov;")
+	# --- anti-tile extensions (defaults ship the reviewed ov_wd look) ---
+	# Global detile on top of any per-texture detile (WC assets ship 0/0).
+	code = _swap_all(code, "_texture_detile_array[id]",
+		"( _texture_detile_array[id] + vec2(wc_detile_rot, wc_detile_shift) )", 2)
+	# Global UV scale multiplier.
+	code = _swap_all(code, "float id_scale = _texture_uv_scale_array[id];",
+		"float id_scale = _texture_uv_scale_array[id] * wc_uv_scale_mult;", 2)
+	# UV domain warp + optional multiscale blend around the texture samples.
+	code = _swap_all(code, SNIPPET_SAMPLES.trim_prefix("\n"), SNIPPET_SAMPLES_NEW, 2)
 	return code

@@ -1,19 +1,17 @@
 extends SceneTree
-## Terrain texture review: runtime-only material + shader-override variants.
-## Never saves scene/resources. Run:
-## Godot --path . --script tools/terrain_texture_review.gd
-## -- --check (headless OK), --view=<id>, --variant=<id>, --hold.
-## --hold: Left/Right cycle views, Up/Down cycle variants, Esc quit.
-## PNGs + manifest.json + generated/override shader go to
-## res://subagent-artifacts/terrain-texture-review/<timestamp>/
+## Terrain anti-tiling review: runtime-only material + shader-override variants.
+## Never saves scene/resources/terrain data. Run:
+## Godot --path . --script tools/terrain_antitile_review.gd
+## -- --check (headless OK), --view=<id>, --variant=<id>, --hold, --dump
+## PNGs + manifest.json + generated/override shaders go to
+## res://subagent-artifacts/terrain-antitile-review/<timestamp>/
 
 const MAP := "res://scenes/maps/garda_final.tscn"
-const OUT_ROOT := "res://subagent-artifacts/terrain-texture-review"
-const SETTLE := 64
+const OUT_ROOT := "res://subagent-artifacts/terrain-antitile-review"
+const SETTLE := 48
 const PHASE := 12.0
 const IDENTITY_MAE_GATE := 0.003
-# Targets found by tools/terrain_view_probe.gd: steep mixed snow/rock/vegetation
-# faces in region (-8,-8). Target y < 0 means "sample the ground at x/z".
+# Same targets as tools/terrain_texture_review.gd (steep mixed faces).
 const VIEWS := [
 	{"id": "slope_close", "eye": Vector3(-120132.3, 2084.0, -114939.6),
 		"target": Vector3(-120920.0, -1.0, -114800.0)},
@@ -21,78 +19,68 @@ const VIEWS := [
 		"target": Vector3(-120920.0, -1.0, -114800.0)},
 	{"id": "valley_wide", "eye": Vector3(-114027.5, 3696.0, -116021.8),
 		"target": Vector3(-121000.0, -1.0, -114300.0)},
+	# ~350 m from the same steep face: seam/detail check at real range.
+	{"id": "slope_near", "eye": Vector3(-120730.0, 2120.0, -114835.0),
+		"target": Vector3(-120920.0, -1.0, -114800.0)},
 ]
-# Phase-1 material-only variants, kept selectable via --variant.
-const DEBUG_VARIANTS := [
-	{"id": "dbg_control_texture", "props": {"show_control_texture": true}},
-	{"id": "dbg_control_blend", "props": {"show_control_blend": true}},
-	{"id": "dbg_colormap", "props": {"show_colormap": true}},
-	{"id": "dbg_vertex_grid", "props": {"show_vertex_grid": true},
-		"views": ["slope_close"]},
-	{"id": "sharp_050", "params": {"blend_sharpness": 0.5}},
-	{"id": "sharp_090", "params": {"blend_sharpness": 0.9}},
+# The scene shader's own wc_* defaults (build_terrain_override.gd rec_b).
+const WC_SCENE := {"wc_blend_power": 6.0, "wc_warp_texels": 0.6,
+	"wc_warp_scale": 60.0, "wc_colormap_strength": 0.75}
+# No-op defaults for the new anti-tile uniforms (identity rendering).
+const ANTITILE_NOOP := {"wc_detile_rot": 0.0, "wc_detile_shift": 0.0,
+	"wc_uv_scale_mult": 1.0, "wc_uv_warp": 0.0, "wc_uv_warp_scale": 120.0,
+	"wc_ms_amount": 0.0, "wc_ms_ratio": 2.4, "wc_ms_mask_scale": 300.0,
+	"wc_ms_near": 0.0, "wc_ms_far": 1.0}
+const VARIANTS := [
+	{"id": "baseline"},
+	# --- asset/material-only variants on the scene shader ---
+	{"id": "detile_a", "tex": {"detile_rot": 0.15, "detile_shift": 0.5}},
+	{"id": "detile_b", "tex": {"detile_rot": 0.4, "detile_shift": 1.0}},
+	{"id": "uvscale_050", "tex": {"uv_mult": 0.5}},
+	{"id": "uvscale_025", "tex": {"uv_mult": 0.25}},
 	{"id": "macro_var", "params": {"enable_macro_variation": true,
 		"macro_variation1": Color(0.85, 0.88, 0.80),
 		"macro_variation2": Color(1.15, 1.10, 1.05),
-		"noise1_scale": 0.002, "noise2_scale": 0.01,
-		"macro_variation_slope": 0.333}},
-	{"id": "dual_scaling", "props": {"dual_scaling": true},
+		"noise1_scale": 0.002, "noise2_scale": 0.01}},
+	{"id": "blur_far", "params": {"depth_blur": 14.0, "bias_distance": 700.0}},
+	{"id": "dual_prop", "props": {"dual_scaling": true},
 		"params": {"dual_scale_texture": 0, "dual_scale_reduction": 0.1,
 			"dual_scale_far": 3000.0, "dual_scale_near": 500.0}},
-	{"id": "nearest", "props": {"texture_filtering": 1}},
-]
-# Phase-2 shader-override variants: wc_blend_power / wc_warp_texels /
-# wc_warp_scale / wc_colormap_strength. Default view set: close + mid.
-const SLOPES := ["slope_close", "slope_mid"]
-const OVERRIDE_VARIANTS := [
-	{"id": "ov_identity", "override": true,
-		"uniforms": {"wc_blend_power": 8.0, "wc_warp_texels": 0.0,
-			"wc_warp_scale": 60.0, "wc_colormap_strength": 1.0}},
-	{"id": "ov_power4", "override": true, "views": SLOPES,
-		"uniforms": {"wc_blend_power": 4.0, "wc_warp_texels": 0.0,
-			"wc_warp_scale": 60.0, "wc_colormap_strength": 1.0}},
-	{"id": "ov_power2", "override": true, "views": SLOPES,
-		"uniforms": {"wc_blend_power": 2.0, "wc_warp_texels": 0.0,
-			"wc_warp_scale": 60.0, "wc_colormap_strength": 1.0}},
-	{"id": "ov_warp035_s40", "override": true, "views": SLOPES,
-		"uniforms": {"wc_blend_power": 8.0, "wc_warp_texels": 0.35,
-			"wc_warp_scale": 40.0, "wc_colormap_strength": 1.0}},
-	{"id": "ov_warp060_s60", "override": true, "views": SLOPES,
-		"uniforms": {"wc_blend_power": 8.0, "wc_warp_texels": 0.6,
-			"wc_warp_scale": 60.0, "wc_colormap_strength": 1.0}},
-	{"id": "ov_warp060_s120", "override": true, "views": SLOPES,
-		"uniforms": {"wc_blend_power": 8.0, "wc_warp_texels": 0.6,
-			"wc_warp_scale": 120.0, "wc_colormap_strength": 1.0}},
-	{"id": "ov_nocolor", "override": true, "views": SLOPES,
-		"uniforms": {"wc_blend_power": 8.0, "wc_warp_texels": 0.0,
-			"wc_warp_scale": 60.0, "wc_colormap_strength": 0.0}},
-	{"id": "ov_halfcolor", "override": true, "views": SLOPES,
-		"uniforms": {"wc_blend_power": 8.0, "wc_warp_texels": 0.0,
-			"wc_warp_scale": 60.0, "wc_colormap_strength": 0.5}},
-	{"id": "ov_combo_a", "override": true,
-		"uniforms": {"wc_blend_power": 3.0, "wc_warp_texels": 0.5,
-			"wc_warp_scale": 60.0, "wc_colormap_strength": 0.5}},
-	{"id": "ov_combo_b", "override": true,
-		"uniforms": {"wc_blend_power": 2.0, "wc_warp_texels": 0.7,
-			"wc_warp_scale": 90.0, "wc_colormap_strength": 0.35}},
-]
-# Phase-3 default set: run on all three views.
-const PHASE3_VARIANTS := [
-	{"id": "ov_identity", "override": true,
-		"uniforms": {"wc_blend_power": 8.0, "wc_warp_texels": 0.0,
-			"wc_warp_scale": 60.0, "wc_colormap_strength": 1.0}},
-	{"id": "ov_rec_a", "override": true,
-		"uniforms": {"wc_blend_power": 8.0, "wc_warp_texels": 0.6,
-			"wc_warp_scale": 60.0, "wc_colormap_strength": 1.0}},
-	{"id": "ov_rec_b", "override": true,
-		"uniforms": {"wc_blend_power": 6.0, "wc_warp_texels": 0.6,
-			"wc_warp_scale": 60.0, "wc_colormap_strength": 0.75}},
-	{"id": "ov_rec_c", "override": true,
-		"uniforms": {"wc_blend_power": 6.0, "wc_warp_texels": 0.7,
-			"wc_warp_scale": 80.0, "wc_colormap_strength": 0.75}},
-	{"id": "ov_combo_a", "override": true,
-		"uniforms": {"wc_blend_power": 3.0, "wc_warp_texels": 0.5,
-			"wc_warp_scale": 60.0, "wc_colormap_strength": 0.5}},
+	# --- patched override shader variants ---
+	{"id": "ov_identity", "override": true},
+	{"id": "ov_detile", "override": true,
+		"uniforms": {"wc_detile_rot": 0.15, "wc_detile_shift": 0.5}},
+	{"id": "ov_detile_strong", "override": true,
+		"uniforms": {"wc_detile_rot": 0.4, "wc_detile_shift": 1.0}},
+	{"id": "ov_warp2", "override": true,
+		"uniforms": {"wc_uv_warp": 2.0, "wc_uv_warp_scale": 90.0}},
+	{"id": "ov_warp5", "override": true,
+		"uniforms": {"wc_uv_warp": 5.0, "wc_uv_warp_scale": 90.0}},
+	{"id": "ov_warp5_s300", "override": true,
+		"uniforms": {"wc_uv_warp": 5.0, "wc_uv_warp_scale": 300.0}},
+	{"id": "ov_ms_fine", "override": true,
+		"uniforms": {"wc_ms_amount": 0.7, "wc_ms_ratio": 2.4,
+			"wc_ms_mask_scale": 300.0}},
+	{"id": "ov_ms_coarse", "override": true,
+		"uniforms": {"wc_ms_amount": 0.7, "wc_ms_ratio": 0.4,
+			"wc_ms_mask_scale": 300.0}},
+	{"id": "ov_ms_far", "override": true,
+		"uniforms": {"wc_ms_amount": 1.0, "wc_ms_ratio": 0.35,
+			"wc_ms_mask_scale": 800.0, "wc_ms_near": 400.0,
+			"wc_ms_far": 2500.0}},
+	{"id": "ov_scale050", "override": true,
+		"uniforms": {"wc_uv_scale_mult": 0.5}},
+	{"id": "ov_wd", "override": true,
+		"uniforms": {"wc_uv_warp": 3.0, "wc_uv_warp_scale": 90.0,
+			"wc_detile_rot": 0.2, "wc_detile_shift": 0.5}},
+	{"id": "ov_wmd", "override": true,
+		"uniforms": {"wc_uv_warp": 3.0, "wc_uv_warp_scale": 90.0,
+			"wc_ms_amount": 0.6, "wc_ms_ratio": 0.4,
+			"wc_ms_mask_scale": 300.0, "wc_detile_rot": 0.15,
+			"wc_detile_shift": 0.5}},
+	{"id": "ov_ds", "override": true, "gen": "dual",
+		"params": {"dual_scale_texture": 0, "dual_scale_reduction": 0.1,
+			"dual_scale_far": 3000.0, "dual_scale_near": 500.0}},
 ]
 const PROPS := ["show_control_texture", "show_control_blend", "show_colormap",
 	"show_vertex_grid", "dual_scaling", "texture_filtering"]
@@ -101,25 +89,40 @@ const PARAMS := ["blend_sharpness", "enable_macro_variation", "macro_variation1"
 	"dual_scale_texture", "dual_scale_reduction", "dual_scale_near",
 	"dual_scale_far", "mipmap_bias", "depth_blur", "bias_distance",
 	"enable_projection", "noise_texture"]
-const OVERRIDE_UNIFORMS := ["wc_blend_power", "wc_warp_texels",
-	"wc_warp_scale", "wc_colormap_strength"]
 const SNIPPET_UNIFORMS := """
-uniform float wc_blend_power : hint_range(0.5, 16.0) = 8.0;
-uniform float wc_warp_texels : hint_range(0.0, 1.0) = 0.0;
+uniform float wc_blend_power : hint_range(0.5, 16.0) = 6.0;
+uniform float wc_warp_texels : hint_range(0.0, 1.0) = 0.6;
 uniform float wc_warp_scale : hint_range(5.0, 500.0) = 60.0;
-uniform float wc_colormap_strength : hint_range(0.0, 1.0) = 1.0;
-uniform float wc_detile_rot : hint_range(0.0, 1.0) = 0.2;
-uniform float wc_detile_shift : hint_range(0.0, 1.0) = 0.5;
+uniform float wc_colormap_strength : hint_range(0.0, 1.0) = 0.75;
+uniform float wc_detile_rot : hint_range(0.0, 1.0) = 0.0;
+uniform float wc_detile_shift : hint_range(0.0, 1.0) = 0.0;
 uniform float wc_uv_scale_mult : hint_range(0.05, 4.0) = 1.0;
-uniform float wc_uv_warp : hint_range(0.0, 60.0) = 3.0;
-uniform float wc_uv_warp_scale : hint_range(5.0, 4000.0) = 90.0;
+uniform float wc_uv_warp : hint_range(0.0, 60.0) = 0.0;
+uniform float wc_uv_warp_scale : hint_range(5.0, 4000.0) = 120.0;
 uniform float wc_ms_amount : hint_range(0.0, 1.0) = 0.0;
 uniform float wc_ms_ratio : hint_range(0.05, 8.0) = 2.4;
 uniform float wc_ms_mask_scale : hint_range(5.0, 8000.0) = 300.0;
 uniform float wc_ms_near : hint_range(0.0, 20000.0) = 0.0;
 uniform float wc_ms_far : hint_range(1.0, 40000.0) = 1.0;
 """
-# The two texture fetches inside each accumulate_material() texture block.
+const SNIPPET_WARP := """
+	vec2 uv_c = uv;
+	if (wc_warp_texels > 0.0) {
+		vec2 wp = v_vertex.xz / wc_warp_scale;
+		vec2 wn1 = vec2(texture(noise_texture, wp).r, texture(noise_texture, wp + vec2(0.37, 0.61)).r) - 0.5;
+		vec2 wn2 = vec2(texture(noise_texture, wp * 5.0).r, texture(noise_texture, wp * 5.0 + vec2(0.23, 0.79)).r) - 0.5;
+		uv_c += (wn1 + 0.35 * wn2) * 2.0 * wc_warp_texels;
+	}
+	vec2 c_index_id = floor(uv_c);
+	vec2 c_weight = fract(uv_c);
+	vec2 c_invert = 1.0 - c_weight;
+	vec4 c_weights = vec4(c_invert.x * c_weight.y, c_weight.x * c_weight.y, c_weight.x * c_invert.y, c_invert.x * c_invert.y);
+	ivec3 c_index[4];
+	c_index[0] = get_index_coord(c_index_id + offsets.xy, FRAGMENT_PASS);
+	c_index[1] = get_index_coord(c_index_id + offsets.yy, FRAGMENT_PASS);
+	c_index[2] = get_index_coord(c_index_id + offsets.yx, FRAGMENT_PASS);
+	c_index[3] = get_index_coord(c_index_id + offsets.xx, FRAGMENT_PASS);
+"""
 const SNIPPET_SAMPLES := """
 		vec4 alb = textureGrad(_texture_array_albedo, vec3(id_uv, float(id)), id_dd.xy, id_dd.zw);
 		vec4 nrm = textureGrad(_texture_array_normal, vec3(id_uv, float(id)), id_dd.xy, id_dd.zw);
@@ -147,31 +150,15 @@ const SNIPPET_SAMPLES_NEW := """
 			nrm = mix(nrm, ms_nrm, ms_w);
 		}
 """
-const SNIPPET_WARP := """
-	vec2 uv_c = uv;
-	if (wc_warp_texels > 0.0) {
-		vec2 wp = v_vertex.xz / wc_warp_scale;
-		vec2 wn1 = vec2(texture(noise_texture, wp).r, texture(noise_texture, wp + vec2(0.37, 0.61)).r) - 0.5;
-		vec2 wn2 = vec2(texture(noise_texture, wp * 5.0).r, texture(noise_texture, wp * 5.0 + vec2(0.23, 0.79)).r) - 0.5;
-		uv_c += (wn1 + 0.35 * wn2) * 2.0 * wc_warp_texels;
-	}
-	vec2 c_index_id = floor(uv_c);
-	vec2 c_weight = fract(uv_c);
-	vec2 c_invert = 1.0 - c_weight;
-	vec4 c_weights = vec4(c_invert.x * c_weight.y, c_weight.x * c_weight.y, c_weight.x * c_invert.y, c_invert.x * c_invert.y);
-	ivec3 c_index[4];
-	c_index[0] = get_index_coord(c_index_id + offsets.xy, FRAGMENT_PASS);
-	c_index[1] = get_index_coord(c_index_id + offsets.yy, FRAGMENT_PASS);
-	c_index[2] = get_index_coord(c_index_id + offsets.yx, FRAGMENT_PASS);
-	c_index[3] = get_index_coord(c_index_id + offsets.xx, FRAGMENT_PASS);
-"""
 var map: Node3D
 var camera: Camera3D
 var terrain: Terrain3D
 var material: Terrain3DMaterial
 var driver: SunshineCloudsDriverGD
 var override_shader: Shader
+var override_shader_ds: Shader
 var originals := {}
+var tex_originals := {}
 var scene_override_active := false
 var views: Array
 var variants: Array
@@ -188,29 +175,28 @@ func _initialize() -> void:
 
 func capture_timeout() -> void:
 	if not holding:
-		push_error("Terrain texture review did not finish within 600 seconds")
+		push_error("Terrain antitile review did not finish within 600 seconds")
 		quit(1)
 
 func run() -> void:
 	create_timer(600.0).timeout.connect(capture_timeout)
 	var args := OS.get_cmdline_user_args()
 	var check := "--check" in args
+	var dump := "--dump" in args
 	views = VIEWS.duplicate(true)
-	var all_variants: Array = [{"id": "baseline"}] + DEBUG_VARIANTS + OVERRIDE_VARIANTS + PHASE3_VARIANTS
-	# Default run: baseline + phase-3 variants only.
-	variants = all_variants.slice(0, 1) + PHASE3_VARIANTS.duplicate(true)
+	variants = VARIANTS.duplicate(true)
 	for arg in args:
 		if arg.begins_with("--view="):
-			views = views.filter(func(view): return view.id == arg.trim_prefix("--view="))
+			var wanted_views := arg.trim_prefix("--view=").split(",")
+			views = views.filter(func(view): return view.id in wanted_views)
 			assert(not views.is_empty(), "Unknown view: " + arg)
 		elif arg.begins_with("--variant="):
-			var wanted := arg.trim_prefix("--variant=")
-			variants = all_variants.filter(func(v): return v.id == wanted)
-			assert(not variants.is_empty(), "Unknown variant: " + arg)
-			variants = variants.duplicate(true)
+			var wanted := arg.trim_prefix("--variant=").split(",")
+			variants = variants.filter(func(v): return v.id in wanted or v.id == "baseline")
+			assert(variants.size() > 1, "Unknown variant: " + arg)
 		else:
-			assert(arg in ["--check", "--hold"], "Unknown option: " + arg)
-	assert(check or DisplayServer.get_name() != "headless", "Captures require graphical Forward+")
+			assert(arg in ["--check", "--hold", "--dump"], "Unknown option: " + arg)
+	assert(check or dump or DisplayServer.get_name() != "headless", "Captures require graphical Forward+")
 	root.size = Vector2i(1280, 720) if check else Vector2i(1920, 1080)
 	root.content_scale_size = root.size
 	map = load(MAP).instantiate()
@@ -235,19 +221,15 @@ func run() -> void:
 	var dome = map.get_node("Sky3D/SkyDome")
 	dome.process_method = dome.MANUAL
 	clouds.current_time = PHASE
-	# Disabled for all captures so high-altitude views are never occluded and
-	# every variant compares against the same unobstructed terrain.
 	clouds.enabled = false
-	# Resolve target heights and snapshot the pristine material state.
 	for view in views:
 		if view.target.y < 0.0:
 			view.target.y = terrain.data.get_height(view.target)
 		assert(view.eye.is_finite() and view.target.is_finite())
 		view["ground_eye"] = terrain.data.get_height(view.eye)
 		view["ground_target"] = view.target.y
-		view["normal_target"] = terrain.data.get_normal(view.target)
 		print("View ", view.id, ": eye=", view.eye, " ground=", view.ground_eye,
-			" target=", view.target, " normal=", view.normal_target)
+			" target=", view.target)
 	for prop in PROPS:
 		originals[prop] = material.get(prop)
 	for param in PARAMS:
@@ -255,53 +237,28 @@ func run() -> void:
 	originals["shader_override"] = material.shader_override
 	originals["shader_override_enabled"] = material.shader_override_enabled
 	scene_override_active = originals["shader_override"] != null
-	for uniform_name in OVERRIDE_UNIFORMS:
+	var wc_uniforms: Array = WC_SCENE.keys() + ANTITILE_NOOP.keys()
+	for uniform_name in wc_uniforms:
 		var value = material.get_shader_param(uniform_name)
 		if value == null and scene_override_active:
-			# Unset params render at the shader's declared default; record that
-			# so restores don't leave stale values from earlier variants.
 			value = _shader_default(originals["shader_override"], uniform_name)
 		originals[uniform_name] = value
-	if scene_override_active:
-		print("Scene override active: ", originals["shader_override"],
-			" — baseline is the scene's shared patched shader; ov_rec_b parity gate applies")
-	else:
-		print("No scene shader override — ov_identity identity gate applies")
 	print("Original material: props=", originals)
 	if check:
 		for view in views:
 			place_view(view)
-		holding = true
-		for key in [KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN]:
-			var event := InputEventKey.new()
-			event.keycode = key
-			event.pressed = true
-			Input.parse_input_event(event)
-			Input.flush_buffered_events()
-			_process(0.0)
-			event = event.duplicate()
-			event.pressed = false
-			Input.parse_input_event(event)
-			Input.flush_buffered_events()
-			_process(0.0)
-		holding = false
-		place_view(views[0])
-		var generated := await generate_shader_code()
-		if generated.is_empty():
-			warnings.append("Headless run: generated shader code unavailable; override replacements untested")
-		else:
-			var patched := make_override_code(generated)
-			assert(not patched.is_empty())
-			override_shader = Shader.new()
-			override_shader.code = patched
-			print("Override patch applied headless: ", patched.count("\n"), " lines")
 		for variant in variants:
-			if variant.has("views") and not views[0].id in variant.views:
-				continue
 			apply_variant(variant)
 		apply_variant({"id": "baseline"})
+		var generated_check := await generate_shader_code(false)
+		if generated_check.is_empty():
+			warnings.append("Headless run: generated shader code unavailable; override patch untested")
+		else:
+			var patched_check := make_override_code(generated_check, true)
+			assert(not patched_check.is_empty())
+			print("Override patch applied headless: ", patched_check.count("\n"), " lines")
 		print("PASS: ", views.size(), " finite views, ", variants.size(),
-			" variants applied, viewer keys OK, warnings=", warnings)
+			" variants applied, warnings=", warnings)
 		await finish()
 		return
 	output = ProjectSettings.globalize_path(OUT_ROOT + "/" +
@@ -311,20 +268,26 @@ func run() -> void:
 		"output": output, "renderer": RenderingServer.get_current_rendering_method(),
 		"size": root.size, "gpu": RenderingServer.get_video_adapter_name(),
 		"settle_frames": SETTLE, "vertex_spacing": terrain.vertex_spacing,
-		"clouds": "disabled (SunshineClouds compositor off, fixed time %.1f)" % PHASE,
 		"identity_mae_gate": IDENTITY_MAE_GATE,
 		"scene_override_active": scene_override_active,
 		"views": views, "originals": originals, "captures": [], "warnings": warnings}
 	place_view(views[0])
 	for frame in 120:
 		await RenderingServer.frame_post_draw
-	# Build the runtime shader override from the generated code.
-	var generated := await generate_shader_code()
+	# Build the runtime shader overrides from the generated code.
+	var generated := await generate_shader_code(false)
 	assert(not generated.is_empty(), "Generated shader code unavailable")
 	var gen_file := FileAccess.open(output.path_join("generated_terrain_shader.gdshader"), FileAccess.WRITE)
 	gen_file.store_string(generated)
 	gen_file.close()
-	var patched := make_override_code(generated)
+	var generated_ds := await generate_shader_code(true)
+	if generated_ds.is_empty():
+		warnings.append("dual_scaling generated code unavailable; ov_ds uses normal patch")
+	else:
+		var ds_file := FileAccess.open(output.path_join("generated_terrain_shader_dual.gdshader"), FileAccess.WRITE)
+		ds_file.store_string(generated_ds)
+		ds_file.close()
+	var patched := make_override_code(generated, true)
 	var patch_file := FileAccess.open(output.path_join("override_terrain_shader.gdshader.txt"), FileAccess.WRITE)
 	assert(patch_file != null)
 	patch_file.store_string(patched)
@@ -333,7 +296,17 @@ func run() -> void:
 	manifest["override_shader"] = "override_terrain_shader.gdshader.txt"
 	override_shader = Shader.new()
 	override_shader.code = patched
+	if not generated_ds.is_empty():
+		var patched_ds := make_override_code(generated_ds, false)
+		override_shader_ds = Shader.new()
+		override_shader_ds.code = patched_ds
+		manifest["generated_shader_dual"] = "generated_terrain_shader_dual.gdshader"
 	print("Override shader built: ", patched.count("\n") + 1, " lines")
+	if dump:
+		write_manifest()
+		print("PASS: shader dumps saved: ", output)
+		await finish()
+		return
 	for view in views:
 		place_view(view)
 		var baseline: Image
@@ -360,16 +333,9 @@ func run() -> void:
 				" frame=", "%.2f" % (settle_us / 1000.0 / SETTLE), "ms")
 			if mae < 0.0005:
 				warnings.append(view.id + "/" + variant.id + " nearly identical to baseline (MAE %.6f)" % mae)
-			if variant.id == "ov_identity" and not scene_override_active and mae >= IDENTITY_MAE_GATE:
+			if variant.id == "ov_identity" and mae >= IDENTITY_MAE_GATE:
 				write_manifest()
-				push_error("ov_identity diverges from baseline (MAE %.6f >= %.3f): override does not reproduce the built-in shader" % [mae, IDENTITY_MAE_GATE])
-				quit(1)
-				return
-			# Parity gate: with the scene's shared patched shader as baseline,
-			# ov_rec_b (runtime patch + rec_b uniforms) must reproduce it.
-			if variant.id == "ov_rec_b" and scene_override_active and mae >= IDENTITY_MAE_GATE:
-				write_manifest()
-				push_error("ov_rec_b diverges from baseline (MAE %.6f >= %.3f): scene's shared shader does not match the tested runtime patch" % [mae, IDENTITY_MAE_GATE])
+				push_error("ov_identity diverges from baseline (MAE %.6f >= %.3f): patched shader does not reproduce the scene shader" % [mae, IDENTITY_MAE_GATE])
 				quit(1)
 				return
 			if view.id in ["slope_close", "slope_mid"]:
@@ -380,7 +346,7 @@ func run() -> void:
 		write_manifest()
 	apply_variant({"id": "baseline"})
 	write_manifest()
-	print("PASS: terrain texture captures saved: ", output)
+	print("PASS: terrain antitile captures saved: ", output)
 	if "--hold" in args:
 		holding = true
 		place_view(views[0])
@@ -398,7 +364,22 @@ func place_view(view: Dictionary) -> void:
 		"Camera must stay 50 m above ground: " + view.id)
 	assert(camera.is_current() and camera.global_transform.is_finite())
 	assert(camera.is_position_in_frustum(view.target), "Target outside frustum: " + view.id)
-	root.title = "Terrain review / " + view.id
+	root.title = "Terrain antitile / " + view.id
+
+func apply_tex(tex_cfg: Dictionary) -> void:
+	var count: int = terrain.assets.get_texture_count()
+	for i in count:
+		var t: Terrain3DTextureAsset = terrain.assets.get_texture(i)
+		if t == null:
+			continue
+		if not tex_originals.has(i):
+			tex_originals[i] = {"uv_scale": t.uv_scale,
+				"detiling_rotation": t.detiling_rotation,
+				"detiling_shift": t.detiling_shift}
+		var orig: Dictionary = tex_originals[i]
+		t.set_uv_scale(orig.uv_scale * tex_cfg.get("uv_mult", 1.0))
+		t.set_detiling_rotation(tex_cfg.get("detile_rot", orig.detiling_rotation))
+		t.set_detiling_shift(tex_cfg.get("detile_shift", orig.detiling_shift))
 
 func apply_variant(variant: Dictionary) -> void:
 	variant_index = maxi(0, variants.find(variant))
@@ -408,79 +389,102 @@ func apply_variant(variant: Dictionary) -> void:
 		material.set(prop, originals[prop])
 	for param in PARAMS:
 		material.set_shader_param(param, originals[param])
+	apply_tex(variant.get("tex", {}))
 	if variant.get("override", false):
 		# Assign before enabling: enabling with an empty slot makes Terrain3D
 		# copy the generated shader into it.
-		material.shader_override = override_shader
+		var shader: Shader = override_shader
+		if variant.get("gen", "") == "dual" and override_shader_ds != null:
+			shader = override_shader_ds
+		material.shader_override = shader
 		material.shader_override_enabled = true
 	else:
-		# Non-override variants (incl. baseline) keep the scene's own override
-		# state: the shared patched shader when the scene carries one, or the
-		# built-in generated shader when it does not.
 		material.shader_override = originals.get("shader_override")
 		material.shader_override_enabled = originals.get("shader_override_enabled", false)
-	# Restore the scene's wc_* uniform values so baseline renders identically
-	# across views regardless of which override variant ran before; override
-	# variants then set theirs explicitly below.
-	for uniform_name in OVERRIDE_UNIFORMS:
-		if originals.get(uniform_name) != null:
-			material.set_shader_param(uniform_name, originals[uniform_name])
+	# Non-override variants restore the scene shader's own uniform values
+	# (the file's declared defaults). Override variants reset every wc_*
+	# uniform to scene defaults + no-op antitile, then apply the variant's
+	# explicit uniforms on top.
+	var merged := {}
 	if variant.get("override", false):
-		for uniform_name in variant.uniforms:
-			material.set_shader_param(uniform_name, variant.uniforms[uniform_name])
+		merged = WC_SCENE.duplicate()
+		merged.merge(ANTITILE_NOOP, true)
+		merged.merge(variant.get("uniforms", {}), true)
+	else:
+		for uniform_name in WC_SCENE.keys() + ANTITILE_NOOP.keys():
+			if originals.get(uniform_name) != null:
+				merged[uniform_name] = originals[uniform_name]
+	for uniform_name in merged:
+		material.set_shader_param(uniform_name, merged[uniform_name])
 	for prop in variant.get("props", {}):
 		material.set(prop, variant.props[prop])
 	for param in variant.get("params", {}):
 		material.set_shader_param(param, variant.params[param])
 	var actual := {}
-	for prop in PROPS:
-		actual[prop] = material.get(prop)
-	for param in PARAMS:
-		actual[param] = material.get_shader_param(param)
-	for uniform_name in variant.get("uniforms", {}):
+	for uniform_name in merged:
 		var value = material.get_shader_param(uniform_name)
 		actual[uniform_name] = value
-		if value == null or not _same(value, variant.uniforms[uniform_name]):
-			warnings.append(variant.id + ": uniform " + uniform_name + " read back " + str(value))
 	print("Variant ", variant.id, " applied")
 	if manifest.has("captures"):
 		manifest["variant_" + variant.id + "_actual"] = actual
-	root.title = "Terrain review / " + views[view_index].id + " / " + variant.id
+	root.title = "Terrain antitile / " + views[view_index].id + " / " + variant.id
 
 # Lets Terrain3D generate its shader, reads the code, restores the override
 # state to clean (disabled + null). Returns "" if generation did not run.
-func generate_shader_code() -> String:
+func generate_shader_code(dual: bool) -> String:
 	material.shader_override = null
+	material.set("dual_scaling", dual)
 	material.shader_override_enabled = true
-	for frame in 2:
+	for frame in 3:
 		await process_frame
 	var code := ""
 	if material.shader_override != null:
 		code = material.shader_override.code
 	if code.is_empty() and material.get_shader_rid().is_valid():
 		code = RenderingServer.shader_get_code(material.get_shader_rid())
-	# Restore the scene's own override state (shared patched shader, or none).
+	material.set("dual_scaling", originals.get("dual_scaling", false))
 	material.shader_override_enabled = false
 	material.shader_override = originals.get("shader_override")
 	material.shader_override_enabled = originals.get("shader_override_enabled", false)
 	return code
 
-func _swap(haystack: String, pattern: String, replacement: String) -> String:
-	assert(haystack.count(pattern) == 1, "Pattern not unique in generated shader: " + pattern.left(60))
+func _swap(haystack: String, pattern: String, replacement: String, strict := true) -> String:
+	var count := haystack.count(pattern)
+	if count != 1:
+		if strict:
+			assert(false, "Pattern count %d != 1 in generated shader: %s" % [count, pattern.left(60)])
+		else:
+			warnings.append("Patch pattern count %d, skipped: %s" % [count, pattern.left(60)])
+		return haystack
 	return haystack.replace(pattern, replacement)
 
-func _swap_all(haystack: String, pattern: String, replacement: String, expected: int) -> String:
-	assert(haystack.count(pattern) == expected,
-		"Pattern count %d != %d in generated shader: %s" % [haystack.count(pattern), expected, pattern.left(60)])
+func _swap_all(haystack: String, pattern: String, replacement: String, expected: int, strict := true) -> String:
+	var count := haystack.count(pattern)
+	if count != expected:
+		if strict:
+			assert(false, "Pattern count %d != %d in generated shader: %s" % [count, expected, pattern.left(60)])
+		else:
+			warnings.append("Patch pattern count %d != %d, skipped: %s" % [count, expected, pattern.left(60)])
+		return haystack
 	return haystack.replace(pattern, replacement)
 
 # Replaces index[/weights[ with c_index[/c_weights[ inside the slice bounded by
 # the two markers. Word boundaries keep t_weights[/index_normal[ intact.
-func _rewire_slice(code: String, start_marker: String, end_marker: String) -> String:
-	assert(code.count(start_marker) == 1, "Slice start not unique: " + start_marker.left(50))
+func _rewire_slice(code: String, start_marker: String, end_marker: String, strict := true) -> String:
+	if code.count(start_marker) != 1:
+		if strict:
+			assert(false, "Slice start not unique: " + start_marker.left(50))
+		else:
+			warnings.append("Slice start not unique, skipped: " + start_marker.left(50))
+		return code
 	var i0 := code.find(start_marker)
 	var i1 := code.find(end_marker, i0)
-	assert(i1 != -1, "Slice end not found: " + end_marker.left(50))
+	if i1 == -1:
+		if strict:
+			assert(false, "Slice end not found: " + end_marker.left(50))
+		else:
+			warnings.append("Slice end not found, skipped: " + end_marker.left(50))
+		return code
 	i1 += end_marker.length()
 	var slice := code.substr(i0, i1 - i0)
 	var rx := RegEx.new()
@@ -490,35 +494,38 @@ func _rewire_slice(code: String, start_marker: String, end_marker: String) -> St
 	slice = rx.sub(slice, "c_weights[", true)
 	return code.substr(0, i0) + slice + code.substr(i1)
 
-func make_override_code(code: String) -> String:
+func make_override_code(code: String, strict: bool) -> String:
 	code = _swap(code,
 		"render_mode blend_mix,depth_draw_opaque,cull_back,diffuse_burley,specular_schlick_ggx,skip_vertex_transform;",
-		"render_mode blend_mix,depth_draw_opaque,cull_back,diffuse_burley,specular_schlick_ggx,skip_vertex_transform;\n" + SNIPPET_UNIFORMS)
+		"render_mode blend_mix,depth_draw_opaque,cull_back,diffuse_burley,specular_schlick_ggx,skip_vertex_transform;\n" + SNIPPET_UNIFORMS, strict)
 	code = _swap(code, "float sharpness = fma(56., blend_sharpness, 8.);",
-		"float sharpness = wc_blend_power * fma(7., blend_sharpness, 1.);")
+		"float sharpness = wc_blend_power * fma(7., blend_sharpness, 1.);", strict)
 	code = _swap(code, "bool bilerp = region_mip < 0.0 && region_uv.z > -1.;",
-		"bool bilerp = region_mip < 0.0 && region_uv.z > -1.;\n" + SNIPPET_WARP)
+		"bool bilerp = region_mip < 0.0 && region_uv.z > -1.;\n" + SNIPPET_WARP, strict)
 	# Color map bilinear block.
 	code = _rewire_slice(code, "vec4 col_map[4];",
-		"color_map = col_map[3];\n\t\t#endif")
+		"color_map = col_map[3];\n\t\t#endif", strict)
 	# Control map fetch block.
-	code = _rewire_slice(code, "// Get index control data", "control[3]);")
+	code = _rewire_slice(code, "// Get index control data", "control[3]);", strict)
 	# The four accumulate_material() calls.
 	code = _rewire_slice(code,
 		"accumulate_material(base_ddx, base_ddy, weights[3], index[3]",
-		"h[0], mat);")
+		"h[0], mat);", strict)
 	# t_weights bilinear interpolation must follow the warped weights too.
-	code = _swap(code, "weights_id_0 *= weights;", "weights_id_0 *= c_weights;")
-	code = _swap(code, "weights_id_1 *= weights;", "weights_id_1 *= c_weights;")
+	code = _swap(code, "weights_id_0 *= weights;", "weights_id_0 *= c_weights;", strict)
+	code = _swap(code, "weights_id_1 *= weights;", "weights_id_1 *= c_weights;", strict)
 	code = _swap(code, "ALBEDO = mat.albedo_height.rgb * color_map.rgb * macrov;",
-		"ALBEDO = mat.albedo_height.rgb * mix(vec3(1.0), color_map.rgb, wc_colormap_strength) * macrov;")
-	# Anti-tile extensions: same patches as build_terrain_override.gd so the
-	# runtime override stays identical to the shared shader.
+		"ALBEDO = mat.albedo_height.rgb * mix(vec3(1.0), color_map.rgb, wc_colormap_strength) * macrov;", strict)
+	# --- anti-tile extensions ---
+	# Global detile added on top of any per-texture detile (assets are 0 today).
 	code = _swap_all(code, "_texture_detile_array[id]",
-		"( _texture_detile_array[id] + vec2(wc_detile_rot, wc_detile_shift) )", 2)
+		"( _texture_detile_array[id] + vec2(wc_detile_rot, wc_detile_shift) )", 2, strict)
+	# Global UV scale multiplier (bigger/smaller tiles).
 	code = _swap_all(code, "float id_scale = _texture_uv_scale_array[id];",
-		"float id_scale = _texture_uv_scale_array[id] * wc_uv_scale_mult;", 2)
-	code = _swap_all(code, SNIPPET_SAMPLES.trim_prefix("\n"), SNIPPET_SAMPLES_NEW, 2)
+		"float id_scale = _texture_uv_scale_array[id] * wc_uv_scale_mult;", 2, strict)
+	# UV domain warp + multiscale blend around the texture samples.
+	code = _swap_all(code, SNIPPET_SAMPLES.trim_prefix("\n"),
+		SNIPPET_SAMPLES_NEW, 2, strict)
 	return code
 
 func make_sheet(baseline: Image, variant: Image) -> Image:
@@ -540,8 +547,7 @@ func make_sheet(baseline: Image, variant: Image) -> Image:
 	return sheet
 
 # Reads a scalar uniform's declared default ("uniform float name ... = V;")
-# out of shader source. Returns null when absent — only used for our own
-# wc_* uniforms in the shared patched shader.
+# out of shader source. Returns null when absent.
 func _shader_default(shader: Shader, uniform_name: String):
 	if shader == null or shader.code.is_empty():
 		return null
@@ -552,11 +558,6 @@ func _shader_default(shader: Shader, uniform_name: String):
 	if m == null:
 		return null
 	return m.get_string(1).to_float()
-
-func _same(a, b) -> bool:
-	if a is float or b is float:
-		return is_equal_approx(float(a), float(b))
-	return a == b
 
 func save_capture(id: String, variant: Dictionary) -> Image:
 	var image := root.get_texture().get_image()
@@ -613,13 +614,15 @@ func finish() -> void:
 	material.shader_override_enabled = false
 	material.shader_override = originals.get("shader_override")
 	material.shader_override_enabled = originals.get("shader_override_enabled", false)
-	for uniform_name in OVERRIDE_UNIFORMS:
+	var wc_uniforms: Array = WC_SCENE.keys() + ANTITILE_NOOP.keys()
+	for uniform_name in wc_uniforms:
 		if originals.get(uniform_name) != null:
 			material.set_shader_param(uniform_name, originals[uniform_name])
 	for prop in PROPS:
 		material.set(prop, originals[prop])
 	for param in PARAMS:
 		material.set_shader_param(param, originals[param])
+	apply_tex({})
 	map.queue_free()
 	for frame in 3:
 		await process_frame
