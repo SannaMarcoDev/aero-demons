@@ -1,11 +1,8 @@
 extends Node3D
 class_name Afterburner
 
-## Adapts flight throttle and spin-dash boost to the blue thrusters.
-@export var plume_length := 3.2
-@export var boost_plume_length := 7.5
-@export var light_intensity := 0.05
-@export var boost_light_multiplier := 2.2
+## Adapts flight throttle and spin-dash boost to jet_exhaust instances.
+## Dry throttle (0-0.5) maps below afterburner onset; boost pushes into it.
 
 var _throttle := 0.35
 var _boost := 0.0
@@ -26,7 +23,7 @@ func set_boost(boost: float) -> void:
 
 
 func _apply_output() -> void:
-	for thruster in get_children():
-		thruster.light_intensity = light_intensity * lerpf(1.0, boost_light_multiplier, _boost)
-		thruster.exhaust_length = lerpf(plume_length, boost_plume_length, _boost)
-		thruster.throttle = lerpf(_throttle, 1.0, _boost)
+	# 0.5 dry maps to 0.85, just under the exhaust's afterburner onset.
+	var dry := _throttle * 1.7
+	for exhaust in get_children():
+		exhaust.throttle = lerpf(dry, 1.0, _boost)

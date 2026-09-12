@@ -1,4 +1,5 @@
 # Aero Demons — project instructions
+Use the Godot MCP whenever possible.
 
 ## Terrain authoring
 

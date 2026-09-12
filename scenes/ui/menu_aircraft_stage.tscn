@@ -5,7 +5,7 @@
 [ext_resource type="Sky" path="res://resources/materials/skyboxes/epic_blue_sunset.tres" id="3_sky"]
 [ext_resource type="Script" path="res://scripts/ui/menu_camera_aim.gd" id="4_aim"]
 [ext_resource type="Script" path="res://scripts/vfx/afterburner.gd" id="5_afterburner"]
-[ext_resource type="PackedScene" path="res://assets/thrusters/blue_thruster/scenes/jet_thruster_vfx.tscn" id="6_thruster"]
+[ext_resource type="PackedScene" path="res://scenes/vfx/jet_exhaust.tscn" id="6_exhaust"]
 
 [sub_resource type="Environment" id="Environment_sunset_sky"]
 background_mode = 2
@@ -59,10 +59,5 @@ scale = Vector3(24, 24, 24)
 rotation_degrees = Vector3(0, 180, 0)
 script = ExtResource("5_afterburner")
 
-[node name="Thruster" parent="AircraftRotator/Afterburners" instance=ExtResource("6_thruster")]
+[node name="Exhaust" parent="AircraftRotator/Afterburners" instance=ExtResource("6_exhaust")]
 position = Vector3(0, -0.68, 4.9)
-throttle = 0.5
-exhaust_length = 3.0
-exhaust_width = 0.45
-flame_holder_distance = 0.35
-light_intensity = 0.05

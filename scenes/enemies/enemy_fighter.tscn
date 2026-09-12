@@ -5,7 +5,7 @@
 [ext_resource type="Script" path="res://scripts/combat/targeting.gd" id="3_targeting"]
 [ext_resource type="Script" path="res://scripts/weapons/weapon_controller.gd" id="4_weapons"]
 [ext_resource type="Script" path="res://scripts/vfx/afterburner.gd" id="5_afterburner"]
-[ext_resource type="PackedScene" path="res://assets/thrusters/blue_thruster/scenes/jet_thruster_vfx.tscn" id="6_thruster"]
+[ext_resource type="PackedScene" path="res://scenes/vfx/jet_exhaust.tscn" id="6_exhaust"]
 [ext_resource type="PackedScene" path="res://scenes/vfx/damage_fire.tscn" id="7_damage"]
 [ext_resource type="Script" path="res://scripts/combat/aircraft_hitbox.gd" id="8_hitbox"]
 
@@ -38,17 +38,13 @@ transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, -1.375, 1.88)
 [node name="Afterburners" type="Node3D" parent="."]
 script = ExtResource("5_afterburner")
 
-[node name="Left" parent="Afterburners" instance=ExtResource("6_thruster")]
+[node name="Left" parent="Afterburners" instance=ExtResource("6_exhaust")]
 position = Vector3(-0.96, -0.46, 5.5)
-exhaust_width = 0.45
-flame_holder_distance = 0.35
-light_intensity = 0.05
+throttle = 1.0
 
-[node name="Right" parent="Afterburners" instance=ExtResource("6_thruster")]
+[node name="Right" parent="Afterburners" instance=ExtResource("6_exhaust")]
 position = Vector3(1.103, -0.46, 5.5)
-exhaust_width = 0.45
-flame_holder_distance = 0.35
-light_intensity = 0.05
+throttle = 1.0
 
 [node name="WingDamage" type="Node3D" parent="."]
 

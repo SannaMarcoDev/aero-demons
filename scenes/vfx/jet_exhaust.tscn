@@ -1,0 +1,33 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scenes/vfx/jet_exhaust.gd" id="1"]
+[ext_resource type="Shader" path="res://scenes/vfx/jet_exhaust.gdshader" id="2"]
+
+[sub_resource type="FastNoiseLite" id="Noise"]
+seed = 2819
+frequency = 0.065
+fractal_octaves = 3
+
+[sub_resource type="NoiseTexture3D" id="Flow"]
+width = 48
+height = 48
+depth = 48
+seamless = true
+noise = SubResource("Noise")
+
+[sub_resource type="ShaderMaterial" id="VolumeMaterial"]
+resource_local_to_scene = true
+shader = ExtResource("2")
+shader_parameter/flow_noise = SubResource("Flow")
+
+[sub_resource type="BoxMesh" id="Bounds"]
+size = Vector3(2, 2, 1)
+
+[node name="JetExhaust" type="Node3D"]
+script = ExtResource("1")
+
+[node name="Volume" type="MeshInstance3D" parent="."]
+cast_shadow = 0
+gi_mode = 0
+mesh = SubResource("Bounds")
+material_override = SubResource("VolumeMaterial")
