@@ -25,6 +25,9 @@ func _run() -> void:
 	assert(ProjectSettings.get_setting("application/run/main_scene") == Session.MAIN_MENU)
 	for action in ["ui_up", "ui_down", "ui_left", "ui_right"]:
 		assert(InputMap.action_get_events(action).any(func(e): return e is InputEventJoypadMotion))
+	# Il pad deve confermare (A) e tornare indietro (B) in tutti i menu: i Button usano ui_accept/ui_cancel.
+	assert(InputMap.action_get_events("ui_accept").any(func(e): return e is InputEventJoypadButton and e.button_index == 0))
+	assert(InputMap.action_get_events("ui_cancel").any(func(e): return e is InputEventJoypadButton and e.button_index == 1))
 	Session.menu_section = ""
 	assert(Session.change_scene(self, Session.MAIN_MENU) == OK)
 	await scene_changed
