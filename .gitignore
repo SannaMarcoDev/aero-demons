@@ -25,3 +25,8 @@ terrain/garda_outer_height_5x/
 /terrain_250km_info.txt
 /terrain_250km_preview.png
 /terrain_250km_preview.png.import
+
+# Utah 250km real-data import set (large local masters, reproducible via tools/fetch_utah_250km.cjs)
+/terrain/source/utah_250km/
+/tools/tiles/
+/tools/node_modules/

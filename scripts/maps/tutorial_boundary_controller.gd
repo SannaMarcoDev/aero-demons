@@ -1,6 +1,6 @@
 ## Tutorial map edge hiding and safe return controller.
-## Child of the tutorial map root. Reads the real terrain extents from the GardaTerrain
-## Terrain3D node, keeps Sunshine as the sole atmosphere, and drives the aircraft's own
+## Child of the map root. Reads the real extents from the configured Terrain3D
+## node, keeps Sunshine as the sole atmosphere, and drives the aircraft's own
 ## return-to-arena logic (PlayerFlight._return_to_arena) so the player is turned
 ## back well before the terrain ends. No invisible wall: the aircraft's existing
 ## last-resort arena clamp stays as its own safety net, sized from real bounds.
@@ -9,6 +9,7 @@ extends Node3D
 ## The player is not part of the map scene (freeroam instances it as a sibling),
 ## so resolve it by group at runtime. Override with an explicit path if needed.
 @export var player_path: NodePath = NodePath("")
+@export var terrain_path: NodePath = NodePath("../GardaTerrain")
 @export var clouds_driver_path: NodePath = NodePath("../SunshineCloudsDriverGD")
 ## Distance from the terrain edge where the forced return begins. Must leave room
 ## for a full turn before the edge; the aircraft's own warning precedes it.
@@ -37,7 +38,7 @@ func _ready() -> void:
 func _try_initialize() -> void:
 	if _bounds_ready or _failed:
 		return
-	var terrain := get_node_or_null("../GardaTerrain") as Terrain3D
+	var terrain := get_node_or_null(terrain_path) as Terrain3D
 	if not _read_terrain_bounds(terrain):
 		return
 	_bounds_ready = true
