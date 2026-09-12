@@ -148,7 +148,7 @@ func _select_storia_map(map_path: String) -> void:
 
 func _open_loadout() -> void:
 	if Session.change_scene(get_tree(), Session.LOADOUT) != OK:
-		dossier_desc.text = "Impossibile aprire la selezione armamento."
+		dossier_desc.text = "Impossibile aprire la selezione aereo e armamento."
 
 
 func _set_dossier(mode_key: String) -> void:
@@ -163,7 +163,7 @@ func _set_dossier(mode_key: String) -> void:
 			threat_badge.modulate = Color(1.0, 0.4, 0.2)
 			dossier_title.text = "OPERAZIONI AEREE"
 			dossier_subtitle.text = "TUTORIAL SUL GARDA // PREPARA LA MISSIONE"
-			dossier_desc.text = "Scegli due tipi di missile e decolla con la tua squadra.\n\nAffronta tre gruppi di caccia nemici: 2, poi 4, infine 8. Ascolta gli avvistamenti alla radio e cerca i contatti sul radar. In questa missione i tuoi compagni non possono essere abbattuti e i nemici non ti attaccano."
+			dossier_desc.text = "Scegli il tuo aereo, configura due tipi di missile e decolla con la tua squadra.\n\nAffronta tre gruppi di caccia nemici: 2, poi 4, infine 8. Ascolta gli avvistamenti alla radio e cerca i contatti sul radar. In questa missione i tuoi compagni non possono essere abbattuti e i nemici non ti attaccano."
 			dossier_telemetry.text = "STATO: AUTORIZZATO  •  PAYLOAD: ARMATO  •  RADAR: ATTIVO  •  DATALINK: CONNESSO"
 
 		"free_flight":
@@ -172,7 +172,7 @@ func _set_dossier(mode_key: String) -> void:
 			threat_badge.modulate = Color(0.2, 0.95, 0.4)
 			dossier_title.text = "VOLO LIBERO (FREE FLIGHT)"
 			dossier_subtitle.text = "SETTORE: GARDA // NESSUN NEMICO RILEVATO"
-			dossier_desc.text = "Configura l'armamento e decolla sopra il Garda. Nessun nemico, nessuna ondata e nessun timer di missione.\n\nProva manovre High-G, spin dash e postcombustione oppure esplora liberamente lo scenario. I confini di volo rimangono attivi."
+			dossier_desc.text = "Scegli il tuo aereo, configura l'armamento e decolla sopra il Garda. Nessun nemico, nessuna ondata e nessun timer di missione.\n\nProva manovre High-G, spin dash e postcombustione oppure esplora liberamente lo scenario. I confini di volo rimangono attivi."
 			dossier_telemetry.text = "SETTORE: GARDA  •  MODALITA': ESPLORAZIONE  •  PAYLOAD: CONFIGURABILE"
 
 		"options":

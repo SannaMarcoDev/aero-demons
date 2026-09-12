@@ -1,12 +1,15 @@
 extends RefCounted
 class_name GameSession
-## Stato cross-scena minimal: mappa + missile scelti. Static var persiste finché il processo vive.
+## Stato cross-scena: mappa, aereo e missili. Persiste finché il processo vive.
+
+const AircraftCatalog = preload("res://scripts/aircraft/aircraft_catalog.gd")
 
 const MAIN_MENU := "res://scenes/ui/main_menu.tscn"
 const LOADOUT := "res://scenes/ui/loadout.tscn"
 const DOGFIGHT := "res://scenes/levels/tutorial.tscn"
 const FREE_FLIGHT := "res://scenes/levels/freeroam.tscn"
 
+static var selected_aircraft_id: String = AircraftCatalog.DEFAULT_ID
 static var selected_map: String = FREE_FLIGHT
 static var menu_section := ""
 static var selected_missiles: Array[String] = ["STDM", "HSSTDM"]

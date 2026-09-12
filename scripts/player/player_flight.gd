@@ -127,6 +127,7 @@ func _ready() -> void:
 	if faction_group == "player":
 		add_to_group("combat_allies")
 		SettingsManager.ensure_controls_loaded()
+		GameSession.AircraftCatalog.apply_to_player(self, GameSession.selected_aircraft_id)
 	_scale_airframe()
 	health = max_health
 	_spawn_transform = global_transform

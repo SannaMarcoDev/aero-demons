@@ -2,6 +2,7 @@ extends CanvasLayer
 
 const Catalog = preload("res://scripts/weapons/missile_catalog.gd")
 const Session = preload("res://scripts/ui/game_session.gd")
+const AircraftCatalog = preload("res://scripts/aircraft/aircraft_catalog.gd")
 
 @onready var slot1_btn: Button = $Main/LeftPanel/VBox/SlotRow/Slot1Button
 @onready var slot2_btn: Button = $Main/LeftPanel/VBox/SlotRow/Slot2Button
@@ -21,6 +22,12 @@ const Session = preload("res://scripts/ui/game_session.gd")
 @onready var _damage_value: Label = $Main/LeftPanel/VBox/StatsBox/DamageRow/DamageValue
 @onready var _ammo_value: Label = $Main/LeftPanel/VBox/StatsBox/AmmoRow/AmmoValue
 
+@onready var aircraft_scroll: ScrollContainer = $Main/LeftPanel/VBox/AircraftScroll
+@onready var aircraft_list: VBoxContainer = $Main/LeftPanel/VBox/AircraftScroll/AircraftList
+
+var _aircraft_step := true
+var _aircraft_buttons: Dictionary = {}
+var _preview_aircraft_id := ""
 var _group: ButtonGroup
 var _active_slot := 0
 var _selected_missiles: Array[String] = ["STDM", "HSSTDM"]
@@ -32,7 +39,9 @@ func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	_group = ButtonGroup.new()
 	map_label.text = Session.level_name()
-	avvia_btn.text = "DECOLLA" if Session.free_flight else "AVVIA MISSIONE"
+	if not AircraftCatalog.DEFS.has(Session.selected_aircraft_id):
+		Session.selected_aircraft_id = AircraftCatalog.DEFAULT_ID
+	_build_aircraft_list()
 	if Session.selected_missiles.size() >= 2:
 		_selected_missiles = Session.selected_missiles.duplicate()
 	else:
@@ -77,10 +86,83 @@ func _ready() -> void:
 		missile_list.add_child(entry)
 
 	_setup_stats()
-	_setup_focus_navigation()
 	_select_slot(0)
 	preview_camera.look_at(Vector3(0, -0.3, 0), Vector3.UP)
-	slot1_btn.grab_focus()
+	_set_aircraft_step(true)
+
+func _build_aircraft_list() -> void:
+	var group := ButtonGroup.new()
+	for id: String in AircraftCatalog.ids():
+		var btn := Button.new()
+		btn.text = AircraftCatalog.get_def(id).label
+		btn.custom_minimum_size.y = 54
+		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		btn.toggle_mode = true
+		btn.button_group = group
+		btn.pressed.connect(_on_aircraft_pick.bind(id))
+		btn.focus_entered.connect(_preview_aircraft.bind(id))
+		btn.mouse_entered.connect(_preview_aircraft.bind(id))
+		aircraft_list.add_child(btn)
+		_aircraft_buttons[id] = btn
+
+func _on_aircraft_pick(id: String) -> void:
+	Session.selected_aircraft_id = id
+	for key in _aircraft_buttons:
+		_aircraft_buttons[key].button_pressed = key == id
+	_preview_aircraft(id)
+
+func _show_aircraft_model(id: String) -> void:
+	if _preview_aircraft_id != id:
+		for child in preview_root.get_children():
+			preview_root.remove_child(child)
+			child.queue_free()
+		preview_root.add_child(AircraftCatalog.create_model(id))
+		preview_root.rotation.y = PI
+		_preview_aircraft_id = id
+	$Main/RightPanel/VBox/RightTitle.text = AircraftCatalog.get_def(id).label
+
+func _preview_aircraft(id: String) -> void:
+	if not _aircraft_step:
+		return
+	_show_aircraft_model(id)
+	var definition := AircraftCatalog.get_def(id)
+	var status := "SELEZIONATO" if id == Session.selected_aircraft_id else "A / INVIO / CLIC: seleziona"
+	detail_label.text = "[%s]\n%s\n\n%s\n\nPrestazioni di volo condivise · Due slot missili configurabili al passo successivo." % [
+		status, definition.label, definition.description,
+	]
+
+func _set_aircraft_step(enabled: bool) -> void:
+	_aircraft_step = enabled
+	aircraft_scroll.visible = enabled
+	$Main/LeftPanel/VBox/SlotRow.visible = not enabled
+	missile_list.visible = not enabled
+	$Main/LeftPanel/VBox/StatsBox.visible = not enabled
+	$Main/LeftPanel/VBox/Title.text = "1 / 2 · SCEGLI AEREO" if enabled else "2 / 2 · ARMAMENTO"
+	$Main/LeftPanel/VBox/Info.text = "Seleziona il velivolo, poi configura le armi" if enabled else "Scegli due tipi di missile prima del decollo"
+	avvia_btn.text = "CONTINUA · ARMAMENTO" if enabled else ("DECOLLA" if Session.free_flight else "AVVIA MISSIONE")
+	back_btn.text = "INDIETRO" if enabled else "CAMBIA AEREO"
+	if enabled:
+		_on_aircraft_pick(Session.selected_aircraft_id)
+		var buttons := aircraft_list.get_children()
+		for i in buttons.size():
+			var btn := buttons[i] as Button
+			btn.focus_neighbor_top = back_btn.get_path() if i == 0 else buttons[i - 1].get_path()
+			btn.focus_neighbor_bottom = avvia_btn.get_path() if i == buttons.size() - 1 else buttons[i + 1].get_path()
+			btn.focus_neighbor_left = btn.get_path()
+			btn.focus_neighbor_right = btn.get_path()
+		avvia_btn.focus_neighbor_top = buttons.back().get_path()
+		avvia_btn.focus_neighbor_bottom = back_btn.get_path()
+		back_btn.focus_neighbor_top = avvia_btn.get_path()
+		back_btn.focus_neighbor_bottom = buttons.front().get_path()
+		for btn: Button in [avvia_btn, back_btn]:
+			btn.focus_neighbor_left = btn.get_path()
+			btn.focus_neighbor_right = btn.get_path()
+		_aircraft_buttons[Session.selected_aircraft_id].grab_focus()
+	else:
+		_show_aircraft_model(Session.selected_aircraft_id)
+		_setup_focus_navigation()
+		_select_slot(_active_slot)
+		slot1_btn.grab_focus()
 
 func _setup_focus_navigation() -> void:
 	if _missile_button_list.is_empty():
@@ -220,6 +302,9 @@ func _process(delta: float) -> void:
 func _on_avvia_pressed() -> void:
 	if _launching:
 		return
+	if _aircraft_step:
+		_set_aircraft_step(false)
+		return
 	_launching = true
 	Session.selected_missiles = _selected_missiles.duplicate()
 	avvia_btn.disabled = true
@@ -236,7 +321,11 @@ func _on_avvia_pressed() -> void:
 		detail_label.text = "Impossibile caricare la missione. Torna al menu e riprova."
 
 func _on_back_pressed() -> void:
-	if not _launching:
+	if _launching:
+		return
+	if not _aircraft_step:
+		_set_aircraft_step(true)
+	else:
 		Session.change_scene(get_tree(), Session.MAIN_MENU)
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -247,4 +336,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event.is_action_pressed("ui_up") or event.is_action_pressed("ui_down") \
 				or event.is_action_pressed("ui_left") or event.is_action_pressed("ui_right") \
 				or event.is_action_pressed("ui_accept"):
-			slot1_btn.grab_focus()
+			if _aircraft_step:
+				_aircraft_buttons[Session.selected_aircraft_id].grab_focus()
+			else:
+				slot1_btn.grab_focus()
