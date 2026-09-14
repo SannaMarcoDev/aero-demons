@@ -34,6 +34,7 @@ const RED_ORANGE := Color(1.0, 0.28, 0.12, 0.95)
 const ALLY_BLUE := Color(0.25, 0.75, 1.0, 0.95)
 const RADAR_LINE := Color(0.68, 0.84, 0.9, 0.43)
 
+@export var boundary_path := NodePath("../GardaLake/TutorialBoundaryController")
 @export var player_path: NodePath = NodePath("")
 @export var camera_path: NodePath = NodePath("")
 @export var targeting_path: NodePath = NodePath("")
@@ -669,7 +670,7 @@ func _draw_hull(canvas: Control) -> void:
 
 
 func _draw_boundary_warning(canvas: Control) -> void:
-	var controller = _node_from_path("../GardaLake/TutorialBoundaryController")
+	var controller = _node_from_path(boundary_path)
 	if controller == null:
 		controller = _node_from_path("../TutorialBoundaryController")
 	if controller == null or not controller.has_method("is_boundary_warning"):

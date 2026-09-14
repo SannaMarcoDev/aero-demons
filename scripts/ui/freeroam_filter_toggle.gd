@@ -12,7 +12,8 @@ var initial_shader: Shader
 var initial_override: bool
 var terrain_filter: Shader
 var label: Label
-@onready var terrain_material: Terrain3DMaterial = $GardaLake/GardaTerrain.material
+@export var terrain_path := NodePath("GardaLake/GardaTerrain")
+@onready var terrain_material: Terrain3DMaterial = get_node(terrain_path).material
 
 func _ready() -> void:
 	var viewport := get_viewport()

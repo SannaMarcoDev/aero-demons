@@ -74,7 +74,7 @@ func _run() -> void:
 			"res://terrain/utah_final_wc_uniform_250km".path_join(f))
 			== baseline.utah_final_data_files[f], "original data " + f)
 
-	var packed := load("res://scenes/maps/utah_landcover_250km.tscn") as PackedScene
+	var packed := load("res://scenes/maps/utah_final.tscn") as PackedScene
 	_check(packed != null, "scene loads")
 	if packed == null:
 		_finish(null)

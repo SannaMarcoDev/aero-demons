@@ -9,7 +9,7 @@ var terminal := false
 
 func _ready() -> void:
 	GameSession.selected_map = hud.get_parent().scene_file_path
-	GameSession.free_flight = GameSession.selected_map == GameSession.FREE_FLIGHT
+	GameSession.free_flight = GameSession.selected_map in [GameSession.FREE_FLIGHT, GameSession.UTAH_FREE_FLIGHT]
 	player.destroyed.connect(_on_player_destroyed)
 	if not GameSession.free_flight:
 		for target in get_tree().get_nodes_in_group("targets"):

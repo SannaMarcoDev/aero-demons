@@ -8,6 +8,8 @@ const MAIN_MENU := "res://scenes/ui/main_menu.tscn"
 const LOADOUT := "res://scenes/ui/loadout.tscn"
 const DOGFIGHT := "res://scenes/levels/tutorial.tscn"
 const FREE_FLIGHT := "res://scenes/levels/freeroam.tscn"
+const UTAH_TUTORIAL := "res://scenes/levels/tutorial_utah.tscn"
+const UTAH_FREE_FLIGHT := "res://scenes/levels/freeroam_utah.tscn"
 
 static var selected_aircraft_id: String = AircraftCatalog.DEFAULT_ID
 static var selected_map: String = FREE_FLIGHT
@@ -25,7 +27,8 @@ static var selected_missile_id: String:
 
 
 static func level_name() -> String:
-	return "GARDA · VOLO LIBERO" if free_flight else "GARDA · TUTORIAL"
+	var sector := "UTAH" if selected_map in [UTAH_TUTORIAL, UTAH_FREE_FLIGHT] else "GARDA"
+	return sector + (" · VOLO LIBERO" if free_flight else " · TUTORIAL")
 
 
 static func change_scene(tree: SceneTree, path: String) -> Error:

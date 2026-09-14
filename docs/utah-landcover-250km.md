@@ -1,6 +1,8 @@
 # Utah landcover — scala geografica 250 × 250 km
 
-Scena: `res://scenes/maps/utah_landcover_250km.tscn`.
+Scena: `res://scenes/maps/utah_final.tscn`.
+Livelli giocabili: `res://scenes/levels/freeroam_utah.tscn` e `res://scenes/levels/tutorial_utah.tscn` (avvio diretto con F6; menu invariato).
+Il tutorial riusa provvisoriamente gregari, incontri e quote del tutorial Garda; il level design Utah è da definire.
 Dati e manifest: `res://terrain/utah_landcover_250km/`.
 La scena principale e la precedente validazione a 50 km non sono sostituite.
 

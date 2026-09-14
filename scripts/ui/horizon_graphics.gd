@@ -2,6 +2,8 @@ extends CanvasLayer
 ## C is authored in tutorial_clouds.tres. D adds only camera-local far DOF.
 ## F7 is independent of the temporary F6 filters. No scene/resource saves.
 
+@export var sky_path := NodePath("../GardaLake/Sky3D")
+
 var settings_path := "user://graphics.cfg"
 var settings := ConfigFile.new()
 var can_save := true
@@ -14,7 +16,7 @@ func _ready() -> void:
 	var camera: Camera3D = get_node("../Player/FlightCamera")
 	var source: CameraAttributes = camera.attributes
 	if source == null:
-		source = get_node("../GardaLake/Sky3D").camera_attributes
+		source = get_node(sky_path).camera_attributes
 	# Preserve exposure without modifying the shared WorldEnvironment resource.
 	attributes = source.duplicate()
 	attributes.dof_blur_far_distance = 35000.0

@@ -1,7 +1,7 @@
-[gd_scene format=3 uid="uid://1ykwvkjnfci3"]
+[gd_scene format=3 uid="uid://dgqv868kv3pu5"]
 
-[ext_resource type="Terrain3DAssets" uid="uid://djy3xe6ttoju3" path="res://terrain/utah_final_wc_uniform_250km/wc_terrain_assets.tres" id="1_assets"]
-[ext_resource type="Shader" uid="uid://3k0c1syprlil" path="res://resources/terrain/terrain_wc_override.gdshader" id="3_wcover"]
+[ext_resource type="Terrain3DAssets" path="res://terrain/utah_landcover_250km/wc_terrain_assets.tres" id="1_assets"]
+[ext_resource type="Shader" path="res://resources/terrain/terrain_wc_landcover.gdshader" id="3_wcland"]
 [ext_resource type="Script" uid="uid://deo0gxkmk2ahd" path="res://addons/sky_3d/src/Sky3D.gd" id="8_sky3d"]
 [ext_resource type="Script" uid="uid://cjmkcj8hwm7ts" path="res://addons/sky_3d/src/TimeOfDay.gd" id="9_tod"]
 [ext_resource type="Script" uid="uid://b4tkplvh7fq40" path="res://addons/sky_3d/src/SkyDome.gd" id="10_dome"]
@@ -36,7 +36,7 @@ noise = SubResource("FastNoiseLite_tqhdi")
 color_ramp = SubResource("Gradient_maued")
 seamless = true
 
-[sub_resource type="Terrain3DMaterial" id="Terrain3DMaterial_wc"]
+[sub_resource type="Terrain3DMaterial" id="Terrain3DMaterial_landcover"]
 _shader_parameters = {
 &"bias_distance": 512.0,
 "blend_sharpness": 0.0,
@@ -54,8 +54,8 @@ _shader_parameters = {
 &"noise2_scale": 0.076,
 &"noise_texture": SubResource("NoiseTexture2D_vto1s"),
 &"projection_threshold": 0.8,
-&"wc_blend_power": 6.0,
-&"wc_colormap_strength": 0.75,
+&"wc_blend_power": 1.0,
+&"wc_colormap_strength": 1.0,
 &"wc_detile_rot": 0.2,
 &"wc_detile_shift": 0.5,
 &"wc_ms_amount": 0.0,
@@ -67,11 +67,11 @@ _shader_parameters = {
 &"wc_uv_warp": 3.0,
 &"wc_uv_warp_scale": 90.0,
 &"wc_warp_scale": 60.0,
-&"wc_warp_texels": 0.6
+&"wc_warp_texels": 0.0
 }
 world_background = 0
 shader_override_enabled = true
-shader_override = ExtResource("3_wcover")
+shader_override = ExtResource("3_wcland")
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_clear_cirrus"]
 seed = 42137
@@ -85,7 +85,6 @@ domain_warp_frequency = 0.003
 width = 2048
 height = 2048
 noise = SubResource("FastNoiseLite_clear_cirrus")
-seamless = true
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
 shader = ExtResource("11_skyshader")
@@ -106,18 +105,18 @@ shader_parameter/sun_light_color = Color(1, 0.98, 0.95000005, 1)
 shader_parameter/sun_disk_color = Color(1, 0.97, 0.9, 1)
 shader_parameter/sun_disk_intensity = 18.0
 shader_parameter/sun_disk_size = 0.009
-shader_parameter/atm_sun_mie_tint = Color(1, 1, 1, 1)
-shader_parameter/atm_sun_mie_intensity = 1.0
-shader_parameter/atm_sun_partial_mie_phase = Vector3(0.2604, 1.7396, 1.72)
-shader_parameter/moon_color = Color(1, 1, 1, 1)
+shader_parameter/sun_mie_tint = Color(1, 1, 1, 1)
+shader_parameter/sun_mie_intensity = 1.0
+shader_parameter/sun_mie_partial_mie_phase = Vector3(0.2604, 1.7396, 1.72)
+shader_parameter/moon_color = Color(0.137255, 0.184314, 0.292196, 1)
 shader_parameter/moon_texture = ExtResource("15_moon")
 shader_parameter/moon_texture_alignment = Vector3(7, 1.4, 4.8)
 shader_parameter/moon_texture_flip_u = false
 shader_parameter/moon_texture_flip_v = false
 shader_parameter/moon_size = 0.07
-shader_parameter/atm_moon_mie_tint = Color(0.137255, 0.184314, 0.292196, 1)
-shader_parameter/atm_moon_mie_intensity = 0.0
-shader_parameter/atm_moon_partial_mie_phase = Vector3(0.36, 1.64, 1.6)
+shader_parameter/moon_mie_tint = Color(0.137255, 0.184314, 0.292196, 1)
+shader_parameter/moon_mie_intensity = 0.0
+shader_parameter/moon_partial_mie_phase = Vector3(0.36, 1.64, 1.6)
 shader_parameter/starmap_color = Color(0.709804, 0.709804, 0.709804, 0.854902)
 shader_parameter/starmap_texture = ExtResource("12_milkyway")
 shader_parameter/starmap_flip_u = false
@@ -147,20 +146,16 @@ shader_parameter/cumulus_visible = false
 shader_parameter/cumulus_intensity = 0.6
 shader_parameter/cumulus_coverage = 0.55
 shader_parameter/cumulus_thickness = 0.0243
-shader_parameter/cumulus_absorption = 2.0
 shader_parameter/cumulus_noise_freq = 2.7
-shader_parameter/cumulus_sky_tint_fade = 0.0
 shader_parameter/cumulus_size = 0.5
 shader_parameter/cumulus_position = Vector2(0.043840505, 0.043840505)
 shader_parameter/cumulus_texture = ExtResource("13_clouds")
 shader_parameter/cumulus_partial_mie_phase = Vector3(0.957564, 1.042436, 0.412)
-shader_parameter/cumulus_mie_intensity = 1.0
 shader_parameter/show_azimuthal_grid = false
 shader_parameter/azimuthal_grid_color = Color(0.87058824, 0.72156864, 0.5294118, 1)
 shader_parameter/azimuthal_grid_rotation_offset = 0.03
 shader_parameter/show_equatorial_grid = false
 shader_parameter/equatorial_grid_color = Color(0, 0.75, 1, 1)
-shader_parameter/equatorial_grid_rotation_offset = 0.03
 shader_parameter/moon_matrix = Basis(-0.09828775, 0.7829103, 0.61432153, -0.08014797, 0.60907763, -0.78905046, -0.99192536, -0.12679064, 0.0028838029)
 
 [sub_resource type="Sky" id="Sky_sky3d"]
@@ -181,18 +176,19 @@ tonemap_white = 6.0
 [sub_resource type="Compositor" id="Compositor_clouds"]
 compositor_effects = Array[CompositorEffect]([ExtResource("21_sunshine")])
 
-[node name="UtahFinal" type="Node3D" unique_id=190356403]
+[node name="UtahFinal" type="Node3D"]
 
-[node name="UtahTerrain" type="Terrain3D" parent="." unique_id=124829343]
-data_directory = "res://terrain/utah_final_wc_uniform_250km"
-material = SubResource("Terrain3DMaterial_wc")
+[node name="UtahTerrain" type="Terrain3D" parent="."]
+data_directory = "res://terrain/utah_landcover_250km"
+material = SubResource("Terrain3DMaterial_landcover")
 assets = ExtResource("1_assets")
+free_editor_textures = false
 mesh_lods = 10
-vertex_spacing = 15.258789
+vertex_spacing = 30.517578125
 top_level = true
 metadata/_edit_lock_ = true
 
-[node name="Sky3D" type="WorldEnvironment" parent="." unique_id=183608483]
+[node name="Sky3D" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_sky3d")
 camera_attributes = SubResource("CameraAttributes_sky3d")
 compositor = SubResource("Compositor_clouds")
@@ -207,7 +203,7 @@ wind_speed = 0.35
 wind_direction = 2.35619451204804
 metadata/_custom_type_script = "uid://deo0gxkmk2ahd"
 
-[node name="SunLight" type="DirectionalLight3D" parent="Sky3D" unique_id=458544781]
+[node name="SunLight" type="DirectionalLight3D" parent="Sky3D"]
 transform = Transform3D(0.4186092, -0.7831186, 0.45988232, 0, 0.5063855, 0.86230725, -0.9081665, -0.36096975, 0.2119776, 0.45988232, 0.86230725, 0.2119776)
 light_color = Color(1, 0.98, 0.95000005, 1)
 light_energy = 1.8
@@ -216,14 +212,14 @@ shadow_opacity = 0.8
 directional_shadow_blend_splits = true
 directional_shadow_max_distance = 4000.0
 
-[node name="MoonLight" type="DirectionalLight3D" parent="Sky3D" unique_id=233984677]
+[node name="MoonLight" type="DirectionalLight3D" parent="Sky3D"]
 transform = Transform3D(0, -0.12682343, -0.9919253, 0.02273868, 0.9916689, -0.12679063, 0.9997415, -0.022555072, 0.002883797, -0.9919253, -0.12679063, 0.002883797)
 light_color = Color(0.572549, 0.776471, 0.956863, 1)
 light_energy = 0.0
 directional_shadow_blend_splits = true
 directional_shadow_max_distance = 256.0
 
-[node name="SkyDome" type="Node" parent="Sky3D" unique_id=2111280937]
+[node name="SkyDome" type="Node" parent="Sky3D"]
 script = ExtResource("10_dome")
 ground_color = Color(1, 1, 1, 1)
 sun_disk_size = 0.009
@@ -253,13 +249,12 @@ wind_direction = 2.35619451204804
 cirrus_speed_reduction = 0.12
 cirrus_intensity = 2.6
 cirrus_thickness = 0.9
-cirrus_coverage = 0.42
 cirrus_sky_tint_fade = 0.7
 cirrus_texture = SubResource("NoiseTexture2D_clear_cirrus")
 cirrus_uv = Vector2(0.045, 0.14)
 cumulus_visible = false
 
-[node name="TimeOfDay" type="Node" parent="Sky3D" unique_id=1508472088]
+[node name="TimeOfDay" type="Node" parent="Sky3D"]
 script = ExtResource("9_tod")
 editor_time_enabled = false
 game_time_enabled = false
@@ -271,7 +266,7 @@ latitude = 0.6653195108602383
 longitude = -1.9303341527057285
 utc = -7.0
 
-[node name="SunshineCloudsDriverGD" type="Node" parent="." unique_id=1826083346 node_paths=PackedStringArray("tracked_directional_lights")]
+[node name="SunshineCloudsDriverGD" type="Node" parent="." node_paths=PackedStringArray("tracked_directional_lights")]
 script = ExtResource("22_clouds_driver")
 update_continuously = true
 clouds_resource = ExtResource("21_sunshine")
@@ -284,9 +279,14 @@ large_structures_wind_speed = 65.0
 medium_structures_wind_speed = 30.0
 small_structures_wind_speed = 10.0
 
-[node name="TutorialBoundaryController" type="Node3D" parent="." unique_id=1618907752]
+[node name="ValidationBoundaryController" type="Node3D" parent="."]
 script = ExtResource("23_boundary")
 terrain_path = NodePath("../UtahTerrain")
 
-[node name="SpawnPoint" type="Marker3D" parent="." unique_id=2091412438]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4500, 0)
+[node name="SpawnPoint" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.2587890625, 3600, 15.2587890625)
+
+[node name="ValidationCamera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.9659258, 0.258819, 0, -0.258819, 0.9659258, 15.2587890625, 3600, 15.2587890625)
+current = true
+far = 300000.0
