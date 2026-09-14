@@ -18,12 +18,10 @@ const MARKER_RADIUS_MAX := 40.0
 ## Band inside the border of the frame over which a marker fades. A marker whose centre crosses
 ## the border would appear and vanish on a single pixel of aircraft movement.
 const MARKER_EDGE_FADE := 80.0
-## The reticle turns red on the real lock gate, and only drops back to green once the target is
-## clearly outside a widened copy of it and has stayed there this long. A target riding the cone
-## or range border crosses the real gate several times a second, and a reticle following that
-## literally strobes.
+## The reticle turns red on the real lock gate, and only drops back to green once the target has
+## stayed outside it this long. A target riding the gate border crosses it several times a
+## second, and a reticle following that literally strobes.
 const ENGAGED_HOLD_MS := 400.0
-const ENGAGED_RELEASE_MARGIN := 1.2
 ## How long the marker takes to slide to a newly cycled target.
 const SWITCH_DURATION_MS := 300.0
 const WHITE := Color(0.95, 0.98, 1.0, 0.96)
@@ -440,17 +438,14 @@ func _draw_multi_lock_status(canvas: Control) -> void:
 	_draw_text(canvas, Vector2(center.x - width * 0.5, center.y + 58.0), text, size, color)
 
 
-## The widened gate the reticle is released on, a fifth past the cone and the range the lock
-## itself uses.
+## The shared lock gate the reticle releases on: the same criterion TargetLock uses, so the
+## reticle never suggests an off-screen lock. Only the brief time hold stays local.
 func _near_lock_zone() -> bool:
-	if player == null or not is_instance_valid(player) or not _target_alive(_target):
+	if not _target_alive(_target):
 		return false
-	var offset: Vector3 = _target.global_position - player.global_position
-	var distance := offset.length()
-	if distance <= 0.001 or distance > _read_float(targeting, "lock_range", 4500.0) * ENGAGED_RELEASE_MARGIN:
-		return false
-	var cone := _read_float(targeting, "lock_cone_degrees", 25.0) * ENGAGED_RELEASE_MARGIN
-	return (-player.global_basis.z).normalized().angle_to(offset / distance) <= deg_to_rad(cone)
+	if targeting != null and is_instance_valid(targeting) and targeting.has_method("is_in_lock_zone"):
+		return bool(targeting.call("is_in_lock_zone", _target))
+	return bool(_read_bool(targeting, "in_lock_zone", false))
 
 
 ## Every live target in range carries the same green hexagon, creatures and balloons alike, so

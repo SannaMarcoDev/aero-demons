@@ -43,6 +43,7 @@ func _check() -> void:
 	assert(enemies.size() == 4 and allies.size() == 2)
 	assert(player._weapons.equipped_missile_ids == session.selected_missiles)
 	session.selected_missiles = saved_loadout
+	_check_missile_range_switch()
 	for enemy in enemies:
 		assert(enemy.is_in_group("targets") and not enemy.is_in_group("combat_allies"))
 		assert(enemy._hitbox.collision_layer == 4 and enemy._weapons.target_layers == 8)
@@ -257,6 +258,9 @@ func _check() -> void:
 	player.speed = 0.0
 	victim.position = Vector3(0, 2000, -150)
 	victim.basis = Basis.IDENTITY
+	# The player lock gate is the chase-camera viewport: snap the frozen camera to the
+	# teleported player, as continuous following would in real play.
+	player.get_node("FlightCamera").call("snap_to_target")
 	player._targeting._set_target(victim)
 	player._targeting._physics_process(3.0)
 	player._weapons.gun_spread_degrees = 0.0
@@ -310,9 +314,35 @@ func _check() -> void:
 		wing._on_solid_collision(null)
 		assert(not wing.is_alive() and wing.state == EnemyFighter.State.DESTROYED)
 	arena.queue_free()
-	await process_frame
+	root.get_node("AudioManager").queue_free()
+	# Flush queued scene deletion and let the audio thread release stopped playback.
+	await create_timer(0.5).timeout
 	print("Dogfight check passed: scene, teams, roles, permissions, relief, FSM, cover, real weapons, missile lifecycle, wrecks, debug")
 	quit()
+
+
+func _check_missile_range_switch() -> void:
+	var weapons := player._weapons
+	var targeting := player._targeting
+	var target := enemies[0]
+	var saved_position := target.global_position
+	var saved_ids: Array[String] = weapons.equipped_missile_ids.duplicate()
+	player.get_node("FlightCamera").call("snap_to_target")
+	target.global_position = player.global_position - player.global_basis.z * 7500.0
+	assert(weapons.equip_missile("STDM", 0))
+	assert(weapons.equip_missile("MTSM", 1))
+	assert(is_equal_approx(targeting.lock_range, weapons.Catalog.range_m("STDM")))
+	assert(not targeting.is_in_lock_zone(target))
+	weapons.cycle_missile_type()
+	assert(weapons.equipped_missile_id == "MTSM")
+	assert(is_equal_approx(targeting.lock_range, weapons.Catalog.range_m("MTSM")))
+	assert(targeting.is_in_lock_zone(target))
+	assert(weapons.get_locked_missile_targets().has(target))
+	weapons.cycle_missile_type()
+	assert(not targeting.is_in_lock_zone(target))
+	target.global_position = saved_position
+	weapons.equipped_missile_ids = saved_ids
+	weapons.reset_loadout()
 
 
 func _setup_attack(shooter: EnemyFighter, target: PlayerFlight) -> void:
