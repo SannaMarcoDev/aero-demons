@@ -14,7 +14,6 @@
 [ext_resource type="CompositorEffect" uid="uid://dnuaohkyn5spa" path="res://resources/environments/tutorial_clouds.tres" id="21_sunshine"]
 [ext_resource type="Script" uid="uid://djusduuxf0voj" path="res://addons/SunshineClouds2/SunshineCloudsDriver.gd" id="22_clouds_driver"]
 [ext_resource type="Script" uid="uid://bke3xwkhruy37" path="res://scripts/maps/tutorial_boundary_controller.gd" id="23_boundary"]
-[ext_resource type="Script" path="res://scripts/maps/fog_toggle.gd" id="24_fogtoggle"]
 
 [sub_resource type="Gradient" id="Gradient_maued"]
 offsets = PackedFloat32Array(0.2, 1)
@@ -194,7 +193,7 @@ environment = SubResource("Environment_sky3d")
 camera_attributes = SubResource("CameraAttributes_sky3d")
 compositor = SubResource("Compositor_clouds")
 script = ExtResource("8_sky3d")
-fog_enabled = false
+fog_enabled = true
 editor_time_enabled = false
 game_time_enabled = false
 current_time = 10.5
@@ -239,7 +238,7 @@ atm_horizon_light_tint = Color(0.96, 0.86, 0.74, 1)
 atm_thickness = 0.65
 atm_mie = 0.035
 atm_sun_mie_anisotropy = 0.86
-fog_visible = false
+fog_visible = true
 fog_density = 0.005
 fog_start = 1500.0
 fog_end = 2000.0
@@ -283,10 +282,6 @@ small_structures_wind_speed = 10.0
 [node name="ValidationBoundaryController" type="Node3D" parent="."]
 script = ExtResource("23_boundary")
 terrain_path = NodePath("../UtahTerrain")
-
-[node name="FogToggle" type="Node" parent="."]
-script = ExtResource("24_fogtoggle")
-sky_path = NodePath("../Sky3D")
 
 [node name="SpawnPoint" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.2587890625, 3600, 15.2587890625)
