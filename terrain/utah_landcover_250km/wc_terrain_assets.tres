@@ -1,0 +1,61 @@
+[gd_resource type="Terrain3DAssets" format=3]
+
+[ext_resource type="Texture2D" path="res://terrain/utah_landcover_250km/baked_albedo.tres" id="1_nbq83"]
+[ext_resource type="Texture2D" path="res://terrain/utah_landcover_250km/baked_normal.tres" id="2_mysqh"]
+[ext_resource type="Texture2D" path="res://textures/terrain/withered_grass_albedo_packed.png" id="3_o1ltt"]
+[ext_resource type="Texture2D" path="res://textures/terrain/withered_grass_normal_packed.png" id="4_5b0sf"]
+[ext_resource type="Texture2D" path="res://textures/terrain/rocks_ground_03_albedo_packed.png" id="5_b7ia4"]
+[ext_resource type="Texture2D" path="res://textures/terrain/rocks_ground_03_normal_packed.png" id="6_3k12e"]
+[ext_resource type="Texture2D" path="res://textures/terrain/sandy_gravel_02_albedo_packed.png" id="7_17ucw"]
+[ext_resource type="Texture2D" path="res://textures/terrain/sandy_gravel_02_normal_packed.png" id="8_u7tmc"]
+
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_8fptm"]
+name = "LC_water"
+albedo_texture = ExtResource("1_nbq83")
+normal_texture = ExtResource("2_mysqh")
+
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_id52c"]
+name = "LC_developed"
+id = 1
+albedo_texture = ExtResource("1_nbq83")
+normal_texture = ExtResource("2_mysqh")
+
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_4xltb"]
+name = "LC_wetlands"
+id = 2
+albedo_texture = ExtResource("1_nbq83")
+normal_texture = ExtResource("2_mysqh")
+
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_10y2v"]
+name = "LC_crops"
+id = 3
+albedo_texture = ExtResource("1_nbq83")
+normal_texture = ExtResource("2_mysqh")
+
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_66oai"]
+name = "LC_herbaceous_pasture"
+id = 4
+albedo_texture = ExtResource("3_o1ltt")
+normal_texture = ExtResource("4_5b0sf")
+
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_1otut"]
+name = "LC_forest"
+id = 5
+albedo_texture = ExtResource("5_b7ia4")
+normal_texture = ExtResource("6_3k12e")
+
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_rmx48"]
+name = "LC_shrub_scrub"
+id = 6
+albedo_color = Color(0.82, 0.76, 0.62, 1)
+albedo_texture = ExtResource("3_o1ltt")
+normal_texture = ExtResource("4_5b0sf")
+
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_h0cf5"]
+name = "LC_bare_ground"
+id = 7
+albedo_texture = ExtResource("7_17ucw")
+normal_texture = ExtResource("8_u7tmc")
+
+[resource]
+texture_list = Array[Terrain3DTextureAsset]([SubResource("Terrain3DTextureAsset_8fptm"), SubResource("Terrain3DTextureAsset_id52c"), SubResource("Terrain3DTextureAsset_4xltb"), SubResource("Terrain3DTextureAsset_10y2v"), SubResource("Terrain3DTextureAsset_66oai"), SubResource("Terrain3DTextureAsset_1otut"), SubResource("Terrain3DTextureAsset_rmx48"), SubResource("Terrain3DTextureAsset_h0cf5")])

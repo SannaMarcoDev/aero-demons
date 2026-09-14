@@ -66,10 +66,19 @@ func _save_and_check(entry: Dictionary, manifest: Dictionary, staging: String,
 static func _save_assets(manifest: Dictionary) -> bool:
 	# WC's package gradients/tints are already baked into its exported colormap.
 	# Neutral surface textures avoid applying those colors a second time.
-	var white := Image.create(16, 16, false, Image.FORMAT_RGBA8)
+	# Neutral fallback sized to match any real detail textures in the manifest
+	# (texture arrays require one shared resolution).
+	var neutral_size := 16
+	for info in manifest.textures:
+		if info.get("albedo", "") != "":
+			var probe: Texture2D = load(info.albedo)
+			assert(probe != null, "Missing albedo texture " + info.albedo)
+			neutral_size = int(probe.get_size().x)
+			break
+	var white := Image.create(neutral_size, neutral_size, false, Image.FORMAT_RGBA8)
 	white.fill(Color(1, 1, 1, 0.5))
 	white.generate_mipmaps()
-	var normal := Image.create(16, 16, false, Image.FORMAT_RGBA8)
+	var normal := Image.create(neutral_size, neutral_size, false, Image.FORMAT_RGBA8)
 	normal.fill(Color(0.5, 0.5, 1, 1))
 	normal.generate_mipmaps()
 	var albedo_texture := ImageTexture.create_from_image(white)
@@ -80,10 +89,33 @@ static func _save_assets(manifest: Dictionary) -> bool:
 		pair[0].take_over_path(ProjectSettings.localize_path(path))
 	var assets := Terrain3DAssets.new()
 	for i in manifest.textures.size():
+		var info: Dictionary = manifest.textures[i]
 		var asset := Terrain3DTextureAsset.new()
-		asset.set_albedo_texture(albedo_texture)
-		asset.set_normal_texture(normal_texture)
-		asset.set_name(manifest.textures[i].Name)
+		# Optional real detail textures must already be imported in the project.
+		var albedo: Texture2D = albedo_texture
+		var norm: Texture2D = normal_texture
+		if info.get("albedo", "") != "":
+			albedo = load(info.albedo)
+			assert(albedo != null, "Missing albedo texture " + info.albedo)
+		if info.get("normal", "") != "":
+			norm = load(info.normal)
+			assert(norm != null, "Missing normal texture " + info.normal)
+		asset.set_albedo_texture(albedo)
+		asset.set_normal_texture(norm)
+		if i > 0:
+			var first := assets.get_texture(0)
+			assert(albedo.get_size() == first.get_albedo_texture().get_size(),
+				"Albedo array size mismatch for " + asset.get_name() + ": "
+				+ str(albedo.get_size()) + " vs " + str(first.get_albedo_texture().get_size()))
+			assert(norm.get_size() == first.get_normal_texture().get_size(),
+				"Normal array size mismatch for " + asset.get_name())
+		if info.has("uv_scale"):
+			asset.set_uv_scale(info.uv_scale)
+		if info.has("albedo_color"):
+			asset.set_albedo_color(Color(info.albedo_color[0], info.albedo_color[1],
+				info.albedo_color[2], info.albedo_color[3]))
+		asset.set_name(info.get("name", info.get("Name", "texture_%d" % i)))
+		asset.set_id(i)
 		assets.set_texture(i, asset)
 	assert(ResourceSaver.save(assets, manifest.destination.path_join("wc_terrain_assets.tres")) == OK)
 	return true

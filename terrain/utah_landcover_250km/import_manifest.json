@@ -1,0 +1,1309 @@
+{
+  "producer": "World Creator 2026.4 native conventional export; files moved byte-for-byte from default Export folder to requested destination",
+  "geometry": "WC geometry placed at geographic 250x250 km with the inverse stamp normalization restoring the DEM datum; no local sculpting.",
+  "extent_m": [
+    250000.0,
+    250000.0
+  ],
+  "resolution": [
+    8192,
+    8192
+  ],
+  "region_size": 1024,
+  "vertex_spacing": 30.517578125,
+  "height_scale": 0.9966042154566744,
+  "height_offset": 882.5573536299765,
+  "height_range_m": [
+    1034.1988525390625,
+    3838.671630859375
+  ],
+  "native_height_range_m": [
+    152.1582489013672,
+    2966.186767578125
+  ],
+  "geographic_calibration": {
+    "method": "inverse documented WC stamp normalization, not a fitted correction",
+    "wc_stamp_range_m": [
+      11.0,
+      3000.0
+    ],
+    "r16_geographic_range_m": [
+      893.52,
+      3872.37
+    ],
+    "formula": "Y = WC_EXR_R * height_scale + height_offset",
+    "local_wc_shape_preserved": true,
+    "dem_replaced_geometry": false,
+    "residual_sample_step_px": 16,
+    "residual_sample_count": 262144,
+    "residual_rmse_m": 9.90327648020814,
+    "residual_min_max_m": [
+      -139.65941048005925,
+      125.5666034113965
+    ],
+    "residual_abs_p99_m": 38.63737123875617,
+    "caveat": "Geographic datum restored, not pixel-exact DEM geometry. WC interpolation/processing remains; exact DEM fidelity needs a new WC export."
+  },
+  "transform": "all raster types rotated once 90 CW; source (x,y) -> world X=(8191-y-4096)*spacing, Z=(x-4096)*spacing",
+  "inverse": "x = Z/spacing + 4096, y = 8191 - (X/spacing + 4096)",
+  "landmarks": [
+    {
+      "label": "A - Bacino a nord-ovest",
+      "source_center": [
+        896,
+        2560
+      ],
+      "world_xz": [
+        46844.482421875,
+        -97656.25
+      ],
+      "source_height_m": 1819.952880859375,
+      "world_height_m": 2696.330078125
+    },
+    {
+      "label": "B - Lake Powell, settore sud",
+      "source_center": [
+        2176,
+        7920
+      ],
+      "world_xz": [
+        -116729.736328125,
+        -58593.75
+      ],
+      "source_height_m": 249.84124755859375,
+      "world_height_m": 1131.5501708984375
+    },
+    {
+      "label": "C - Corridoio fluviale centrale",
+      "source_center": [
+        4384,
+        5676
+      ],
+      "world_xz": [
+        -48248.291015625,
+        8789.0625
+      ],
+      "source_height_m": 426.3494567871094,
+      "world_height_m": 1307.458984375
+    }
+  ],
+  "textures": [
+    {
+      "id": 0,
+      "name": "LC_water",
+      "mask": "water",
+      "splat_file": "LC_splat_0_0_0.tga",
+      "channel": "R"
+    },
+    {
+      "id": 1,
+      "name": "LC_developed",
+      "mask": "developed",
+      "splat_file": "LC_splat_0_0_0.tga",
+      "channel": "G"
+    },
+    {
+      "id": 2,
+      "name": "LC_wetlands",
+      "mask": "wetlands",
+      "splat_file": "LC_splat_0_0_0.tga",
+      "channel": "B"
+    },
+    {
+      "id": 3,
+      "name": "LC_crops",
+      "mask": "crops",
+      "splat_file": "LC_splat_0_0_0.tga",
+      "channel": "A"
+    },
+    {
+      "id": 4,
+      "name": "LC_herbaceous_pasture",
+      "mask": "herbaceous_pasture",
+      "splat_file": "LC_splat_1_0_0.tga",
+      "channel": "R",
+      "albedo": "res://textures/terrain/withered_grass_albedo_packed.png",
+      "normal": "res://textures/terrain/withered_grass_normal_packed.png"
+    },
+    {
+      "id": 5,
+      "name": "LC_forest",
+      "mask": "forest",
+      "splat_file": "LC_splat_1_0_0.tga",
+      "channel": "G",
+      "albedo": "res://textures/terrain/rocks_ground_03_albedo_packed.png",
+      "normal": "res://textures/terrain/rocks_ground_03_normal_packed.png"
+    },
+    {
+      "id": 6,
+      "name": "LC_shrub_scrub",
+      "mask": "shrub_scrub",
+      "splat_file": "LC_splat_1_0_0.tga",
+      "channel": "B",
+      "albedo": "res://textures/terrain/withered_grass_albedo_packed.png",
+      "normal": "res://textures/terrain/withered_grass_normal_packed.png",
+      "albedo_color": [
+        0.82,
+        0.76,
+        0.62,
+        1.0
+      ]
+    },
+    {
+      "id": 7,
+      "name": "LC_bare_ground",
+      "mask": "bare_ground",
+      "splat_file": "LC_splat_1_0_0.tga",
+      "channel": "A",
+      "albedo": "res://textures/terrain/sandy_gravel_02_albedo_packed.png",
+      "normal": "res://textures/terrain/sandy_gravel_02_normal_packed.png"
+    }
+  ],
+  "geographic_source": {
+    "crs": "EPSG:32612",
+    "bounds_m": [
+      410061.696,
+      4094204.958,
+      660061.696,
+      4344204.958
+    ],
+    "extent_m": [
+      250000,
+      250000
+    ],
+    "world_scale_horizontal": 1.0
+  },
+  "decoding": "Pillow normalizes TGA bottom-left origin to north-up rows; this is file decoding, not a second authored transform. EXR R32 uncompressed, PNG RGBA8, then one clockwise rotation for all maps.",
+  "control_encoding": "stable descending top-two, lower ID wins ties; floor(255*w_second/(w_first+w_second)); (base<<27)|(overlay<<22)|(blend<<14); all lower flags zero",
+  "splat_stats": {
+    "weight_sum_range": [
+      253,
+      257
+    ],
+    "holes": 0,
+    "channel_nonzero": [
+      540088,
+      1118716,
+      746788,
+      748620,
+      2629774,
+      14774543,
+      54274999,
+      6730853
+    ],
+    "top_two_weight_fraction": 0.9992272613879544
+  },
+  "mask_reference_iou": {
+    "water": 0.9588826295193711,
+    "developed": 0.7186838818472304,
+    "wetlands": 0.8503541375201384,
+    "crops": 0.9605673445735258,
+    "herbaceous_pasture": 0.7780641972588762,
+    "forest": 0.9418947192262184,
+    "shrub_scrub": 0.9723180462376456,
+    "bare_ground": 0.908952871513394
+  },
+  "destination": "C:/Users/sanna/Workspace/Godot/Progetti/aero-demons/terrain/utah_landcover_250km",
+  "sources": {
+    "utah_height_m_8192.exr": {
+      "path": "C:\\Users\\sanna\\Documents\\Codex\\2026-09-14\\new-chat\\outputs\\godot_validation_v1\\native_export\\utah_height_m_8192.exr",
+      "sha256": "1997179dd84d9b64412a3b362556bf9bb30c3a15f83ac5c7d67caad5612a8285"
+    },
+    "utah_colormap_8192.png": {
+      "path": "C:\\Users\\sanna\\Documents\\Codex\\2026-09-14\\new-chat\\outputs\\godot_validation_v1\\native_export\\utah_colormap_8192.png",
+      "sha256": "286c224f83a2b1f8b3a54e356d09029ddb4b7a101b991a3417d4458729625e40"
+    },
+    "LC_splat_0_0_0.tga": {
+      "path": "C:\\Users\\sanna\\Documents\\Codex\\2026-09-14\\new-chat\\outputs\\splatmaps_8k\\LC_splat_0_0_0.tga",
+      "sha256": "494e1b7424d96cd116217b160da8957099a7a7a456db8753eddf48b2dbd71dd3"
+    },
+    "LC_splat_1_0_0.tga": {
+      "path": "C:\\Users\\sanna\\Documents\\Codex\\2026-09-14\\new-chat\\outputs\\splatmaps_8k\\LC_splat_1_0_0.tga",
+      "sha256": "ab91b48545452d5ac816aa10ea242751466d39e63b5f9c00c39ef3e3df52ee32"
+    },
+    "utah_landcover_v1.wcr": {
+      "path": "C:\\Users\\sanna\\Documents\\Codex\\2026-09-14\\new-chat\\outputs\\utah_landcover_v1.wcr",
+      "sha256": "7f5db600400284c2c387f6eae240126c475cfb6304dbf5335012ff03e36cd2a7"
+    },
+    "utah_250km_worldmachine.r16": {
+      "path": "C:\\Users\\sanna\\Workspace\\Godot\\Progetti\\aero-demons\\terrain\\source\\utah_250km\\utah_250km_worldmachine.r16",
+      "sha256": "315b6ac0e7abb970f89796fb6c9f51a91ca1f7026945816b18638e93c8bd0dcc"
+    },
+    "utah_250km_info.txt": {
+      "path": "C:\\Users\\sanna\\Workspace\\Godot\\Progetti\\aero-demons\\terrain\\source\\utah_250km\\utah_250km_info.txt",
+      "sha256": "00b44419579b00137a33e87727d689c70f4ca4587b460f51322a350be3e5c8a4"
+    }
+  },
+  "mask_sources": {
+    "water": {
+      "path": "C:\\Users\\sanna\\Documents\\Codex\\2026-09-14\\new-chat\\outputs\\masks\\water.png",
+      "sha256": "33a7fedd25c444762e21246a86fc2dd9efe72db92a1402c635bb20d148b9303e"
+    },
+    "developed": {
+      "path": "C:\\Users\\sanna\\Documents\\Codex\\2026-09-14\\new-chat\\outputs\\masks\\developed.png",
+      "sha256": "484779306dba81cbe3b6528b5a684a0a7c2cc4f5bf6184ef5902f7c91bc7e369"
+    },
+    "wetlands": {
+      "path": "C:\\Users\\sanna\\Documents\\Codex\\2026-09-14\\new-chat\\outputs\\masks\\wetlands.png",
+      "sha256": "fe9662230577b36340a95f57cbd079f3d3f7706b9f6c0cb3593b8b0342df5d1e"
+    },
+    "crops": {
+      "path": "C:\\Users\\sanna\\Documents\\Codex\\2026-09-14\\new-chat\\outputs\\masks\\crops.png",
+      "sha256": "cd4bcf413bfca2203fe1eead5caf03a5bd5be7242894236467255928546698ba"
+    },
+    "herbaceous_pasture": {
+      "path": "C:\\Users\\sanna\\Documents\\Codex\\2026-09-14\\new-chat\\outputs\\masks\\herbaceous_pasture.png",
+      "sha256": "cc7d60939a71bd50d5a7d597cd99064fe828006474565641e2db416018c38d03"
+    },
+    "forest": {
+      "path": "C:\\Users\\sanna\\Documents\\Codex\\2026-09-14\\new-chat\\outputs\\masks\\forest.png",
+      "sha256": "6b3cd663a60bf0feca09c2c28dcf4df9a340842c945a22f39fe3a27c304c2af2"
+    },
+    "shrub_scrub": {
+      "path": "C:\\Users\\sanna\\Documents\\Codex\\2026-09-14\\new-chat\\outputs\\masks\\shrub_scrub.png",
+      "sha256": "2c0d0a93791ea2426f73a79465d4153f6a0b1b36a684546398c10945b9fd34ef"
+    },
+    "bare_ground": {
+      "path": "C:\\Users\\sanna\\Documents\\Codex\\2026-09-14\\new-chat\\outputs\\masks\\bare_ground.png",
+      "sha256": "80481968b1993fc25c96d1dd62d4c58e8757a0490eefb6f5a0de94bed499ca17"
+    }
+  },
+  "source_sha256": {
+    "utah_height_m_8192.exr": "1997179dd84d9b64412a3b362556bf9bb30c3a15f83ac5c7d67caad5612a8285",
+    "utah_colormap_8192.png": "286c224f83a2b1f8b3a54e356d09029ddb4b7a101b991a3417d4458729625e40",
+    "LC_splat_0_0_0.tga": "494e1b7424d96cd116217b160da8957099a7a7a456db8753eddf48b2dbd71dd3",
+    "LC_splat_1_0_0.tga": "ab91b48545452d5ac816aa10ea242751466d39e63b5f9c00c39ef3e3df52ee32",
+    "utah_landcover_v1.wcr": "7f5db600400284c2c387f6eae240126c475cfb6304dbf5335012ff03e36cd2a7",
+    "utah_250km_worldmachine.r16": "315b6ac0e7abb970f89796fb6c9f51a91ca1f7026945816b18638e93c8bd0dcc",
+    "utah_250km_info.txt": "00b44419579b00137a33e87727d689c70f4ca4587b460f51322a350be3e5c8a4"
+  },
+  "regions": [
+    {
+      "file": "region_-4_-4.bin",
+      "location": [
+        -4,
+        -4
+      ],
+      "height_range": [
+        1202.0692138671875,
+        1949.9248046875
+      ],
+      "map_sha256": [
+        "e9c4e523808fe36c15cbfb8fcd0aaeac132048c119c95a660993bc263fbf7044",
+        "0bed20422f70aae190df1c6f02be15c91b0d4443fee1404c58c277ad0e93449e",
+        "470f6cecb567776f6dbe55372f173420d7f6dd2a46b67134f6ca4aae7bc00f1b"
+      ]
+    },
+    {
+      "file": "region_-3_-4.bin",
+      "location": [
+        -3,
+        -4
+      ],
+      "height_range": [
+        1464.3558349609375,
+        2362.84228515625
+      ],
+      "map_sha256": [
+        "9824b2144b88dc830f52342291f0c0a0df41337c72887e047693956ba59dafbe",
+        "50df22bccfe3da459d5d23d22eea34f73b67c5bf5b42e2113ce7b3c90a8dcc1b",
+        "84315abe6fb7ec9b4bde8f33b8abc6360eea40bd8b6d1d54150a84e2d2e4cf30"
+      ]
+    },
+    {
+      "file": "region_-2_-4.bin",
+      "location": [
+        -2,
+        -4
+      ],
+      "height_range": [
+        1789.4237060546875,
+        3232.128662109375
+      ],
+      "map_sha256": [
+        "c59d9e5aebc262560670b7edeba6c95732deb32fd7bda69db284ffdb2238355b",
+        "3173bfbf954b250084779223ae5fcd6b035419343187ae2becbdd0d90fe13af5",
+        "917ad17898a382ccbd7ff6aafef46769d6831e4a7164fd3a2379e475131ac0ef"
+      ]
+    },
+    {
+      "file": "region_-1_-4.bin",
+      "location": [
+        -1,
+        -4
+      ],
+      "height_range": [
+        1947.4468994140625,
+        3285.759521484375
+      ],
+      "map_sha256": [
+        "51c03296c54fc839a3d653cd2a4bf4762a4716c6c55f9688b35377710f1b2060",
+        "f45a4d81477b1fbbc0f42fc82e5e6c7a66a5405845cb81226a1aa8af34afa03a",
+        "f8455fc10f4dbc4746b901618a7adb51cb1ba853b447cea8271c1e165fbd5ff9"
+      ]
+    },
+    {
+      "file": "region_0_-4.bin",
+      "location": [
+        0,
+        -4
+      ],
+      "height_range": [
+        1932.721923828125,
+        3127.322265625
+      ],
+      "map_sha256": [
+        "0da8bef848568921e3350080991f524dc73903d4629d129747238bdd1656a19e",
+        "900c75f0cb669a48171158245f942049c2cb73c70b5ccad3d26f619531742d26",
+        "95ce1ea09ae35bf1da160f100c06f17a78db85cf3e0520e05ae27c9b4e12c266"
+      ]
+    },
+    {
+      "file": "region_1_-4.bin",
+      "location": [
+        1,
+        -4
+      ],
+      "height_range": [
+        2039.4888916015625,
+        3531.3076171875
+      ],
+      "map_sha256": [
+        "1259dd2fb64d290585e47010cf663ca8286bffffc2c97d3d47de79429893506d",
+        "08a04a2826d2ddf1aa64d76192089fa7ccdf74f5c668bcfd6921a05abc62589f",
+        "6698c1bcdd27afd7b2ea84d0b13849f7e106458d26369bd997dabe480ee79fb2"
+      ]
+    },
+    {
+      "file": "region_2_-4.bin",
+      "location": [
+        2,
+        -4
+      ],
+      "height_range": [
+        1562.0150146484375,
+        3262.87158203125
+      ],
+      "map_sha256": [
+        "63a2edde856a34a663d9367f5fe3bfa6cfe7e047ef6ee64ae3a0fe60ae1144d8",
+        "215eb96df20229125eaf8b2e315b58a4bb38cf5e1a200e86987315a64ba83f3e",
+        "ae39727d09ec74a011fff53684c0bb031613740462af2f1cf1665fc115497a4b"
+      ]
+    },
+    {
+      "file": "region_3_-4.bin",
+      "location": [
+        3,
+        -4
+      ],
+      "height_range": [
+        1527.2452392578125,
+        2648.959228515625
+      ],
+      "map_sha256": [
+        "acacfd8a190c2822ee6140b5c1fa1cd23bb6cb2a4dfdf12bc946c278011382bb",
+        "3dcb22fb8769ebb543a7c59fce6ddb76029b5c9e179b8d6e9711229c1fdcf670",
+        "bf42ceee4f4ce9749f31a271d846bbc7904d9dc7e5d97f2092b1c3cc35fb406e"
+      ]
+    },
+    {
+      "file": "region_-4_-3.bin",
+      "location": [
+        -4,
+        -3
+      ],
+      "height_range": [
+        1100.232666015625,
+        1876.3836669921875
+      ],
+      "map_sha256": [
+        "6d9be87f50a7ec5b4ef3c656f78521cb685663a90b7df00aa7f7c7e6dcb4e5df",
+        "299a1583bbc74947bc4477185c4575fc28dd30ef1cae5783e1af8d73bfbbdce9",
+        "7ef5dc37a164ffcf3a0622449d5f99d3a070253918ed409171ca30796d8aab67"
+      ]
+    },
+    {
+      "file": "region_-3_-3.bin",
+      "location": [
+        -3,
+        -3
+      ],
+      "height_range": [
+        1306.7991943359375,
+        2261.77392578125
+      ],
+      "map_sha256": [
+        "aa25c0a759a719a7140509575e9b9e09e5c59043a7ec088b0fec4004d29e3da9",
+        "f4e251be34faac4aea594bbc9371d8e78aaa0a59e17efd86c03d07a363e80313",
+        "73bd40f1b513f9dfdd2e74085ae726e6a7c63dfd9a9d78f7c8cfb53ad07bb7cb"
+      ]
+    },
+    {
+      "file": "region_-2_-3.bin",
+      "location": [
+        -2,
+        -3
+      ],
+      "height_range": [
+        1498.0579833984375,
+        2329.568115234375
+      ],
+      "map_sha256": [
+        "8ab41d4fae48069466941ff7b1addc2fb9157efe00b8ecf78106a01994598728",
+        "97f5f733d77146e85d47bec8ee005f5dee597a36a6e3e6a9e1308b206894196c",
+        "2062f7db870ffc84dd1e0fea8cc3893a09ac1acc7d601f934edabb1ff9c4051e"
+      ]
+    },
+    {
+      "file": "region_-1_-3.bin",
+      "location": [
+        -1,
+        -3
+      ],
+      "height_range": [
+        1679.7547607421875,
+        3417.795166015625
+      ],
+      "map_sha256": [
+        "4870e6bb87c62c62a7280d307f4d39b100c90395605ee93c57d1f8b212d73f93",
+        "6fd43b98bb8f569cf8b6a30892c28be17ca0044ac1eb8f601d8a727837d4bb57",
+        "ed44aa5508b24d95d3d070fbbeaf098a0a637e80759984b80654bb796662cc51"
+      ]
+    },
+    {
+      "file": "region_0_-3.bin",
+      "location": [
+        0,
+        -3
+      ],
+      "height_range": [
+        1842.8321533203125,
+        3444.262939453125
+      ],
+      "map_sha256": [
+        "5eff80fe99f42e4149eec7dee1592823abc9ed7ea54c415ba2ff226ecd2290a9",
+        "8e31ce89560a24041ff3cba9ff41c6a2ea4b5dfe6df0f6b97fd09387325ecd5c",
+        "6af21ba991e85ad721220226f875eefc68ae52e2b77d05a93c6ece869500f619"
+      ]
+    },
+    {
+      "file": "region_1_-3.bin",
+      "location": [
+        1,
+        -3
+      ],
+      "height_range": [
+        1800.8001708984375,
+        3494.775634765625
+      ],
+      "map_sha256": [
+        "56ea8d1685c3650f6ac73289433831683ada922231ef7b1938757123c6c8cbbc",
+        "80ae1fa7b197f26e32eb1e17e3d7bb24d19ed62eaf16579787af1b09677f707c",
+        "aa0232022591851c57b7599b42d4ed7801f8db48ee7e454616b0dfe1e00332b1"
+      ]
+    },
+    {
+      "file": "region_2_-3.bin",
+      "location": [
+        2,
+        -3
+      ],
+      "height_range": [
+        1846.8043212890625,
+        3507.08154296875
+      ],
+      "map_sha256": [
+        "99e8cc584c5438d919c9f74a9ef446146fc36d369a30f120ed0b58166a621038",
+        "ef5e46dcf24fac5de51955d2e435833f83e35a02f1158c3233940df2935c4cf3",
+        "e52cdd3bd852ec1c3e8b4f829f12fd30f651559d0bf1a0bf38288df0b226ccc3"
+      ]
+    },
+    {
+      "file": "region_3_-3.bin",
+      "location": [
+        3,
+        -3
+      ],
+      "height_range": [
+        1654.97705078125,
+        3373.399658203125
+      ],
+      "map_sha256": [
+        "9c47d8f0e8ef73aa426c3819b957b43d4a2596279019bd2c87601660a8ffca7e",
+        "35d443415acca761699dfa6c67a3300989f5b83d4b013fd26bcbe1d3dc1e4162",
+        "f276ba7f36ee5a7a39a86cd03c7e9c5f9cbc591d78fa54b354596ad9ee164acc"
+      ]
+    },
+    {
+      "file": "region_-4_-2.bin",
+      "location": [
+        -4,
+        -2
+      ],
+      "height_range": [
+        1034.1988525390625,
+        2316.028564453125
+      ],
+      "map_sha256": [
+        "fdb0563e34ef60193586fe91d0b4b5228f7d51b592a95b1b394e0c027f5e86be",
+        "4616da052ecbb8e967fd6db0efa7e30cc5cf405b054d2fe7893edab33df79566",
+        "25f555632c19d700cd558c45f8566e7d5114e371f5e61af6c1268f1d2b0bb2b2"
+      ]
+    },
+    {
+      "file": "region_-3_-2.bin",
+      "location": [
+        -3,
+        -2
+      ],
+      "height_range": [
+        1116.1536865234375,
+        2318.869384765625
+      ],
+      "map_sha256": [
+        "cf03d7961f4ceda22a3ca8bef9eaa90ec608d296499cee6a419e652faedd54e2",
+        "573cb10fbcfd12fce55cf40d7ffb9db0fcc16fc77671f29967d47f2c820f17be",
+        "be155095e3e661671fb3170138e52bbbb43bdb86d64b07dca418033fa67d5713"
+      ]
+    },
+    {
+      "file": "region_-2_-2.bin",
+      "location": [
+        -2,
+        -2
+      ],
+      "height_range": [
+        1348.510986328125,
+        2208.665283203125
+      ],
+      "map_sha256": [
+        "8ba90d5e0d4ca8dd4ab188fa9902316888ac8bacfd400253e5b7c2cfc5c3a133",
+        "aa09f77c21b20ae2f4e21acbb6b98d5c35798a75d3032e3122c2bc11b89920de",
+        "e73cdf5324a0d23c5579c6b1dfd14246d006d7eae83a3312d449d3c723068b44"
+      ]
+    },
+    {
+      "file": "region_-1_-2.bin",
+      "location": [
+        -1,
+        -2
+      ],
+      "height_range": [
+        1496.1468505859375,
+        2832.44970703125
+      ],
+      "map_sha256": [
+        "02d53eeebbb94f3042c28830eb6f0894376302c0a0b1dff857c88c593b13e5ea",
+        "587d29109e6135c81ec6bdc4310b58ee68c8950a8a6cc7a06b5082871995d980",
+        "34551f4fde402292aff1a40fb7894bca0a5cd83c008548dafeb4bac97ddaea07"
+      ]
+    },
+    {
+      "file": "region_0_-2.bin",
+      "location": [
+        0,
+        -2
+      ],
+      "height_range": [
+        1378.18115234375,
+        2488.8759765625
+      ],
+      "map_sha256": [
+        "dc0a9a6efd725c630e773b05f38b9209695f57b582f0173be610284e2458fd1f",
+        "5edd51b7b5d87c38fcef84969157c2af597c2a511965a2db9438ae510db1ba38",
+        "3c620e746f789d1fc29abe69de3a58fc196f744a849813393fba6778ad3f08bb"
+      ]
+    },
+    {
+      "file": "region_1_-2.bin",
+      "location": [
+        1,
+        -2
+      ],
+      "height_range": [
+        1421.86181640625,
+        2122.081787109375
+      ],
+      "map_sha256": [
+        "a3abb81daa87f0b27c31e9382860c384b3bee9fd7942272d2dbffc9b0d0ee678",
+        "a98b3797ee2721007656df722e0ffe5bdb68d77b1e6584311eb527ab09e63514",
+        "269bf05e8ccf9647b7b8b8a16af5e1b8a8c98e561b1e176ad6f5b6ef4e170efb"
+      ]
+    },
+    {
+      "file": "region_2_-2.bin",
+      "location": [
+        2,
+        -2
+      ],
+      "height_range": [
+        1542.686279296875,
+        2710.241455078125
+      ],
+      "map_sha256": [
+        "26ed88ace64e4398ef4560b058ac413892a8f76aab4d69b939338f25458e92b0",
+        "2b5c301f5c50e9dae58962843139333defac745fa8e803eb550d6a64b21645c3",
+        "f3ded2b864163589b2ff44f5b7d1543b98b251f98d8c6607b318e4cb8fedff2a"
+      ]
+    },
+    {
+      "file": "region_3_-2.bin",
+      "location": [
+        3,
+        -2
+      ],
+      "height_range": [
+        1656.95654296875,
+        3079.932373046875
+      ],
+      "map_sha256": [
+        "f0ba53380810a9341a735ae0eb28157f33dd825c8bc381f1f1d9c461c09901dd",
+        "e3fe6a5fa6ba1c1cad819acb9f30e8f49adf79fab5c1e7064753180a821ca6c8",
+        "fc6564386b5e2dd2beaf1633b50e7e3f644261eb1f7f2a0f8884ee13a1be5b0b"
+      ]
+    },
+    {
+      "file": "region_-4_-1.bin",
+      "location": [
+        -4,
+        -1
+      ],
+      "height_range": [
+        1076.52783203125,
+        3139.634765625
+      ],
+      "map_sha256": [
+        "4c63bbc2d0b4847188dae3a7e1806bc6a551cb9826cd165f785244b2d767259e",
+        "7c823216d5bd29038e8a54db88274d98d18cd77b5cf65e12a6b4e2133d3ee8f0",
+        "6cb7d22b28d8ed67018940243a03752d44b420785a038a579f69eb97d605d38d"
+      ]
+    },
+    {
+      "file": "region_-3_-1.bin",
+      "location": [
+        -3,
+        -1
+      ],
+      "height_range": [
+        1085.84423828125,
+        1958.339599609375
+      ],
+      "map_sha256": [
+        "5f6afd8bfa5da2cd8ec773aaca329e246badc37407b1aed9a298b1a4d6761a44",
+        "8081a21fae152a21664036dd75bbcbb7968ebe3af19067fb2e4581cc830bb6c3",
+        "53b4215aa4b61b656c10de36c85c3bba865d25c41804be33e949e461818c846e"
+      ]
+    },
+    {
+      "file": "region_-2_-1.bin",
+      "location": [
+        -2,
+        -1
+      ],
+      "height_range": [
+        1099.0374755859375,
+        2466.2353515625
+      ],
+      "map_sha256": [
+        "dddc78733f1e176ce03d8aaa39c0755739ae1f566201528308e7d61181bf459f",
+        "219c05ba9cb6ee653b0cc1827a96676e9ee8d107fc66034af8a5914ac9ad3931",
+        "00a7afc674fb82101e6eafc161fdf11b461d45df132dd4fab5f67584e25a83a3"
+      ]
+    },
+    {
+      "file": "region_-1_-1.bin",
+      "location": [
+        -1,
+        -1
+      ],
+      "height_range": [
+        1466.6163330078125,
+        3481.12060546875
+      ],
+      "map_sha256": [
+        "e9342488bd5c1be0a8fb3809394f0eef3ff83d758b535f5905691eb60824301f",
+        "c95925109b919e83718878c00937dcd7ca443e89eb5918b34b554c86645eb6ac",
+        "a931590e994be62a7781516e899ff1ec4d4005ecd060b22b8faa57acbe82119c"
+      ]
+    },
+    {
+      "file": "region_0_-1.bin",
+      "location": [
+        0,
+        -1
+      ],
+      "height_range": [
+        1282.686279296875,
+        3464.827392578125
+      ],
+      "map_sha256": [
+        "5d3cb4e82ece54c02f022b5a0476b75c58e6d09363c992d6490f687d95b2d1d7",
+        "70536a5fc04b205fac9db2673fead5e3fa6abde60c0d793d4761c62676fd31f5",
+        "9162565910cb9f438a8404f877f9b8b6512746da4cdfb5e47c4bfd6a0422a728"
+      ]
+    },
+    {
+      "file": "region_1_-1.bin",
+      "location": [
+        1,
+        -1
+      ],
+      "height_range": [
+        1292.3375244140625,
+        2049.56689453125
+      ],
+      "map_sha256": [
+        "d19b6df5d5993be9c27a3e30c3fef7562b402279bfd62bd06b1760d8497c6e01",
+        "23e2f594a118aff66410e4e5c5fe69a9809a871bd1d54e70a90065d89ca51cd5",
+        "ffc713fbd76948c56ce69700831e857449041e0210a6c7fcedbac12493cbfb3e"
+      ]
+    },
+    {
+      "file": "region_2_-1.bin",
+      "location": [
+        2,
+        -1
+      ],
+      "height_range": [
+        1566.9884033203125,
+        2365.1318359375
+      ],
+      "map_sha256": [
+        "7834abd068a5574f9f61beb887ce825508fb1f1e72c4f14790f802b5d1aca284",
+        "4f5e9096535b16b85ad3fa705bf3f80d8991cb12cdaa96fd9685810591ebca57",
+        "3d8525b9574b7838fc18c5e89be12ec5fcad8c5241dc2dc741cf0e59ed1f7acf"
+      ]
+    },
+    {
+      "file": "region_3_-1.bin",
+      "location": [
+        3,
+        -1
+      ],
+      "height_range": [
+        1536.16796875,
+        2334.177978515625
+      ],
+      "map_sha256": [
+        "711584689958d2924edee4879d52d360b0d4b2ffbf738ef3a1874c25d6d0f46c",
+        "09b084d86ef67829957d617cfd68bd98b211bf077e34577ae844d0b5c804258f",
+        "53542346f422827898edf7799935bffb80731ec79cb40fd3a6d9b198db8bdfb7"
+      ]
+    },
+    {
+      "file": "region_-4_0.bin",
+      "location": [
+        -4,
+        0
+      ],
+      "height_range": [
+        1102.53271484375,
+        2051.485595703125
+      ],
+      "map_sha256": [
+        "066b81232e50bea62950404df33ff994f35cf8524edd7209b7d3f4a2ed6f846f",
+        "e010760a5be4a2ac193fab58a1e5d9b9be21df88631df28e0fa2cb3b1b56bb79",
+        "87e8e3599a503a4838474505512d727a81767344554c6bc4ceb35b8bf82cdb99"
+      ]
+    },
+    {
+      "file": "region_-3_0.bin",
+      "location": [
+        -3,
+        0
+      ],
+      "height_range": [
+        1104.6204833984375,
+        1986.163818359375
+      ],
+      "map_sha256": [
+        "d9cc6feeea3bbd50bc63bc30129bab4c5b50fc6e20e14cb4b8be066d4f35569b",
+        "f0a3fa85d785558bae9bed6bdc9baeea83d08a7710071133f2bcdd037b1459f8",
+        "600dd95d40fc78d224228168e5db39fac52b894a314f8ccc06432ecf712b2dac"
+      ]
+    },
+    {
+      "file": "region_-2_0.bin",
+      "location": [
+        -2,
+        0
+      ],
+      "height_range": [
+        1099.04833984375,
+        2383.78369140625
+      ],
+      "map_sha256": [
+        "8dde6bb1f8bafaa1376fd5256415d284edac51849770be631a4640f3f4cf33db",
+        "336fe7fa24db06d22b013a2fa0f554685e9ad7b850b8cfc2e6331450b924ce0e",
+        "9c97556e6e890dba93e5e805280b931245125131399d6289c1721d07cbb2170a"
+      ]
+    },
+    {
+      "file": "region_-1_0.bin",
+      "location": [
+        -1,
+        0
+      ],
+      "height_range": [
+        1100.48583984375,
+        2054.510498046875
+      ],
+      "map_sha256": [
+        "83689c10520aebde86f439ccbfeb2c11e14b2487c826788c9567faedcd0d8d21",
+        "6e07f56d1b2c38fff1b62df253cea34e6b891d38ace6a8706056340f6b3f8f31",
+        "1619159343a567b5948cdb21cff176f8f95fb19e198bca910d6a966171b49843"
+      ]
+    },
+    {
+      "file": "region_0_0.bin",
+      "location": [
+        0,
+        0
+      ],
+      "height_range": [
+        1189.6787109375,
+        1979.4522705078125
+      ],
+      "map_sha256": [
+        "f04263bd91bee2dae492844a7911344cd42e21b5e9551e642e42f164efc06209",
+        "fadc2e02b4fb18d20ff6f0f40ae3fa906257d8a50799a00889d4177de785fbb3",
+        "60a2b25fc6335a23e21b74871d9080c2d0de5212b9b09628470fd98f0562d944"
+      ]
+    },
+    {
+      "file": "region_1_0.bin",
+      "location": [
+        1,
+        0
+      ],
+      "height_range": [
+        1344.51171875,
+        1860.3555908203125
+      ],
+      "map_sha256": [
+        "5a8e89cf60f9a4208574f869da025b0d2a4af626225000db2222d74d3ca601a2",
+        "25b33f7744c0e1ade934b20d6419ea9dc085267f29c2d71b10a795d436bb49b5",
+        "b18ce26424cdae2daadc008fd9b001c6af93c878f0b48258bb9fcf4ed953bcb9"
+      ]
+    },
+    {
+      "file": "region_2_0.bin",
+      "location": [
+        2,
+        0
+      ],
+      "height_range": [
+        1244.44580078125,
+        2068.2744140625
+      ],
+      "map_sha256": [
+        "5e4cbb614a8a37bc15342552ead36c37bf84aeefa59c10fecf17d9b277acaa22",
+        "015ca2d42f28d824419cba7d335518860ee13c261d4f796fa189cd80b3b1b604",
+        "68d4f4aaed0894d2141f60edd666702717592abb305d94dd9c8702f22dc58eba"
+      ]
+    },
+    {
+      "file": "region_3_0.bin",
+      "location": [
+        3,
+        0
+      ],
+      "height_range": [
+        1269.2989501953125,
+        2300.504638671875
+      ],
+      "map_sha256": [
+        "77561501af10f9c1a39f451998ac05329dc67b5ba7ece818dde260f6415ccfc5",
+        "c1377210fed82dc6b49c915d2fb1dc9e2708d0225db84922b975ec78e9efe5a3",
+        "d3cce8cd1d3de332b534f330454968beebd7decb8799cd3017abfca7558def18"
+      ]
+    },
+    {
+      "file": "region_-4_1.bin",
+      "location": [
+        -4,
+        1
+      ],
+      "height_range": [
+        1185.5887451171875,
+        2003.9111328125
+      ],
+      "map_sha256": [
+        "f28af0625240a8b0e30af399f5c14e37b7ff921d5d9d98cab5d1cae13fbe9ff1",
+        "972e13e060c7a3ccff06b63f56e11b75d8404526845959998559b766720fb7bc",
+        "303e457509a880bf0eba866d7b77eeff8669a3c2842c2f17c6211012e1811ef8"
+      ]
+    },
+    {
+      "file": "region_-3_1.bin",
+      "location": [
+        -3,
+        1
+      ],
+      "height_range": [
+        1148.61474609375,
+        2348.2783203125
+      ],
+      "map_sha256": [
+        "a27009d376a5fe3c9963122de87f917a04040916cedb17982e48466036bc473c",
+        "844dcfebd4af684d04fd6eda6d2e7732e8daa2fe70d94c1883b9ab5468622a02",
+        "3dfc0959c3cc7fdfe1906629e1a71dc26ad55bbf790a4e4be314a27e09967ece"
+      ]
+    },
+    {
+      "file": "region_-2_1.bin",
+      "location": [
+        -2,
+        1
+      ],
+      "height_range": [
+        1395.326171875,
+        2699.85546875
+      ],
+      "map_sha256": [
+        "4620c59f50d464d27d8a98999920020ff674b7a6ca60d8a2f16ce4b4ab0a82a2",
+        "896ba644dd8e427e3f32f35dc91532ff5d5e4bb811de5e013a2b33d90f300fa1",
+        "6a5d23626141ba60e4515940879966cb1624a4d2ac760b5ccdc4bb7c786b2741"
+      ]
+    },
+    {
+      "file": "region_-1_1.bin",
+      "location": [
+        -1,
+        1
+      ],
+      "height_range": [
+        1107.9281005859375,
+        2586.168701171875
+      ],
+      "map_sha256": [
+        "5e5f9dbb2e9fdbb9cb15b26c265e7de71a3ad8888d049fed3ec3220534b3c9f4",
+        "4681033e4281049f6e6d25f5d688d810388afeb71fd98bab7b038db2b4a39a71",
+        "3a0dcf00e9c8bfc292ef95960fd807a542007d86035763ddeff8b46b6c7aa21d"
+      ]
+    },
+    {
+      "file": "region_0_1.bin",
+      "location": [
+        0,
+        1
+      ],
+      "height_range": [
+        1173.248046875,
+        2103.3466796875
+      ],
+      "map_sha256": [
+        "c5845311b6687146f8293f3af1a6320796ee73fa53bf65df817b453fb2249291",
+        "4a0a6dd2ff751def4a58c42ed17168716848149024f7237551ba0d1ac228f787",
+        "e7ad4efbffbaf54b94480ddcbd2cf8cced9c8ef0a7b665d9efd48137d469e264"
+      ]
+    },
+    {
+      "file": "region_1_1.bin",
+      "location": [
+        1,
+        1
+      ],
+      "height_range": [
+        1195.3182373046875,
+        1841.66455078125
+      ],
+      "map_sha256": [
+        "cbe9cd3229b033d4ca88b17f3cda618b461c57ea29a81f84d461ce6fa634c426",
+        "0906a81aa269195e5d5e195768b4429ed783893f4ae101b3254fb44a0765f1d8",
+        "bba0f2b394597a5e510d7f017a432532c9c61b164ecea7fc6eb93d4000f9d423"
+      ]
+    },
+    {
+      "file": "region_2_1.bin",
+      "location": [
+        2,
+        1
+      ],
+      "height_range": [
+        1211.7813720703125,
+        1700.031494140625
+      ],
+      "map_sha256": [
+        "bcc7af7e68bc42aaaf36b31703d7036de9e1b59fd66334410a2c8464b567d1f3",
+        "0f7fa95eb7a4c53f7bcc36fb562be226e36194e0985acd635751f52be4055a92",
+        "f5327d6bb3f807ce0db9463c99d3ac7fc203423682b83d9fc9df8f015d01be66"
+      ]
+    },
+    {
+      "file": "region_3_1.bin",
+      "location": [
+        3,
+        1
+      ],
+      "height_range": [
+        1232.253173828125,
+        2355.351806640625
+      ],
+      "map_sha256": [
+        "2e048805c18ea527eefad235b3ef97a7254ab5b160ff6f56ce3921ef4c3893e9",
+        "bf8b9531ace0e666b967ebcb7c37b1b0f8b7e15e02b9866be2fdbb32d729a951",
+        "d08f412b91f073868681f6e50b4ecf0ff21be38141b9a048991e3b5b8c049ae9"
+      ]
+    },
+    {
+      "file": "region_-4_2.bin",
+      "location": [
+        -4,
+        2
+      ],
+      "height_range": [
+        1239.733154296875,
+        1699.1385498046875
+      ],
+      "map_sha256": [
+        "ba3a635be5caca0ad49469494e21c2efaa562fe48b74fc1229469ef7be03d58a",
+        "6f1efcf6f99a91d37ef1a9ddd2bf5da51598ff0da2a4df7fa3bb278e6c26a866",
+        "de7bad9696f96981ba06807aa88feff1e4e68ed15232f8b880edef0c13522860"
+      ]
+    },
+    {
+      "file": "region_-3_2.bin",
+      "location": [
+        -3,
+        2
+      ],
+      "height_range": [
+        1309.609130859375,
+        2072.21435546875
+      ],
+      "map_sha256": [
+        "65e4eabef3132090e947074dcb4a4760e7e93fe37510020440c041865dfd2ee8",
+        "64bb4f1e7908f691817f88f9570ca6c652763e3de513ef17173348888b5d16c3",
+        "85733fca3074997c363b57a3e80714f0ca4ce6735f70517b102277797e0a696f"
+      ]
+    },
+    {
+      "file": "region_-2_2.bin",
+      "location": [
+        -2,
+        2
+      ],
+      "height_range": [
+        1521.2392578125,
+        3336.119384765625
+      ],
+      "map_sha256": [
+        "1d856f5a2c262c3c7ceb8a90e82b6c04a02a5496b4d7808d935b39bb0afef43f",
+        "c815a4caff2bd9bbe16e1dd23cbe552e8a438e68ce08d9b1ab43dcca1f776210",
+        "2058f84aa419bd2e60405ffc9550ded0e2d522cb165bab4915ff125bfb9e7cd7"
+      ]
+    },
+    {
+      "file": "region_-1_2.bin",
+      "location": [
+        -1,
+        2
+      ],
+      "height_range": [
+        1534.7586669921875,
+        3334.8271484375
+      ],
+      "map_sha256": [
+        "2c96f03b6289227dedf02fff4772b1cd8d217905693fc32bccc93d1db20a7326",
+        "734d5d889bb2eb42908af2833df43cb984fcc3f2c2610e4ea4d215753fdbe478",
+        "ddb15542ca723a7072c869b5c5d14a97d9c62b7379e0503bb4a99109492441c6"
+      ]
+    },
+    {
+      "file": "region_0_2.bin",
+      "location": [
+        0,
+        2
+      ],
+      "height_range": [
+        1182.82080078125,
+        2009.3443603515625
+      ],
+      "map_sha256": [
+        "f38858e9cb8d4b68bdfac23562dc842960dd530abcd021dc67dd79ba1d37ec72",
+        "c9775d7cc2592b70bf080a2af4fe59107ed237c6a14d30aa8ea35765b4f43561",
+        "97c755de18a5d68b152026a6f420ae62dd40d5d4de20bda4cba872b346b277cc"
+      ]
+    },
+    {
+      "file": "region_1_2.bin",
+      "location": [
+        1,
+        2
+      ],
+      "height_range": [
+        1193.916748046875,
+        1899.9591064453125
+      ],
+      "map_sha256": [
+        "7de1b8ad336ac338fe1317198045b1e8c664a759ecfa6181c8e7494403d40c38",
+        "dc6b36d873067aa471fb3b4ffc4458c994f6ed47e4526ce3a1e41eaa72befe4d",
+        "0bab3be8e53215301efd2a032ef77585ee1cd8b87c2446a1995899b7f03c6435"
+      ]
+    },
+    {
+      "file": "region_2_2.bin",
+      "location": [
+        2,
+        2
+      ],
+      "height_range": [
+        1298.7191162109375,
+        1737.9505615234375
+      ],
+      "map_sha256": [
+        "460069c9c2a0dcbf525ebe5ccba0754acb2bf3af9e9a088164b6561a3a33d69e",
+        "7ed6a46224e032e462dc1d73c26c17c4449d6deb34984aa0eb5af85a0b8bbeb8",
+        "2d4becc82546e33b19d6058a61d5297ed238cec87c219fc4182ee0214eb05d26"
+      ]
+    },
+    {
+      "file": "region_3_2.bin",
+      "location": [
+        3,
+        2
+      ],
+      "height_range": [
+        1408.68212890625,
+        2884.9169921875
+      ],
+      "map_sha256": [
+        "4d92e47ac96db36c64aed91fe72099ac12bbf2b7cc4d6be3724fef75476c71ce",
+        "638111af1b1984c8b652c98ccb74347f71404ab0236b6c2d47f6948826385300",
+        "4a2803453387d9f2abf6a68f7adc34b51c66163a0c12ab621e8d5bcd8f0c93b8"
+      ]
+    },
+    {
+      "file": "region_-4_3.bin",
+      "location": [
+        -4,
+        3
+      ],
+      "height_range": [
+        1337.2171630859375,
+        1776.2725830078125
+      ],
+      "map_sha256": [
+        "40526ed507338814cf4cce2d2f406d6636328d6b5c351b8bcac08aa443d7af56",
+        "a318f59b14da446f09ff6112620b946e164438f1f9d42cfd97c4700aecdc322f",
+        "7939b2d43aa33892c1af6f8cb112a0099292cb1eed7edf914e6bf1b8e7deb957"
+      ]
+    },
+    {
+      "file": "region_-3_3.bin",
+      "location": [
+        -3,
+        3
+      ],
+      "height_range": [
+        1314.3489990234375,
+        1772.0316162109375
+      ],
+      "map_sha256": [
+        "9c5b833f8eb5460e59be9f7c6f1b0a5ac373f1239f015de77d585603a9d39439",
+        "a9c11fbae3e9dd7ec1f151766f04cbd40f379c5273bca847be697b4ad5295010",
+        "458b3b2b34287ac782ae12f0acc2573b1c44d72d6e7286e11a1bc0b2f2b05765"
+      ]
+    },
+    {
+      "file": "region_-2_3.bin",
+      "location": [
+        -2,
+        3
+      ],
+      "height_range": [
+        1513.959716796875,
+        3345.725341796875
+      ],
+      "map_sha256": [
+        "ce92c09d903e0c5ee69f9fdefc36bbe96869bf1ceeeec25e71339a89fe5b3338",
+        "7fa0e06e72a1f7b35de7d38551a8931addcb6e480bf120c6f04e93fad24645ee",
+        "29989e0b6c270044a746b34126f459ed28b86baf9cf4d37fab2c51e05348a3b8"
+      ]
+    },
+    {
+      "file": "region_-1_3.bin",
+      "location": [
+        -1,
+        3
+      ],
+      "height_range": [
+        1719.7884521484375,
+        3421.416015625
+      ],
+      "map_sha256": [
+        "d2e512f38fabcbc83c1332e6e8a29d69e5eb63d34cb16a94b352bda34b3e88ce",
+        "49cde4330a4dccd24fb7757007bffc6745f7a56723c58db43db2b3e8f2341695",
+        "8890a4e162161d22d3e36257924cd21814691e41f97cca3eae7e875b7f29c382"
+      ]
+    },
+    {
+      "file": "region_0_3.bin",
+      "location": [
+        0,
+        3
+      ],
+      "height_range": [
+        1383.3721923828125,
+        3203.662109375
+      ],
+      "map_sha256": [
+        "875d2551a82c201ac6e8a575964e7061c4795dc0689b75b3d1bf90d5a721c428",
+        "71b5bd1d203ddde7aa4c7efc2284d995992e7caa34fd4f6237763dcbca2a1ac1",
+        "7ca8e12c8ac9198bf5f65c9a4ca1356955c892db145d121323fc5f3b0655af63"
+      ]
+    },
+    {
+      "file": "region_1_3.bin",
+      "location": [
+        1,
+        3
+      ],
+      "height_range": [
+        1213.25634765625,
+        3838.671630859375
+      ],
+      "map_sha256": [
+        "b20fbc5d5070548d8a01d2519bf39c2f29438806b5e22d91763a4409d75dbda1",
+        "dc09c4a7abb2925e24a7f37647aa5b7ee15c4439c63911362fb8d13b9bd8b02e",
+        "9b628a423b129f249209adc8682adad79ddf6242dca84dc1b8ff8548a65df38a"
+      ]
+    },
+    {
+      "file": "region_2_3.bin",
+      "location": [
+        2,
+        3
+      ],
+      "height_range": [
+        1224.385009765625,
+        2228.190673828125
+      ],
+      "map_sha256": [
+        "0285dcec372edb9cb14370dedeb86f4239154701d65d96b49990bdb77c158db2",
+        "3210b5b427c1eac35c72aa54fbff445c93efeb501785d9146844dbd3a7f0bb15",
+        "a03a846b5e980a9439c150f3a3d25a91ac0f3441ebf29950534164b4e24ea6a6"
+      ]
+    },
+    {
+      "file": "region_3_3.bin",
+      "location": [
+        3,
+        3
+      ],
+      "height_range": [
+        1261.3531494140625,
+        2315.898193359375
+      ],
+      "map_sha256": [
+        "b25adc3b2f8901b351f45296bd81229c7d7b9ac12b9ea53bb5f75688cc50afcc",
+        "f6cafa110d443b684afe7079e9ded76c5917dc4bd2f0491e1373f0969184e6a5",
+        "3abbdedb5502d61545be3c52d967976541201d501d0276d3ea771cde11274f79"
+      ]
+    }
+  ],
+  "no_resampling": true,
+  "auto_shader_flags": false,
+  "conversion": "Float32 meters after explicit height_scale and height_offset; single 90 CW rotation; WC Bridge top-two splat selection over all 8 channels; original RGBA colormap; no resampling or authored distributions."
+}

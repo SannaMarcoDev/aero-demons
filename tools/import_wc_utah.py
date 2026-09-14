@@ -58,6 +58,19 @@ def check():
                 (1 << 27) | (2 << 22) | (113 << 14),
                 (1 << 22) | (127 << 14)]
     assert pack_control(cases).tolist() == [expected]
+    # Native landcover path: all eight channels, tie keeps the lower base id,
+    # and corner pixels land on the rotated boundary positions.
+    eight = np.array([[[0, 0, 0, 0, 0, 0, 0, 200],
+                       [10, 200, 0, 0, 0, 200, 0, 0],
+                       [0, 0, 0, 0, 0, 0, 0, 0]]], dtype=np.uint8)
+    assert pack_control(eight).tolist() == [[
+        7 << 27,
+        (1 << 27) | (5 << 22) | (127 << 14),
+        0]]
+    corners = np.arange(16).reshape(4, 4)
+    rotated = orient(corners)
+    assert rotated[0, 0] == 12 and rotated[0, -1] == 0 \
+        and rotated[-1, 0] == 15 and rotated[-1, -1] == 3
     assert orient(np.array([[1, 2], [3, 4]])).tolist() == [[3, 1], [4, 2]]
     raw = np.array([[0, 65535]], dtype='<u2')
     assert decode_heights(raw, 64, 128).tolist() == [[64.0, 128.0]]
@@ -103,7 +116,8 @@ def main():
     assert float(surface['Width']) == float(surface['Length']) == 65536
     assert int(surface['TileResolution']) == 4096
     assert int(surface['TilesX']) >= 4 and int(surface['TilesY']) >= 4
-    assert len(textures) == 5 and all(not t.get('AlbedoFile') for t in textures), f"Expected 5 textures, got {len(textures)}"
+    assert 1 <= len(textures) <= 8 and all(not t.get('AlbedoFile') for t in textures), \
+        f"Expected 1-8 textures, got {len(textures)}"
     low, high = float(surface['MinHeight']), float(surface['MaxHeight'])
     assert np.isfinite([low, high]).all() and low < high
     tile_size = 4096
@@ -142,7 +156,7 @@ def main():
                     for sx in range(0, tile_size, REGION):
                         crop = np.s_[sy:sy + REGION, sx:sx + REGION]
                         heights = orient(decode_heights(raw[crop], low, high, args.height_scale))
-                        weights = np.concatenate([s[crop] for s in splats], axis=2)[:, :, :5]
+                        weights = np.concatenate([s[crop] for s in splats], axis=2)[:, :, :len(textures)]
                         control = orient(pack_control(weights))
                         colors = orient(color[crop])
                         rx = ty * 4 + (tile_size - sy - REGION) // REGION - 8
