@@ -74,7 +74,7 @@ func _ready() -> void:
 
 
 func grab_first_focus() -> void:
-	master_slider.grab_focus()
+	$RemapButton.grab_focus()
 
 
 ## Writes settings.cfg only when something actually changed since load/last save.
@@ -88,6 +88,10 @@ func save() -> Error:
 
 
 func _wire_signals() -> void:
+	$RemapButton.pressed.connect(func(): $ControllerRemap.open($RemapButton))
+	# Keep this long-lived panel's snapshot current: later audio/graphics changes
+	# apply_controls too, and must not silently restore the old profile.
+	$ControllerRemap.bindings_saved.connect(func(profile: Dictionary): settings["controls_bindings"] = profile)
 	preset_btn.pressed.connect(_on_cycle_preset)
 	clouds_btn.pressed.connect(func(): _cycle_enum("clouds_quality", Settings.CLOUDS_COUNT, clouds_btn, "NUVOLE", CLOUDS_LABELS))
 	coverage_slider.value_changed.connect(_on_coverage_changed)

@@ -36,7 +36,7 @@ func _run() -> void:
 	assert(menu.dossier_subtitle.text.contains("TUTORIAL") and menu.dossier_desc.text.contains("tre gruppi"))
 	await _capture("01_main")
 	menu.options_btn.pressed.emit()
-	assert(menu.options_menu.visible and menu.master_slider.has_focus())
+	assert(menu.options_menu.visible and menu.options_panel.get_node("RemapButton").has_focus())
 	await _capture("02_options")
 	# Settings persistence is checked against an isolated file, not the user's settings.cfg.
 	menu._show_root_menu()

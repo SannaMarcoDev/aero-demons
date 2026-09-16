@@ -1,6 +1,7 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/options_panel.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/ui/controller_remap.tscn" id="3_remap"]
 [ext_resource type="FontFile" path="res://assets/fonts/Michroma-Regular.ttf" id="2_font"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_normal"]
@@ -56,6 +57,19 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 0
 script = ExtResource("1_script")
+
+[node name="RemapButton" type="Button" parent="."]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "RIMAPPA CONTROLLER"
+
+[node name="ControllerRemap" parent="." instance=ExtResource("3_remap")]
 
 [node name="Scroll" type="ScrollContainer" parent="."]
 layout_mode = 2

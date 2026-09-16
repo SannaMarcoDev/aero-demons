@@ -114,7 +114,7 @@ func _on_options_pressed() -> void:
 	storia_menu.visible = false
 	options_menu.visible = true
 	section_header.text = "// AVIONICS CONFIGURATION"
-	master_slider.grab_focus()
+	options_panel.grab_first_focus()
 	_set_dossier("options")
 
 
@@ -221,7 +221,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			if storia_menu.visible:
 				alps_btn.grab_focus()
 			elif options_menu.visible:
-				master_slider.grab_focus()
+				options_panel.grab_first_focus()
 			else:
 				storia_btn.grab_focus()
 			get_viewport().set_input_as_handled()
