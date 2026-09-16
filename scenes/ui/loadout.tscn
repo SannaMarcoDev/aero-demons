@@ -309,9 +309,9 @@ text = "INDIETRO"
 [node name="Hint" type="Label" parent="Main/LeftPanel/VBox"]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.58, 0.62, 0.7, 1)
-text = "Frecce / D-Pad: naviga · Invio / A: equipaggia · ESC / B: indietro"
+text = "Naviga · Conferma · Indietro"
 autowrap_mode = 2
 
 [node name="RightPanel" type="PanelContainer" parent="Main"]

@@ -173,6 +173,21 @@ func _physics_process(delta: float) -> void:
 	_apply_triggers()
 
 
+## The HUD calls this only for the player when entering/leaving a paused UI.
+## A target-button release after pausing must not complete a pre-pause tap.
+func clear_player_controls() -> void:
+	pitch_input = 0.0
+	yaw_input = 0.0
+	roll_input = 0.0
+	throttle_input = 0.0
+	brake_input = 0.0
+	gun_trigger = false
+	missile_trigger = false
+	switch_missile_trigger = false
+	cycle_trigger = false
+	_cycle_press_time = -INF
+
+
 ## Fills the control fields for this tick. The player reads the gamepad; subclasses read an AI.
 func _update_controls() -> void:
 	var delta := get_physics_process_delta_time()

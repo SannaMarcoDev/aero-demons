@@ -18,11 +18,6 @@ const LABELS := {
 	"ui_left": "Menu sinistra", "ui_right": "Menu destra",
 	"ui_up": "Menu su", "ui_down": "Menu giù",
 }
-const BUTTONS := ["A / Croce", "B / Cerchio", "X / Quadrato", "Y / Triangolo",
-	"Back / Select", "Guide", "Start / Options", "L3", "R3", "LB / L1", "RB / R1",
-	"D-pad su", "D-pad giù", "D-pad sinistra", "D-pad destra"]
-const AXES := ["Stick SX ←", "Stick SX →", "Stick SX ↑", "Stick SX ↓",
-	"Stick DX ←", "Stick DX →", "Stick DX ↑", "Stick DX ↓", "LT / L2", "RT / R2"]
 const HELP := "Seleziona un comando. I conflitti scambiano le due assegnazioni.\nLe modifiche, incluso il ripristino, si applicano solo con SALVA."
 
 var config_path := Settings.CONFIG_PATH
@@ -96,15 +91,7 @@ func _refresh_rows() -> void:
 		var action: String = button.get_meta("action")
 		var slot: int = button.get_meta("slot")
 		var suffix := " (%d)" % (slot + 1) if draft[action].events.size() > 1 else ""
-		button.text = "%s%s:  %s" % [LABELS[action], suffix, binding_label(draft[action].events[slot])]
-
-
-static func binding_label(binding: Dictionary) -> String:
-	if binding.has("button"):
-		return BUTTONS[binding.button]
-	if binding.axis >= JOY_AXIS_TRIGGER_LEFT:
-		return AXES[8 + binding.axis - JOY_AXIS_TRIGGER_LEFT]
-	return AXES[binding.axis * 2 + (1 if binding.direction > 0 else 0)]
+		button.text = "%s%s:  %s" % [LABELS[action], suffix, Bindings.binding_label(draft[action].events[slot])]
 
 
 func _begin_capture(button: Button) -> void:
@@ -180,7 +167,7 @@ func _assign_candidate() -> void:
 	var slot: int = _capture.get_meta("slot")
 	var updated := draft.duplicate(true)
 	var previous: Dictionary = updated[action].events[slot]
-	var message := "Assegnato: %s. Premi SALVA per applicare." % binding_label(_candidate)
+	var message := "Assegnato: %s. Premi SALVA per applicare." % Bindings.binding_label(_candidate)
 	for context in Bindings.CONTEXTS:
 		if action not in context:
 			continue

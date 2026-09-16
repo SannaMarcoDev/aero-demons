@@ -2,6 +2,7 @@ extends CanvasLayer
 
 const Session = preload("res://scripts/ui/game_session.gd")
 const OptionsPanel = preload("res://scripts/ui/options_panel.gd")
+const Bindings = preload("res://scripts/ui/controller_bindings.gd")
 
 # Root Menu Buttons
 @onready var root_menu: VBoxContainer = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/RootMenu
@@ -38,10 +39,21 @@ func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	master_slider = options_panel.master_slider
 	_wire_signals()
+	options_panel.link_back_button(options_back_btn)
+	options_panel.get_node("ControllerRemap").bindings_saved.connect(func(_profile): _refresh_prompts())
 	if Session.menu_section == "sorties":
 		_on_storia_pressed()
+	elif Session.menu_section == "free_flight":
+		_show_root_menu()
+		free_flight_btn.grab_focus()
 	else:
 		_show_root_menu()
+	_refresh_prompts()
+
+
+func _refresh_prompts() -> void:
+	$MarginContainer/MainLayout/FooterBar/NavHints.text = Bindings.menu_hint()
+	_set_dossier(_focused_mode)
 
 
 func _process(_delta: float) -> void:
@@ -103,7 +115,7 @@ func _on_storia_pressed() -> void:
 func _on_free_flight_pressed() -> void:
 	_play_sfx()
 	Session.free_flight = true
-	Session.menu_section = ""
+	Session.menu_section = "free_flight"
 	Session.selected_map = Session.FREE_FLIGHT
 	_open_loadout()
 
@@ -182,7 +194,7 @@ func _set_dossier(mode_key: String) -> void:
 			dossier_title.text = "CONFIGURAZIONE SISTEMI"
 			dossier_subtitle.text = "PARAMETRI AVIONICI // CALIBRAZIONE AUDIO & GRAFICA"
 			dossier_desc.text = "Preset qualità rapidi (Basso→Ultra) oppure controllo fine su nuvole volumetriche (fino a spegnerle), cielo, ombre, effetti post, tonemap, upscaler FSR 1.0/2.2, scala di rendering con supersampling, anti-aliasing, V-Sync e limite FPS.\n\nMixer audio, risoluzione e controlli di volo in coda alla lista. Salvataggio automatico all'uscita."
-			dossier_telemetry.text = "BUS AUDIO: 3 ATTIVI  •  SALVA CON INDIETRO / ESC"
+			dossier_telemetry.text = "BUS AUDIO: 3 ATTIVI  •  SALVA CON INDIETRO [%s]" % Bindings.action_label("ui_cancel")
 
 		"quit":
 			dossier_tag.text = "// TAC-OPS DISENGAGEMENT"
@@ -199,7 +211,7 @@ func _set_dossier(mode_key: String) -> void:
 			threat_badge.modulate = Color(1.0, 0.3, 0.2)
 			dossier_title.text = "SETTORE 01: GARDA"
 			dossier_subtitle.text = "TRE GRUPPI NEMICI // DUE COMPAGNI DI SQUADRA"
-			dossier_desc.text = "Abbatti i tre gruppi di caccia con l'aiuto dei tuoi compagni. I nemici compaiono sul radar quando la squadra li avvista; la missione si conclude dopo l'ultima comunicazione.\n\nQ / D-Pad su cambia missile; TAB / Y cambia bersaglio; SPAZIO / A lancia. ESC / START apre la pausa."
+			dossier_desc.text = "Abbatti i tre gruppi di caccia con l'aiuto dei tuoi compagni. I nemici compaiono sul radar quando la squadra li avvista; la missione si conclude dopo l'ultima comunicazione.\n\n" + Bindings.weapons_hint()
 			dossier_telemetry.text = "SETTORE: GARDA  •  MISSIONE: TUTORIAL  •  MISSILI: DUE SLOT"
 
 
@@ -212,7 +224,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			_on_options_back_pressed()
 			get_viewport().set_input_as_handled()
 		else:
-			_on_quit_pressed()
+			# Back at the root selects Exit; only an explicit confirmation quits.
+			quit_btn.grab_focus()
 			get_viewport().set_input_as_handled()
 	elif get_viewport().gui_get_focus_owner() == null:
 		if event.is_action_pressed("ui_up") or event.is_action_pressed("ui_down") \

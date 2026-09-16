@@ -2,6 +2,7 @@ extends CanvasLayer
 
 const Catalog = preload("res://scripts/weapons/missile_catalog.gd")
 const Session = preload("res://scripts/ui/game_session.gd")
+const Bindings = preload("res://scripts/ui/controller_bindings.gd")
 const AircraftCatalog = preload("res://scripts/aircraft/aircraft_catalog.gd")
 
 @onready var slot1_btn: Button = $Main/LeftPanel/VBox/SlotRow/Slot1Button
@@ -39,6 +40,7 @@ func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	_group = ButtonGroup.new()
 	map_label.text = Session.level_name()
+	$Main/LeftPanel/VBox/Hint.text = Bindings.menu_hint()
 	_build_aircraft_list()
 	if Session.selected_missiles.size() >= 2:
 		_selected_missiles = Session.selected_missiles.duplicate()
@@ -125,7 +127,7 @@ func _preview_aircraft(id: String) -> void:
 		return
 	_show_aircraft_model(id)
 	var definition := AircraftCatalog.get_def(id)
-	var status := "SELEZIONATO" if id == Session.selected_aircraft_id else "A / INVIO / CLIC: seleziona"
+	var status := "SELEZIONATO" if id == Session.selected_aircraft_id else "%s: seleziona" % Bindings.action_label("ui_accept")
 	detail_label.text = "[%s]\n%s\n\n%s\n\nAereo predefinito della build interna · Due slot missili configurabili al passo successivo." % [
 		status, definition.label, definition.description,
 	]
@@ -230,7 +232,7 @@ func _preview_missile(id: String) -> void:
 		burn = " + %d burn in %.0fs" % [int(def["burn_total"]), float(def["burn_duration"])]
 	var slot_title := "SLOT %d (%s)" % [_active_slot + 1, "PRIMARIO" if _active_slot == 0 else "SECONDARIO"]
 	var is_equipped: bool = (_selected_missiles[_active_slot] == id)
-	var status_text := " [EQUIPAGGIATO]" if is_equipped else " [A / INVIO / CLIC: equipaggia]"
+	var status_text := " [EQUIPAGGIATO]" if is_equipped else " [%s: equipaggia]" % Bindings.action_label("ui_accept")
 	detail_label.text = "[%s]%s\n%s — %s\nSpeed %d m/s  ·  Range %d m  ·  Turn %d°  ·  Danni %d%s\n%s" % [
 		slot_title,
 		status_text,
@@ -318,6 +320,7 @@ func _on_avvia_pressed() -> void:
 		back_btn.disabled = false
 		avvia_btn.text = "RIPROVA"
 		detail_label.text = "Impossibile caricare la missione. Torna al menu e riprova."
+		avvia_btn.grab_focus()
 
 func _on_back_pressed() -> void:
 	if _launching:
@@ -325,7 +328,9 @@ func _on_back_pressed() -> void:
 	if not _aircraft_step:
 		_set_aircraft_step(true)
 	else:
-		Session.change_scene(get_tree(), Session.MAIN_MENU)
+		if Session.change_scene(get_tree(), Session.MAIN_MENU) != OK:
+			detail_label.text = "Impossibile aprire il menu. Riprova."
+			back_btn.grab_focus()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
@@ -339,3 +344,4 @@ func _unhandled_input(event: InputEvent) -> void:
 				_aircraft_buttons[Session.selected_aircraft_id].grab_focus()
 			else:
 				slot1_btn.grab_focus()
+			get_viewport().set_input_as_handled()

@@ -77,6 +77,29 @@ func grab_first_focus() -> void:
 	$RemapButton.grab_focus()
 
 
+## The scroll area and its caller's Back button form one predictable focus loop.
+func link_back_button(back: Button) -> void:
+	var controls: Array[Control] = [$RemapButton]
+	for control in $Scroll/Sections.find_children("*", "Control", true, false):
+		if control.focus_mode == Control.FOCUS_ALL:
+			controls.append(control)
+	controls.append(back)
+	for i in controls.size():
+		var control := controls[i]
+		control.focus_neighbor_top = control.get_path_to(controls[posmod(i - 1, controls.size())])
+		control.focus_neighbor_bottom = control.get_path_to(controls[(i + 1) % controls.size()])
+		control.focus_previous = control.focus_neighbor_top
+		control.focus_next = control.focus_neighbor_bottom
+		if control is Button:
+			control.focus_neighbor_left = NodePath(".")
+			control.focus_neighbor_right = NodePath(".")
+		elif control is Slider:
+			# The native slider's tiny grabber highlight is easy to miss on a pad.
+			var row := control.get_parent() as Control
+			control.focus_entered.connect(func(): row.modulate = Color(0.3, 0.85, 1.0))
+			control.focus_exited.connect(func(): row.modulate = Color.WHITE)
+
+
 ## Writes settings.cfg only when something actually changed since load/last save.
 func save() -> Error:
 	if not dirty:
@@ -176,9 +199,10 @@ func _refresh_ui() -> void:
 
 
 func _changed() -> void:
+	if _updating:
+		return
 	dirty = true
-	if not _updating:
-		Settings.apply_settings(settings)
+	Settings.apply_settings(settings)
 
 
 func _mark_custom() -> void:

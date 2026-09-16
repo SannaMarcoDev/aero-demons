@@ -107,6 +107,7 @@ theme_override_colors/font_color = Color(0.95, 0.98, 1, 0.96)
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 20
 text = ""
+autowrap_mode = 3
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -394,6 +395,7 @@ theme_override_colors/font_color = Color(0.58, 0.75, 0.82, 1)
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 12
 text = "SCEGLI UN'OPZIONE"
+autowrap_mode = 3
 horizontal_alignment = 1
 
 [node name="ResumeButton" type="Button" parent="HudText/PauseOverlay/Panel/Menu"]
@@ -476,8 +478,9 @@ text = "ESCI DAL GIOCO"
 layout_mode = 2
 theme_override_colors/font_color = Color(0.48, 0.61, 0.68, 1)
 theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 10
-text = "[INVIO / A] SELEZIONA  ·  [ESC / B] INDIETRO"
+theme_override_font_sizes/font_size = 14
+text = "Conferma · Indietro"
+autowrap_mode = 3
 horizontal_alignment = 1
 
 [node name="PauseOptions" type="PanelContainer" parent="HudText/PauseOverlay"]

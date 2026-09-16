@@ -2,6 +2,7 @@ extends CanvasLayer
 class_name CombatHUD
 
 const OptionsPanel = preload("res://scripts/ui/options_panel.gd")
+const Bindings = preload("res://scripts/ui/controller_bindings.gd")
 
 const TAPE_Y := 286.0
 const TAPE_HALF_WIDTH := 290.0
@@ -80,6 +81,10 @@ var _hit_remaining := 0.0
 @onready var _options_panel: OptionsPanel = $HudText/PauseOverlay/PauseOptions/Menu/OptionsPanel
 var _pause_menu_was_paused := false
 var _flight_mouse_mode := Input.MOUSE_MODE_VISIBLE
+var _resume_pending := false
+var _disconnect_pause := false
+var _controller_missing := false
+var _mission_detail_base := ""
 
 
 class HudCanvas extends Control:
@@ -93,6 +98,10 @@ class HudCanvas extends Control:
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_resolve_sources()
+	Input.joy_connection_changed.connect(_on_joy_connection_changed)
+	_options_panel.link_back_button($HudText/PauseOverlay/PauseOptions/Menu/OptionsBackButton)
+	_options_panel.get_node("ControllerRemap").bindings_saved.connect(func(_profile): _refresh_prompts())
+	_refresh_prompts()
 	if is_instance_valid(weapons):
 		weapons.hit_confirmed.connect(_on_hit_confirmed)
 	if targeting != null and is_instance_valid(targeting) and targeting.has_signal("target_changed"):
@@ -116,6 +125,8 @@ func _on_hit_confirmed() -> void:
 
 
 func _process(delta: float) -> void:
+	if _resume_pending and not _controller_missing and _controls_released():
+		_finish_resume()
 	if not get_tree().paused:
 		_hit_remaining = maxf(_hit_remaining - delta, 0.0)
 	_update_labels()
@@ -123,10 +134,23 @@ func _process(delta: float) -> void:
 		_canvas.queue_redraw()
 
 
+func _refresh_prompts() -> void:
+	$HudText/PauseOverlay/Panel/Menu/Hint.text = Bindings.menu_hint()
+	_mission_detail.text = "%s\n[%s] RIPROVA · [%s] MENU" % [
+		_mission_detail_base, Bindings.action_label("ui_accept"), Bindings.action_label("ui_cancel")]
+
+
 func show_mission_result(title: String, detail: String) -> void:
+	_resume_pending = false
 	_mission_title.text = title
-	_mission_detail.text = "%s\n[R] RIPROVA  ·  [ESC / START] MENU" % detail
+	_mission_detail_base = detail
+	_refresh_prompts()
 	_mission_overlay.visible = true
+	if _pause_overlay.visible:
+		_pause_menu_was_paused = true
+		_resume_button.disabled = true
+		if not _pause_options.visible:
+			_restart_button.grab_focus()
 
 
 func _open_pause_menu() -> void:
@@ -139,7 +163,11 @@ func _open_pause_menu() -> void:
 	_pause_options.visible = false
 	_pause_overlay.visible = true
 	get_tree().paused = true
-	_resume_button.disabled = mission_result_visible()
+	if is_instance_valid(player):
+		player.clear_player_controls()
+	_refresh_prompts()
+	$HudText/PauseOverlay/Panel/Menu/Subtitle.text = "SCEGLI UN'OPZIONE"
+	_resume_button.disabled = mission_result_visible() or _controller_missing
 	if _resume_button.disabled:
 		_restart_button.grab_focus()
 	else:
@@ -148,42 +176,107 @@ func _open_pause_menu() -> void:
 
 func _close_pause_menu() -> void:
 	if _pause_options.visible:
-		_options_panel.save()
-		_pause_options.visible = false
-		_pause_panel.visible = true
+		_on_options_back_pressed()
+		return
+	if _disconnect_pause and not mission_result_visible():
+		if not _controller_missing:
+			_resume_button.grab_focus()
+		return
+	if not _pause_menu_was_paused and not _controls_released():
+		_resume_pending = true
+		$HudText/PauseOverlay/Panel/Menu/Subtitle.text = "RILASCIA I COMANDI PER RIPRENDERE"
+		return
+	_finish_resume()
+
+
+func _controls_released() -> bool:
+	for context in Bindings.CONTEXTS:
+		for action: String in context:
+			if Input.is_action_pressed(action):
+				return false
+	return true
+
+
+func _finish_resume() -> void:
+	_resume_pending = false
+	if is_instance_valid(player):
+		player.clear_player_controls()
 	_pause_overlay.visible = false
 	get_tree().paused = _pause_menu_was_paused
 	Input.mouse_mode = _flight_mouse_mode
 
 
 func _on_resume_pressed() -> void:
+	if _controller_missing or mission_result_visible():
+		return
+	_disconnect_pause = false
 	_close_pause_menu()
 
 
+func _on_joy_connection_changed(_device: int, connected: bool) -> void:
+	if connected:
+		if not _disconnect_pause:
+			return
+		_controller_missing = false
+	else:
+		_disconnect_pause = true
+		_controller_missing = Input.get_connected_joypads().is_empty()
+		_resume_pending = false
+		# A disconnected device cannot send its final releases. Clear latched
+		# actions before requesting an explicit resume; never resume on reconnect.
+		for context in Bindings.CONTEXTS:
+			for action: String in context:
+				Input.action_release(action)
+		_open_pause_menu()
+	_resume_button.disabled = _controller_missing or mission_result_visible()
+	$HudText/PauseOverlay/Panel/Menu/Subtitle.text = "CONTROLLER SCOLLEGATO. RICOLLEGALO." if _controller_missing \
+		else "CONTROLLER DISPONIBILE. CONFERMA RIPRENDI."
+	if _pause_options.visible:
+		$HudText/PauseOverlay/PauseOptions/Menu/Subtitle.text = $HudText/PauseOverlay/Panel/Menu/Subtitle.text
+	else:
+		if _resume_button.disabled:
+			_restart_button.grab_focus()
+		else:
+			_resume_button.grab_focus()
+
+
 func _on_options_pressed() -> void:
+	_resume_pending = false
 	_pause_panel.visible = false
 	_pause_options.visible = true
 	_options_panel.grab_first_focus()
 
 
 func _on_options_back_pressed() -> void:
-	_options_panel.save()
+	var error := _options_panel.save()
+	if error != OK:
+		$HudText/PauseOverlay/PauseOptions/Menu/Subtitle.text = "Impossibile salvare: %s" % error_string(error)
+		return
+	$HudText/PauseOverlay/PauseOptions/Menu/Subtitle.text = "CONFIGURAZIONE AVIONICA // SALVATAGGIO AUTOMATICO"
 	_pause_options.visible = false
 	_pause_panel.visible = true
 	_options_button.grab_focus()
 
 
+func _change_scene(path: String) -> void:
+	_resume_pending = false
+	var error := GameSession.change_scene(get_tree(), path)
+	if error != OK:
+		_open_pause_menu()
+		$HudText/PauseOverlay/Panel/Menu/Subtitle.text = "Impossibile caricare: %s" % error_string(error)
+
+
 func _on_restart_pressed() -> void:
-	GameSession.change_scene(get_tree(), get_parent().scene_file_path)
+	_change_scene(get_parent().scene_file_path)
 
 
 func _on_loadout_pressed() -> void:
-	GameSession.change_scene(get_tree(), GameSession.LOADOUT)
+	_change_scene(GameSession.LOADOUT)
 
 
 func _on_main_menu_pressed() -> void:
 	GameSession.menu_section = ""
-	GameSession.change_scene(get_tree(), GameSession.MAIN_MENU)
+	_change_scene(GameSession.MAIN_MENU)
 
 
 func _on_quit_pressed() -> void:
@@ -562,24 +655,34 @@ func _faded(color: Color, fade: float) -> Color:
 ## marker slides from its old screen position instead of teleporting. Initial acquisition and
 ## switches after a kill skip the animation.
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("reset_run"):
+	if _pause_overlay.visible:
+		if get_viewport().gui_get_focus_owner() == null and (
+			event.is_action_pressed("ui_up") or event.is_action_pressed("ui_down")
+			or event.is_action_pressed("ui_left") or event.is_action_pressed("ui_right")
+			or event.is_action_pressed("ui_accept")):
+			if _pause_options.visible:
+				_options_panel.grab_first_focus()
+			elif _resume_button.disabled:
+				_restart_button.grab_focus()
+			else:
+				_resume_button.grab_focus()
+			get_viewport().set_input_as_handled()
+		elif event.is_action_pressed("ui_cancel") or (event.is_action_pressed("pause_menu")
+			and not Bindings.CONTEXTS[0].any(func(action): return event.is_action(action))):
+			get_viewport().set_input_as_handled()
+			_close_pause_menu()
+		return
+	# Menu actions win over flight actions sharing the same physical binding.
+	if mission_result_visible() and event.is_action("ui_accept"):
+		get_viewport().set_input_as_handled()
+		if event.is_action_released("ui_accept"):
+			_on_restart_pressed()
+	elif event.is_action_pressed("reset_run"):
 		get_viewport().set_input_as_handled()
 		_on_restart_pressed()
-	elif event.is_action_pressed("pause_menu"):
-		if _pause_options.visible:
-			_on_options_back_pressed()
-		elif _pause_overlay.visible:
-			_close_pause_menu()
-		else:
-			_open_pause_menu()
+	elif event.is_action_pressed("pause_menu") or (mission_result_visible() and event.is_action_pressed("ui_cancel")):
 		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("ui_cancel"):
-		if _pause_options.visible:
-			_on_options_back_pressed()
-			get_viewport().set_input_as_handled()
-		elif _pause_overlay.visible:
-			_close_pause_menu()
-			get_viewport().set_input_as_handled()
+		_open_pause_menu()
 
 func _on_target_changed(_new_target: Node3D) -> void:
 	if not _target_alive(_target):

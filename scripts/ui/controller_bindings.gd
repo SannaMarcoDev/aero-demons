@@ -11,6 +11,44 @@ const CONTEXTS := [
 ]
 
 
+const BUTTON_LABELS := ["A", "B", "X", "Y", "View", "Xbox", "Menu", "LS", "RS", "LB", "RB",
+	"D-pad su", "D-pad giù", "D-pad sinistra", "D-pad destra"]
+const AXIS_LABELS := ["Stick SX ←", "Stick SX →", "Stick SX ↑", "Stick SX ↓",
+	"Stick DX ←", "Stick DX →", "Stick DX ↑", "Stick DX ↓", "LT", "RT"]
+
+
+static func binding_label(binding: Dictionary) -> String:
+	if binding.has("button"):
+		return BUTTON_LABELS[binding.button]
+	if binding.axis >= JOY_AXIS_TRIGGER_LEFT:
+		return AXIS_LABELS[8 + binding.axis - JOY_AXIS_TRIGGER_LEFT]
+	return AXIS_LABELS[binding.axis * 2 + (1 if binding.direction > 0 else 0)]
+
+
+## Prompts read the live map, not defaults or an unsaved remapping draft.
+## Show the first controller alternative to keep hints short; desktop-only actions
+## (e.g. the debugging retry key) fall back to their actual key/mouse event.
+static func action_label(action: String) -> String:
+	var events := InputMap.action_get_events(action)
+	for event in events:
+		if event is InputEventJoypadButton:
+			return binding_label({"button": event.button_index})
+		if event is InputEventJoypadMotion:
+			return binding_label({"axis": event.axis, "direction": int(signf(event.axis_value))})
+	return events[0].as_text() if not events.is_empty() else "Non assegnato"
+
+
+static func menu_hint() -> String:
+	return "[%s / %s] Naviga · [%s] Conferma · [%s] Indietro" % [
+		action_label("ui_up"), action_label("ui_down"), action_label("ui_accept"), action_label("ui_cancel")]
+
+
+static func weapons_hint() -> String:
+	return "[%s] Cannone · [%s] Lancia missile\n[%s] Cambia missile · [%s] Cambia bersaglio (tieni: insegui)\n[%s] Pausa / opzioni" % [
+		action_label("fire_gun"), action_label("fire_missile"), action_label("switch_missile"),
+		action_label("cycle_target"), action_label("pause_menu")]
+
+
 static func defaults() -> Dictionary:
 	var profile := {}
 	for context in CONTEXTS:
