@@ -35,8 +35,27 @@ var _selected_missiles: Array[String] = ["STDM", "HSSTDM"]
 var _missile_buttons: Dictionary = {}
 var _missile_button_list: Array[Button] = []
 var _launching := false
+var _transitioning := true
+@onready var hangar_camera = $HangarViewportContainer/SubViewport/MenuAircraftStage/Camera3D
+@onready var door_player: AnimationPlayer = $HangarViewportContainer/SubViewport/MenuAircraftStage/Hangar/AnimationPlayer
+@onready var loading_screen: ColorRect = $LoadingScreen
 
 func _ready() -> void:
+	hangar_camera.set_view(1.0)
+	# Imported clips contain rest tracks for the opposite leaf: copy only each moving door.
+	var opening := Animation.new()
+	for side in ["Left", "Right"]:
+		var clip := door_player.get_animation("Action_Front_Door_%s_Slide" % side)
+		opening.length = maxf(opening.length, clip.length)
+		for track in clip.get_track_count():
+			if clip.track_get_path(track) == NodePath("HAS_Front_Door_" + side):
+				clip.copy_track(track, opening)
+	var library := AnimationLibrary.new()
+	library.add_animation("open", opening)
+	door_player.add_animation_library("departure", library)
+	$Main.modulate.a = 0.0
+	$Main.scale = Vector2(0.985, 0.985)
+	$Background.modulate.a = 0.0
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	_group = ButtonGroup.new()
 	map_label.text = Session.level_name()
@@ -89,6 +108,8 @@ func _ready() -> void:
 	_select_slot(0)
 	preview_camera.look_at(Vector3(0, -0.3, 0), Vector3.UP)
 	_set_aircraft_step(true)
+	await hangar_camera.fade_ui($Main, true, $Background).finished
+	_transitioning = false
 
 func _build_aircraft_list() -> void:
 	var group := ButtonGroup.new()
@@ -298,10 +319,11 @@ func _update_stats() -> void:
 	_show_stats_for(current_id)
 
 func _process(delta: float) -> void:
-	preview_root.rotate_y(delta * 0.35)
+	if $Main/RightPanel/VBox/SubViewportContainer.is_visible_in_tree():
+		preview_root.rotate_y(delta * 0.35)
 
 func _on_avvia_pressed() -> void:
-	if _launching:
+	if _launching or _transitioning:
 		return
 	if _aircraft_step:
 		_set_aircraft_step(false)
@@ -310,29 +332,47 @@ func _on_avvia_pressed() -> void:
 	Session.selected_missiles = _selected_missiles.duplicate()
 	avvia_btn.disabled = true
 	back_btn.disabled = true
-	avvia_btn.text = "CARICAMENTO…"
-	# Let the loading feedback render before loading the terrain scene.
+	await hangar_camera.fade_ui($Main, false, $Background).finished
+	door_player.play("departure/open")
+	await door_player.animation_finished
+	loading_screen.modulate.a = 0.0
+	loading_screen.show()
+	await create_tween().tween_property(loading_screen, "modulate:a", 1.0, 0.8).finished
+	# Present the fully black loading screen before the synchronous terrain load.
 	await get_tree().process_frame
 	await get_tree().process_frame
 	if Session.change_scene(get_tree(), Session.selected_map) != OK:
-		_launching = false
+		await create_tween().tween_property(loading_screen, "modulate:a", 0.0, 0.3).finished
+		loading_screen.hide()
 		avvia_btn.disabled = false
 		back_btn.disabled = false
 		avvia_btn.text = "RIPROVA"
 		detail_label.text = "Impossibile caricare la missione. Torna al menu e riprova."
+		await hangar_camera.fade_ui($Main, true, $Background).finished
+		_launching = false
 		avvia_btn.grab_focus()
 
 func _on_back_pressed() -> void:
-	if _launching:
+	if _launching or _transitioning:
 		return
 	if not _aircraft_step:
 		_set_aircraft_step(true)
 	else:
+		_transitioning = true
+		await hangar_camera.fade_ui($Main, false, $Background).finished
 		if Session.change_scene(get_tree(), Session.MAIN_MENU) != OK:
 			detail_label.text = "Impossibile aprire il menu. Riprova."
+			await hangar_camera.fade_ui($Main, true, $Background).finished
+			_transitioning = false
 			back_btn.grab_focus()
 
+func _input(_event: InputEvent) -> void:
+	if _transitioning or _launching:
+		get_viewport().set_input_as_handled()
+
 func _unhandled_input(event: InputEvent) -> void:
+	if _transitioning or _launching:
+		return
 	if event.is_action_pressed("ui_cancel"):
 		get_viewport().set_input_as_handled()
 		_on_back_pressed()

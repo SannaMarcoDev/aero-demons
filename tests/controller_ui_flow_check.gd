@@ -197,11 +197,15 @@ func _apply_profile(panel: OptionsPanel) -> void:
 
 
 func _scene(expected: String) -> void:
-	for frame in 300:
+	var deadline := Time.get_ticks_msec() + 10000
+	while true:
 		if is_instance_valid(current_scene) and current_scene.scene_file_path == expected:
-			return
+			if current_scene.get("_transitioning") != true:
+				return
+		if Time.get_ticks_msec() >= deadline:
+			break
 		await process_frame
-	assert(false, "Expected scene: " + expected)
+	assert(false, "Expected settled scene: " + expected)
 
 
 func _replacement(previous: int) -> void:

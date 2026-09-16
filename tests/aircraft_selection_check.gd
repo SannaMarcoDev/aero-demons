@@ -18,6 +18,8 @@ func _run() -> void:
 	assert(Session.change_scene(self, Session.LOADOUT) == OK)
 	await scene_changed
 	var menu = current_scene
+	while menu._transitioning:
+		await process_frame
 	assert(Session.selected_aircraft_id == Catalog.DEFAULT_ID)
 	assert(menu._aircraft_step and menu.aircraft_scroll.visible)
 	assert(not menu.missile_list.is_visible_in_tree())
@@ -95,6 +97,13 @@ func _run() -> void:
 	enemy._begin_spin_dash()
 	assert(enemy.spin_dash_active)
 	enemy.free()
+	await process_frame
+	for audio in root.get_node("AudioManager").get_children():
+		if audio is AudioStreamPlayer:
+			audio.stop()
+	await create_timer(0.1).timeout
+	current_scene.queue_free()
+	await process_frame
 	await process_frame
 	print("PASS: internal build, default aircraft, stale selections, 25 missile pairs, disabled player maneuvers and AI isolation")
 	quit()

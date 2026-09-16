@@ -1,7 +1,17 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/loadout.gd" id="1_loadout"]
 [ext_resource type="FontFile" path="res://assets/fonts/Michroma-Regular.ttf" id="2_font"]
+[ext_resource type="PackedScene" path="res://scenes/ui/menu_aircraft_stage.tscn" id="3_hangar"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_hangar_panel"]
+bg_color = Color(0.025, 0.04, 0.065, 0.82)
+content_margin_left = 18.0
+content_margin_right = 18.0
+content_margin_top = 14.0
+content_margin_bottom = 14.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBox_clear"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_stats_background"]
 bg_color = Color(0.14, 0.16, 0.19, 1)
@@ -48,8 +58,27 @@ ambient_light_energy = 1.0
 [node name="Loadout" type="CanvasLayer"]
 script = ExtResource("1_loadout")
 
+[node name="HangarViewportContainer" type="SubViewportContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="HangarViewportContainer"]
+handle_input_locally = false
+own_world_3d = true
+msaa_3d = 2
+size = Vector2i(1920, 1080)
+render_target_update_mode = 3
+
+[node name="MenuAircraftStage" parent="HangarViewportContainer/SubViewport" instance=ExtResource("3_hangar")]
+
 [node name="Background" type="ColorRect" parent="."]
-color = Color(0.05, 0.07, 0.11, 1)
+mouse_filter = 2
+color = Color(0.02, 0.035, 0.055, 0.18)
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -57,6 +86,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Main" type="HBoxContainer" parent="."]
+layout_direction = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -69,6 +99,8 @@ offset_bottom = -24.0
 theme_override_constants/separation = 22
 
 [node name="LeftPanel" type="PanelContainer" parent="Main"]
+layout_direction = 2
+theme_override_styles/panel = SubResource("StyleBox_hangar_panel")
 custom_minimum_size = Vector2(560, 0)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -315,6 +347,8 @@ text = "Naviga · Conferma · Indietro"
 autowrap_mode = 2
 
 [node name="RightPanel" type="PanelContainer" parent="Main"]
+layout_direction = 2
+theme_override_styles/panel = SubResource("StyleBox_clear")
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -336,6 +370,7 @@ text = "VELIVOLO"
 horizontal_alignment = 1
 
 [node name="SubViewportContainer" type="SubViewportContainer" parent="Main/RightPanel/VBox"]
+visible = false
 custom_minimum_size = Vector2(0, 420)
 layout_mode = 2
 size_flags_vertical = 3
@@ -344,7 +379,7 @@ stretch = true
 [node name="PreviewViewport" type="SubViewport" parent="Main/RightPanel/VBox/SubViewportContainer"]
 handle_input_locally = false
 size = Vector2i(900, 600)
-render_target_update_mode = 4
+render_target_update_mode = 0
 own_world_3d = true
 
 [node name="PreviewRoot" type="Node3D" parent="Main/RightPanel/VBox/SubViewportContainer/PreviewViewport"]
@@ -365,7 +400,15 @@ shadow_enabled = true
 [node name="PreviewEnv" type="WorldEnvironment" parent="Main/RightPanel/VBox/SubViewportContainer/PreviewViewport"]
 environment = SubResource("Environment_preview")
 
+[node name="HangarSpace" type="Control" parent="Main/RightPanel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
 [node name="DetailLabel" type="Label" parent="Main/RightPanel/VBox"]
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
 custom_minimum_size = Vector2(0, 140)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_font")
@@ -373,6 +416,28 @@ theme_override_font_sizes/font_size = 16
 theme_override_colors/font_color = Color(0.85, 0.88, 0.92, 1)
 autowrap_mode = 3
 text = "—"
+
+[node name="LoadingScreen" type="ColorRect" parent="."]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="Label" type="Label" parent="LoadingScreen"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 24
+text = "CARICAMENTO…"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [connection signal="pressed" from="Main/LeftPanel/VBox/AvviaButton" to="." method="_on_avvia_pressed"]
 [connection signal="pressed" from="Main/LeftPanel/VBox/BackButton" to="." method="_on_back_pressed"]

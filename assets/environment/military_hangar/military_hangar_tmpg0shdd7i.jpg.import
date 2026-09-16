@@ -1,0 +1,44 @@
+[remap]
+
+importer="texture"
+type="CompressedTexture2D"
+uid="uid://5sp2w4jhvplo"
+path.s3tc="res://.godot/imported/military_hangar_tmpg0shdd7i.jpg-1ed374fb1f5885be0190f5a8006bd0dd.s3tc.ctex"
+metadata={
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
+}
+generator_parameters={
+"md5": "db3711e754a44bd3f09c7d335d029b5d"
+}
+
+[deps]
+
+source_file="res://assets/environment/military_hangar/military_hangar_tmpg0shdd7i.jpg"
+dest_files=["res://.godot/imported/military_hangar_tmpg0shdd7i.jpg-1ed374fb1f5885be0190f5a8006bd0dd.s3tc.ctex"]
+
+[params]
+
+compress/mode=2
+compress/high_quality=false
+compress/lossy_quality=0.7
+compress/uastc_level=0
+compress/rdo_quality_loss=0.0
+compress/hdr_compression=1
+compress/normal_map=0
+compress/channel_pack=0
+mipmaps/generate=true
+mipmaps/limit=-1
+roughness/mode=0
+roughness/src_normal=""
+process/channel_remap/red=0
+process/channel_remap/green=1
+process/channel_remap/blue=2
+process/channel_remap/alpha=3
+process/fix_alpha_border=true
+process/premult_alpha=false
+process/normal_map_invert_y=false
+process/hdr_as_srgb=false
+process/hdr_clamp_exposure=false
+process/size_limit=0
+detect_3d/compress_to=0

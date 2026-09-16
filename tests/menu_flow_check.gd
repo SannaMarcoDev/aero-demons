@@ -40,12 +40,13 @@ func _run() -> void:
 	await _capture("02_options")
 	# Settings persistence is checked against an isolated file, not the user's settings.cfg.
 	menu._show_root_menu()
-	menu.storia_btn.pressed.emit()
+	await menu._on_storia_pressed()
 	assert(menu.storia_menu.visible and menu.alps_btn.has_focus())
 	await _capture("03_sorties")
 	menu.alps_btn.pressed.emit()
 	await scene_changed
 	assert(current_scene.scene_file_path == Session.LOADOUT and not Session.free_flight)
+	await _settle_menu()
 	var loadout = current_scene
 	assert(loadout._aircraft_step and loadout._aircraft_buttons.size() == Session.AircraftCatalog.ids().size())
 	loadout._aircraft_buttons[Session.AircraftCatalog.DEFAULT_ID].pressed.emit()
@@ -75,8 +76,10 @@ func _run() -> void:
 	loadout.back_btn.pressed.emit()
 	await scene_changed
 	assert(current_scene.storia_menu.visible, "Back returns to sortie selection")
+	await _settle_menu()
 	current_scene.alps_btn.pressed.emit()
 	await scene_changed
+	await _settle_menu()
 	assert(Session.selected_missiles == ["NCGBM", "MTSM"])
 	assert(Session.selected_aircraft_id == Session.AircraftCatalog.DEFAULT_ID)
 	current_scene.avvia_btn.pressed.emit()
@@ -142,12 +145,15 @@ func _run() -> void:
 	hud._on_loadout_pressed()
 	await scene_changed
 	assert(not paused and current_scene.scene_file_path == Session.LOADOUT)
+	await _settle_menu()
 	current_scene.back_btn.pressed.emit()
 	await scene_changed
-	current_scene._show_root_menu()
+	await _settle_menu()
+	await current_scene._on_storia_back_pressed()
 	current_scene.free_flight_btn.pressed.emit()
 	await scene_changed
 	assert(Session.free_flight and Session.selected_map == Session.FREE_FLIGHT)
+	await _settle_menu()
 	Session.selected_aircraft_id = "fighter" # A stale selection cannot bypass the internal build.
 	current_scene.avvia_btn.pressed.emit()
 	current_scene.avvia_btn.pressed.emit()
@@ -161,8 +167,20 @@ func _run() -> void:
 	await scene_changed
 	assert(not paused and current_scene.root_menu.visible and Session.menu_section.is_empty())
 	assert(not root.get_node("AudioManager")._alarm_active)
+	for audio in root.get_node("AudioManager").get_children():
+		if audio is AudioStreamPlayer:
+			audio.stop()
+	await create_timer(0.1).timeout
+	current_scene.queue_free()
+	await process_frame
+	await process_frame
 	print("Menu flow check passed: aircraft selection and persistence, options, focus, all 5 missiles, 2 slots, real level launches, pause, victory/defeat, restart, loadout and return")
 	quit()
+
+
+func _settle_menu() -> void:
+	while current_scene.get("_transitioning") == true:
+		await process_frame
 
 
 func _check_weapons(player: PlayerFlight, weapons: WeaponController) -> bool:

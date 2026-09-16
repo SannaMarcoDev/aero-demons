@@ -32,6 +32,11 @@ var master_slider: HSlider
 @onready var radar_widget: Control = $MarginContainer/MainLayout/ContentArea/RightPanel/Margin/VBox/RadarContainer/TacticalRadarWidget
 @onready var section_header: Label = $MarginContainer/MainLayout/ContentArea/LeftPanel/SectionHeader
 
+@onready var hangar_camera = $AircraftViewportContainer/SubViewport/MenuAircraftStage/Camera3D
+@onready var menu_ui: Control = $MarginContainer
+@onready var vignette: ColorRect = $TacticalVignette
+
+var _transitioning := false
 var _focused_mode: String = "storia"
 
 
@@ -41,14 +46,24 @@ func _ready() -> void:
 	_wire_signals()
 	options_panel.link_back_button(options_back_btn)
 	options_panel.get_node("ControllerRemap").bindings_saved.connect(func(_profile): _refresh_prompts())
-	if Session.menu_section == "sorties":
-		_on_storia_pressed()
-	elif Session.menu_section == "free_flight":
-		_show_root_menu()
-		free_flight_btn.grab_focus()
+	var returning_section: String = Session.menu_section
+	if returning_section == "sorties":
+		hangar_camera.set_view(1.0)
+		_show_storia_menu()
 	else:
 		_show_root_menu()
 	_refresh_prompts()
+	if not returning_section.is_empty():
+		_transitioning = true
+		menu_ui.modulate.a = 0.0
+		menu_ui.scale = Vector2(0.985, 0.985)
+		vignette.modulate.a = 0.0
+		if returning_section == "free_flight":
+			hangar_camera.set_view(1.0)
+			await hangar_camera.travel_to(false).finished
+			free_flight_btn.grab_focus()
+		await hangar_camera.fade_ui(menu_ui, true, vignette).finished
+		_transitioning = false
 
 
 func _refresh_prompts() -> void:
@@ -57,7 +72,7 @@ func _refresh_prompts() -> void:
 
 
 func _process(_delta: float) -> void:
-	if is_instance_valid(radar_widget):
+	if is_instance_valid(radar_widget) and radar_widget.is_visible_in_tree():
 		radar_widget.queue_redraw()
 
 
@@ -102,7 +117,18 @@ func _show_root_menu() -> void:
 
 
 func _on_storia_pressed() -> void:
+	if _transitioning:
+		return
+	_transitioning = true
 	_play_sfx()
+	await hangar_camera.fade_ui(menu_ui, false, vignette).finished
+	await hangar_camera.travel_to(true).finished
+	_show_storia_menu()
+	await hangar_camera.fade_ui(menu_ui, true, vignette).finished
+	_transitioning = false
+
+
+func _show_storia_menu() -> void:
 	Session.menu_section = "sorties"
 	root_menu.visible = false
 	options_menu.visible = false
@@ -113,14 +139,21 @@ func _on_storia_pressed() -> void:
 
 
 func _on_free_flight_pressed() -> void:
+	if _transitioning:
+		return
+	_transitioning = true
 	_play_sfx()
+	await hangar_camera.fade_ui(menu_ui, false, vignette).finished
+	await hangar_camera.travel_to(true).finished
 	Session.free_flight = true
 	Session.menu_section = "free_flight"
 	Session.selected_map = Session.FREE_FLIGHT
-	_open_loadout()
+	await _open_loadout()
 
 
 func _on_options_pressed() -> void:
+	if _transitioning:
+		return
 	_play_sfx()
 	root_menu.visible = false
 	storia_menu.visible = false
@@ -131,14 +164,22 @@ func _on_options_pressed() -> void:
 
 
 func _on_quit_pressed() -> void:
+	if _transitioning:
+		return
 	_play_sfx()
 	get_tree().quit()
 
 
 func _on_storia_back_pressed() -> void:
+	if _transitioning:
+		return
+	_transitioning = true
 	_play_sfx()
+	await hangar_camera.fade_ui(menu_ui, false, vignette).finished
+	await hangar_camera.travel_to(false).finished
 	_show_root_menu()
-	storia_btn.grab_focus()
+	await hangar_camera.fade_ui(menu_ui, true, vignette).finished
+	_transitioning = false
 
 
 func _on_options_back_pressed() -> void:
@@ -152,19 +193,30 @@ func _on_options_back_pressed() -> void:
 
 
 func _select_storia_map(map_path: String) -> void:
+	if _transitioning:
+		return
+	_transitioning = true
 	_play_sfx()
+	await hangar_camera.fade_ui(menu_ui, false, vignette).finished
 	Session.free_flight = false
 	Session.selected_map = map_path
-	_open_loadout()
+	await _open_loadout()
 
 
 func _open_loadout() -> void:
 	if Session.change_scene(get_tree(), Session.LOADOUT) != OK:
 		dossier_desc.text = "Impossibile aprire la selezione aereo e armamento."
+		$MarginContainer/MainLayout/ContentArea/RightPanel.show()
+		await hangar_camera.fade_ui(menu_ui, true, vignette).finished
+		_transitioning = false
 
 
 func _set_dossier(mode_key: String) -> void:
 	_focused_mode = mode_key
+	var intel_panel: Control = $MarginContainer/MainLayout/ContentArea/RightPanel
+	intel_panel.visible = not root_menu.visible
+	intel_panel.size_flags_vertical = Control.SIZE_FILL if options_menu.visible else Control.SIZE_SHRINK_END
+	radar_widget.get_parent().visible = options_menu.visible
 	if radar_widget != null and is_instance_valid(radar_widget) and radar_widget.has_method("set_mode"):
 		radar_widget.call("set_mode", mode_key)
 
@@ -215,7 +267,14 @@ func _set_dossier(mode_key: String) -> void:
 			dossier_telemetry.text = "SETTORE: GARDA  •  MISSIONE: TUTORIAL  •  MISSILI: DUE SLOT"
 
 
+func _input(_event: InputEvent) -> void:
+	if _transitioning:
+		get_viewport().set_input_as_handled()
+
+
 func _unhandled_input(event: InputEvent) -> void:
+	if _transitioning:
+		return
 	if event.is_action_pressed("ui_cancel"):
 		if storia_menu.visible:
 			_on_storia_back_pressed()
