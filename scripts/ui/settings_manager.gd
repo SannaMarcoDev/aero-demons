@@ -2,6 +2,7 @@ extends RefCounted
 class_name SettingsManager
 
 const CONFIG_PATH := "user://settings.cfg"
+const ControllerBindings = preload("res://scripts/ui/controller_bindings.gd")
 
 const WINDOW_MODE_WINDOWED := 0
 const WINDOW_MODE_BORDERLESS := 1
@@ -126,6 +127,7 @@ static func load_settings(path: String = CONFIG_PATH) -> Dictionary:
 		"exposure": 1.0,
 		"controls_invert_y": false,
 		"controls_sensitivity": 1.0,
+		"controls_bindings": ControllerBindings.defaults(),
 	}
 	if err == OK:
 		settings["master_volume"] = config.get_value("audio", "master_volume", 1.0)
@@ -160,6 +162,7 @@ static func load_settings(path: String = CONFIG_PATH) -> Dictionary:
 		settings["exposure"] = config.get_value("effects", "exposure", 1.0)
 		settings["controls_invert_y"] = config.get_value("controls", "invert_y", false)
 		settings["controls_sensitivity"] = config.get_value("controls", "sensitivity", 1.0)
+		settings["controls_bindings"] = ControllerBindings.normalized(config.get_value("controls", "bindings", {}))
 	for key in ["master_volume", "music_volume", "sfx_volume"]:
 		var value = settings[key]
 		settings[key] = clampf(float(value), 0.0, 1.0) if (value is float or value is int) and is_finite(float(value)) else 1.0
@@ -234,6 +237,35 @@ static func save_settings(settings: Dictionary, path: String = CONFIG_PATH) -> E
 	return config.save(path)
 
 
+## Dedicated write: rebinding/reset must not overwrite audio, graphics or other controls.
+## Validation and disk errors leave both the live InputMap and existing settings alone.
+static func save_controller_bindings(bindings: Variant, path: String = CONFIG_PATH) -> Error:
+	var profile := ControllerBindings.validated(bindings)
+	if profile.is_empty():
+		return ERR_INVALID_DATA
+	var config := ConfigFile.new()
+	var error := config.load(path)
+	if error != OK and error != ERR_FILE_NOT_FOUND:
+		return error
+	config.set_value("controls", "bindings", profile)
+	# Save beside the destination, then replace it only after a complete write.
+	var temporary := "%s.%d.%d.tmp" % [path, OS.get_process_id(), Time.get_ticks_usec()]
+	if FileAccess.file_exists(temporary):
+		return ERR_ALREADY_EXISTS
+	error = config.save(temporary)
+	if error == OK:
+		error = DirAccess.rename_absolute(ProjectSettings.globalize_path(temporary), ProjectSettings.globalize_path(path))
+	if error == OK:
+		ControllerBindings.apply(profile)
+	elif FileAccess.file_exists(temporary):
+		DirAccess.remove_absolute(temporary)
+	return error
+
+
+static func reset_controller_bindings(path: String = CONFIG_PATH) -> Error:
+	return save_controller_bindings({}, path)
+
+
 static func parse_resolution(text: String) -> Vector2i:
 	var parts := text.split("x")
 	if parts.size() == 2 and parts[0].is_valid_int() and parts[1].is_valid_int():
@@ -252,10 +284,15 @@ static func resolution_to_string(size: Vector2i) -> String:
 static func ensure_controls_loaded() -> void:
 	if _controls_loaded or DisplayServer.get_name() == "headless":
 		return
-	_controls_loaded = true
-	var settings := load_settings()
+	apply_controls(load_settings())
+
+
+## Also usable by isolated checks without applying display/audio settings.
+static func apply_controls(settings: Dictionary) -> void:
 	controls_invert_y = bool(settings.get("controls_invert_y", false))
 	controls_sensitivity = float(settings.get("controls_sensitivity", 1.0))
+	ControllerBindings.apply(settings.get("controls_bindings", {}))
+	_controls_loaded = true
 
 
 static func apply_settings(settings: Dictionary) -> void:
@@ -278,9 +315,7 @@ static func apply_settings(settings: Dictionary) -> void:
 		AudioServer.set_bus_volume_db(sfx_idx, linear_to_db(maxf(sfx, 0.0001)))
 		AudioServer.set_bus_mute(sfx_idx, sfx <= 0.001)
 
-	controls_invert_y = bool(settings.get("controls_invert_y", false))
-	controls_sensitivity = float(settings.get("controls_sensitivity", 1.0))
-	_controls_loaded = true
+	apply_controls(settings)
 	Engine.max_fps = maxi(int(settings.get("fps_limit", 0)), 0)
 
 	# Preserve maximized windows when only changing an audio slider.
