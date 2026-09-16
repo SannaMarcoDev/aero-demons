@@ -48,8 +48,8 @@ func _run() -> void:
 	assert(current_scene.scene_file_path == Session.LOADOUT and not Session.free_flight)
 	var loadout = current_scene
 	assert(loadout._aircraft_step and loadout._aircraft_buttons.size() == Session.AircraftCatalog.ids().size())
-	loadout._aircraft_buttons["fa_n26"].pressed.emit()
-	assert(Session.selected_aircraft_id == "fa_n26")
+	loadout._aircraft_buttons[Session.AircraftCatalog.DEFAULT_ID].pressed.emit()
+	assert(Session.selected_aircraft_id == Session.AircraftCatalog.DEFAULT_ID)
 	await _capture("04_aircraft")
 	loadout.avvia_btn.pressed.emit()
 	assert(not loadout._aircraft_step and loadout.slot1_btn.has_focus())
@@ -71,14 +71,14 @@ func _run() -> void:
 	loadout._on_pick("MTSM")
 	await _capture("04_loadout")
 	loadout.back_btn.pressed.emit()
-	assert(loadout._aircraft_step and loadout._aircraft_buttons["fa_n26"].has_focus())
+	assert(loadout._aircraft_step and loadout._aircraft_buttons[Session.AircraftCatalog.DEFAULT_ID].has_focus())
 	loadout.back_btn.pressed.emit()
 	await scene_changed
 	assert(current_scene.storia_menu.visible, "Back returns to sortie selection")
 	current_scene.alps_btn.pressed.emit()
 	await scene_changed
 	assert(Session.selected_missiles == ["NCGBM", "MTSM"])
-	assert(Session.selected_aircraft_id == "fa_n26")
+	assert(Session.selected_aircraft_id == Session.AircraftCatalog.DEFAULT_ID)
 	current_scene.avvia_btn.pressed.emit()
 	current_scene.avvia_btn.pressed.emit()
 	await scene_changed
@@ -147,12 +147,12 @@ func _run() -> void:
 	current_scene.free_flight_btn.pressed.emit()
 	await scene_changed
 	assert(Session.free_flight and Session.selected_map == Session.FREE_FLIGHT)
-	current_scene._aircraft_buttons["fighter"].pressed.emit()
+	Session.selected_aircraft_id = "fighter" # A stale selection cannot bypass the internal build.
 	current_scene.avvia_btn.pressed.emit()
 	current_scene.avvia_btn.pressed.emit()
 	await scene_changed
 	assert(current_scene.scene_file_path == Session.FREE_FLIGHT and get_nodes_in_group("targets").is_empty())
-	assert(current_scene.get_node("Player/AircraftModel").scene_file_path == "res://assets/aircraft/aircraft_game_ready.glb")
+	assert(current_scene.get_node("Player/AircraftModel").scene_file_path == "res://scenes/aircraft/fa_n26.tscn")
 	hud = current_scene.get_node("CombatHUD")
 	hud._open_pause_menu()
 	await _capture("09_free_flight_pause")

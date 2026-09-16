@@ -1,10 +1,10 @@
 extends RefCounted
-## Add one definition here to expose another airframe in selection, preview and flight.
+## Airframe assets. The internal build exposes only DEFAULT_ID to the player.
 ## Transforms and exhaust sockets use the player's unscaled local space (-Z forward).
 
 const EXHAUST := preload("res://scenes/vfx/jet_exhaust.tscn")
 
-const DEFAULT_ID := "finished"
+const DEFAULT_ID := "fa_n26"
 const DEFS := {
 	"finished": {
 		"label": "CACCIA · BROWN CAMO",
@@ -31,7 +31,7 @@ const DEFS := {
 
 
 static func ids() -> Array:
-	return DEFS.keys()
+	return [DEFAULT_ID]
 
 
 static func get_def(id: String) -> Dictionary:
@@ -46,7 +46,8 @@ static func create_model(id: String) -> Node3D:
 	return model
 
 
-static func apply_to_player(player: Node3D, id: String) -> void:
+static func apply_to_player(player: Node3D, _id: String) -> void:
+	var id := DEFAULT_ID
 	var old_model := player.get_node("AircraftModel")
 	player.remove_child(old_model)
 	old_model.queue_free()

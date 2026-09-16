@@ -172,7 +172,7 @@ func _set_dossier(mode_key: String) -> void:
 			threat_badge.modulate = Color(0.2, 0.95, 0.4)
 			dossier_title.text = "VOLO LIBERO (FREE FLIGHT)"
 			dossier_subtitle.text = "SETTORE: GARDA // NESSUN NEMICO RILEVATO"
-			dossier_desc.text = "Scegli il tuo aereo, configura l'armamento e decolla sopra il Garda. Nessun nemico, nessuna ondata e nessun timer di missione.\n\nProva manovre High-G, spin dash e postcombustione oppure esplora liberamente lo scenario. I confini di volo rimangono attivi."
+			dossier_desc.text = "Configura i due slot missili del caccia predefinito e decolla sopra il Garda. Nessun nemico, nessuna ondata e nessun timer di missione.\n\nProva i comandi di volo oppure esplora liberamente lo scenario. High-G e spin dash non sono disponibili nella build interna. I confini di volo rimangono attivi."
 			dossier_telemetry.text = "SETTORE: GARDA  •  MODALITA': ESPLORAZIONE  •  PAYLOAD: CONFIGURABILE"
 
 		"options":

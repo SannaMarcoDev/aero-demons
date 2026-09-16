@@ -11,7 +11,10 @@ const FREE_FLIGHT := "res://scenes/levels/freeroam.tscn"
 const UTAH_TUTORIAL := "res://scenes/levels/tutorial_utah.tscn"
 const UTAH_FREE_FLIGHT := "res://scenes/levels/freeroam_utah.tscn"
 
-static var selected_aircraft_id: String = AircraftCatalog.DEFAULT_ID
+# Internal build: normalize even selections retained by old menu/debug paths.
+static var selected_aircraft_id: String = AircraftCatalog.DEFAULT_ID:
+	set(_value):
+		selected_aircraft_id = AircraftCatalog.DEFAULT_ID
 static var selected_map: String = FREE_FLIGHT
 static var menu_section := ""
 static var selected_missiles: Array[String] = ["STDM", "HSSTDM"]

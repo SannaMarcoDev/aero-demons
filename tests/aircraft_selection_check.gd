@@ -10,7 +10,11 @@ func _initialize() -> void:
 
 
 func _run() -> void:
-	Session.selected_aircraft_id = "missing"
+	assert(Catalog.ids() == [Catalog.DEFAULT_ID])
+	for stale_id in ["missing", "fighter", "finished"]:
+		Session.selected_aircraft_id = stale_id
+		assert(Session.selected_aircraft_id == Catalog.DEFAULT_ID)
+	Session.selected_aircraft_id = "finished"
 	assert(Session.change_scene(self, Session.LOADOUT) == OK)
 	await scene_changed
 	var menu = current_scene
@@ -57,13 +61,63 @@ func _run() -> void:
 		player.free()
 		await process_frame
 
+	# All five missiles remain selectable in either slot and reach a newly spawned player.
+	var missiles := ["STDM", "HSSTDM", "BAHM", "NCGBM", "MTSM"]
+	assert(menu._missile_buttons.keys() == missiles)
+	menu.avvia_btn.pressed.emit()
+	for first: String in missiles:
+		for second: String in missiles:
+			for slot in 2:
+				menu._select_slot(slot)
+				menu._missile_buttons[[first, second][slot]].pressed.emit()
+			Session.selected_aircraft_id = "fighter"
+			var player = load("res://scenes/player/player.tscn").instantiate()
+			player.position.y = 2000.0
+			root.add_child(player)
+			player.set_physics_process(false)
+			assert(player.get_node("AircraftModel").scene_file_path == Catalog.get_def(Catalog.DEFAULT_ID).scene.resource_path)
+			var weapons = player.get_node("WeaponController")
+			assert(weapons.equipped_missile_ids == [first, second])
+			weapons.cycle_missile_type()
+			assert(weapons.equipped_missile_id == second)
+			_check_disabled_maneuvers(player)
+			player.free()
+			await process_frame
+
 	# The selection belongs to the player, never to AI sharing PlayerFlight.
 	var enemy = load("res://scenes/enemies/enemy_fighter.tscn").instantiate()
 	Session.selected_aircraft_id = "fa_n26"
 	root.add_child(enemy)
 	enemy.set_physics_process(false)
 	assert(enemy.get_node("AircraftModel").scene_file_path == "res://assets/aircraft/aircraft_game_ready.glb")
+	assert(enemy.get_node("WeaponController").equipped_missile_ids == ["STDM"])
+	# The shared maneuver implementation is not disabled for non-player airframes.
+	enemy._begin_spin_dash()
+	assert(enemy.spin_dash_active)
 	enemy.free()
 	await process_frame
-	print("Aircraft selection check passed: all %d airframes, previews, two-step flow, persistence, exhausts, weapons and AI isolation" % Catalog.ids().size())
+	print("PASS: internal build, default aircraft, stale selections, 25 missile pairs, disabled player maneuvers and AI isolation")
 	quit()
+
+
+func _check_disabled_maneuvers(player: PlayerFlight) -> void:
+	Input.action_press("yaw_left")
+	Input.action_press("yaw_right")
+	player._update_controls()
+	assert(not player.high_g_active and player.brake_input == 0.0)
+	Input.action_release("yaw_left")
+	Input.action_release("yaw_right")
+	for tap in 2:
+		Input.action_press("accelerate")
+		player._flight_time += 0.05
+		player._update_controls()
+		player._update_spin_dash()
+		assert(player.throttle_input == 1.0 and not player.spin_dash_trigger and not player.spin_dash_active)
+		Input.action_release("accelerate")
+		player._update_controls()
+	player.spin_dash_trigger = true
+	player._update_spin_dash()
+	player._begin_spin_dash()
+	assert(not player.spin_dash_active)
+	assert(player.spin_dash_camera_fov_offset() == 0.0)
+	assert(player.spin_dash_camera_depth_offset() == 0.0)

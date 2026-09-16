@@ -196,15 +196,10 @@ func _update_controls() -> void:
 		cycle_trigger = (_flight_time - _cycle_press_time) < 0.30
 	else:
 		cycle_trigger = false
-	high_g_active = (
-		not spin_dash_active
-		and Input.get_action_strength("yaw_left") > high_g_trigger_threshold
-		and Input.get_action_strength("yaw_right") > high_g_trigger_threshold
-	)
-	if high_g_active:
-		yaw_input = 0.0
-		brake_input = maxf(brake_input, 1.0)
-	spin_dash_trigger = _detect_accelerate_double_tap()
+	# Internal build: ordinary rudder/throttle inputs never activate special maneuvers.
+	# AI overrides this input reader; shared flight dynamics remain unchanged.
+	high_g_active = false
+	spin_dash_trigger = false
 
 
 func _precision_input(current: float, raw: float, delta: float) -> float:
@@ -360,6 +355,8 @@ func _update_spin_dash() -> void:
 
 
 func _begin_spin_dash() -> void:
+	if faction_group == "player":
+		return
 	_angular_velocity = Vector3.ZERO
 	spin_dash_active = true
 	_spin_dash_elapsed = 0.0

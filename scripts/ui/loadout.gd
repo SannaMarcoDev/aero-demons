@@ -39,8 +39,6 @@ func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	_group = ButtonGroup.new()
 	map_label.text = Session.level_name()
-	if not AircraftCatalog.DEFS.has(Session.selected_aircraft_id):
-		Session.selected_aircraft_id = AircraftCatalog.DEFAULT_ID
 	_build_aircraft_list()
 	if Session.selected_missiles.size() >= 2:
 		_selected_missiles = Session.selected_missiles.duplicate()
@@ -107,6 +105,7 @@ func _build_aircraft_list() -> void:
 
 func _on_aircraft_pick(id: String) -> void:
 	Session.selected_aircraft_id = id
+	id = Session.selected_aircraft_id
 	for key in _aircraft_buttons:
 		_aircraft_buttons[key].button_pressed = key == id
 	_preview_aircraft(id)
@@ -127,7 +126,7 @@ func _preview_aircraft(id: String) -> void:
 	_show_aircraft_model(id)
 	var definition := AircraftCatalog.get_def(id)
 	var status := "SELEZIONATO" if id == Session.selected_aircraft_id else "A / INVIO / CLIC: seleziona"
-	detail_label.text = "[%s]\n%s\n\n%s\n\nPrestazioni di volo condivise · Due slot missili configurabili al passo successivo." % [
+	detail_label.text = "[%s]\n%s\n\n%s\n\nAereo predefinito della build interna · Due slot missili configurabili al passo successivo." % [
 		status, definition.label, definition.description,
 	]
 
@@ -137,10 +136,10 @@ func _set_aircraft_step(enabled: bool) -> void:
 	$Main/LeftPanel/VBox/SlotRow.visible = not enabled
 	missile_list.visible = not enabled
 	$Main/LeftPanel/VBox/StatsBox.visible = not enabled
-	$Main/LeftPanel/VBox/Title.text = "1 / 2 · SCEGLI AEREO" if enabled else "2 / 2 · ARMAMENTO"
-	$Main/LeftPanel/VBox/Info.text = "Seleziona il velivolo, poi configura le armi" if enabled else "Scegli due tipi di missile prima del decollo"
+	$Main/LeftPanel/VBox/Title.text = "1 / 2 · AEREO PREDEFINITO" if enabled else "2 / 2 · ARMAMENTO"
+	$Main/LeftPanel/VBox/Info.text = "Un aereo disponibile · Configura le armi al passo successivo" if enabled else "Scegli due tipi di missile prima del decollo"
 	avvia_btn.text = "CONTINUA · ARMAMENTO" if enabled else ("DECOLLA" if Session.free_flight else "AVVIA MISSIONE")
-	back_btn.text = "INDIETRO" if enabled else "CAMBIA AEREO"
+	back_btn.text = "INDIETRO" if enabled else "VEDI AEREO"
 	if enabled:
 		_on_aircraft_pick(Session.selected_aircraft_id)
 		var buttons := aircraft_list.get_children()
