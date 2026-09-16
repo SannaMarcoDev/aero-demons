@@ -1,47 +1,26 @@
 ~ intro
-Pilota: Squadra, mi ricevete?
-if wing_alive(1)
-	Wing 1: Ti sento. Sono alla tua sinistra.
-if wing_alive(2)
-	Wing 2: Forte e chiaro. Ti seguo sulla destra.
-if wing_alive(1)
-	Wing 1: Contatti davanti a noi! Caccia nemici, li vedi sul radar? [#spawn=1]
-else
-	Pilota: Caccia nemici davanti a me. Eccoli sul radar. [#spawn=1]
-Pilota: Bersagli in vista. Attacchiamo!
+Radio: Le riparazioni sono terminate. Questo volo sul Garda serve a controllare che l'aereo risponda bene.
+Radio: Siamo in due a seguirti. Cominciamo dai comandi di volo, con calma.
+=> END
+
+~ contacts
+Radio: Contatti nemici in lontananza. Per ora non stanno attaccando.
+Radio: Avviciniamoci e controlliamo anche la risposta del motore.
+=> END
+
+~ combat
+Radio: Due caccia davanti a noi. Ti copriamo.
 => END
 
 ~ after_1
-Pilota: Primo gruppo abbattuto. Come va là dietro?
-if wing_alive(2)
-	Wing 2: Tutto a posto. Ti copriamo.
-if wing_alive(1)
-	Wing 1: Altri caccia da est! Nuovi contatti sul radar. [#spawn=2]
-elif wing_alive(2)
-	Wing 2: Altri caccia da est! Nuovi contatti sul radar. [#spawn=2]
-else
-	Pilota: Altri caccia da est. Nuovi contatti sul radar. [#spawn=2]
-Pilota: Ricevuto. Occupiamoci di loro.
+Radio: Primo gruppo abbattuto. Altri quattro contatti in arrivo da est.
 => END
 
 ~ after_2
-Pilota: Anche il secondo gruppo è abbattuto. Controlliamo la zona.
-if wing_alive(1)
-	Wing 1: Sono con te. Tengo d'occhio il radar.
-if wing_alive(2)
-	Wing 2: Ne arrivano altri da ovest! Questa volta sono parecchi. [#spawn=3]
-elif wing_alive(1)
-	Wing 1: Ne arrivano altri da ovest! Questa volta sono parecchi. [#spawn=3]
-else
-	Pilota: Altri contatti da ovest. Questa volta sono parecchi. [#spawn=3]
-Pilota: Li vedo. Abbattiamo anche questi.
+Radio: Secondo gruppo eliminato. Otto nuovi contatti da ovest: restiamo insieme.
 => END
 
 ~ outro
-Pilota: Ultimo nemico abbattuto. Vedete altri contatti?
-if wing_alive(1)
-	Wing 1: Negativo. Radar libero.
-if wing_alive(2)
-	Wing 2: Anche da qui, tutto tranquillo. Bel lavoro.
-Pilota: Missione completata. Si torna alla base.
+Radio: Ultimo gruppo abbattuto. Nessun altro contatto nella zona.
+Radio: Area libera. Rientriamo alla base.
 => END

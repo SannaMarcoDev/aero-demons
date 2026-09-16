@@ -33,7 +33,7 @@ func _run() -> void:
 	await scene_changed
 	var menu = current_scene
 	assert(menu.root_menu.visible and menu.storia_btn.has_focus())
-	assert(menu.dossier_subtitle.text.contains("TUTORIAL") and menu.dossier_desc.text.contains("tre gruppi"))
+	assert(menu.dossier_subtitle.text.contains("TUTORIAL") and menu.dossier_desc.text.contains("collaudo"))
 	await _capture("01_main")
 	menu.options_btn.pressed.emit()
 	assert(menu.options_menu.visible and menu.options_panel.get_node("RemapButton").has_focus())
@@ -99,29 +99,29 @@ func _run() -> void:
 	hud._on_resume_pressed()
 	assert(not paused)
 	assert(DisplayServer.get_name() == "headless" or Input.mouse_mode == Input.MOUSE_MODE_HIDDEN)
-	# The second encounter supplies four real targets for the existing multi-lock checks.
-	await _advance_to_encounter(hud, 1)
+	# Weapon regression fixtures are independent of M1's protected opening.
 	paused = true
+	var targets: Array[EnemyFighter] = []
+	for i in 4:
+		var target: EnemyFighter = preload("res://scenes/enemies/enemy_fighter.tscn").instantiate()
+		current_scene.add_child(target)
+		targets.append(target)
+	weapons.firing_enabled = true
+	player.invulnerable = false
 	assert(_check_weapons(player, weapons))
+	player.invulnerable = true
+	weapons.firing_enabled = false
+	for target in targets:
+		target.free()
 	weapons.equipped_missile_ids = Session.selected_missiles.duplicate()
 	weapons.reset_loadout()
 	weapons.cycle_missile_type()
 	hud._update_labels()
 	assert(weapons.equipped_missile_id == "MTSM" and weapons.get_secondary_missile_id() == "NCGBM")
 	await _capture("06_flight")
-	for target in get_nodes_in_group("targets"):
-		target.apply_damage(target.max_health)
-	assert(not hud.mission_result_visible(), "Clearing an intermediate encounter is not victory")
-	paused = false
-	await _advance_to_encounter(hud, 2)
-	for target in get_nodes_in_group("targets"):
-		target.apply_damage(target.max_health)
-	assert(not hud.mission_result_visible(), "Final radio precedes victory")
-	for frame in 300:
-		if hud.mission_result_visible():
-			break
-		hud.mission_controller.radio._process(30.0)
-		await process_frame
+	assert(not hud.mission_result_visible(), "Flight training never declares mission victory")
+	# Exercise generic result navigation without inventing a final M1 encounter.
+	hud.mission_controller._finish("MISSIONE COMPLETATA", "TEST RESULT UI")
 	assert(paused and hud.mission_result_visible())
 	assert(hud._mission_title.text == "MISSIONE COMPLETATA")
 	await _capture("07_victory")
@@ -134,6 +134,7 @@ func _run() -> void:
 	assert(hud.mission_controller.remaining == 0 and get_nodes_in_group("targets").is_empty())
 	assert(current_scene.get_node("Player/WeaponController").equipped_missile_ids == Session.selected_missiles)
 	assert(current_scene.get_node("Player/AircraftModel").scene_file_path == "res://scenes/aircraft/fa_n26.tscn")
+	current_scene.get_node("Player").invulnerable = false # Generic defeat UI, not protected gameplay.
 	current_scene.get_node("Player").apply_damage(1000.0)
 	assert(paused and hud._mission_title.text == "MISSIONE FALLITA")
 	await _capture("08_defeat")
@@ -162,21 +163,6 @@ func _run() -> void:
 	assert(not root.get_node("AudioManager")._alarm_active)
 	print("Menu flow check passed: aircraft selection and persistence, options, focus, all 5 missiles, 2 slots, real level launches, pause, victory/defeat, restart, loadout and return")
 	quit()
-
-
-func _advance_to_encounter(hud: CombatHUD, index: int) -> void:
-	var mission: TutorialMission = hud.mission_controller
-	for frame in 300:
-		mission.player.set_physics_process(false)
-		for aircraft in get_nodes_in_group("combat_ai"):
-			aircraft.set_physics_process(false)
-		if mission.encounter_index == index and mission.remaining > 0:
-			return
-		for target in mission.active_enemies.duplicate():
-			target.apply_damage(target.health)
-		mission.radio._process(30.0)
-		await process_frame
-	assert(false, "Tutorial encounter did not arrive through its radio sequence")
 
 
 func _check_weapons(player: PlayerFlight, weapons: WeaponController) -> bool:

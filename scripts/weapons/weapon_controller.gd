@@ -17,6 +17,8 @@ const MUZZLE_FLASH_SCENE: PackedScene = preload("res://assets/BinbunVFX/muzzle_f
 const MINIGUN_SOUND: AudioStream = preload("res://assets/audio/sfx/weapons/minigun-SFX.mp3")
 
 @export var targeting_path: NodePath
+## Mission-local safety gate; ordinary arenas and AI retain their existing fire policy.
+@export var firing_enabled := true
 ## Physics layers the projectiles may hit: the enemy hitbox layer for the player, and back.
 @export_flags_3d_physics var target_layers := 4
 @export var gun_muzzle := Vector3(0.0, -0.3, -5.0)
@@ -279,7 +281,7 @@ func get_locked_missile_targets() -> Array:
 	if not bool(_targeting.get("is_locked")):
 		return []
 	var target = _targeting.get("target")
-	return [target] if _valid_missile_target(target) else []
+	return [target] if _valid_missile_target(target) and _targeting.is_in_lock_zone(target) else []
 
 
 func equip_missile(id: String, slot: int = -1) -> bool:
@@ -379,6 +381,8 @@ func _missile_salvo_size(def: Dictionary) -> int:
 
 
 func _pilot_allows_fire(kind: String) -> bool:
+	if not firing_enabled:
+		return false
 	var aircraft := get_parent()
 	if aircraft.has_method("is_alive") and not aircraft.is_alive():
 		return false

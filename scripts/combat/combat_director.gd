@@ -5,7 +5,7 @@ class_name CombatDirector
 enum Mode { NORMAL, RELIEF }
 
 @export var player_path := NodePath("../Player")
-## Scene-local rule: tutorial hostiles engage wingmen, never the player. Normal arenas opt in by default.
+## Scene-local rule: M1 enables player attacks after its protected tutorial. Other arenas opt in by default.
 @export var allow_player_attacks := true
 @export var assignment_interval := 0.5
 @export var assignment_duration := 8.0

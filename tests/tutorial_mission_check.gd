@@ -1,293 +1,286 @@
 extends SceneTree
 ## godot --headless --path . --script tests/tutorial_mission_check.gd --fixed-fps 60
-## Add -- --capture without --headless to check the real map and save HUD screenshots.
-
 const LEVEL := preload("res://scenes/levels/tutorial.tscn")
+const Bindings = preload("res://scripts/ui/controller_bindings.gd")
 var arena: Node3D
 var mission: TutorialMission
 var hud: CombatHUD
 var radio: RadioDialogue
-var spoken: Array[String] = []
-var spawn_counts: Array[int] = []
-var started := Time.get_ticks_msec()
-var capture := "--capture" in OS.get_cmdline_user_args()
+var handoffs := 0
 
 
 func _initialize() -> void:
 	_run.call_deferred()
 
 
-func _process(_delta: float) -> bool:
-	if Time.get_ticks_msec() - started > 120000:
-		push_error("Tutorial mission check timed out")
-		quit(1)
-	return false
-
-
 func _new_tutorial() -> void:
 	arena = LEVEL.instantiate()
-	if not capture:
-		arena.set_script(null)
-		arena.get_node("GardaLake").free()
-		arena.get_node("HorizonGraphics").free()
+	arena.set_script(null)
+	arena.get_node("GardaLake").free()
+	arena.get_node("HorizonGraphics").free()
 	root.add_child(arena)
 	current_scene = arena
 	hud = arena.get_node("CombatHUD")
 	mission = hud.mission_controller
 	radio = mission.radio
-	# Drive the production subtitle clock deterministically, without skipping dialogue parsing/events.
 	radio.set_process(false)
-	radio.line_shown.connect(_line_shown)
-	_freeze_aircraft()
-	assert(mission.remaining == 0 and get_nodes_in_group("targets").is_empty())
-	assert(not mission.director.allow_player_attacks and not GameSession.free_flight)
-	assert(hud.mode_label == "TUTORIAL" and not mission.player.invulnerable)
-	for wing in [arena.get_node("Wingman1"), arena.get_node("Wingman2")]:
-		wing.destroyed.connect(func(_aircraft): assert(false, "Tutorial wingmen must never be destroyed"))
-	_check_wingman_protection()
+	mission.flight_training_completed.connect(func(): handoffs += 1)
+	assert(mission.phase == TutorialMission.Phase.OPENING)
+	assert(mission.movement_practice == Vector3.ZERO and mission.acceleration_practice == 0.0)
+	assert(not hud.tutorial_panel.visible and mission.tutorial_contact() == null)
+	assert(get_nodes_in_group("targets").is_empty() and not GameSession.free_flight)
+	for aircraft in [mission.player, arena.get_node("Wingman1"), arena.get_node("Wingman2")]:
+		assert(aircraft.invulnerable)
+		aircraft.apply_damage(1000)
+		aircraft._hitbox.apply_damage(1000)
+		aircraft.apply_napalm(1000, 1)
+		aircraft._on_solid_collision(null)
+		assert(aircraft.health == aircraft.max_health and aircraft._napalm_time == 0)
+	assert(not mission.director.allow_player_attacks)
+	var weapons: WeaponController = mission.player.get_node("WeaponController")
+	var ammo := weapons.gun_ammo
+	weapons.fire_gun()
+	weapons.fire_missile()
+	assert(weapons.gun_ammo == ammo and get_nodes_in_group("mission_projectiles").is_empty())
 
 
-func _check_wingman_protection() -> void:
-	for number in [1, 2]:
-		var wing: EnemyFighter = arena.get_node("Wingman%d" % number)
-		assert(wing.invulnerable)
-		wing.apply_damage(wing.max_health * 10.0)
-		wing._hitbox.apply_damage(wing.max_health * 10.0)
-		wing._on_solid_collision(null)
-		wing.apply_napalm(1000.0, 1.0)
-		wing._process(2.0)
-		assert(wing.health == wing.max_health and mission.wing_alive(number))
-		assert(wing._napalm_time == 0.0 and wing.state != EnemyFighter.State.DESTROYED)
-		assert(wing.visible and wing._hitbox.collision_layer == 8 and not wing.is_queued_for_deletion())
-
-
-func _freeze_aircraft() -> void:
-	arena.get_node("Player").set_physics_process(false)
-	for aircraft in get_nodes_in_group("combat_ai"):
-		aircraft.set_physics_process(false)
-
-
-func _line_shown(line: DialogueLine) -> void:
-	spoken.append(line.character)
-	if line.character.begins_with("Wing"):
-		assert(mission.wing_alive(int(line.character.right(1))), "Dead wingmen must not speak")
-	if not line.has_tag("spawn"):
-		return
-	_freeze_aircraft()
-	spawn_counts.append(mission.remaining)
-	var markers: Node3D = arena.get_node("EnemySpawnMarkers/Encounter%d" % (mission.encounter_index + 1))
-	assert(mission.remaining == markers.get_child_count())
-	for enemy in mission.active_enemies:
-		var marker: Marker3D = markers.get_node(NodePath(enemy.name))
-		assert(enemy.global_transform.is_equal_approx(marker.global_transform))
-		assert(enemy._spawn_transform.is_equal_approx(marker.global_transform), "Ready must see the authored spawn")
-		assert(enemy.is_in_group("targets") and enemy.is_in_group("combat_ai") and not enemy.invulnerable)
-		assert(hud._target_alive(enemy), "HUD and radar must see live spawned targets")
-		assert(mission.player.global_position.distance_to(enemy.global_position) < CombatHUD.RADAR_RANGE)
-		assert(enemy.director == mission.director and enemy.assignment_target != mission.player)
-		enemy._weapons.gun_fired.connect(_enemy_fired.bind(enemy))
-		enemy._weapons.missile_launched.connect(_enemy_launched.bind(enemy))
-		assert(enemy.role not in ["PLAYER_DUEL", "PLAYER_PRESSURE"])
-		if mission.wing_alive(1) or mission.wing_alive(2):
-			assert(CombatDirector.alive(enemy.assignment_target) and enemy.assignment_target.is_in_group("allies"))
-		else:
-			assert(enemy.assignment_target == null)
-	# Receiving the same displayed-line event twice must not create another group.
-	mission._on_radio_line(line)
-	assert(mission.remaining == markers.get_child_count())
-
-
-func _tick_radio() -> void:
-	radio._process(30.0)
-	await process_frame
-
-
-func _wait_for_wave(index: int) -> void:
+func _radio_until(phase: int) -> void:
 	for frame in 100:
-		if mission.encounter_index == index and mission.phase == TutorialMission.Phase.COMBAT:
+		if mission.phase == phase:
 			return
-		assert(not mission.terminal)
-		await _tick_radio()
-	assert(false, "Expected encounter did not spawn")
+		radio._process(30)
+		await process_frame
+	assert(false, "Radio phase not reached")
 
 
-func _kill_wave() -> void:
-	var victims := mission.active_enemies.duplicate()
-	for enemy in victims:
-		enemy.apply_damage(enemy.health)
-		mission._on_enemy_destroyed(enemy) # Duplicate notifications cannot underflow or advance twice.
-	assert(mission.remaining == 0 and mission.active_enemies.is_empty())
-	assert(not hud.mission_result_visible(), "No victory at a kill boundary, including the last wave")
-	assert(victims.all(func(e): return is_instance_valid(e)), "Wreck lifetime must not hold up the mission")
+func _confirm() -> void:
+	# A held confirm that predates opening cannot dismiss the panel.
+	await process_frame
+	var event := InputEventAction.new()
+	event.action = "ui_accept"
+	event.pressed = true
+	Input.action_press("ui_accept")
+	hud._unhandled_input(event)
+	await process_frame
+	assert(paused and hud.tutorial_panel.visible)
+	Input.action_release("ui_accept")
+	await process_frame
+	await process_frame
+	assert(paused == hud.tutorial_panel.visible)
+
+
+func _practice(action: String) -> void:
+	Input.action_press(action)
+	for tick in 30:
+		await physics_frame
+	Input.action_release(action)
+	await physics_frame
 
 
 func _run() -> void:
-	var normal := CombatDirector.new()
-	assert(normal.allow_player_attacks, "Other arenas retain the existing attack policy")
-	normal.free()
 	_new_tutorial()
-	await _tick_radio()
-	await _tick_radio()
-	assert(radio.playing and radio.visible and not mission.terminal)
-	await _capture("01_briefing")
-	# Pausing the always-processing HUD must stop both subtitles and mission progression.
-	hud._open_pause_menu()
-	var line := radio.current_line
-	var remaining_time := radio._remaining
-	for frame in 5:
-		await _tick_radio()
-	assert(radio.current_line == line and radio._remaining == remaining_time)
-	assert(mission.remaining == 0)
-	hud._on_resume_pressed()
-	await _wait_for_wave(0)
-	await _capture("02_first_contact")
-	await _check_attack_policy()
-	# Exercise real AI/physics ordering too, not just manually requested attack permissions.
-	for aircraft in get_nodes_in_group("combat_ai"):
-		aircraft.set_physics_process(true)
-	for tick in 360:
-		await physics_frame
-		for enemy in mission.active_enemies:
-			assert(enemy.assignment_target != mission.player)
-		assert(mission.player.active_missiles().is_empty())
-	_freeze_aircraft()
-	# Clear the whole first wave while its contact radio is still playing.
-	assert(radio.playing)
-	_kill_wave()
 	await process_frame
-	assert(mission.encounter_index == 0 and radio.playing)
-	_check_wingman_protection()
-	await _wait_for_wave(1)
-	await _capture("03_second_contact")
-	assert(spawn_counts == [2, 4])
-	_check_wingman_protection()
-	_kill_wave()
-	var before_last_contact := spoken.size()
-	await _wait_for_wave(2)
-	await _capture("04_final_contact")
-	assert(spawn_counts == [2, 4, 8])
-	assert(spoken.slice(before_last_contact).has("Wing 2"))
-	assert(mission.director.permissions.is_empty())
-	_kill_wave()
-	for frame in 100:
-		if mission.phase == TutorialMission.Phase.OUTRO:
-			break
-		await _tick_radio()
-	assert(mission.phase == TutorialMission.Phase.OUTRO and not mission.terminal and radio.playing)
-	await _tick_radio()
-	await _capture("05_final_radio")
-	for frame in 100:
-		if mission.terminal:
-			break
-		await _tick_radio()
-	assert(mission.terminal and paused and hud._mission_title.text == "MISSIONE COMPLETATA")
-	_check_wingman_protection()
-	assert(not radio.playing and not radio.visible and spawn_counts == [2, 4, 8])
-	await _capture("06_completed")
+	# Inputs before their phase have no credit.
+	await _practice("accelerate")
+	await _practice("pitch_up")
+	assert(mission.acceleration_practice == 0 and mission.movement_practice == Vector3.ZERO)
+	await _radio_until(TutorialMission.Phase.MOVEMENT_READING)
+	var position := mission.player.global_position
+	var wing_position: Vector3 = arena.get_node("Wingman1").global_position
+	var clock := mission.director.clock
+	for frame in 6:
+		await process_frame
+	assert(paused and mission.player.global_position == position)
+	assert(arena.get_node("Wingman1").global_position == wing_position and mission.director.clock == clock)
+	mission._on_radio_finished()
+	mission._on_tutorial_confirmed()
+	assert(mission.phase == TutorialMission.Phase.MOVEMENT_READING)
+	# Existing pause/options may cover a reading panel, but must restore its pause.
+	hud._open_pause_menu()
+	hud._on_resume_pressed()
+	assert(paused and hud.tutorial_panel.visible)
+	hud._on_joy_connection_changed(0, false)
+	assert(paused and hud._pause_overlay.visible and hud.tutorial_panel.visible)
+	hud._on_joy_connection_changed(0, true)
+	hud._on_resume_pressed()
+	assert(paused and not hud._pause_overlay.visible and hud.tutorial_panel.visible)
+	# Remap confirm and flight prompts using the same production profile machinery.
+	var profile := Bindings.defaults()
+	var swap: Dictionary = profile.ui_accept
+	profile.ui_accept = profile.ui_cancel
+	profile.ui_cancel = swap
+	swap = profile.pitch_up
+	profile.pitch_up = profile.pitch_down
+	profile.pitch_down = swap
+	Bindings.apply(profile)
+	hud.tutorial_panel.refresh_text()
+	assert(hud.tutorial_panel._hint.text.contains(Bindings.action_label("ui_accept")))
+	assert(hud.tutorial_panel._body.text.contains(Bindings.action_label("pitch_up")))
+	# Wrong physical button does not confirm; remapped physical binding does.
+	await process_frame
+	var button := InputEventJoypadButton.new()
+	button.button_index = JOY_BUTTON_A
+	button.pressed = true
+	assert(not hud.tutorial_panel.handle_input(button))
+	button.button_index = JOY_BUTTON_B
+	assert(hud.tutorial_panel.handle_input(button))
+	await process_frame
+	assert(not paused and mission.phase == TutorialMission.Phase.MOVEMENT)
+	Bindings.apply({})
+	for tick in 60:
+		await physics_frame
+	assert(mission.phase == TutorialMission.Phase.MOVEMENT)
+	assert(hud._objectives_line.text.contains("PROVA"))
+	await _practice("pitch_up")
+	assert(mission.phase == TutorialMission.Phase.MOVEMENT)
+	await _practice("roll_left")
+	# Practice may finish near the boundary: contacts must remain reachable, not beyond it.
+	mission.player.global_position = Vector3(mission.player.return_distance - 2000, 8000, 0)
+	mission.player.global_basis = Basis(Vector3.UP, -PI / 2)
+	await _practice("yaw_right")
+	assert(mission.phase == TutorialMission.Phase.CONTACT_RADIO)
+	assert(Vector2(mission.contact.position.x, mission.contact.position.z).length() < mission.player.return_distance)
+	assert(mission.player.global_position.distance_to(mission.contact.global_position) < 6200)
+	assert(mission.tutorial_contact() != null and not mission.terminal)
+	await _radio_until(TutorialMission.Phase.SPEED_READING)
+	assert(hud.tutorial_panel._body.text.contains(Bindings.action_label("brake")))
+	await _confirm()
+	assert(mission.phase == TutorialMission.Phase.APPROACH)
+	assert(hud._objectives_line.text.contains("ACCELERA"))
+	# Proximity alone, even with duplicate radio/kill events, is insufficient.
+	mission.player.global_position = mission.contact.global_position
+	mission._on_radio_finished()
+	mission._on_enemy_destroyed(null)
+	for tick in 10:
+		await physics_frame
+	assert(mission.phase == TutorialMission.Phase.APPROACH and handoffs == 0)
+	# Acceleration alone at long distance is also insufficient.
+	mission.player.global_position = mission.contact.global_position + Vector3(0, 0, 5000)
+	await _practice("accelerate")
+	assert(mission.phase == TutorialMission.Phase.APPROACH and mission.acceleration_practice >= mission.PRACTICE_SECONDS)
+	mission.player.global_position = mission.contact.global_position + Vector3(0, 0, 1000)
+	for tick in 10:
+		await physics_frame
+	assert(mission.phase == TutorialMission.Phase.TARGET_READING and handoffs == 1)
+	mission._on_radio_finished()
+	mission._on_tutorial_confirmed()
+	mission._on_enemy_destroyed(null)
+	assert(not mission.terminal and paused and not hud.mission_result_visible())
+	assert(mission.active_enemies.size() == 2 and get_nodes_in_group("mission_projectiles").is_empty())
+	await _check_weapon_panels()
+	await _check_waves()
 	paused = false
 	arena.queue_free()
 	await process_frame
-
-	# Fresh runs start empty; defeat must cancel even a pending asynchronous dialogue read.
-	for after_first_wave in [false, true]:
-		_new_tutorial()
-		await _tick_radio()
-		if after_first_wave:
-			await _wait_for_wave(0)
-			_kill_wave()
-		else:
-			radio._process(30.0)
-		mission.player.apply_damage(1000.0)
-		var spawned := mission.spawn_root.get_child_count()
-		for frame in 10:
-			await _tick_radio()
-		assert(mission.terminal and paused and hud._mission_title.text == "MISSIONE FALLITA")
-		assert(not radio.playing and not radio.visible)
-		assert(mission.spawn_root.get_child_count() == spawned, "No delayed spawns after defeat")
-		paused = false
-		arena.queue_free()
+	# Retry uses a fresh scene: no phase, modal, prompt, radio generation or input latch survives.
+	_new_tutorial()
+	await _radio_until(TutorialMission.Phase.MOVEMENT_READING)
+	assert(handoffs == 1)
+	paused = false
+	arena.queue_free()
+	await process_frame
+	_new_tutorial()
+	await process_frame
+	radio._process(30)
+	mission._finish("TEST", "Cancel pending radio")
+	for frame in 5:
 		await process_frame
-	print("Tutorial mission check passed: 2/4/8, marker transforms, radio/radar sync, no player attacks, immortal wingmen (damage, hitbox, collision, napalm), pause, defeat, final radio before victory")
+	assert(not radio.playing and not hud.tutorial_panel.visible)
+	paused = false
+	arena.queue_free()
+	await process_frame
+	# Every loadout is explained; confirming the panels alone must start combat.
+	for first: String in WeaponController.Catalog.ids():
+		for second: String in WeaponController.Catalog.ids():
+			GameSession.selected_missiles = [first, second]
+			_new_tutorial()
+			await process_frame
+			radio.stop()
+			mission.phase = TutorialMission.Phase.APPROACH
+			mission._show_weapons_instructions()
+			await _check_weapon_panels()
+			mission.player.apply_damage(1000)
+			assert(mission.terminal and hud._mission_title.text == "MISSIONE FALLITA")
+			mission._on_radio_finished()
+			mission._try_advance()
+			assert(hud._mission_title.text == "MISSIONE FALLITA")
+			paused = false
+			arena.queue_free()
+			await process_frame
+	print("Tutorial mission check passed: flight, informational panels, 25 loadouts without weapon actions, vulnerability, 2/4/8, victory/defeat, pause and retry")
 	quit()
 
 
-func _check_attack_policy() -> void:
-	var player := mission.player
-	var enemy := mission.active_enemies[0]
-	var saved_player := player.global_transform
-	var saved_enemy := enemy.global_transform
-	var saved_speed := player.speed
-	enemy.global_position = player.global_position + Vector3(0, 0, 300)
-	enemy.global_basis = Basis.IDENTITY
-	player.speed = 0.0
-	enemy.assign("PLAYER_PRESSURE", player)
-	enemy._set_state(EnemyFighter.State.ATTACK, "TEST")
-	enemy._state_time = 2.0
-	enemy._burst_time = 0.1
-	enemy._gun_stable_time = 1.0
-	enemy._missile_stable_time = 1.0
-	enemy.safety_active = false
-	enemy._targeting._physics_process(3.0)
-	assert(not mission.director.request_attack(enemy))
-	mission.director.permissions[enemy] = mission.director.clock + 30.0
-	assert(not mission.director.has_permission(enemy), "Stale permissions cannot bypass the tutorial rule")
-	for kind in ["gun", "missile"]:
-		assert(enemy.weapon_fire_block(kind) == "NO_ATTACK_PERMISSION")
-	var gun_ammo := enemy._weapons.gun_ammo
-	var missile_ammo := enemy._weapons.missile_ammo
-	enemy._weapons.fire_gun()
-	enemy._weapons.fire_missile()
-	assert(enemy._weapons.gun_ammo == gun_ammo and enemy._weapons.missile_ammo == missile_ammo)
-	assert(player.active_missiles().is_empty() and player.health == player.max_health)
-
-	# Enemies still fire at wingmen: protection must not disable targeting or weapon behavior.
-	var wing: EnemyFighter = arena.get_node("Wingman1")
-	var saved_wing := wing.global_transform
-	var saved_wing_speed := wing.speed
-	wing.global_position = enemy.global_position - Vector3(0, 0, 220)
-	wing.speed = 0.0
-	enemy.assign("ENGAGE_WINGMAN", wing)
-	enemy._set_state(EnemyFighter.State.ATTACK, "TEST")
-	enemy._state_time = 2.0
-	enemy._gun_stable_time = 1.0
-	enemy._missile_stable_time = 1.0
-	enemy._targeting._physics_process(3.0)
-	enemy._weapons._gun_cooldown = 0.0
-	enemy._weapons._missile_cooldown = 0.0
-	assert(mission.director.request_attack(enemy))
-	await physics_frame
-	await physics_frame
-	assert(enemy.weapon_fire_block("gun") == "READY", enemy.weapon_fire_block("gun"))
-	enemy._weapons.fire_gun()
-	enemy._weapons.fire_missile()
-	assert(enemy._weapons.gun_ammo == gun_ammo - 1)
-	assert(enemy._weapons.missile_ammo == missile_ammo - 1 and wing.active_missiles().size() == 1)
-	assert(player.active_missiles().is_empty())
-	for projectile in get_nodes_in_group("mission_projectiles"):
-		projectile.queue_free()
-	wing.global_transform = saved_wing
-	wing.speed = saved_wing_speed
-	player.global_transform = saved_player
-	player.speed = saved_speed
-	enemy.global_transform = saved_enemy
-	mission.director._assign_roles()
-	assert(enemy.assignment_target != player)
+func _check_weapon_panels() -> void:
+	var weapons := mission.weapons
+	assert(not mission.player.invulnerable and mission.director.allow_player_attacks)
+	assert(weapons.firing_enabled and mission.targeting.auto_acquire)
+	for enemy in mission.active_enemies:
+		assert(not enemy.invulnerable and enemy.assignment_target != null)
+		var health := enemy.health
+		enemy.apply_damage(1)
+		assert(enemy.health == health - 1)
+	var health := mission.player.health
+	mission.player.apply_damage(1)
+	assert(mission.player.health == health - 1)
+	var count := mission.spawn_root.get_child_count()
+	mission._show_weapons_instructions()
+	assert(mission.spawn_root.get_child_count() == count)
+	var position := mission.player.global_position
+	var ammo := weapons.missile_ammo
+	await _confirm()
+	assert(mission.phase == TutorialMission.Phase.MISSILE_READING and paused)
+	assert(hud.tutorial_panel._body.text.contains(weapons.equipped_missile_ids[0]))
+	assert(hud.tutorial_panel._body.text.contains(weapons.equipped_missile_ids[1]))
+	await _confirm()
+	assert(mission.phase == TutorialMission.Phase.GUN_READING and paused)
+	assert(mission.player.global_position == position, "No simulation between reading panels")
+	await _confirm()
+	assert(mission.phase == TutorialMission.Phase.COMBAT and not paused)
+	assert(not hud.tutorial_panel.visible and weapons.missile_ammo == ammo)
+	assert(weapons.gun_ammo == weapons.gun_ammo_max)
+	assert(get_nodes_in_group("mission_projectiles").is_empty())
+	# No tutorial handler reacts to weapon use or refills ammunition after the panels.
+	weapons.gun_ammo = 0
+	mission._physics_process(1.0 / 60.0)
+	assert(weapons.gun_ammo == 0 and mission.phase == TutorialMission.Phase.COMBAT)
+	for wing in [arena.get_node("Wingman1"), arena.get_node("Wingman2")]:
+		assert(wing.invulnerable)
+		wing.apply_damage(1000)
+		assert(wing.health == wing.max_health)
 
 
-func _enemy_fired(enemy: EnemyFighter) -> void:
-	assert(enemy.assignment_target != mission.player, "No cannon passes against the tutorial player")
-
-
-func _enemy_launched(missile: HomingMissile, enemy: EnemyFighter) -> void:
-	_enemy_fired(enemy)
-	assert(not mission.player.active_missiles().has(missile), "No missile may track the tutorial player")
-
-
-func _capture(stem: String) -> void:
-	if not capture or DisplayServer.get_name() == "headless":
-		return
-	await process_frame
-	await RenderingServer.frame_post_draw
-	var directory := "user://tutorial_mission_check"
-	DirAccess.make_dir_recursive_absolute(directory)
-	assert(root.get_texture().get_image().save_png(directory.path_join(stem + ".png")) == OK)
+func _check_waves() -> void:
+	for frame in 100:
+		if not radio.playing:
+			break
+		radio._process(30)
+		await process_frame
+	for wave in 3:
+		assert(mission.phase == TutorialMission.Phase.COMBAT)
+		assert(mission.encounter_index == wave and mission.remaining == [2, 4, 8][wave])
+		assert(not hud.tutorial_panel.visible)
+		var victims := mission.active_enemies.duplicate()
+		hud._open_pause_menu()
+		for enemy in victims:
+			enemy.apply_damage(enemy.health)
+			mission._on_enemy_destroyed(enemy)
+		await process_frame
+		assert(mission.encounter_index == wave and mission.remaining == 0)
+		hud._on_resume_pressed()
+		for frame in 5:
+			await process_frame
+		assert(not hud.mission_result_visible())
+		if wave < 2:
+			await _radio_until(TutorialMission.Phase.COMBAT)
+			var markers := arena.get_node("EnemySpawnMarkers/Encounter%d" % (wave + 2))
+			for enemy in mission.active_enemies:
+				assert(enemy._spawn_transform.is_equal_approx(markers.get_node(NodePath(enemy.name)).global_transform))
+		else:
+			assert(mission.phase == TutorialMission.Phase.OUTRO)
+			for frame in 100:
+				if mission.terminal:
+					break
+				radio._process(30)
+				await process_frame
+			assert(mission.terminal and paused and hud._mission_title.text == "MISSIONE COMPLETATA")

@@ -85,6 +85,7 @@ var _resume_pending := false
 var _disconnect_pause := false
 var _controller_missing := false
 var _mission_detail_base := ""
+var tutorial_panel: PanelContainer
 
 
 class HudCanvas extends Control:
@@ -114,6 +115,11 @@ func _ready() -> void:
 	_canvas.hud = self
 	$HudText.add_child(_canvas)
 	$HudText.move_child(_canvas, 0)
+	tutorial_panel = PanelContainer.new()
+	tutorial_panel.set_script(preload("res://scripts/ui/tutorial_panel.gd"))
+	tutorial_panel.name = "TutorialPanel"
+	tutorial_panel.hud = self
+	$HudText.add_child(tutorial_panel)
 	$HudText.move_child(_mission_overlay, $HudText.get_child_count() - 1)
 	$HudText.move_child(_pause_overlay, $HudText.get_child_count() - 1)
 	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
@@ -142,6 +148,7 @@ func _refresh_prompts() -> void:
 
 func show_mission_result(title: String, detail: String) -> void:
 	_resume_pending = false
+	tutorial_panel.cancel()
 	_mission_title.text = title
 	_mission_detail_base = detail
 	_refresh_prompts()
@@ -356,10 +363,30 @@ func _draw_hud(canvas: Control) -> void:
 	_draw_radar(canvas)
 	_draw_hull(canvas)
 	_draw_boundary_warning(canvas)
+	_draw_tutorial_contact(canvas)
 	if _hit_remaining > 0.0 and _font != null:
 		var text_size := _font.get_string_size("HIT", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 24)
 		var position := canvas.size * 0.5 + Vector2(-text_size.x * 0.5, _font.get_ascent(24) - text_size.y * 0.5)
 		_draw_text(canvas, position, "HIT", 24, WHITE)
+
+
+func _draw_tutorial_contact(canvas: Control) -> void:
+	if not is_instance_valid(mission_controller) or not mission_controller.has_method("tutorial_contact"):
+		return
+	var contact: Node3D = mission_controller.tutorial_contact()
+	if contact == null or camera == null or player == null:
+		return
+	var center := canvas.size * 0.5
+	var point: Vector2 = camera.unproject_position(contact.global_position)
+	if camera.is_position_behind(contact.global_position):
+		var local: Vector3 = camera.to_local(contact.global_position)
+		point = center + Vector2(local.x, -local.y).normalized() * canvas.size.length()
+		if point.is_equal_approx(center):
+			point = center + Vector2.RIGHT * canvas.size.x
+	point = point.clamp(Vector2(180, 160), canvas.size - Vector2(240, 180))
+	canvas.draw_arc(point, 12, 0, TAU, 24, WHITE, 2.0)
+	var distance: float = player.global_position.distance_to(contact.global_position)
+	_draw_text(canvas, point + Vector2(20, 5), "CONTATTI · %.1f KM" % (distance / 1000.0), 16, WHITE)
 
 
 func _draw_missile_alert(canvas: Control) -> void:
@@ -671,6 +698,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			and not Bindings.CONTEXTS[0].any(func(action): return event.is_action(action))):
 			get_viewport().set_input_as_handled()
 			_close_pause_menu()
+		return
+	if tutorial_panel.handle_input(event):
+		get_viewport().set_input_as_handled()
 		return
 	# Menu actions win over flight actions sharing the same physical binding.
 	if mission_result_visible() and event.is_action("ui_accept"):
