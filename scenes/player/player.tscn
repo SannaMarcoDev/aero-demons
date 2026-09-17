@@ -48,11 +48,12 @@ angular_braking = Vector3(170, 60, 200)
 control_curve = 1.5
 control_rise_time = 0.05
 control_release_time = 0.05
+airframe_scale = 2.0
 camera_fov = 74.5
-camera_height = 1.5
-camera_depth = 5.6
+camera_height = 6.0
+camera_depth = 22.4
 camera_pitch = -0.10000000000000142
-camera_acceleration_shift = 0.5
+camera_acceleration_shift = 2.0
 
 [node name="FlightCamera" type="Camera3D" parent="." unique_id=338715369]
 physics_interpolation_mode = 1

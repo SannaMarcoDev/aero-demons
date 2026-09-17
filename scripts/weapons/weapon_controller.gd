@@ -429,7 +429,8 @@ func _on_minigun_finished() -> void:
 
 
 func _muzzle_transform(offset: Vector3) -> Transform3D:
-	return global_transform * Transform3D(Basis.IDENTITY, offset)
+	# Scale attachment positions, not the detached projectile or its launch velocity.
+	return Transform3D(global_basis.orthonormalized(), to_global(offset))
 
 
 ## What the airframe is actually doing, which is not the nose ray during a spin dash.

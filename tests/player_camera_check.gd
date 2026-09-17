@@ -29,5 +29,10 @@ func _check() -> void:
 	assert(offset.is_equal_approx(Vector3(0.0, 6.0, 12.0)))
 	assert(camera.global_basis.is_equal_approx(player.global_basis * Basis.from_euler(Vector3(deg_to_rad(-5.0), 0.0, 0.0))))
 	player.free()
+	for audio in root.get_node("AudioManager").get_children():
+		if audio is AudioStreamPlayer:
+			audio.stop()
+			audio.stream = null
+	await create_timer(0.2).timeout
 	print("Player camera check passed")
 	quit()

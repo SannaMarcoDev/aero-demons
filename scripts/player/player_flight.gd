@@ -67,7 +67,8 @@ signal destroyed(aircraft: Node3D)
 @export var damage_full_ratio := 0.15
 
 @export_category("Scale")
-@export_range(0.1, 1.0, 0.05) var airframe_scale := 0.5
+## Player N26 uses 2.0 to restore metres from the catalog's half-size rig; AI keeps 0.5.
+@export_range(0.1, 4.0, 0.05) var airframe_scale := 0.5
 
 @export_category("Camera")
 @export_range(45.0, 110.0, 0.5) var camera_fov := 70.0

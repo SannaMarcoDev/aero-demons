@@ -52,11 +52,25 @@ func _run() -> void:
 		assert(model.scene_file_path == definition.scene.resource_path)
 		assert(model.position.is_equal_approx(preview.position * player.airframe_scale))
 		assert(model.scale.is_equal_approx(preview.scale * player.airframe_scale))
+		assert(model.global_basis.get_scale().is_equal_approx(Vector3.ONE), "N26 must retain native metre dimensions")
+		var mesh := model.get_node("Model/Airframe") as MeshInstance3D
+		var size := mesh.get_aabb().size * mesh.global_basis.get_scale()
+		assert(size.is_equal_approx(Vector3(14.078388, 4.744039, 20.758505)))
+		assert(player.get_node("Hitbox").scale.is_equal_approx(Vector3.ONE * 2.0))
+		var weapons := player.get_node("WeaponController") as WeaponController
+		assert(weapons.scale.is_equal_approx(Vector3.ONE * 2.0))
+		for offset in [weapons.gun_muzzle] + weapons.missile_pylons:
+			var muzzle: Transform3D = weapons._muzzle_transform(offset)
+			assert(muzzle.basis.get_scale().is_equal_approx(Vector3.ONE))
+			assert(muzzle.origin.is_equal_approx(weapons.to_global(offset)))
+		assert(player.camera_depth > 20.0, "Camera must remain behind the full-size airframe")
 		var afterburners := player.get_node("Afterburners") as Node3D
 		assert(afterburners.get_child_count() == definition.engines.size())
 		for i in afterburners.get_child_count():
 			var thruster := afterburners.get_child(i) as Node3D
 			assert((afterburners.transform * thruster.position).is_equal_approx(definition.engines[i] * player.airframe_scale))
+			var socket := mesh.get_node("Engine_Left" if i == 0 else "Engine_Right") as Node3D
+			assert(thruster.global_position.distance_to(socket.global_position) < 0.001, "Exhaust detached from N26 nozzle")
 		assert(player.get_node("WeaponController").equipped_missile_ids == Session.selected_missiles)
 		player.reset_player()
 		assert(player.get_node("AircraftModel") == model)
@@ -93,6 +107,7 @@ func _run() -> void:
 	enemy.set_physics_process(false)
 	assert(enemy.get_node("AircraftModel").scene_file_path == "res://assets/aircraft/aircraft_game_ready.glb")
 	assert(enemy.get_node("WeaponController").equipped_missile_ids == ["STDM"])
+	assert(enemy.airframe_scale == 0.5, "N26 sizing must not rescale AI airframes")
 	# The shared maneuver implementation is not disabled for non-player airframes.
 	enemy._begin_spin_dash()
 	assert(enemy.spin_dash_active)
@@ -101,7 +116,8 @@ func _run() -> void:
 	for audio in root.get_node("AudioManager").get_children():
 		if audio is AudioStreamPlayer:
 			audio.stop()
-	await create_timer(0.1).timeout
+			audio.stream = null
+	await create_timer(0.2).timeout
 	current_scene.queue_free()
 	await process_frame
 	await process_frame

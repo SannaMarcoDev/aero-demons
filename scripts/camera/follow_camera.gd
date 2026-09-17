@@ -8,7 +8,7 @@ const TRACK_PITCH_LIMIT_DEG := 80.0
 @export_range(0.1, 30.0, 0.1) var follow_response := 8.0
 ## Higher values respond to the look stick faster.
 @export_range(0.1, 30.0, 0.1) var look_response := 8.0
-const ORBIT_PIVOT_HEIGHT := 1.0
+const ORBIT_PIVOT_HEIGHT := 4.0
 const TRACK_RESPONSE := 6.0
 @export_range(0.0, 30.0, 0.5) var maneuver_yaw_deg := 12.0
 const RUDDER_FRAMING_FACTOR := 0.5

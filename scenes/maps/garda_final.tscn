@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bckioquhk2auh"]
 
 [ext_resource type="Terrain3DAssets" uid="uid://cgcr8dwmk1n5w" path="res://terrain/garda_final_wc_uniform_250km/wc_terrain_assets.tres" id="1_assets"]
-[ext_resource type="Shader" path="res://resources/terrain/terrain_wc_override.gdshader" id="3_wcover"]
+[ext_resource type="Shader" uid="uid://3k0c1syprlil" path="res://resources/terrain/terrain_wc_override.gdshader" id="3_wcover"]
 [ext_resource type="Script" uid="uid://deo0gxkmk2ahd" path="res://addons/sky_3d/src/Sky3D.gd" id="8_sky3d"]
 [ext_resource type="Script" uid="uid://cjmkcj8hwm7ts" path="res://addons/sky_3d/src/TimeOfDay.gd" id="9_tod"]
 [ext_resource type="Script" uid="uid://b4tkplvh7fq40" path="res://addons/sky_3d/src/SkyDome.gd" id="10_dome"]
@@ -14,7 +14,7 @@
 [ext_resource type="CompositorEffect" uid="uid://dnuaohkyn5spa" path="res://resources/environments/tutorial_clouds.tres" id="21_sunshine"]
 [ext_resource type="Script" uid="uid://djusduuxf0voj" path="res://addons/SunshineClouds2/SunshineCloudsDriver.gd" id="22_clouds_driver"]
 [ext_resource type="Script" uid="uid://bke3xwkhruy37" path="res://scripts/maps/tutorial_boundary_controller.gd" id="23_boundary"]
-[ext_resource type="Material" path="res://resources/materials/garda_water.tres" id="24_water"]
+[ext_resource type="Material" uid="uid://30yhc4wq6lxr" path="res://resources/materials/garda_water.tres" id="24_water"]
 
 [sub_resource type="Gradient" id="Gradient_maued"]
 offsets = PackedFloat32Array(0.2, 1)
@@ -54,11 +54,25 @@ _shader_parameters = {
 &"noise1_scale": 0.04,
 &"noise2_scale": 0.076,
 &"noise_texture": SubResource("NoiseTexture2D_vto1s"),
-&"projection_threshold": 0.8
+&"projection_threshold": 0.8,
+&"wc_blend_power": null,
+&"wc_colormap_strength": null,
+&"wc_detile_rot": null,
+&"wc_detile_shift": null,
+&"wc_ms_amount": null,
+&"wc_ms_far": null,
+&"wc_ms_mask_scale": null,
+&"wc_ms_near": null,
+&"wc_ms_ratio": null,
+&"wc_uv_scale_mult": null,
+&"wc_uv_warp": null,
+&"wc_uv_warp_scale": null,
+&"wc_warp_scale": null,
+&"wc_warp_texels": null
 }
 world_background = 0
-shader_override = ExtResource("3_wcover")
 shader_override_enabled = true
+shader_override = ExtResource("3_wcover")
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_clear_cirrus"]
 seed = 42137
@@ -127,8 +141,8 @@ shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.7
 shader_parameter/cirrus_size = 1.0
 shader_parameter/cirrus_uv = Vector2(0.045, 0.14)
-shader_parameter/cirrus_position1 = Vector2(0.0068258382, 0.0068258382)
-shader_parameter/cirrus_position2 = Vector2(0.0068258382, 0.0068258382)
+shader_parameter/cirrus_position1 = Vector2(0.03251848, 0.03251848)
+shader_parameter/cirrus_position2 = Vector2(0.03251848, 0.03251848)
 shader_parameter/cirrus_texture = SubResource("NoiseTexture2D_clear_cirrus")
 shader_parameter/cumulus_visible = false
 shader_parameter/cumulus_intensity = 0.6
@@ -175,7 +189,7 @@ size = Vector2(150000, 250000)
 [node name="GardaFinal" type="Node3D" unique_id=1907416372]
 
 [node name="GardaTerrain" type="Terrain3D" parent="." unique_id=2125598487]
-data_directory = "res://terrain/garda_final_wc_uniform_250km"
+data_directory = "res://terrain/garda_geographic_250km"
 material = SubResource("Terrain3DMaterial_wc")
 assets = ExtResource("1_assets")
 mesh_lods = 10
@@ -279,7 +293,7 @@ small_structures_wind_speed = 10.0
 script = ExtResource("23_boundary")
 
 [node name="Water" type="MeshInstance3D" parent="." unique_id=987654321]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59340.19, 408.07687, -21.480469)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59340.19, 185.213, -21.48)
 cast_shadow = 0
 extra_cull_margin = 4.0
 mesh = SubResource("PlaneMesh_garda_water")
