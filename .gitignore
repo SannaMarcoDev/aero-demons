@@ -5,7 +5,9 @@
 # Documentation images are not game assets
 /docs/**/*.import
 
-# Tooling / Agent
+# Blender backup files
+*.blend1
+
 .pi/
 *.TMP
 ~*

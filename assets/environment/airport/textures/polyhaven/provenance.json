@@ -1,0 +1,85 @@
+{
+  "license": "CC0 1.0",
+  "source": "https://polyhaven.com/license",
+  "resolution": "Albedo and OpenGL normals: 2048x2048; exported scalar masks: 1024x1024",
+  "assets": [
+    {
+      "id": "concrete_floor_01",
+      "url": "https://polyhaven.com/a/concrete_floor_01"
+    },
+    {
+      "id": "concrete_floor_02",
+      "url": "https://polyhaven.com/a/concrete_floor_02"
+    },
+    {
+      "id": "concrete",
+      "url": "https://polyhaven.com/a/concrete"
+    },
+    {
+      "id": "corrugated_iron_02",
+      "url": "https://polyhaven.com/a/corrugated_iron_02"
+    },
+    {
+      "id": "painted_metal_shutter",
+      "url": "https://polyhaven.com/a/painted_metal_shutter"
+    },
+    {
+      "id": "metal_plate",
+      "url": "https://polyhaven.com/a/metal_plate"
+    },
+    {
+      "id": "asphalt_floor",
+      "url": "https://polyhaven.com/a/asphalt_floor"
+    }
+  ],
+  "derivatives": "Muted albedo grades baked as JPEG quality 95; scalar masks and adjusted glass roughness as lossless PNG. Original Poly Haven 2K JPEG maps retained. No procedural shaders required.",
+  "source_files": {
+    "asphalt_floor_AO.jpg": "bd45952b46e605495ec3f384a1b1cf200798b3b57ef25bec74dea456993503c0",
+    "asphalt_floor_Diffuse.jpg": "bdba2751c9e6ea3b9822438ad60b638f53bf1de7743ac8f396c2d9f19e8b0916",
+    "asphalt_floor_Rough.jpg": "36b039db0ea7d2d0aa2e3b94ec9b42c739ff8b13c7e5c56fc4b20398d417a10b",
+    "asphalt_floor_arm.jpg": "529dbbc20c82a949398e3dc7e8413d039f7ec047f8a3297df364c906444bf4e1",
+    "asphalt_floor_nor_gl.jpg": "44354b153dccdfed38487cfe1523eabdba6294f47676c0e28c3bbe121f0d65e9",
+    "concrete_AO.jpg": "0356e19784c8413e2fd201f160403b919b95fd09e30c1743d063a691975684a4",
+    "concrete_Diffuse.jpg": "92a0b37c2f64630ba776b514f3276ecbb98cd59a23dea2c7b83b3c63bc3e4f7a",
+    "concrete_Rough.jpg": "d58060aa195ffd5fc90fc2468491f9e6fd8a8d374362605d8cfe7ddeabcdc84c",
+    "concrete_arm.jpg": "642131193dffaf8bb1f505ba91d1342f375b8657920912ab29150d3241dca6c3",
+    "concrete_floor_01_AO.jpg": "6e961368144f2c5e0b5d4682763d0b2d251d56e0b99deb02738ef299d074960e",
+    "concrete_floor_01_Diffuse.jpg": "ca24c52dabae67ef49093f91d8f9b9e5328a3b9fcb1327742ff6181ee542e017",
+    "concrete_floor_01_Rough.jpg": "e66fa941d6daa33ba334c853bf126c85f1d77e7b72778073237e4ef8c7c97774",
+    "concrete_floor_01_nor_gl.jpg": "796b010208e346bbeec4c468f286c3892852a454f77cb516d6f4a6e7c240de01",
+    "concrete_floor_02_AO.jpg": "c224b43f7f6733f1f457ebb1c6bfe95f3bfa58f8a8d2425e2bd1a3bd110d0c06",
+    "concrete_floor_02_Diffuse.jpg": "b08a20dcb306d08ee7f4a05ec216b19b7fd37e95745998ec5f81ecedaac1f0e9",
+    "concrete_floor_02_Rough.jpg": "cb539b0f8fdc8c63241683e01c923eb040fa701ec4c60cff27b674294746ae67",
+    "concrete_floor_02_arm.jpg": "bea1da529cfaf1dba9d127b8ae89793530d261f199409cdebb23abf750306c74",
+    "concrete_floor_02_nor_gl.jpg": "ce12d18f283f884f4be6f6c110f81582376049caada1e226958659d3d5fbaae1",
+    "concrete_nor_gl.jpg": "74bd74e02c00565c84d89f6a73fe672ba4fe254c5b43d83eaca0eb7be5159265",
+    "corrugated_iron_02_AO.jpg": "5ac729251c75d2560bab8c7e7f2921204d6fffd7671c57ae7b4a44003d469b56",
+    "corrugated_iron_02_Diffuse.jpg": "1bd2b9900e066d7e6cbacc5093aa4204db71c1bbe13b42a3d8ad23d04fa8075a",
+    "corrugated_iron_02_Metal.jpg": "01d675c00567aa12abf71019320436f6e5bfdfd9924a0e84ca1a16920f75f758",
+    "corrugated_iron_02_Rough.jpg": "926d883052ad9f07e3110f3ce09157d9968872d1f7dafc7da70460f3158f4b4b",
+    "corrugated_iron_02_arm.jpg": "80ae7f8b9ff7521898049cb79b7cfb82a0bb95bf0cba312ffe1d0e5760f45dcb",
+    "corrugated_iron_02_nor_gl.jpg": "a7972360f64fb44beee57750b0ad6bee1f3b64268cd9f649b5e92e1de4de0632",
+    "metal_plate_AO.jpg": "31e586f0bde9f28331077b30495f0f324aa9f91a9d656205d03242d1d3e2e439",
+    "metal_plate_Diffuse.jpg": "864c9a653acd1f5034c9bbe7f955b18cc9687a81bbdfa805e7a2319939676910",
+    "metal_plate_Metal.jpg": "cc24a1f9aeaae8ef82266b86b6a875391312be113fbab03f6cb0697e5be00fdd",
+    "metal_plate_Rough.jpg": "3cdc139df4ec5b304dd986278c1fb026c67c42e6623f0ee5caa7f373d51c7bef",
+    "metal_plate_arm.jpg": "3b944444e12815f96c6850b385ba0e8f2f805338d8ad9e750907474b494f1ebe",
+    "metal_plate_nor_gl.jpg": "146f8c00874a584bcc4a184643e72f160da2a7568d469198e02b26c9ff93cf43",
+    "painted_metal_shutter_AO.jpg": "7a4b761fb1e2adad899695d49cbb4bd7a9bc2d4a3f29b44cd9ff29b325b22ee7",
+    "painted_metal_shutter_Diffuse.jpg": "0aa6835b7da52960dd371897f1777166210ca07386a2872eb162ab8398595997",
+    "painted_metal_shutter_Rough.jpg": "69baaf22e4be633912567d8518a607b5bcfdca68f5cb049d3c956e81700b8008",
+    "painted_metal_shutter_arm.jpg": "86f1b5e96df17d30114007b17ba272b7c8771fc212223257cb2621aa9ce39ce1",
+    "painted_metal_shutter_nor_gl.jpg": "2757f76146b522c9a0e5c057bd8fcac6600861def33a814c63b8b8e1f6a1d97f",
+    "ph_airfield_concrete_albedo.jpg": "17b2d93872a6f39b9f2f3616974af8b9ab181d1f1cd3838b0b66264b6ed3c25e",
+    "ph_cast_concrete_albedo.jpg": "2693169aa2c8ed3ecfbd39d29c0baf64ab758b87f396510241bc464848677e7f",
+    "ph_corrugated_roof_albedo.jpg": "b80a551f8aa7db671d0c3496eeabb1a9eda6f73df21b03caf28fe7ed95556c81",
+    "ph_industrial_glass_albedo.jpg": "2535905946e03fd9ecfc5b52e1dbd2a6068c54ac90d6cccc350d98bfea68ba6b",
+    "ph_luminaire_diffuser_albedo.jpg": "baf2849ff820f11b6b876b8d12e77d4a9887d78429b0eb3e480017289e5d09fd",
+    "ph_offwhite_coating_albedo.jpg": "cd2d0584f91ceb3fc77583c234e862e7bdd339543690c7ac6e2b375d36ecd220",
+    "ph_painted_shutter_albedo.jpg": "58121cba6e2c05f12dfeeef082fc8b2c51e09f149a45101d5e39493e19913089",
+    "ph_rubber_gasket_albedo.jpg": "e8989b7870fb8c00a536e85074da3a89b8c96f44d69e70946a2abe2408ddae44",
+    "ph_safety_yellow_albedo.jpg": "cf25575f1a8a366fe99ffe4b937e3d5dcf86386af348b8550a6ca7e234fe57cc",
+    "ph_structural_steel_albedo.jpg": "99544b8f5ef04ff4a3b982c18297c972e3f28719a0ce650710d0167642ca5c39",
+    "ph_wall_cladding_albedo.jpg": "0ea76cc808d81e36986616dc85089e70ff3a1fa35b1f7322e9f016917bae0983"
+  }
+}

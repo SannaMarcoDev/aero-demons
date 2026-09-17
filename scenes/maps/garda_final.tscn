@@ -9,6 +9,7 @@
 [ext_resource type="Texture2D" uid="uid://c1vwcdcdvb74a" path="res://addons/sky_3d/assets/thirdparty/textures/milkyway/Milkyway.jpg" id="12_milkyway"]
 [ext_resource type="Texture2D" uid="uid://cecwdqjol0ckd" path="res://addons/sky_3d/assets/textures/noiseClouds.png" id="13_clouds"]
 [ext_resource type="Texture2D" uid="uid://2r8ylu6rg5dp" path="res://addons/sky_3d/assets/thirdparty/textures/moon/MoonMap.png" id="15_moon"]
+[ext_resource type="PackedScene" path="res://scenes/maps/airport.tscn" id="16_8bik1"]
 [ext_resource type="Texture2D" uid="uid://djpfuyxkryegn" path="res://addons/sky_3d/assets/textures/noise.jpg" id="16_noise"]
 [ext_resource type="Texture2D" uid="uid://bm7dot7t7u1q4" path="res://addons/sky_3d/assets/thirdparty/textures/milkyway/StarField.jpg" id="17_stars"]
 [ext_resource type="CompositorEffect" uid="uid://dnuaohkyn5spa" path="res://resources/environments/tutorial_clouds.tres" id="21_sunshine"]
@@ -141,8 +142,8 @@ shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.7
 shader_parameter/cirrus_size = 1.0
 shader_parameter/cirrus_uv = Vector2(0.045, 0.14)
-shader_parameter/cirrus_position1 = Vector2(0.03251848, 0.03251848)
-shader_parameter/cirrus_position2 = Vector2(0.03251848, 0.03251848)
+shader_parameter/cirrus_position1 = Vector2(0.07506704, 0.07506704)
+shader_parameter/cirrus_position2 = Vector2(0.07506704, 0.07506704)
 shader_parameter/cirrus_texture = SubResource("NoiseTexture2D_clear_cirrus")
 shader_parameter/cumulus_visible = false
 shader_parameter/cumulus_intensity = 0.6
@@ -297,3 +298,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59340.19, 185.213, -21.48)
 cast_shadow = 0
 extra_cull_margin = 4.0
 mesh = SubResource("PlaneMesh_garda_water")
+
+[node name="Airport" parent="." unique_id=97443345 instance=ExtResource("16_8bik1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36418.484, 234.52104, 413.42773)

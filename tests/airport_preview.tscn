@@ -1,0 +1,48 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/maps/airport.tscn" id="1_airport"]
+
+[sub_resource type="Environment" id="Environment_preview"]
+background_mode = 1
+background_color = Color(0.27, 0.33, 0.39, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.72, 0.8, 0.9, 1)
+ambient_light_energy = 0.65
+tonemap_mode = 2
+
+[sub_resource type="StandardMaterial3D" id="Material_ground"]
+albedo_color = Color(0.19, 0.25, 0.18, 1)
+roughness = 1.0
+
+[sub_resource type="PlaneMesh" id="Mesh_ground"]
+material = SubResource("Material_ground")
+size = Vector2(16000, 16000)
+
+[sub_resource type="CameraAttributesPractical" id="Camera_attributes"]
+auto_exposure_enabled = false
+
+[node name="AirportPreview" type="Node3D"]
+
+[node name="Airport" parent="." instance=ExtResource("1_airport")]
+
+[node name="PreviewOnlyGround" type="MeshInstance3D" parent="."]
+position = Vector3(0, -0.35, 0)
+mesh = SubResource("Mesh_ground")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_preview")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-55, -30, 0)
+light_energy = 1.4
+shadow_enabled = true
+directional_shadow_max_distance = 4000.0
+
+[node name="Camera" type="Camera3D" parent="."]
+position = Vector3(1250, 1750, 2250)
+rotation_degrees = Vector3(-35, 30.77, 0)
+current = true
+fov = 49.0
+near = 0.15
+far = 15000.0
+attributes = SubResource("Camera_attributes")
