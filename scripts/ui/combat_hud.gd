@@ -386,7 +386,8 @@ func _draw_tutorial_contact(canvas: Control) -> void:
 	point = point.clamp(Vector2(180, 160), canvas.size - Vector2(240, 180))
 	canvas.draw_arc(point, 12, 0, TAU, 24, WHITE, 2.0)
 	var distance: float = player.global_position.distance_to(contact.global_position)
-	_draw_text(canvas, point + Vector2(20, 5), "CONTATTI · %.1f KM" % (distance / 1000.0), 16, WHITE)
+	var label := str(mission_controller.tutorial_contact_label()) if mission_controller.has_method("tutorial_contact_label") else "CONTATTI"
+	_draw_text(canvas, point + Vector2(20, 5), "%s · %.0f M" % [label, distance], 16, WHITE)
 
 
 func _draw_missile_alert(canvas: Control) -> void:

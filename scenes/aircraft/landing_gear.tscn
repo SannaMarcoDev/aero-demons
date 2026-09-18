@@ -1,0 +1,51 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="Rubber"]
+albedo_color = Color(0.018, 0.022, 0.028, 1)
+roughness = 0.92
+
+[sub_resource type="CylinderMesh" id="Wheel"]
+material = SubResource("Rubber")
+top_radius = 0.5
+bottom_radius = 0.5
+height = 0.32
+
+[sub_resource type="StandardMaterial3D" id="Metal"]
+albedo_color = Color(0.4, 0.44, 0.48, 1)
+metallic = 0.8
+roughness = 0.26
+
+[sub_resource type="CylinderMesh" id="Strut"]
+material = SubResource("Metal")
+top_radius = 0.075
+bottom_radius = 0.075
+height = 1.35
+
+[node name="DisplayLandingGear" type="Node3D"]
+
+[node name="NoseStrut" type="MeshInstance3D" parent="."]
+position = Vector3(0, -0.12, -6)
+mesh = SubResource("Strut")
+
+[node name="NoseWheel" type="MeshInstance3D" parent="."]
+position = Vector3(0, -0.7, -6)
+rotation_degrees = Vector3(0, 0, 90)
+mesh = SubResource("Wheel")
+
+[node name="LeftStrut" type="MeshInstance3D" parent="."]
+position = Vector3(-2.3, -0.12, 2)
+mesh = SubResource("Strut")
+
+[node name="LeftWheel" type="MeshInstance3D" parent="."]
+position = Vector3(-2.3, -0.7, 2)
+rotation_degrees = Vector3(0, 0, 90)
+mesh = SubResource("Wheel")
+
+[node name="RightStrut" type="MeshInstance3D" parent="."]
+position = Vector3(2.3, -0.12, 2)
+mesh = SubResource("Strut")
+
+[node name="RightWheel" type="MeshInstance3D" parent="."]
+position = Vector3(2.3, -0.7, 2)
+rotation_degrees = Vector3(0, 0, 90)
+mesh = SubResource("Wheel")

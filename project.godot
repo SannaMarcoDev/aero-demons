@@ -188,6 +188,13 @@ switch_missile={
 ]
 }
 
+landing_gear={
+"deadzone": 0.5,
+"events": [Object(InputEventJoypadButton,"device":-1,"button_index":12)
+, Object(InputEventKey,"device":-1,"physical_keycode":71)
+]
+}
+
 [internationalization]
 
 locale/translations_pot_files=PackedStringArray("res://resources/dialogues/tutorial.dialogue")

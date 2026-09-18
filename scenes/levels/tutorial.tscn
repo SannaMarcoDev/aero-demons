@@ -7,9 +7,8 @@
 [ext_resource type="PackedScene" path="res://scenes/enemies/enemy_fighter.tscn" id="6_enemy"]
 [ext_resource type="Script" uid="uid://7erqguvfj2as" path="res://scripts/combat/combat_director.gd" id="7_director"]
 [ext_resource type="Script" uid="uid://bheh07h6v4hg5" path="res://scripts/ui/horizon_graphics.gd" id="8_horizon"]
-[ext_resource type="Script" path="res://scripts/combat/tutorial_mission.gd" id="9_mission"]
-[ext_resource type="PackedScene" path="res://scenes/ui/radio_dialogue.tscn" id="10_radio"]
-[ext_resource type="Resource" path="res://resources/dialogues/tutorial.dialogue" id="11_dialogue"]
+[ext_resource type="Script" uid="uid://d3hxrtrcwcyoh" path="res://scripts/combat/tutorial_mission.gd" id="9_mission"]
+[ext_resource type="Resource" uid="uid://cpaikkcm43m27" path="res://resources/dialogues/tutorial.dialogue" id="11_dialogue"]
 
 [node name="Tutorial" type="Node3D" unique_id=1151233576]
 script = ExtResource("5_filters")
@@ -17,7 +16,8 @@ script = ExtResource("5_filters")
 [node name="GardaLake" parent="." unique_id=51425002 instance=ExtResource("1_map")]
 
 [node name="Player" parent="." unique_id=1784232784 instance=ExtResource("2_player")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8000, 0)
+transform = Transform3D(-0.9999357, 0, 0.011338794, 0, 1, 0, -0.011338794, 0, -0.9999357, -36230.457, 239.44565, 1214.8827)
+start_on_ground = true
 invulnerable = true
 camera_fov = 70.0
 camera_height = 3.2
@@ -29,8 +29,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -300, 8050, -150)
 policy = 1
 burst_interval = 5.5
 aim_accuracy = 0.7
-faction_group = "allies"
 invulnerable = true
+faction_group = "allies"
 label = "WING 1 · COVER"
 
 [node name="Wingman2" parent="." unique_id=79740025 instance=ExtResource("6_enemy")]
@@ -38,8 +38,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, 7950, -250)
 policy = 2
 burst_interval = 5.5
 aim_accuracy = 0.7
-faction_group = "allies"
 invulnerable = true
+faction_group = "allies"
 label = "WING 2 · SUPPORT"
 
 [node name="CombatDirector" type="Node" parent="." unique_id=432296202]
@@ -58,81 +58,88 @@ mode_label = "TUTORIAL"
 script = ExtResource("9_mission")
 dialogue = ExtResource("11_dialogue")
 
-[node name="RadioDialogue" parent="CombatHUD/HudText" instance=ExtResource("10_radio")]
+[node name="FlightContact" type="Marker3D" parent="." unique_id=1034777400]
 
-[node name="FlightContact" type="Marker3D" parent="."]
+[node name="SpawnedEnemies" type="Node3D" parent="." unique_id=1917299753]
 
-[node name="SpawnedEnemies" type="Node3D" parent="."]
+[node name="EnemySpawnMarkers" type="Node3D" parent="." unique_id=255367846]
 
-[node name="EnemySpawnMarkers" type="Node3D" parent="."]
+[node name="Encounter1" type="Node3D" parent="EnemySpawnMarkers" unique_id=818369125]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 8000, -5000)
 
-[node name="Encounter1" type="Node3D" parent="EnemySpawnMarkers"]
-position = Vector3(0, 8000, -5000)
-rotation_degrees = Vector3(0, 180, 0)
-
-[node name="Bandit01" type="Marker3D" parent="EnemySpawnMarkers/Encounter1"]
-position = Vector3(-300, 80, 0)
+[node name="Bandit01" type="Marker3D" parent="EnemySpawnMarkers/Encounter1" unique_id=59352238]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -300, 80, 0)
 gizmo_extents = 100.0
 
-[node name="Bandit02" type="Marker3D" parent="EnemySpawnMarkers/Encounter1"]
-position = Vector3(300, -80, 150)
+[node name="Bandit02" type="Marker3D" parent="EnemySpawnMarkers/Encounter1" unique_id=800123999]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, -80, 150)
 gizmo_extents = 100.0
 
-[node name="Encounter2" type="Node3D" parent="EnemySpawnMarkers"]
-position = Vector3(4500, 8000, -3500)
-rotation_degrees = Vector3(0, 90, 0)
+[node name="Encounter2" type="Node3D" parent="EnemySpawnMarkers" unique_id=1580724211]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 4500, 8000, -3500)
 
-[node name="Bandit03" type="Marker3D" parent="EnemySpawnMarkers/Encounter2"]
-position = Vector3(-450, 120, 0)
+[node name="Bandit03" type="Marker3D" parent="EnemySpawnMarkers/Encounter2" unique_id=388005609]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -450, 120, 0)
 gizmo_extents = 100.0
 
-[node name="Bandit04" type="Marker3D" parent="EnemySpawnMarkers/Encounter2"]
-position = Vector3(-150, -120, 200)
+[node name="Bandit04" type="Marker3D" parent="EnemySpawnMarkers/Encounter2" unique_id=506302805]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -150, -120, 200)
 gizmo_extents = 100.0
 
-[node name="Bandit05" type="Marker3D" parent="EnemySpawnMarkers/Encounter2"]
-position = Vector3(150, 120, 200)
+[node name="Bandit05" type="Marker3D" parent="EnemySpawnMarkers/Encounter2" unique_id=1758613110]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 150, 120, 200)
 gizmo_extents = 100.0
 
-[node name="Bandit06" type="Marker3D" parent="EnemySpawnMarkers/Encounter2"]
-position = Vector3(450, -120, 0)
+[node name="Bandit06" type="Marker3D" parent="EnemySpawnMarkers/Encounter2" unique_id=1575832460]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 450, -120, 0)
 gizmo_extents = 100.0
 
-[node name="Encounter3" type="Node3D" parent="EnemySpawnMarkers"]
-position = Vector3(-5000, 8000, -2500)
-rotation_degrees = Vector3(0, -90, 0)
+[node name="Encounter3" type="Node3D" parent="EnemySpawnMarkers" unique_id=992479204]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -5000, 8000, -2500)
 
-[node name="Bandit07" type="Marker3D" parent="EnemySpawnMarkers/Encounter3"]
-position = Vector3(-900, 150, 0)
+[node name="Bandit07" type="Marker3D" parent="EnemySpawnMarkers/Encounter3" unique_id=1876389073]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -900, 150, 0)
 gizmo_extents = 100.0
 
-[node name="Bandit08" type="Marker3D" parent="EnemySpawnMarkers/Encounter3"]
-position = Vector3(-300, -150, 0)
+[node name="Bandit08" type="Marker3D" parent="EnemySpawnMarkers/Encounter3" unique_id=390584536]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -300, -150, 0)
 gizmo_extents = 100.0
 
-[node name="Bandit09" type="Marker3D" parent="EnemySpawnMarkers/Encounter3"]
-position = Vector3(300, 150, 0)
+[node name="Bandit09" type="Marker3D" parent="EnemySpawnMarkers/Encounter3" unique_id=167248450]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, 150, 0)
 gizmo_extents = 100.0
 
-[node name="Bandit10" type="Marker3D" parent="EnemySpawnMarkers/Encounter3"]
-position = Vector3(900, -150, 0)
+[node name="Bandit10" type="Marker3D" parent="EnemySpawnMarkers/Encounter3" unique_id=946072506]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 900, -150, 0)
 gizmo_extents = 100.0
 
-[node name="Bandit11" type="Marker3D" parent="EnemySpawnMarkers/Encounter3"]
-position = Vector3(-900, -150, 700)
+[node name="Bandit11" type="Marker3D" parent="EnemySpawnMarkers/Encounter3" unique_id=880876619]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -900, -150, 700)
 gizmo_extents = 100.0
 
-[node name="Bandit12" type="Marker3D" parent="EnemySpawnMarkers/Encounter3"]
-position = Vector3(-300, 150, 700)
+[node name="Bandit12" type="Marker3D" parent="EnemySpawnMarkers/Encounter3" unique_id=1988440455]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -300, 150, 700)
 gizmo_extents = 100.0
 
-[node name="Bandit13" type="Marker3D" parent="EnemySpawnMarkers/Encounter3"]
-position = Vector3(300, -150, 700)
+[node name="Bandit13" type="Marker3D" parent="EnemySpawnMarkers/Encounter3" unique_id=437092717]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, -150, 700)
 gizmo_extents = 100.0
 
-[node name="Bandit14" type="Marker3D" parent="EnemySpawnMarkers/Encounter3"]
-position = Vector3(900, 150, 700)
+[node name="Bandit14" type="Marker3D" parent="EnemySpawnMarkers/Encounter3" unique_id=1869152811]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 900, 150, 700)
 gizmo_extents = 100.0
 
 [node name="HorizonGraphics" type="CanvasLayer" parent="." unique_id=1374869459]
 script = ExtResource("8_horizon")
+
+[node name="Marker3D" type="Marker3D" parent="." unique_id=54508356]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36231.164, 233.63254, 1259.4833)
+
+[node name="Marker3D2" type="Marker3D" parent="." unique_id=426206719]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36292.49, 233.63254, 1590.3944)
+
+[node name="Marker3D3" type="Marker3D" parent="." unique_id=416716052]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36418.973, 233.63254, 1558.633)
+
+[node name="Marker3D4" type="Marker3D" parent="." unique_id=1527083500]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36418.523, 233.63255, 130.3802)

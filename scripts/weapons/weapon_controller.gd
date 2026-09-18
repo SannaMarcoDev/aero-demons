@@ -384,6 +384,8 @@ func _pilot_allows_fire(kind: String) -> bool:
 	if not firing_enabled:
 		return false
 	var aircraft := get_parent()
+	if aircraft.has_method("landing_gear_retracted") and not aircraft.landing_gear_retracted():
+		return false
 	if aircraft.has_method("is_alive") and not aircraft.is_alive():
 		return false
 	return not aircraft.has_method("weapon_fire_block") or aircraft.weapon_fire_block(kind) == "READY"

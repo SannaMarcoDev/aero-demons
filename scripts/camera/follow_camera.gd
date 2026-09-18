@@ -56,7 +56,7 @@ func _physics_process(delta: float) -> void:
 	# Hold cycle_target (>0.25s) to center current target — only camera moves, no aircraft input.
 	if _targeting == null and target != null:
 		_targeting = target.get_node_or_null("TargetLock") as TargetLock
-	if Input.is_action_pressed("cycle_target"):
+	if not target.grounded and Input.is_action_pressed("cycle_target"):
 		_cycle_hold_time += delta
 	else:
 		_cycle_hold_time = 0.0
@@ -101,7 +101,7 @@ func _chase_transform() -> Transform3D:
 		target.camera_depth + acceleration_shift + target.spin_dash_camera_depth_offset(),
 	)
 	return _target_anchor() * Transform3D(
-		Basis.from_euler(Vector3(deg_to_rad(target.camera_pitch), 0.0, 0.0)),
+		Basis.from_euler(Vector3(deg_to_rad(minf(target.camera_pitch, -3.0) if target.grounded else target.camera_pitch), 0.0, 0.0)),
 		camera_offset,
 	)
 

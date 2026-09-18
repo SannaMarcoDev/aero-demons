@@ -37,6 +37,24 @@ signal destroyed(aircraft: Node3D)
 @export var return_distance := 40000.0
 @export var arena_half_size := 40500.0
 
+@export_category("Ground operations")
+@export var start_on_ground := false
+@export var rotation_speed := 90.0
+@export var ground_acceleration := 6.0
+@export var ground_deceleration := 12.0
+@export var ground_steering_speed := 32.0
+@export var ground_steering_acceleration := 24.0
+@export var ground_braking := 20.0
+@export var gear_travel_time := 1.5
+var controls_enabled := true
+var grounded := false
+var gear_down := false
+var gear_extension := 0.0
+var ground_brake_input := 0.0
+var _gear: Node3D
+var _ground_body: CharacterBody3D
+var _ground_contact_seen := false
+
 @export_category("High-G")
 ## Both analog triggers held: brake and increase pitch/yaw authority; inertia still applies.
 @export var high_g_turn_factor := 1.4
@@ -130,6 +148,16 @@ func _ready() -> void:
 		SettingsManager.ensure_controls_loaded()
 		GameSession.AircraftCatalog.apply_to_player(self, GameSession.selected_aircraft_id)
 	_scale_airframe()
+	if faction_group == "player":
+		_gear = preload("res://scenes/aircraft/landing_gear.tscn").instantiate()
+		get_node("AircraftModel").add_child(_gear)
+		gear_down = start_on_ground
+		gear_extension = 1.0 if gear_down else 0.0
+		_update_gear(0.0)
+	if start_on_ground:
+		_setup_ground_body()
+		speed = 0.0
+		grounded = true
 	health = max_health
 	_spawn_transform = global_transform
 	_damage_emitters = find_children("*", "DamageFire", true, false)
@@ -169,6 +197,7 @@ func _physics_process(delta: float) -> void:
 		return
 	_flight_time += delta
 	_update_controls()
+	_update_gear(delta)
 	_update_spin_dash()
 	_apply_flight(delta)
 	_apply_triggers()
@@ -182,6 +211,7 @@ func clear_player_controls() -> void:
 	roll_input = 0.0
 	throttle_input = 0.0
 	brake_input = 0.0
+	ground_brake_input = 0.0
 	gun_trigger = false
 	missile_trigger = false
 	switch_missile_trigger = false
@@ -191,6 +221,9 @@ func clear_player_controls() -> void:
 
 ## Fills the control fields for this tick. The player reads the gamepad; subclasses read an AI.
 func _update_controls() -> void:
+	if not controls_enabled:
+		clear_player_controls()
+		return
 	var delta := get_physics_process_delta_time()
 	var sensitivity := SettingsManager.controls_sensitivity
 	var pitch_axis := Input.get_axis("pitch_up", "pitch_down")
@@ -212,10 +245,95 @@ func _update_controls() -> void:
 		cycle_trigger = (_flight_time - _cycle_press_time) < 0.30
 	else:
 		cycle_trigger = false
+	# Y is contextual: wheel brake on the ground, target selection only in flight.
+	ground_brake_input = Input.get_action_strength("cycle_target") if grounded else 0.0
+	if grounded:
+		cycle_trigger = false
+		_cycle_press_time = -INF
+	if Input.is_action_just_pressed("landing_gear"):
+		toggle_landing_gear()
 	# Internal build: ordinary rudder/throttle inputs never activate special maneuvers.
 	# AI overrides this input reader; shared flight dynamics remain unchanged.
 	high_g_active = false
 	spin_dash_trigger = false
+
+
+func toggle_landing_gear() -> void:
+	if _gear == null or grounded:
+		return
+	gear_down = not gear_down
+
+
+func landing_gear_retracted() -> bool:
+	return not gear_down and gear_extension <= 0.0
+
+
+func _update_gear(delta: float) -> void:
+	gear_extension = move_toward(gear_extension, 1.0 if gear_down else 0.0, delta / maxf(gear_travel_time, 0.01))
+	if _gear != null:
+		_gear.visible = gear_extension > 0.0
+		_gear.position.y = (1.0 - gear_extension) * 1.6
+
+
+func _setup_ground_body() -> void:
+	_ground_body = CharacterBody3D.new()
+	_ground_body.name = "GroundBody"
+	_ground_body.top_level = true
+	_ground_body.collision_layer = 0
+	_ground_body.collision_mask = 1
+	_ground_body.floor_snap_length = 0.3
+	add_child(_ground_body)
+	_ground_body.global_position = global_position
+	# ponytail: level box proxy for provisional wheels; replace with wheel suspension for uneven-field landings.
+	var shape := BoxShape3D.new()
+	shape.size = Vector3(12, 4.5, 16)
+	var collider := CollisionShape3D.new()
+	collider.shape = shape
+	collider.position.y = -1.35 # Bottom -3.6: catalog offset -2.4 plus original menu wheel -1.2.
+	_ground_body.add_child(collider)
+
+
+func _apply_ground_capable_flight(delta: float) -> void:
+	if grounded:
+		_angular_velocity.x = 0.0
+		_angular_velocity.z = 0.0
+		var steering := ground_steering_speed * clampf(speed / 8.0, 0.0, 1.0) / (1.0 + speed / 35.0)
+		_angular_velocity.y = move_toward(_angular_velocity.y, -yaw_input * steering, ground_steering_acceleration * delta)
+		rotate_y(deg_to_rad(_angular_velocity.y * delta) * clampf(speed, 0.0, 1.0))
+		var pitch := rotation.x
+		pitch = clampf(pitch - pitch_input * deg_to_rad(pitch_speed) * delta, 0.0, deg_to_rad(12.0)) if speed >= rotation_speed else move_toward(pitch, 0.0, delta)
+		rotation = Vector3(pitch, rotation.y, 0.0)
+		var drive := throttle_input * ground_acceleration - brake_input * ground_deceleration
+		if ground_brake_input > 0.0:
+			drive = -ground_brake_input * ground_braking
+		speed = clampf(speed + drive * delta, 0.0, max_speed)
+	else:
+		_apply_rotation(delta)
+		if throttle_input > 0.01 or brake_input > 0.01:
+			speed = clampf(speed + (throttle_input * acceleration - brake_input * deceleration) * delta, min_speed, max_speed)
+		else:
+			speed = move_toward(speed, cruise_speed, cruise_return_rate * delta)
+	var direction := _travel_direction()
+	var vertical := _ground_body.velocity.y
+	if speed >= rotation_speed:
+		vertical = move_toward(vertical, direction.y * speed, 30.0 * delta)
+	else:
+		vertical -= 9.8 * delta
+	_ground_body.global_position = global_position
+	_ground_body.global_rotation = Vector3(0.0, rotation.y, 0.0)
+	_ground_body.velocity = Vector3(direction.x * speed, vertical, direction.z * speed)
+	_ground_body.move_and_slide()
+	global_position = _ground_body.global_position
+	global_position.y = minf(global_position.y, max_altitude)
+	_ground_contact_seen = _ground_contact_seen or _ground_body.is_on_floor()
+	grounded = _ground_body.is_on_floor() or not _ground_contact_seen
+	if _ground_body.is_on_wall():
+		speed = 0.0
+	if not grounded:
+		_return_to_arena(delta)
+	var throttle := clampf(speed / max_speed, 0.0, 1.0)
+	_afterburners.set_throttle(lerpf(0.1, 0.5, throttle))
+	_update_engine_audio(throttle)
 
 
 func _precision_input(current: float, raw: float, delta: float) -> float:
@@ -227,6 +345,9 @@ func _precision_input(current: float, raw: float, delta: float) -> float:
 
 
 func _apply_flight(delta: float) -> void:
+	if _ground_body != null:
+		_apply_ground_capable_flight(delta)
+		return
 	if spin_dash_active:
 		_apply_spin_dash(delta)
 		return
@@ -467,6 +588,8 @@ func spin_dash_camera_fov_offset() -> float:
 
 ## World velocity of the airframe. Weapons read this instead of assuming the nose ray times speed.
 func velocity() -> Vector3:
+	if _ground_body != null:
+		return _ground_body.velocity
 	if spin_dash_active:
 		return _spin_dash_velocity
 	return _travel_direction() * speed
@@ -511,7 +634,16 @@ func reset_flight(start_transform: Transform3D) -> void:
 	global_transform = start_transform
 	if is_inside_tree():
 		reset_physics_interpolation()
-	speed = cruise_speed
+	speed = 0.0 if start_on_ground else cruise_speed
+	grounded = start_on_ground
+	_ground_contact_seen = false
+	gear_down = start_on_ground
+	gear_extension = 1.0 if gear_down else 0.0
+	ground_brake_input = 0.0
+	if _ground_body != null:
+		_ground_body.global_position = global_position
+		_ground_body.velocity = Vector3.ZERO
+	_update_gear(0.0)
 	high_g_active = false
 	spin_dash_active = false
 	spin_dash_trigger = false

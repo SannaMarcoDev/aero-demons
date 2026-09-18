@@ -3,6 +3,7 @@
 [ext_resource type="PackedScene" path="res://assets/environment/military_hangar/military_hangar.glb" id="1_hangar"]
 [ext_resource type="PackedScene" path="res://scenes/aircraft/fa_n26.tscn" id="2_aircraft"]
 [ext_resource type="Script" path="res://scripts/ui/menu_camera_aim.gd" id="3_aim"]
+[ext_resource type="PackedScene" path="res://scenes/aircraft/landing_gear.tscn" id="4_gear"]
 
 [sub_resource type="Environment" id="Environment_hangar"]
 background_mode = 1
@@ -30,27 +31,6 @@ volumetric_fog_density = 0.003
 volumetric_fog_albedo = Color(0.55, 0.65, 0.8, 1)
 volumetric_fog_length = 48.0
 
-[sub_resource type="StandardMaterial3D" id="Material_rubber"]
-albedo_color = Color(0.018, 0.022, 0.028, 1)
-roughness = 0.92
-
-[sub_resource type="CylinderMesh" id="Mesh_wheel"]
-material = SubResource("Material_rubber")
-top_radius = 0.5
-bottom_radius = 0.5
-height = 0.32
-
-[sub_resource type="StandardMaterial3D" id="Material_strut"]
-albedo_color = Color(0.4, 0.44, 0.48, 1)
-metallic = 0.8
-roughness = 0.26
-
-[sub_resource type="CylinderMesh" id="Mesh_strut"]
-material = SubResource("Material_strut")
-top_radius = 0.075
-bottom_radius = 0.075
-height = 1.35
-
 [node name="MenuAircraftStage" type="Node3D"]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
@@ -62,34 +42,7 @@ environment = SubResource("Environment_hangar")
 position = Vector3(0, 1.2, -3)
 rotation_degrees = Vector3(0, 180, 0)
 
-[node name="DisplayLandingGear" type="Node3D" parent="Aircraft"]
-
-[node name="NoseStrut" type="MeshInstance3D" parent="Aircraft/DisplayLandingGear"]
-position = Vector3(0, -0.12, -6)
-mesh = SubResource("Mesh_strut")
-
-[node name="NoseWheel" type="MeshInstance3D" parent="Aircraft/DisplayLandingGear"]
-position = Vector3(0, -0.7, -6)
-rotation_degrees = Vector3(0, 0, 90)
-mesh = SubResource("Mesh_wheel")
-
-[node name="LeftStrut" type="MeshInstance3D" parent="Aircraft/DisplayLandingGear"]
-position = Vector3(-2.3, -0.12, 2)
-mesh = SubResource("Mesh_strut")
-
-[node name="LeftWheel" type="MeshInstance3D" parent="Aircraft/DisplayLandingGear"]
-position = Vector3(-2.3, -0.7, 2)
-rotation_degrees = Vector3(0, 0, 90)
-mesh = SubResource("Mesh_wheel")
-
-[node name="RightStrut" type="MeshInstance3D" parent="Aircraft/DisplayLandingGear"]
-position = Vector3(2.3, -0.12, 2)
-mesh = SubResource("Mesh_strut")
-
-[node name="RightWheel" type="MeshInstance3D" parent="Aircraft/DisplayLandingGear"]
-position = Vector3(2.3, -0.7, 2)
-rotation_degrees = Vector3(0, 0, 90)
-mesh = SubResource("Mesh_wheel")
+[node name="DisplayLandingGear" parent="Aircraft" instance=ExtResource("4_gear")]
 
 [node name="HangarReflections" type="ReflectionProbe" parent="."]
 position = Vector3(0, 4.5, -4)
