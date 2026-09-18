@@ -25,7 +25,10 @@ func _ready() -> void:
 	initial_override = terrain_material.shader_override_enabled
 	var blur = terrain_material.get_shader_param("depth_blur")
 	initial_blur = float(blur) if blur != null else 0.0
-	if DisplayServer.get_name() != "headless":
+	# Garda's continuous surface has no control-map minification cutoff to remove.
+	terrain_filter = initial_shader
+	var continuous_surface := initial_override and initial_shader and initial_shader.resource_path == "res://resources/terrain/garda_surface.gdshader"
+	if DisplayServer.get_name() != "headless" and not continuous_surface:
 		var code := initial_shader.code if initial_override and initial_shader else RenderingServer.shader_get_code(terrain_material.get_shader_rid())
 		var condition := "region_mip < 0.0 && region_uv.z > -1."
 		assert(code.count(condition) == 1, "Terrain shader changed: review distance blending probe")
@@ -60,7 +63,8 @@ func apply_mode(index: int) -> void:
 	terrain_material.shader_override = terrain_filter if mode == 6 else initial_shader
 	terrain_material.shader_override_enabled = true if mode == 6 else initial_override
 	terrain_material.set_shader_param("depth_blur", 2.0 if mode == 7 else initial_blur)
-	label.text = "F6 · Filtro: " + MODES[mode]
+	var description: String = "Terreno: blending continuo già attivo" if mode == 6 and terrain_filter == initial_shader else MODES[mode]
+	label.text = "F6 · Filtro: " + description
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F6:

@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bckioquhk2auh"]
 
-[ext_resource type="Terrain3DAssets" uid="uid://cgcr8dwmk1n5w" path="res://terrain/garda_final_wc_uniform_250km/wc_terrain_assets.tres" id="1_assets"]
-[ext_resource type="Shader" uid="uid://3k0c1syprlil" path="res://resources/terrain/terrain_wc_override.gdshader" id="3_wcover"]
+[ext_resource type="Terrain3DAssets" path="res://resources/terrain/garda_surface_assets.tres" id="1_assets"]
+[ext_resource type="Shader" path="res://resources/terrain/garda_surface.gdshader" id="3_wcover"]
 [ext_resource type="Script" uid="uid://deo0gxkmk2ahd" path="res://addons/sky_3d/src/Sky3D.gd" id="8_sky3d"]
 [ext_resource type="Script" uid="uid://cjmkcj8hwm7ts" path="res://addons/sky_3d/src/TimeOfDay.gd" id="9_tod"]
 [ext_resource type="Script" uid="uid://b4tkplvh7fq40" path="res://addons/sky_3d/src/SkyDome.gd" id="10_dome"]
@@ -17,59 +17,20 @@
 [ext_resource type="Script" uid="uid://bke3xwkhruy37" path="res://scripts/maps/tutorial_boundary_controller.gd" id="23_boundary"]
 [ext_resource type="Material" uid="uid://30yhc4wq6lxr" path="res://resources/materials/garda_water.tres" id="24_water"]
 
-[sub_resource type="Gradient" id="Gradient_maued"]
-offsets = PackedFloat32Array(0.2, 1)
-colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
+[ext_resource type="Script" path="res://scripts/maps/garda_forests.gd" id="25_forests"]
 
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_tqhdi"]
-noise_type = 2
-frequency = 0.03
-cellular_jitter = 3.0
-cellular_return_type = 0
-domain_warp_enabled = true
-domain_warp_type = 1
-domain_warp_amplitude = 50.0
-domain_warp_fractal_type = 2
-domain_warp_fractal_lacunarity = 1.5
-domain_warp_fractal_gain = 1.0
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_surface"]
+seed = 7319
+frequency = 0.008
+fractal_octaves = 4
 
-[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_vto1s"]
-noise = SubResource("FastNoiseLite_tqhdi")
-color_ramp = SubResource("Gradient_maued")
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_surface"]
+noise = SubResource("FastNoiseLite_surface")
 seamless = true
 
 [sub_resource type="Terrain3DMaterial" id="Terrain3DMaterial_wc"]
 _shader_parameters = {
-&"bias_distance": 512.0,
-"blend_sharpness": 0.0,
-&"depth_blur": 0.0,
-"enable_macro_variation": false,
-&"enable_projection": true,
-&"flat_terrain_normals": false,
-&"macro_variation1": Color(1, 1, 1, 1),
-&"macro_variation2": Color(1, 1, 1, 1),
-&"macro_variation_slope": 0.333,
-&"mipmap_bias": 1.0,
-&"noise1_angle": 0.0,
-&"noise1_offset": Vector2(0.5, 0.5),
-&"noise1_scale": 0.04,
-&"noise2_scale": 0.076,
-&"noise_texture": SubResource("NoiseTexture2D_vto1s"),
-&"projection_threshold": 0.8,
-&"wc_blend_power": null,
-&"wc_colormap_strength": null,
-&"wc_detile_rot": null,
-&"wc_detile_shift": null,
-&"wc_ms_amount": null,
-&"wc_ms_far": null,
-&"wc_ms_mask_scale": null,
-&"wc_ms_near": null,
-&"wc_ms_ratio": null,
-&"wc_uv_scale_mult": null,
-&"wc_uv_warp": null,
-&"wc_uv_warp_scale": null,
-&"wc_warp_scale": null,
-&"wc_warp_texels": null
+&"surface_noise": SubResource("NoiseTexture2D_surface")
 }
 world_background = 0
 shader_override_enabled = true
@@ -298,6 +259,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59340.19, 185.213, -21.48)
 cast_shadow = 0
 extra_cull_margin = 4.0
 mesh = SubResource("PlaneMesh_garda_water")
+
+[node name="Forests" type="Node" parent="."]
+script = ExtResource("25_forests")
 
 [node name="Airport" parent="." unique_id=97443345 instance=ExtResource("16_8bik1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36418.484, 234.52104, 413.42773)

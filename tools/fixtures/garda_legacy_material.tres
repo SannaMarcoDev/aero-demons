@@ -1,0 +1,61 @@
+[gd_resource type="Terrain3DMaterial" format=3]
+
+[ext_resource type="Shader" path="res://resources/terrain/terrain_wc_override.gdshader" id="3_wcover"]
+
+[sub_resource type="Gradient" id="Gradient_maued"]
+offsets = PackedFloat32Array(0.2, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_tqhdi"]
+noise_type = 2
+frequency = 0.03
+cellular_jitter = 3.0
+cellular_return_type = 0
+domain_warp_enabled = true
+domain_warp_type = 1
+domain_warp_amplitude = 50.0
+domain_warp_fractal_type = 2
+domain_warp_fractal_lacunarity = 1.5
+domain_warp_fractal_gain = 1.0
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_vto1s"]
+noise = SubResource("FastNoiseLite_tqhdi")
+color_ramp = SubResource("Gradient_maued")
+seamless = true
+
+[resource]
+_shader_parameters = {
+&"bias_distance": 512.0,
+"blend_sharpness": 0.0,
+&"depth_blur": 0.0,
+"enable_macro_variation": false,
+&"enable_projection": true,
+&"flat_terrain_normals": false,
+&"macro_variation1": Color(1, 1, 1, 1),
+&"macro_variation2": Color(1, 1, 1, 1),
+&"macro_variation_slope": 0.333,
+&"mipmap_bias": 1.0,
+&"noise1_angle": 0.0,
+&"noise1_offset": Vector2(0.5, 0.5),
+&"noise1_scale": 0.04,
+&"noise2_scale": 0.076,
+&"noise_texture": SubResource("NoiseTexture2D_vto1s"),
+&"projection_threshold": 0.8,
+&"wc_blend_power": null,
+&"wc_colormap_strength": null,
+&"wc_detile_rot": null,
+&"wc_detile_shift": null,
+&"wc_ms_amount": null,
+&"wc_ms_far": null,
+&"wc_ms_mask_scale": null,
+&"wc_ms_near": null,
+&"wc_ms_ratio": null,
+&"wc_uv_scale_mult": null,
+&"wc_uv_warp": null,
+&"wc_uv_warp_scale": null,
+&"wc_warp_scale": null,
+&"wc_warp_texels": null
+}
+world_background = 0
+shader_override_enabled = true
+shader_override = ExtResource("3_wcover")

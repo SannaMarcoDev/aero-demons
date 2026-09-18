@@ -1,0 +1,153 @@
+{
+  "batches": 564,
+  "build_ms": 391.116,
+  "captures": [
+    {
+      "draw_calls": 115,
+      "frame_ms": 2.501,
+      "gpu_ms": 1.35399997234344,
+      "mode": "off",
+      "p95_ms": 4.116,
+      "view": "near"
+    },
+    {
+      "draw_calls": 255,
+      "frame_ms": 2.713,
+      "gpu_ms": 1.47300004959106,
+      "mode": "on",
+      "p95_ms": 4.273,
+      "view": "near"
+    },
+    {
+      "draw_calls": 167,
+      "frame_ms": 2.673,
+      "gpu_ms": 1.42599999904633,
+      "mode": "no_shadows",
+      "p95_ms": 4.237,
+      "view": "near"
+    },
+    {
+      "draw_calls": 167,
+      "frame_ms": 2.573,
+      "gpu_ms": 1.43299996852875,
+      "mode": "no_shadows",
+      "p95_ms": 4.278,
+      "view": "near"
+    },
+    {
+      "draw_calls": 255,
+      "frame_ms": 2.714,
+      "gpu_ms": 1.47099995613098,
+      "mode": "on",
+      "p95_ms": 4.325,
+      "view": "near"
+    },
+    {
+      "draw_calls": 115,
+      "frame_ms": 2.309,
+      "gpu_ms": 1.36099994182587,
+      "mode": "off",
+      "p95_ms": 4.207,
+      "view": "near"
+    },
+    {
+      "draw_calls": 111,
+      "frame_ms": 2.551,
+      "gpu_ms": 1.60899996757507,
+      "mode": "off",
+      "p95_ms": 4.376,
+      "view": "low_flight"
+    },
+    {
+      "draw_calls": 258,
+      "frame_ms": 2.473,
+      "gpu_ms": 1.72200000286102,
+      "mode": "on",
+      "p95_ms": 4.395,
+      "view": "low_flight"
+    },
+    {
+      "draw_calls": 186,
+      "frame_ms": 2.51,
+      "gpu_ms": 1.692999958992,
+      "mode": "no_shadows",
+      "p95_ms": 4.338,
+      "view": "low_flight"
+    },
+    {
+      "draw_calls": 186,
+      "frame_ms": 2.466,
+      "gpu_ms": 1.69200003147125,
+      "mode": "no_shadows",
+      "p95_ms": 4.361,
+      "view": "low_flight"
+    },
+    {
+      "draw_calls": 258,
+      "frame_ms": 2.404,
+      "gpu_ms": 1.71800005435944,
+      "mode": "on",
+      "p95_ms": 4.438,
+      "view": "low_flight"
+    },
+    {
+      "draw_calls": 111,
+      "frame_ms": 2.36,
+      "gpu_ms": 1.61099994182587,
+      "mode": "off",
+      "p95_ms": 4.328,
+      "view": "low_flight"
+    },
+    {
+      "draw_calls": 40,
+      "frame_ms": 2.476,
+      "gpu_ms": 1.40299999713898,
+      "mode": "off",
+      "p95_ms": 4.033,
+      "view": "cruise"
+    },
+    {
+      "draw_calls": 137,
+      "frame_ms": 2.164,
+      "gpu_ms": 1.46200001239777,
+      "mode": "on",
+      "p95_ms": 4.178,
+      "view": "cruise"
+    },
+    {
+      "draw_calls": 137,
+      "frame_ms": 2.518,
+      "gpu_ms": 1.45899999141693,
+      "mode": "no_shadows",
+      "p95_ms": 4.113,
+      "view": "cruise"
+    },
+    {
+      "draw_calls": 137,
+      "frame_ms": 2.447,
+      "gpu_ms": 1.46099996566772,
+      "mode": "no_shadows",
+      "p95_ms": 4.098,
+      "view": "cruise"
+    },
+    {
+      "draw_calls": 137,
+      "frame_ms": 2.22,
+      "gpu_ms": 1.46099996566772,
+      "mode": "on",
+      "p95_ms": 4.112,
+      "view": "cruise"
+    },
+    {
+      "draw_calls": 40,
+      "frame_ms": 2.109,
+      "gpu_ms": 1.40600001811981,
+      "mode": "off",
+      "p95_ms": 4.043,
+      "view": "cruise"
+    }
+  ],
+  "gpu": "AMD Radeon RX 9070 XT",
+  "largest_patch_ms": 59.616,
+  "trees": 39564
+}

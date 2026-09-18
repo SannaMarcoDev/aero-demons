@@ -1,0 +1,101 @@
+[gd_resource type="Terrain3DAssets" format=3]
+
+[ext_resource type="Texture2D" path="res://textures/terrain/garda/marble_cliff_01_albedo_packed.png" id="1_alb0"]
+[ext_resource type="Texture2D" path="res://textures/terrain/garda/marble_cliff_01_normal_packed.png" id="2_nrm0"]
+[ext_resource type="Texture2D" uid="uid://in365pmsuiux" path="res://textures/terrain/rocky_terrain_02_albedo_packed.png" id="3_alb1"]
+[ext_resource type="Texture2D" uid="uid://dfxupoao4hu48" path="res://textures/terrain/rocky_terrain_02_normal_packed.png" id="4_nrm1"]
+[ext_resource type="Texture2D" uid="uid://dkvyxohkdaamq" path="res://textures/terrain/leafy_grass_albedo_packed.png" id="5_alb2"]
+[ext_resource type="Texture2D" uid="uid://dfe0nqtg08cm0" path="res://textures/terrain/leafy_grass_normal_packed.png" id="6_nrm2"]
+[ext_resource type="Texture2D" uid="uid://dunymemdjchcx" path="res://textures/terrain/withered_grass_albedo_packed.png" id="7_alb3"]
+[ext_resource type="Texture2D" uid="uid://diiwowk0msclu" path="res://textures/terrain/withered_grass_normal_packed.png" id="8_nrm3"]
+[ext_resource type="Texture2D" uid="uid://dct7ptps2ap2s" path="res://textures/terrain/snow_02_albedo_packed.png" id="9_alb4"]
+[ext_resource type="Texture2D" uid="uid://b4dtujg0ko5ck" path="res://textures/terrain/snow_02_normal_packed.png" id="10_nrm4"]
+[ext_resource type="Texture2D" uid="uid://bt7qgiqkjkqpk" path="res://textures/terrain/dry_river_pebbles_albedo_packed.png" id="11_alb5"]
+[ext_resource type="Texture2D" uid="uid://t60o8jat3tjx" path="res://textures/terrain/dry_river_pebbles_normal_packed.png" id="12_nrm5"]
+[ext_resource type="Texture2D" uid="uid://4fadgroyy3ky" path="res://textures/terrain/rocks_ground_03_albedo_packed.png" id="13_alb6"]
+[ext_resource type="Texture2D" uid="uid://dpda70aadxr1w" path="res://textures/terrain/rocks_ground_03_normal_packed.png" id="14_nrm6"]
+
+[ext_resource type="PackedScene" path="res://assets/environment/garda_forest/garda_broadleaf.glb" id="15_tree"]
+[ext_resource type="Material" path="res://resources/terrain/garda_tree_material.tres" id="16_tree_material"]
+
+[sub_resource type="Terrain3DMeshAsset" id="Terrain3DMeshAsset_tree"]
+name = "Garda broadleaf · 3 LOD"
+id = 1
+scene_file = ExtResource("15_tree")
+material_override = ExtResource("16_tree_material")
+last_lod = 2
+last_shadow_lod = 2
+shadow_impostor = 2
+lod0_range = 450.0
+lod1_range = 1000.0
+lod2_range = 18000.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yq1fy"]
+transparency = 4
+cull_mode = 2
+vertex_color_use_as_albedo = true
+backlight_enabled = true
+backlight = Color(0.5, 0.5, 0.5, 1)
+distance_fade_mode = 1
+distance_fade_min_distance = 128.0
+distance_fade_max_distance = 96.0
+
+[sub_resource type="Terrain3DMeshAsset" id="Terrain3DMeshAsset_82oby"]
+generated_type = 1
+height_offset = 0.5
+material_override = SubResource("StandardMaterial3D_yq1fy")
+last_lod = 0
+last_shadow_lod = 0
+lod0_range = 128.0
+
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_j32yp"]
+name = "Mountain Side"
+albedo_texture = ExtResource("1_alb0")
+normal_texture = ExtResource("2_nrm0")
+uv_scale = 0.4
+
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_mcxbt"]
+name = "Gradient"
+id = 1
+albedo_texture = ExtResource("3_alb1")
+normal_texture = ExtResource("4_nrm1")
+uv_scale = 0.4
+
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_iimil"]
+name = "Vegetation 01"
+id = 2
+albedo_texture = ExtResource("5_alb2")
+normal_texture = ExtResource("6_nrm2")
+uv_scale = 0.4
+
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_h1u8l"]
+name = "Vegetation 02"
+id = 3
+albedo_texture = ExtResource("7_alb3")
+normal_texture = ExtResource("8_nrm3")
+uv_scale = 0.4
+
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_eva7c"]
+name = "Snow"
+id = 4
+albedo_texture = ExtResource("9_alb4")
+normal_texture = ExtResource("10_nrm4")
+uv_scale = 0.4
+
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_je5lq"]
+name = "Flow"
+id = 5
+albedo_texture = ExtResource("11_alb5")
+normal_texture = ExtResource("12_nrm5")
+uv_scale = 0.4
+
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_dgaqm"]
+name = "Debris"
+id = 6
+albedo_texture = ExtResource("13_alb6")
+normal_texture = ExtResource("14_nrm6")
+uv_scale = 0.2
+
+[resource]
+mesh_list = Array[Terrain3DMeshAsset]([SubResource("Terrain3DMeshAsset_82oby"), SubResource("Terrain3DMeshAsset_tree")])
+texture_list = Array[Terrain3DTextureAsset]([SubResource("Terrain3DTextureAsset_j32yp"), SubResource("Terrain3DTextureAsset_mcxbt"), SubResource("Terrain3DTextureAsset_iimil"), SubResource("Terrain3DTextureAsset_h1u8l"), SubResource("Terrain3DTextureAsset_eva7c"), SubResource("Terrain3DTextureAsset_je5lq"), SubResource("Terrain3DTextureAsset_dgaqm")])
