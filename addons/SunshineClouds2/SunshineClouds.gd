@@ -52,6 +52,8 @@ class_name SunshineCloudsGD
 	get:
 		return resolution_scale
 	set(value):
+		if resolution_scale == value:
+			return
 		resolution_scale = value
 		last_size = Vector2i(0, 0)
 		lights_updated = true

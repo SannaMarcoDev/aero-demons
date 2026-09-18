@@ -147,9 +147,13 @@ float sampleScene(
 	
 
 	float edgeFade = min(smoothstep(0.0, 0.1, clampedWorldHeight), smoothstep(1.0, 0.9, clampedWorldHeight));
+	// Outside the height profile the final density is exactly zero.
+	if (edgeFade <= 0.0) {
+		return 0.0;
+	}
 	float extraLargeShape = extralargeNoiseValue * gradientSample.b;
-
-	float smallShape = texture(noise_small, (worldPosition - smallNoisePos) / smallnoisescale).r;
+	// Keep the small-noise coordinates before wind/curl displacement.
+	vec3 smallNoiseUV = (worldPosition - smallNoisePos) / smallnoisescale;
 
 	float curlHeightSample = (1.0 - gradientSample.a);
 
@@ -174,6 +178,11 @@ float sampleScene(
 
 	float largeShape = texture(large_noise, (worldPosition - largeNoisePos) / largenoisescale).r * extraLargeShape;
 	largeShape = smoothstep(coverage , coverage - 0.1, 1.0 - (largeShape * gradientSample.r)) + max(effectorAdditive, 0.0);
+	// Detail only erodes the macro shape: do not fetch it in empty space.
+	if (largeShape <= 0.0) {
+		return 0.0;
+	}
+	float smallShape = texture(noise_small, smallNoiseUV).r;
 	vec4 mediumShapes = texture(noise_medium, (worldPosition - mediumNoisePos) / mediumnoisescale).rgba;
 	float mediumshape = 1.0 - mediumShapes.b;
 	smallShape = smallShape * gradientSample.g * pow((1.0 - mediumshape), smallscalePower);
@@ -590,6 +599,7 @@ void main() {
 	
 	vec3 directionalLightSunUpPower[4] = vec3[4](vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0));
 	float totalLightPower = 0.0;
+	float directionalPhase[4];
 
 	for (int lightI = 0; lightI < directionalLightCount; lightI++){
 		if (directionalLights[lightI].color.a > 0.0){
@@ -599,6 +609,8 @@ void main() {
 
 			directionalLightSunUpPower[lightI].b = dot(directionalLights[lightI].direction.xyz, raydirection);
 		}
+		// Constant along this camera ray, not per density/lighting sample.
+		directionalPhase[lightI] = pow(HenyeyGreenstein(genericData.data.anisotropy, directionalLightSunUpPower[lightI].b), mix(1.0, 2.0, 1.0 - genericData.data.anisotropy));
 	}
 	
 
@@ -640,13 +652,10 @@ void main() {
 		
 		curPos = rayOrigin + raydirection * traveledDistance;
 		
-		vec4 maskSample = texture(extra_large_noise, (curPos.xz - extralargeNoisePos.xz) / extralargenoiseScale);
-		//ceilingSample = mix(halfCeiling, cloudceiling, maskSample.a);
-		//ceilingSample = cloudceiling;
-		
 		//sampleAtmospherics(curPos, atmosphericHeight, newStep, Rayleighscaleheight, Miescaleheight, RayleighScatteringCoef, MieScatteringCoef, atmosphericDensity, density, totalRlh, totalMie, iOdRlh, iOdMie); 
 		atmoSamples += 1.0;
 		if (clamp(curPos.y, cloudfloor, cloudceiling) == curPos.y){
+			vec4 maskSample = texture(extra_large_noise, (curPos.xz - extralargeNoisePos.xz) / extralargenoiseScale);
 
 			curLod = 1.0 - clamp(traveledDistance / lodMaxDistance, 0.0, 1.0);
 			// newdensity = sampleSceneCoarse(largeNoisePos, curPos, cloudceiling, cloudfloor, maskSample.a, largenoiseScale, coverage, curLod);
@@ -670,7 +679,7 @@ void main() {
 					float sunUpWeight = directionalLightSunUpPower[lightI].r;
 
 					int thislightingStepCount = min(int(directionalLights[lightI].direction.w), lightingStepCount);
-					float henyeygreenstein =  pow(HenyeyGreenstein(genericData.data.anisotropy, directionalLightSunUpPower[lightI].b), mix(1.0, 2.0, 1.0 - genericData.data.anisotropy)); 
+					float henyeygreenstein = directionalPhase[lightI];
 					float densitySample = sampleLighting(thislightingStepCount, curPos, extralargeNoisePos, largeNoisePos, mediumNoisePos, smallNoisePos, sundir, densityMultiplier * lightingdensityMultiplier, sunUpWeight, lightingStepDistance, cloudceiling, cloudfloor, extralargenoiseScale, largenoiseScale, mediumnoiseScale, smallnoiseScale, coverage, smallNoiseMultiplier, curlPower, curLod);
 					densitySample = BeersLaw(lightingStepDistance, densitySample * henyeygreenstein);
 					//densitySample = Powder(lightingStepDistance, densitySample);
@@ -786,8 +795,9 @@ void main() {
 
 	density *= clamp(smoothstep(maxstep * stepCount, minstep * stepCount, traveledDistance), 0.0, 1.0);
 
-	ambient = clamp(ambient / lightingSamples, 0.0, 1.0);
-	paintedColor = clamp(paintedColor / lightingSamples, 0.0, 1.0);
+	// Empty rays have no lighting samples; keep their history finite.
+	ambient = clamp(ambient / max(lightingSamples, 1.0), 0.0, 1.0);
+	paintedColor = clamp(paintedColor / max(lightingSamples, 1.0), 0.0, 1.0);
 
 
 	vec3 ambientLight = genericData.data.ambientLightColor.rgb * totalLightPower;

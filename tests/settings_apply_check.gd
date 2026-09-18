@@ -69,5 +69,21 @@ func check() -> void:
 	for i in 10:
 		await process_frame
 	assert(clouds.resolution_scale == 0 and is_equal_approx(clouds.max_step_count, 700.0))
-	print("PASS: settings apply live to clouds resource, driver, sun, dome, environment, viewport")
+	var size := clouds.last_size
+	var pipeline := clouds.pipeline
+	assert(size != Vector2i.ZERO and pipeline.is_valid())
+	# Audio/control updates also reapply graphics. The same quality must not
+	# invalidate the cloud buffers, history and pipelines.
+	Settings.apply_settings(s)
+	assert(clouds.last_size == size, "Unchanged cloud resolution must retain buffers")
+	for i in 10:
+		await process_frame
+	assert(clouds.pipeline == pipeline, "Unchanged quality must not rebuild the pipeline")
+	sky.compositor = null
+	RenderingServer.call_on_render_thread(clouds.clear_compute)
+	await RenderingServer.frame_post_draw
+	level.queue_free()
+	for i in 3:
+		await process_frame
+	print("PASS: settings apply live; unchanged cloud quality preserves GPU buffers and pipeline")
 	quit()
