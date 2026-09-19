@@ -349,7 +349,8 @@ func get_line(resource: DialogueResource, key: String, extra_game_states: Array)
 		if not data.has(&"id"):
 			data.id = key
 
-	# Set up a line object.
+	# Do not store a resource -> lines -> resource reference cycle in authored data.
+	data = data.duplicate()
 	data.resource = resource
 	var line: DialogueLine = await create_dialogue_line(data, extra_game_states)
 

@@ -1,0 +1,1728 @@
+{
+  "method": "FPS = total frames / total captured frame time; percentiles pooled from all raw frame times; no outliers removed. GPU/CPU = median of per-window medians. Performance not measured headless/fixed-fps.",
+  "baseline_revision": "27c3c879805e119867d243bf2e208498d00a59e4",
+  "hardware": "AMD Ryzen 5 7500F 6-Core Processor / RX 9070 XT / Godot 4.7.1 D3D12 Forward+",
+  "executable_sha256": {
+    "original_renderer": "76269a403bb832599edeee4432a5b7a7e88c018eb5c9c798dfd8289359b0ec07",
+    "integrated": "76269a403bb832599edeee4432a5b7a7e88c018eb5c9c798dfd8289359b0ec07"
+  },
+  "runs": {
+    "legacy-full": {
+      "build": "original-renderer",
+      "arguments": [
+        "--preset=legacy",
+        "--build=original-renderer",
+        "--out=C:/Users/sanna/Workspace/Godot/Progetti/aero-demons/.pi/performance/budget-pass/legacy-full"
+      ],
+      "startup_through_warmup_ms": 26835,
+      "quick": false,
+      "gameplay": false,
+      "combat": false,
+      "viewport": {
+        "msaa": 0,
+        "scale": 1,
+        "scaling_mode": 0,
+        "screen_aa": 0,
+        "taa": true
+      },
+      "effective": {
+        "accumulation_decay": 0.85,
+        "blur_power": 1.65,
+        "blur_quality": 2,
+        "cloud_ceiling": 5500,
+        "cloud_floor": 2000,
+        "cloud_size": "(1920, 1080)",
+        "clouds_coverage": 0.834,
+        "driver_sun_steps": [
+          32
+        ],
+        "effects": {
+          "glow_enabled": true,
+          "ssao_enabled": true,
+          "ssil_enabled": false,
+          "ssr_enabled": false,
+          "tonemap_exposure": 1,
+          "tonemap_mode": 3,
+          "volumetric_fog_enabled": false
+        },
+        "enabled": true,
+        "light_data_steps": [
+          32
+        ],
+        "lighting_travel_distance": 3000,
+        "lod_bias": 0.9,
+        "march_spirv_sha256": "d3144c1a62d42967b8c243abdd2d303262f4ac796ab767843eb47a6c8128859b",
+        "max_lighting_steps": 32,
+        "max_step_count": 700,
+        "max_step_distance": 140,
+        "min_step_distance": 50,
+        "post_spirv_sha256": "bfa63e7fe9b7e90fd1d62b71727d81d72d34e9e5af014a51c6870ce1ca6d195a",
+        "resolution_scale": 0,
+        "scene_size": "(1920, 1080)",
+        "shadows": {
+          "atlas_size": 4096,
+          "distance": 8000,
+          "enabled": true,
+          "mode": 2
+        }
+      },
+      "rows": [
+        {
+          "scenario": "spawn/base",
+          "windows": 3,
+          "frames": 2773,
+          "fps": 154.01,
+          "mean_ms": 6.49,
+          "p95_ms": 7.08,
+          "p99_ms": 7.47,
+          "max_ms": 7.94,
+          "over_5ms": 2773,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": -1.49,
+          "gpu_window_median_ms": 6.34,
+          "cpu_render_window_median_ms": 0.29,
+          "vram_MiB": 4570,
+          "fps_range": [
+            158.4,
+            151.8,
+            151.8
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "clouds/base",
+          "windows": 3,
+          "frames": 2608,
+          "fps": 144.87,
+          "mean_ms": 6.9,
+          "p95_ms": 7.46,
+          "p99_ms": 7.78,
+          "max_ms": 13.36,
+          "over_5ms": 2608,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": -1.9,
+          "gpu_window_median_ms": 6.66,
+          "cpu_render_window_median_ms": 0.28,
+          "vram_MiB": 4570,
+          "fps_range": [
+            145.7,
+            145.2,
+            143.8
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "lake/base",
+          "windows": 3,
+          "frames": 2344,
+          "fps": 130.16,
+          "mean_ms": 7.68,
+          "p95_ms": 8.23,
+          "p99_ms": 8.54,
+          "max_ms": 9.27,
+          "over_5ms": 2344,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": -2.68,
+          "gpu_window_median_ms": 7.45,
+          "cpu_render_window_median_ms": 0.41,
+          "vram_MiB": 4570,
+          "fps_range": [
+            130.7,
+            130,
+            129.8
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "alpine/base",
+          "windows": 3,
+          "frames": 1796,
+          "fps": 99.72,
+          "mean_ms": 10.03,
+          "p95_ms": 10.55,
+          "p99_ms": 10.9,
+          "max_ms": 11.15,
+          "over_5ms": 1796,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": -5.03,
+          "gpu_window_median_ms": 9.77,
+          "cpu_render_window_median_ms": 0.3,
+          "vram_MiB": 4570,
+          "fps_range": [
+            100,
+            99.9,
+            99.3
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "airport/base",
+          "windows": 3,
+          "frames": 2162,
+          "fps": 120.07,
+          "mean_ms": 8.33,
+          "p95_ms": 8.92,
+          "p99_ms": 9.23,
+          "max_ms": 9.78,
+          "over_5ms": 2162,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": -3.33,
+          "gpu_window_median_ms": 8.08,
+          "cpu_render_window_median_ms": 0.47,
+          "vram_MiB": 4570,
+          "fps_range": [
+            120.6,
+            120.3,
+            119.3
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "flight/base",
+          "windows": 3,
+          "frames": 2100,
+          "fps": 116.56,
+          "mean_ms": 8.58,
+          "p95_ms": 9.41,
+          "p99_ms": 9.86,
+          "max_ms": 40.64,
+          "over_5ms": 2100,
+          "over_16_667ms": 4,
+          "over_33_333ms": 1,
+          "over_50ms": 0,
+          "headroom_ms": -3.58,
+          "gpu_window_median_ms": 8.38,
+          "cpu_render_window_median_ms": 0.43,
+          "vram_MiB": 4570,
+          "fps_range": [
+            115.6,
+            117,
+            117.1
+          ],
+          "enemies_remaining": []
+        }
+      ]
+    },
+    "ultra-full": {
+      "build": "integrated-final",
+      "arguments": [
+        "--preset=ultra",
+        "--build=integrated-final",
+        "--out=C:/Users/sanna/Workspace/Godot/Progetti/aero-demons/.pi/performance/budget-pass/ultra-full"
+      ],
+      "startup_through_warmup_ms": 26060,
+      "quick": false,
+      "gameplay": false,
+      "combat": false,
+      "viewport": {
+        "msaa": 0,
+        "scale": 1,
+        "scaling_mode": 0,
+        "screen_aa": 0,
+        "taa": true
+      },
+      "effective": {
+        "accumulation_decay": 0.85,
+        "blur_power": 1.65,
+        "blur_quality": 1,
+        "cloud_ceiling": 5500,
+        "cloud_floor": 2000,
+        "cloud_size": "(960, 540)",
+        "clouds_coverage": 0.834,
+        "driver_sun_steps": [
+          16
+        ],
+        "effects": {
+          "glow_enabled": true,
+          "ssao_enabled": true,
+          "ssil_enabled": false,
+          "ssr_enabled": false,
+          "tonemap_exposure": 1,
+          "tonemap_mode": 3,
+          "volumetric_fog_enabled": false
+        },
+        "enabled": true,
+        "light_data_steps": [
+          16
+        ],
+        "lighting_travel_distance": 3000,
+        "lod_bias": 0.9,
+        "march_spirv_sha256": "abb80e36d060253d32e6ffd18da2071dfe84a007aca93f541f7649b24d098dd4",
+        "max_lighting_steps": 16,
+        "max_step_count": 700,
+        "max_step_distance": 140,
+        "min_step_distance": 50,
+        "post_spirv_sha256": "bfa63e7fe9b7e90fd1d62b71727d81d72d34e9e5af014a51c6870ce1ca6d195a",
+        "resolution_scale": 1,
+        "scene_size": "(1920, 1080)",
+        "shadows": {
+          "atlas_size": 4096,
+          "distance": 8000,
+          "enabled": true,
+          "mode": 2
+        }
+      },
+      "rows": [
+        {
+          "scenario": "spawn/base",
+          "windows": 3,
+          "frames": 5019,
+          "fps": 278.76,
+          "mean_ms": 3.59,
+          "p95_ms": 3.84,
+          "p99_ms": 4.15,
+          "max_ms": 4.4,
+          "over_5ms": 0,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 1.41,
+          "gpu_window_median_ms": 3.39,
+          "cpu_render_window_median_ms": 0.25,
+          "vram_MiB": 4400,
+          "fps_range": [
+            280.1,
+            277.8,
+            278.4
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "clouds/base",
+          "windows": 3,
+          "frames": 7090,
+          "fps": 393.78,
+          "mean_ms": 2.54,
+          "p95_ms": 2.75,
+          "p99_ms": 3.06,
+          "max_ms": 3.34,
+          "over_5ms": 0,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 2.46,
+          "gpu_window_median_ms": 2.34,
+          "cpu_render_window_median_ms": 0.25,
+          "vram_MiB": 4400,
+          "fps_range": [
+            394.6,
+            393.2,
+            393.6
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "lake/base",
+          "windows": 3,
+          "frames": 5078,
+          "fps": 282.06,
+          "mean_ms": 3.55,
+          "p95_ms": 3.87,
+          "p99_ms": 4.12,
+          "max_ms": 43.8,
+          "over_5ms": 7,
+          "over_16_667ms": 2,
+          "over_33_333ms": 1,
+          "over_50ms": 0,
+          "headroom_ms": 1.45,
+          "gpu_window_median_ms": 3.31,
+          "cpu_render_window_median_ms": 0.34,
+          "vram_MiB": 4400,
+          "fps_range": [
+            284.5,
+            284.4,
+            277.3
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "alpine/base",
+          "windows": 3,
+          "frames": 5421,
+          "fps": 301.03,
+          "mean_ms": 3.32,
+          "p95_ms": 3.61,
+          "p99_ms": 3.89,
+          "max_ms": 4.07,
+          "over_5ms": 0,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 1.68,
+          "gpu_window_median_ms": 3.11,
+          "cpu_render_window_median_ms": 0.26,
+          "vram_MiB": 4400,
+          "fps_range": [
+            301.2,
+            301.5,
+            300.4
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "airport/base",
+          "windows": 3,
+          "frames": 4297,
+          "fps": 238.68,
+          "mean_ms": 4.19,
+          "p95_ms": 4.72,
+          "p99_ms": 5,
+          "max_ms": 5.37,
+          "over_5ms": 43,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 0.81,
+          "gpu_window_median_ms": 3.9,
+          "cpu_render_window_median_ms": 0.43,
+          "vram_MiB": 4400,
+          "fps_range": [
+            243.3,
+            243.5,
+            229.2
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "flight/base",
+          "windows": 3,
+          "frames": 4734,
+          "fps": 262.88,
+          "mean_ms": 3.8,
+          "p95_ms": 4.38,
+          "p99_ms": 4.68,
+          "max_ms": 5.02,
+          "over_5ms": 3,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 1.2,
+          "gpu_window_median_ms": 3.52,
+          "cpu_render_window_median_ms": 0.33,
+          "vram_MiB": 4400,
+          "fps_range": [
+            268.2,
+            268.7,
+            251.7
+          ],
+          "enemies_remaining": []
+        }
+      ]
+    },
+    "gameplay-legacy": {
+      "build": "reference-build",
+      "arguments": [
+        "--gameplay",
+        "--preset=legacy",
+        "--build=reference-build",
+        "--out=C:/Users/sanna/Workspace/Godot/Progetti/aero-demons/.pi/performance/budget-pass/gameplay-legacy"
+      ],
+      "startup_through_warmup_ms": 25993,
+      "quick": false,
+      "gameplay": true,
+      "combat": false,
+      "viewport": {
+        "msaa": 0,
+        "scale": 1,
+        "scaling_mode": 0,
+        "screen_aa": 0,
+        "taa": true
+      },
+      "effective": {
+        "accumulation_decay": 0.85,
+        "blur_power": 1.65,
+        "blur_quality": 2,
+        "cloud_ceiling": 5500,
+        "cloud_floor": 2000,
+        "cloud_size": "(1920, 1080)",
+        "clouds_coverage": 0.834,
+        "driver_sun_steps": [
+          32
+        ],
+        "effects": {
+          "glow_enabled": true,
+          "ssao_enabled": true,
+          "ssil_enabled": false,
+          "ssr_enabled": false,
+          "tonemap_exposure": 1,
+          "tonemap_mode": 3,
+          "volumetric_fog_enabled": false
+        },
+        "enabled": true,
+        "light_data_steps": [
+          32
+        ],
+        "lighting_travel_distance": 3000,
+        "lod_bias": 0.9,
+        "march_spirv_sha256": "d3144c1a62d42967b8c243abdd2d303262f4ac796ab767843eb47a6c8128859b",
+        "max_lighting_steps": 32,
+        "max_step_count": 700,
+        "max_step_distance": 140,
+        "min_step_distance": 50,
+        "post_spirv_sha256": "bfa63e7fe9b7e90fd1d62b71727d81d72d34e9e5af014a51c6870ce1ca6d195a",
+        "resolution_scale": 0,
+        "scene_size": "(1920, 1080)",
+        "shadows": {
+          "atlas_size": 4096,
+          "distance": 8000,
+          "enabled": true,
+          "mode": 2
+        }
+      },
+      "rows": [
+        {
+          "scenario": "spawn/base",
+          "windows": 3,
+          "frames": 2772,
+          "fps": 153.89,
+          "mean_ms": 6.5,
+          "p95_ms": 7.17,
+          "p99_ms": 7.46,
+          "max_ms": 8.22,
+          "over_5ms": 2772,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": -1.5,
+          "gpu_window_median_ms": 6.34,
+          "cpu_render_window_median_ms": 0.25,
+          "vram_MiB": 4570,
+          "fps_range": [
+            157,
+            152.4,
+            152.2
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "clouds/base",
+          "windows": 3,
+          "frames": 2710,
+          "fps": 150.48,
+          "mean_ms": 6.65,
+          "p95_ms": 7.77,
+          "p99_ms": 8.36,
+          "max_ms": 9.14,
+          "over_5ms": 2710,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": -1.65,
+          "gpu_window_median_ms": 6.33,
+          "cpu_render_window_median_ms": 0.27,
+          "vram_MiB": 4570,
+          "fps_range": [
+            150.6,
+            150.5,
+            150.4
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "airport/base",
+          "windows": 3,
+          "frames": 1987,
+          "fps": 110.3,
+          "mean_ms": 9.07,
+          "p95_ms": 9.83,
+          "p99_ms": 10.03,
+          "max_ms": 10.34,
+          "over_5ms": 1987,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": -4.07,
+          "gpu_window_median_ms": 8.84,
+          "cpu_render_window_median_ms": 0.35,
+          "vram_MiB": 4570,
+          "fps_range": [
+            110.4,
+            110.2,
+            110.2
+          ],
+          "enemies_remaining": []
+        }
+      ]
+    },
+    "gameplay-ultra": {
+      "build": "build",
+      "arguments": [
+        "--gameplay",
+        "--preset=ultra",
+        "--build=build",
+        "--out=C:/Users/sanna/Workspace/Godot/Progetti/aero-demons/.pi/performance/budget-pass/gameplay-ultra"
+      ],
+      "startup_through_warmup_ms": 25914,
+      "quick": false,
+      "gameplay": true,
+      "combat": false,
+      "viewport": {
+        "msaa": 0,
+        "scale": 1,
+        "scaling_mode": 0,
+        "screen_aa": 0,
+        "taa": true
+      },
+      "effective": {
+        "accumulation_decay": 0.85,
+        "blur_power": 1.65,
+        "blur_quality": 1,
+        "cloud_ceiling": 5500,
+        "cloud_floor": 2000,
+        "cloud_size": "(960, 540)",
+        "clouds_coverage": 0.834,
+        "driver_sun_steps": [
+          16
+        ],
+        "effects": {
+          "glow_enabled": true,
+          "ssao_enabled": true,
+          "ssil_enabled": false,
+          "ssr_enabled": false,
+          "tonemap_exposure": 1,
+          "tonemap_mode": 3,
+          "volumetric_fog_enabled": false
+        },
+        "enabled": true,
+        "light_data_steps": [
+          16
+        ],
+        "lighting_travel_distance": 3000,
+        "lod_bias": 0.9,
+        "march_spirv_sha256": "abb80e36d060253d32e6ffd18da2071dfe84a007aca93f541f7649b24d098dd4",
+        "max_lighting_steps": 16,
+        "max_step_count": 700,
+        "max_step_distance": 140,
+        "min_step_distance": 50,
+        "post_spirv_sha256": "bfa63e7fe9b7e90fd1d62b71727d81d72d34e9e5af014a51c6870ce1ca6d195a",
+        "resolution_scale": 1,
+        "scene_size": "(1920, 1080)",
+        "shadows": {
+          "atlas_size": 4096,
+          "distance": 8000,
+          "enabled": true,
+          "mode": 2
+        }
+      },
+      "rows": [
+        {
+          "scenario": "spawn/base",
+          "windows": 3,
+          "frames": 4893,
+          "fps": 271.78,
+          "mean_ms": 3.68,
+          "p95_ms": 3.99,
+          "p99_ms": 4.29,
+          "max_ms": 4.6,
+          "over_5ms": 0,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 1.32,
+          "gpu_window_median_ms": 3.48,
+          "cpu_render_window_median_ms": 0.24,
+          "vram_MiB": 4400,
+          "fps_range": [
+            272.6,
+            271.6,
+            271.1
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "clouds/base",
+          "windows": 3,
+          "frames": 6354,
+          "fps": 352.86,
+          "mean_ms": 2.83,
+          "p95_ms": 3.19,
+          "p99_ms": 3.45,
+          "max_ms": 3.85,
+          "over_5ms": 0,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 2.17,
+          "gpu_window_median_ms": 2.62,
+          "cpu_render_window_median_ms": 0.25,
+          "vram_MiB": 4400,
+          "fps_range": [
+            353.7,
+            352.7,
+            352.2
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "airport/base",
+          "windows": 3,
+          "frames": 4110,
+          "fps": 228.26,
+          "mean_ms": 4.38,
+          "p95_ms": 4.77,
+          "p99_ms": 5.15,
+          "max_ms": 5.75,
+          "over_5ms": 118,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 0.62,
+          "gpu_window_median_ms": 4.18,
+          "cpu_render_window_median_ms": 0.33,
+          "vram_MiB": 4400,
+          "fps_range": [
+            228.7,
+            228.2,
+            227.9
+          ],
+          "enemies_remaining": []
+        }
+      ]
+    },
+    "combat-legacy-budget": {
+      "build": "integrated-renderer-legacy-parameters",
+      "arguments": [
+        "--combat",
+        "--preset=legacy",
+        "--build=integrated-renderer-legacy-parameters",
+        "--out=C:/Users/sanna/Workspace/Godot/Progetti/aero-demons/.pi/performance/budget-pass/combat-legacy-budget"
+      ],
+      "startup_through_warmup_ms": 26023,
+      "quick": false,
+      "gameplay": true,
+      "combat": true,
+      "viewport": {
+        "msaa": 0,
+        "scale": 1,
+        "scaling_mode": 0,
+        "screen_aa": 0,
+        "taa": true
+      },
+      "effective": {
+        "accumulation_decay": 0.85,
+        "blur_power": 1.65,
+        "blur_quality": 2,
+        "cloud_ceiling": 5500,
+        "cloud_floor": 2000,
+        "cloud_size": "(1920, 1080)",
+        "clouds_coverage": 0.834,
+        "driver_sun_steps": [
+          32
+        ],
+        "effects": {
+          "glow_enabled": true,
+          "ssao_enabled": true,
+          "ssil_enabled": false,
+          "ssr_enabled": false,
+          "tonemap_exposure": 1,
+          "tonemap_mode": 3,
+          "volumetric_fog_enabled": false
+        },
+        "enabled": true,
+        "light_data_steps": [
+          32
+        ],
+        "lighting_travel_distance": 3000,
+        "lod_bias": 0.9,
+        "march_spirv_sha256": "abb80e36d060253d32e6ffd18da2071dfe84a007aca93f541f7649b24d098dd4",
+        "max_lighting_steps": 32,
+        "max_step_count": 700,
+        "max_step_distance": 140,
+        "min_step_distance": 50,
+        "post_spirv_sha256": "bfa63e7fe9b7e90fd1d62b71727d81d72d34e9e5af014a51c6870ce1ca6d195a",
+        "resolution_scale": 0,
+        "scene_size": "(1920, 1080)",
+        "shadows": {
+          "atlas_size": 4096,
+          "distance": 8000,
+          "enabled": true,
+          "mode": 2
+        }
+      },
+      "rows": [
+        {
+          "scenario": "combat/base",
+          "windows": 3,
+          "frames": 4948,
+          "fps": 137.4,
+          "mean_ms": 7.28,
+          "p95_ms": 8.75,
+          "p99_ms": 9.34,
+          "max_ms": 19.04,
+          "over_5ms": 4948,
+          "over_16_667ms": 2,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": -2.28,
+          "gpu_window_median_ms": 6.78,
+          "cpu_render_window_median_ms": 0.36,
+          "vram_MiB": 4641,
+          "fps_range": [
+            136.4,
+            137.8,
+            138.1
+          ],
+          "enemies_remaining": [
+            7,
+            8,
+            7
+          ]
+        }
+      ]
+    },
+    "combat-final": {
+      "build": "integrated-final",
+      "arguments": [
+        "--combat",
+        "--preset=ultra",
+        "--build=integrated-final",
+        "--out=C:/Users/sanna/Workspace/Godot/Progetti/aero-demons/.pi/performance/budget-pass/combat-final"
+      ],
+      "startup_through_warmup_ms": 26537,
+      "quick": false,
+      "gameplay": true,
+      "combat": true,
+      "viewport": {
+        "msaa": 0,
+        "scale": 1,
+        "scaling_mode": 0,
+        "screen_aa": 0,
+        "taa": true
+      },
+      "effective": {
+        "accumulation_decay": 0.85,
+        "blur_power": 1.65,
+        "blur_quality": 1,
+        "cloud_ceiling": 5500,
+        "cloud_floor": 2000,
+        "cloud_size": "(960, 540)",
+        "clouds_coverage": 0.834,
+        "driver_sun_steps": [
+          16
+        ],
+        "effects": {
+          "glow_enabled": true,
+          "ssao_enabled": true,
+          "ssil_enabled": false,
+          "ssr_enabled": false,
+          "tonemap_exposure": 1,
+          "tonemap_mode": 3,
+          "volumetric_fog_enabled": false
+        },
+        "enabled": true,
+        "light_data_steps": [
+          16
+        ],
+        "lighting_travel_distance": 3000,
+        "lod_bias": 0.9,
+        "march_spirv_sha256": "abb80e36d060253d32e6ffd18da2071dfe84a007aca93f541f7649b24d098dd4",
+        "max_lighting_steps": 16,
+        "max_step_count": 700,
+        "max_step_distance": 140,
+        "min_step_distance": 50,
+        "post_spirv_sha256": "bfa63e7fe9b7e90fd1d62b71727d81d72d34e9e5af014a51c6870ce1ca6d195a",
+        "resolution_scale": 1,
+        "scene_size": "(1920, 1080)",
+        "shadows": {
+          "atlas_size": 4096,
+          "distance": 8000,
+          "enabled": true,
+          "mode": 2
+        }
+      },
+      "rows": [
+        {
+          "scenario": "combat/base",
+          "windows": 3,
+          "frames": 8141,
+          "fps": 226.11,
+          "mean_ms": 4.42,
+          "p95_ms": 5.84,
+          "p99_ms": 6.57,
+          "max_ms": 37.94,
+          "over_5ms": 2122,
+          "over_16_667ms": 4,
+          "over_33_333ms": 1,
+          "over_50ms": 0,
+          "headroom_ms": 0.58,
+          "gpu_window_median_ms": 3.93,
+          "cpu_render_window_median_ms": 0.37,
+          "vram_MiB": 4494,
+          "fps_range": [
+            223.5,
+            227.5,
+            227.4
+          ],
+          "enemies_remaining": [
+            7,
+            7,
+            7
+          ]
+        }
+      ]
+    },
+    "restore-legacy": {
+      "build": "reference-build",
+      "arguments": [
+        "--quick",
+        "--views=spawn,alpine,airport",
+        "--preset=legacy",
+        "--build=reference-build",
+        "--out=C:/Users/sanna/Workspace/Godot/Progetti/aero-demons/.pi/performance/budget-pass/restore-legacy"
+      ],
+      "startup_through_warmup_ms": 25913,
+      "quick": true,
+      "gameplay": false,
+      "combat": false,
+      "viewport": {
+        "msaa": 0,
+        "scale": 1,
+        "scaling_mode": 0,
+        "screen_aa": 0,
+        "taa": true
+      },
+      "effective": {
+        "accumulation_decay": 0.85,
+        "blur_power": 1.65,
+        "blur_quality": 2,
+        "cloud_ceiling": 5500,
+        "cloud_floor": 2000,
+        "cloud_size": "(1920, 1080)",
+        "clouds_coverage": 0.834,
+        "driver_sun_steps": [
+          32
+        ],
+        "effects": {
+          "glow_enabled": true,
+          "ssao_enabled": true,
+          "ssil_enabled": false,
+          "ssr_enabled": false,
+          "tonemap_exposure": 1,
+          "tonemap_mode": 3,
+          "volumetric_fog_enabled": false
+        },
+        "enabled": true,
+        "light_data_steps": [
+          32
+        ],
+        "lighting_travel_distance": 3000,
+        "lod_bias": 0.9,
+        "march_spirv_sha256": "d3144c1a62d42967b8c243abdd2d303262f4ac796ab767843eb47a6c8128859b",
+        "max_lighting_steps": 32,
+        "max_step_count": 700,
+        "max_step_distance": 140,
+        "min_step_distance": 50,
+        "post_spirv_sha256": "bfa63e7fe9b7e90fd1d62b71727d81d72d34e9e5af014a51c6870ce1ca6d195a",
+        "resolution_scale": 0,
+        "scene_size": "(1920, 1080)",
+        "shadows": {
+          "atlas_size": 4096,
+          "distance": 8000,
+          "enabled": true,
+          "mode": 2
+        }
+      },
+      "rows": [
+        {
+          "scenario": "spawn/base",
+          "windows": 1,
+          "frames": 477,
+          "fps": 158.78,
+          "mean_ms": 6.3,
+          "p95_ms": 6.93,
+          "p99_ms": 7.12,
+          "max_ms": 7.22,
+          "over_5ms": 477,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": -1.3,
+          "gpu_window_median_ms": 6.08,
+          "cpu_render_window_median_ms": 0.25,
+          "vram_MiB": 4570,
+          "fps_range": [
+            158.8
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "alpine/base",
+          "windows": 1,
+          "frames": 302,
+          "fps": 100.36,
+          "mean_ms": 9.96,
+          "p95_ms": 10.7,
+          "p99_ms": 10.87,
+          "max_ms": 11.07,
+          "over_5ms": 302,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": -4.96,
+          "gpu_window_median_ms": 9.73,
+          "cpu_render_window_median_ms": 0.28,
+          "vram_MiB": 4570,
+          "fps_range": [
+            100.4
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "airport/base",
+          "windows": 1,
+          "frames": 363,
+          "fps": 120.81,
+          "mean_ms": 8.28,
+          "p95_ms": 8.98,
+          "p99_ms": 9.24,
+          "max_ms": 9.4,
+          "over_5ms": 363,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": -3.28,
+          "gpu_window_median_ms": 8.06,
+          "cpu_render_window_median_ms": 0.44,
+          "vram_MiB": 4570,
+          "fps_range": [
+            120.8
+          ],
+          "enemies_remaining": []
+        }
+      ]
+    },
+    "restore-ultra": {
+      "build": "build",
+      "arguments": [
+        "--quick",
+        "--views=spawn,alpine,airport",
+        "--preset=ultra",
+        "--build=build",
+        "--out=C:/Users/sanna/Workspace/Godot/Progetti/aero-demons/.pi/performance/budget-pass/restore-ultra"
+      ],
+      "startup_through_warmup_ms": 25964,
+      "quick": true,
+      "gameplay": false,
+      "combat": false,
+      "viewport": {
+        "msaa": 0,
+        "scale": 1,
+        "scaling_mode": 0,
+        "screen_aa": 0,
+        "taa": true
+      },
+      "effective": {
+        "accumulation_decay": 0.85,
+        "blur_power": 1.65,
+        "blur_quality": 1,
+        "cloud_ceiling": 5500,
+        "cloud_floor": 2000,
+        "cloud_size": "(960, 540)",
+        "clouds_coverage": 0.834,
+        "driver_sun_steps": [
+          16
+        ],
+        "effects": {
+          "glow_enabled": true,
+          "ssao_enabled": true,
+          "ssil_enabled": false,
+          "ssr_enabled": false,
+          "tonemap_exposure": 1,
+          "tonemap_mode": 3,
+          "volumetric_fog_enabled": false
+        },
+        "enabled": true,
+        "light_data_steps": [
+          16
+        ],
+        "lighting_travel_distance": 3000,
+        "lod_bias": 0.9,
+        "march_spirv_sha256": "abb80e36d060253d32e6ffd18da2071dfe84a007aca93f541f7649b24d098dd4",
+        "max_lighting_steps": 16,
+        "max_step_count": 700,
+        "max_step_distance": 140,
+        "min_step_distance": 50,
+        "post_spirv_sha256": "bfa63e7fe9b7e90fd1d62b71727d81d72d34e9e5af014a51c6870ce1ca6d195a",
+        "resolution_scale": 1,
+        "scene_size": "(1920, 1080)",
+        "shadows": {
+          "atlas_size": 4096,
+          "distance": 8000,
+          "enabled": true,
+          "mode": 2
+        }
+      },
+      "rows": [
+        {
+          "scenario": "spawn/base",
+          "windows": 1,
+          "frames": 843,
+          "fps": 280.82,
+          "mean_ms": 3.56,
+          "p95_ms": 3.78,
+          "p99_ms": 4.23,
+          "max_ms": 4.32,
+          "over_5ms": 0,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 1.44,
+          "gpu_window_median_ms": 3.36,
+          "cpu_render_window_median_ms": 0.24,
+          "vram_MiB": 4400,
+          "fps_range": [
+            280.8
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "alpine/base",
+          "windows": 1,
+          "frames": 909,
+          "fps": 302.67,
+          "mean_ms": 3.3,
+          "p95_ms": 3.52,
+          "p99_ms": 3.91,
+          "max_ms": 4.24,
+          "over_5ms": 0,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 1.7,
+          "gpu_window_median_ms": 3.1,
+          "cpu_render_window_median_ms": 0.26,
+          "vram_MiB": 4400,
+          "fps_range": [
+            302.7
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "airport/base",
+          "windows": 1,
+          "frames": 736,
+          "fps": 245.22,
+          "mean_ms": 4.08,
+          "p95_ms": 4.36,
+          "p99_ms": 4.84,
+          "max_ms": 5.22,
+          "over_5ms": 3,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 0.92,
+          "gpu_window_median_ms": 3.88,
+          "cpu_render_window_median_ms": 0.41,
+          "vram_MiB": 4400,
+          "fps_range": [
+            245.2
+          ],
+          "enemies_remaining": []
+        }
+      ]
+    },
+    "diagnose-final": {
+      "build": "integrated-final",
+      "arguments": [
+        "--quick",
+        "--diagnose",
+        "--views=spawn,alpine,airport",
+        "--preset=ultra",
+        "--build=integrated-final",
+        "--out=C:/Users/sanna/Workspace/Godot/Progetti/aero-demons/.pi/performance/budget-pass/diagnose-final"
+      ],
+      "startup_through_warmup_ms": 25905,
+      "quick": true,
+      "gameplay": false,
+      "combat": false,
+      "viewport": {
+        "msaa": 0,
+        "scale": 1,
+        "scaling_mode": 0,
+        "screen_aa": 0,
+        "taa": true
+      },
+      "effective": {
+        "accumulation_decay": 0.85,
+        "blur_power": 1.65,
+        "blur_quality": 1,
+        "cloud_ceiling": 5500,
+        "cloud_floor": 2000,
+        "cloud_size": "(960, 540)",
+        "clouds_coverage": 0.834,
+        "driver_sun_steps": [
+          16
+        ],
+        "effects": {
+          "glow_enabled": false,
+          "ssao_enabled": false,
+          "ssil_enabled": false,
+          "ssr_enabled": false,
+          "tonemap_exposure": 1,
+          "tonemap_mode": 3,
+          "volumetric_fog_enabled": false
+        },
+        "enabled": true,
+        "light_data_steps": [
+          16
+        ],
+        "lighting_travel_distance": 3000,
+        "lod_bias": 0.9,
+        "march_spirv_sha256": "abb80e36d060253d32e6ffd18da2071dfe84a007aca93f541f7649b24d098dd4",
+        "max_lighting_steps": 16,
+        "max_step_count": 700,
+        "max_step_distance": 140,
+        "min_step_distance": 50,
+        "post_spirv_sha256": "bfa63e7fe9b7e90fd1d62b71727d81d72d34e9e5af014a51c6870ce1ca6d195a",
+        "resolution_scale": 1,
+        "scene_size": "(1920, 1080)",
+        "shadows": {
+          "atlas_size": 4096,
+          "distance": 8000,
+          "enabled": true,
+          "mode": 2
+        }
+      },
+      "rows": [
+        {
+          "scenario": "spawn/base",
+          "windows": 1,
+          "frames": 843,
+          "fps": 280.78,
+          "mean_ms": 3.56,
+          "p95_ms": 3.8,
+          "p99_ms": 4.26,
+          "max_ms": 4.38,
+          "over_5ms": 0,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 1.44,
+          "gpu_window_median_ms": 3.36,
+          "cpu_render_window_median_ms": 0.24,
+          "vram_MiB": 4400,
+          "fps_range": [
+            280.8
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "spawn/clouds_off",
+          "windows": 1,
+          "frames": 1442,
+          "fps": 480.36,
+          "mean_ms": 2.08,
+          "p95_ms": 2.25,
+          "p99_ms": 2.62,
+          "max_ms": 2.75,
+          "over_5ms": 0,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 2.92,
+          "gpu_window_median_ms": 1.89,
+          "cpu_render_window_median_ms": 0.21,
+          "vram_MiB": 4400,
+          "fps_range": [
+            480.4
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "spawn/terrain_off",
+          "windows": 1,
+          "frames": 1209,
+          "fps": 402.71,
+          "mean_ms": 2.48,
+          "p95_ms": 2.73,
+          "p99_ms": 3.64,
+          "max_ms": 31.41,
+          "over_5ms": 9,
+          "over_16_667ms": 3,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 2.52,
+          "gpu_window_median_ms": 2.18,
+          "cpu_render_window_median_ms": 0.2,
+          "vram_MiB": 4400,
+          "fps_range": [
+            402.7
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "spawn/shadows_off",
+          "windows": 1,
+          "frames": 859,
+          "fps": 286.24,
+          "mean_ms": 3.49,
+          "p95_ms": 3.78,
+          "p99_ms": 4.22,
+          "max_ms": 4.3,
+          "over_5ms": 0,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 1.51,
+          "gpu_window_median_ms": 3.29,
+          "cpu_render_window_median_ms": 0.19,
+          "vram_MiB": 4400,
+          "fps_range": [
+            286.2
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "spawn/hud_off",
+          "windows": 1,
+          "frames": 840,
+          "fps": 279.8,
+          "mean_ms": 3.57,
+          "p95_ms": 3.93,
+          "p99_ms": 4.35,
+          "max_ms": 4.5,
+          "over_5ms": 0,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 1.43,
+          "gpu_window_median_ms": 3.35,
+          "cpu_render_window_median_ms": 0.22,
+          "vram_MiB": 4397,
+          "fps_range": [
+            279.8
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "spawn/water_off",
+          "windows": 1,
+          "frames": 834,
+          "fps": 277.79,
+          "mean_ms": 3.6,
+          "p95_ms": 4,
+          "p99_ms": 4.29,
+          "max_ms": 4.46,
+          "over_5ms": 0,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 1.4,
+          "gpu_window_median_ms": 3.36,
+          "cpu_render_window_median_ms": 0.29,
+          "vram_MiB": 4400,
+          "fps_range": [
+            277.8
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "spawn/airport_off",
+          "windows": 1,
+          "frames": 834,
+          "fps": 277.95,
+          "mean_ms": 3.6,
+          "p95_ms": 3.97,
+          "p99_ms": 4.33,
+          "max_ms": 4.58,
+          "over_5ms": 0,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 1.4,
+          "gpu_window_median_ms": 3.36,
+          "cpu_render_window_median_ms": 0.28,
+          "vram_MiB": 4400,
+          "fps_range": [
+            277.9
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "spawn/effects_off",
+          "windows": 1,
+          "frames": 980,
+          "fps": 326.38,
+          "mean_ms": 3.06,
+          "p95_ms": 3.42,
+          "p99_ms": 3.8,
+          "max_ms": 3.94,
+          "over_5ms": 0,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 1.94,
+          "gpu_window_median_ms": 2.82,
+          "cpu_render_window_median_ms": 0.26,
+          "vram_MiB": 4400,
+          "fps_range": [
+            326.4
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "alpine/base",
+          "windows": 1,
+          "frames": 890,
+          "fps": 296.6,
+          "mean_ms": 3.37,
+          "p95_ms": 3.76,
+          "p99_ms": 4.12,
+          "max_ms": 4.36,
+          "over_5ms": 0,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 1.63,
+          "gpu_window_median_ms": 3.13,
+          "cpu_render_window_median_ms": 0.31,
+          "vram_MiB": 4400,
+          "fps_range": [
+            296.6
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "alpine/clouds_off",
+          "windows": 1,
+          "frames": 1661,
+          "fps": 553.65,
+          "mean_ms": 1.81,
+          "p95_ms": 2.08,
+          "p99_ms": 2.37,
+          "max_ms": 2.55,
+          "over_5ms": 0,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 3.19,
+          "gpu_window_median_ms": 1.59,
+          "cpu_render_window_median_ms": 0.25,
+          "vram_MiB": 4400,
+          "fps_range": [
+            553.6
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "alpine/terrain_off",
+          "windows": 1,
+          "frames": 1172,
+          "fps": 390.63,
+          "mean_ms": 2.56,
+          "p95_ms": 2.87,
+          "p99_ms": 3.22,
+          "max_ms": 3.54,
+          "over_5ms": 0,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 2.44,
+          "gpu_window_median_ms": 2.33,
+          "cpu_render_window_median_ms": 0.21,
+          "vram_MiB": 4400,
+          "fps_range": [
+            390.6
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "alpine/shadows_off",
+          "windows": 1,
+          "frames": 930,
+          "fps": 309.69,
+          "mean_ms": 3.23,
+          "p95_ms": 3.56,
+          "p99_ms": 3.97,
+          "max_ms": 4.17,
+          "over_5ms": 0,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 1.77,
+          "gpu_window_median_ms": 3.01,
+          "cpu_render_window_median_ms": 0.21,
+          "vram_MiB": 4400,
+          "fps_range": [
+            309.7
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "alpine/hud_off",
+          "windows": 1,
+          "frames": 901,
+          "fps": 300.21,
+          "mean_ms": 3.33,
+          "p95_ms": 3.74,
+          "p99_ms": 3.98,
+          "max_ms": 4.56,
+          "over_5ms": 0,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 1.67,
+          "gpu_window_median_ms": 3.11,
+          "cpu_render_window_median_ms": 0.22,
+          "vram_MiB": 4397,
+          "fps_range": [
+            300.2
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "alpine/water_off",
+          "windows": 1,
+          "frames": 914,
+          "fps": 304.34,
+          "mean_ms": 3.29,
+          "p95_ms": 3.78,
+          "p99_ms": 4.1,
+          "max_ms": 4.69,
+          "over_5ms": 0,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 1.71,
+          "gpu_window_median_ms": 3.04,
+          "cpu_render_window_median_ms": 0.3,
+          "vram_MiB": 4400,
+          "fps_range": [
+            304.3
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "alpine/airport_off",
+          "windows": 1,
+          "frames": 892,
+          "fps": 297.07,
+          "mean_ms": 3.37,
+          "p95_ms": 3.87,
+          "p99_ms": 4.29,
+          "max_ms": 4.87,
+          "over_5ms": 0,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 1.63,
+          "gpu_window_median_ms": 3.12,
+          "cpu_render_window_median_ms": 0.26,
+          "vram_MiB": 4400,
+          "fps_range": [
+            297.1
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "alpine/effects_off",
+          "windows": 1,
+          "frames": 1092,
+          "fps": 363.72,
+          "mean_ms": 2.75,
+          "p95_ms": 3.07,
+          "p99_ms": 3.4,
+          "max_ms": 4.01,
+          "over_5ms": 0,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 2.25,
+          "gpu_window_median_ms": 2.52,
+          "cpu_render_window_median_ms": 0.25,
+          "vram_MiB": 4400,
+          "fps_range": [
+            363.7
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "airport/base",
+          "windows": 1,
+          "frames": 730,
+          "fps": 243.29,
+          "mean_ms": 4.11,
+          "p95_ms": 4.79,
+          "p99_ms": 4.96,
+          "max_ms": 5.57,
+          "over_5ms": 4,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 0.89,
+          "gpu_window_median_ms": 3.88,
+          "cpu_render_window_median_ms": 0.43,
+          "vram_MiB": 4400,
+          "fps_range": [
+            243.3
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "airport/clouds_off",
+          "windows": 1,
+          "frames": 1497,
+          "fps": 498.68,
+          "mean_ms": 2.01,
+          "p95_ms": 2.27,
+          "p99_ms": 2.6,
+          "max_ms": 3.2,
+          "over_5ms": 0,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 2.99,
+          "gpu_window_median_ms": 1.8,
+          "cpu_render_window_median_ms": 0.39,
+          "vram_MiB": 4400,
+          "fps_range": [
+            498.7
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "airport/terrain_off",
+          "windows": 1,
+          "frames": 934,
+          "fps": 311.24,
+          "mean_ms": 3.21,
+          "p95_ms": 3.63,
+          "p99_ms": 3.96,
+          "max_ms": 4.65,
+          "over_5ms": 0,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 1.79,
+          "gpu_window_median_ms": 2.99,
+          "cpu_render_window_median_ms": 0.36,
+          "vram_MiB": 4400,
+          "fps_range": [
+            311.2
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "airport/shadows_off",
+          "windows": 1,
+          "frames": 774,
+          "fps": 257.74,
+          "mean_ms": 3.88,
+          "p95_ms": 4.24,
+          "p99_ms": 4.68,
+          "max_ms": 4.79,
+          "over_5ms": 0,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 1.12,
+          "gpu_window_median_ms": 3.66,
+          "cpu_render_window_median_ms": 0.27,
+          "vram_MiB": 4400,
+          "fps_range": [
+            257.7
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "airport/hud_off",
+          "windows": 1,
+          "frames": 730,
+          "fps": 243.07,
+          "mean_ms": 4.11,
+          "p95_ms": 4.45,
+          "p99_ms": 4.94,
+          "max_ms": 5.01,
+          "over_5ms": 2,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 0.89,
+          "gpu_window_median_ms": 3.89,
+          "cpu_render_window_median_ms": 0.39,
+          "vram_MiB": 4397,
+          "fps_range": [
+            243.1
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "airport/water_off",
+          "windows": 1,
+          "frames": 734,
+          "fps": 244.49,
+          "mean_ms": 4.09,
+          "p95_ms": 4.43,
+          "p99_ms": 4.92,
+          "max_ms": 5.19,
+          "over_5ms": 2,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 0.91,
+          "gpu_window_median_ms": 3.87,
+          "cpu_render_window_median_ms": 0.43,
+          "vram_MiB": 4400,
+          "fps_range": [
+            244.5
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "airport/airport_off",
+          "windows": 1,
+          "frames": 692,
+          "fps": 230.39,
+          "mean_ms": 4.34,
+          "p95_ms": 4.84,
+          "p99_ms": 5.21,
+          "max_ms": 5.9,
+          "over_5ms": 25,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 0.66,
+          "gpu_window_median_ms": 4.11,
+          "cpu_render_window_median_ms": 0.26,
+          "vram_MiB": 4400,
+          "fps_range": [
+            230.4
+          ],
+          "enemies_remaining": []
+        },
+        {
+          "scenario": "airport/effects_off",
+          "windows": 1,
+          "frames": 772,
+          "fps": 257.19,
+          "mean_ms": 3.89,
+          "p95_ms": 4.3,
+          "p99_ms": 4.76,
+          "max_ms": 4.86,
+          "over_5ms": 0,
+          "over_16_667ms": 0,
+          "over_33_333ms": 0,
+          "over_50ms": 0,
+          "headroom_ms": 1.11,
+          "gpu_window_median_ms": 3.66,
+          "cpu_render_window_median_ms": 0.41,
+          "vram_MiB": 4400,
+          "fps_range": [
+            257.2
+          ],
+          "enemies_remaining": []
+        }
+      ]
+    }
+  }
+}

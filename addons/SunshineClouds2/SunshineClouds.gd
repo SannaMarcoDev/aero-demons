@@ -163,6 +163,8 @@ var accumulation_is_a : bool = false
 var ignore_accumilation : bool = false
 
 var first_run : bool = true
+var history_valid := false
+var history_camera := Transform3D.IDENTITY
 var filter_index = 0
 
 var last_render_target : RID
@@ -196,6 +198,7 @@ func _notification(what):
 		RenderingServer.call_on_render_thread(clear_compute)
 
 func clear_compute():
+	history_valid = false
 	if rd:
 		if pipeline.is_valid():
 			rd.free_rid(pipeline)
@@ -779,11 +782,11 @@ func _render_callback(effect_callback_type, render_data):
 			var viewProj : Projection = rendersceneData.get_cam_projection();
 			
 			var rendertarget: RID = buffers.get_render_target()
-			if rendertarget != last_render_target:
-				last_render_target = rendertarget
-				ignore_accumilation = true
-			else:
-				ignore_accumilation = false
+			# New buffers, camera cuts and scene switches must not blend stale history.
+			ignore_accumilation = not history_valid or rendertarget != last_render_target or camera_cut(history_camera, cameraTR)
+			last_render_target = rendertarget
+			history_camera = cameraTR
+			history_valid = true
 			
 			
 			last_size = size
@@ -856,6 +859,11 @@ func _render_callback(effect_callback_type, render_data):
 			#else:
 				#if (self.effect_callback_type != CompositorEffect.EFFECT_CALLBACK_TYPE_PRE_TRANSPARENT):
 					#self.effect_callback_type = CompositorEffect.EFFECT_CALLBACK_TYPE_PRE_TRANSPARENT
+
+static func camera_cut(previous: Transform3D, current: Transform3D) -> bool:
+	# ponytail: discontinuity threshold, not camera identity (RenderData exposes the transform).
+	# Normal flight keeps history; teleports >1 km or turns >30 degrees in ONE frame reset it.
+	return previous.origin.distance_squared_to(current.origin) > 1000000.0 or previous.basis.get_rotation_quaternion().angle_to(current.basis.get_rotation_quaternion()) > PI / 6.0
 
 func retrieve_position_queries(data : PackedByteArray):
 	

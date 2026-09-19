@@ -836,7 +836,8 @@ void main() {
 	float finalDensityDistance = min(traveledDistance, highestDensityDistance);
 	vec3 worldFinalPos = rayOrigin + raydirection * traveledDistance;
 	vec3 delta = rayOrigin - scene_data_block.prev_data.main_cam_inv_view_matrix[3].xyz;
-	worldFinalPos += delta;
+	// worldFinalPos is already in world space. The previous view includes its
+	// translation; adding camera motion again drags history during flight.
 	
 	vec4 reprojectedScreenPos = vec4(0.0);
 
@@ -894,8 +895,8 @@ void main() {
 	float travelspeed = length(delta) + maxstep;
 	//bool debugCollisions = false;
 	if (usingaccumA > 0.0){
-		currentColorAccumilation = imageLoad(accum_1A_image, adjustedUV).rgba;
-		currentDataAccumilation = imageLoad(accum_2A_image, adjustedUV).rgba;
+		currentColorAccumilation = imageLoad(accum_1A_image, clampedUV).rgba;
+		currentDataAccumilation = imageLoad(accum_2A_image, clampedUV).rgba;
 
 		float currentDepthBreak = float(depthBreak);
 
@@ -924,8 +925,8 @@ void main() {
 		imageStore(accum_2B_image, uv, currentDataAccumilation);
 	}
 	else{
-		currentColorAccumilation = imageLoad(accum_1B_image, adjustedUV).rgba;
-		currentDataAccumilation = imageLoad(accum_2B_image, adjustedUV).rgba;
+		currentColorAccumilation = imageLoad(accum_1B_image, clampedUV).rgba;
+		currentDataAccumilation = imageLoad(accum_2B_image, clampedUV).rgba;
 
 		float currentDepthBreak = float(depthBreak);
 		

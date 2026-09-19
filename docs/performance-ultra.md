@@ -1,5 +1,9 @@
 # Performance — 1080p Ultra
 
+> Rapporto storico, con i vecchi budget Ultra. Per i preset integrati Half/700/16,
+> misure native ripetute e limiti residui: [performance-budget.md](performance-budget.md).
+> Le baseline dei due rapporti non vanno sommate.
+
 ## Stato operativo — export release, 1080p nativi
 
 **Target non raggiunto.** Resta il guadagno convalidato dell'**1,3–2,1%** del pass

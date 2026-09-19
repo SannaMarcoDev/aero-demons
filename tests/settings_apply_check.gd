@@ -8,6 +8,13 @@ func _initialize() -> void:
 	call_deferred("check")
 
 func check() -> void:
+	var defaults = load(Settings.CLOUDS_RESOURCE_PATH)
+	var ultra: Dictionary = Settings.CLOUD_PRESETS[Settings.CLOUDS_ULTRA]
+	assert(defaults.resolution_scale == ultra.res and defaults.max_step_count == ultra.steps)
+	assert(defaults.max_lighting_steps == ultra.light_steps and defaults.blur_quality == ultra.blur_q)
+	assert(not SunshineCloudsGD.camera_cut(Transform3D.IDENTITY, Transform3D(Basis(Vector3.UP, 0.1), Vector3(2, 0, 0))))
+	assert(SunshineCloudsGD.camera_cut(Transform3D.IDENTITY, Transform3D(Basis.IDENTITY, Vector3(1001, 0, 0))))
+	assert(SunshineCloudsGD.camera_cut(Transform3D.IDENTITY, Transform3D(Basis(Vector3.UP, PI / 3.0), Vector3.ZERO)))
 	var level = load("res://scenes/levels/freeroam.tscn").instantiate()
 	root.add_child(level)
 	for i in 10:
@@ -68,7 +75,18 @@ func check() -> void:
 	Settings.apply_settings(s)
 	for i in 10:
 		await process_frame
-	assert(clouds.resolution_scale == 0 and is_equal_approx(clouds.max_step_count, 700.0))
+	assert(clouds.resolution_scale == 1 and is_equal_approx(clouds.max_step_count, 700.0))
+	assert(clouds.max_lighting_steps == 16.0 and clouds.blur_quality == 1.0)
+	assert(driver.tracked_directional_light_shadow_steps == [16] and clouds.directional_lights_data[0].w == 16.0)
+	assert(clouds.history_valid)
+	for quality in [Settings.CLOUDS_HIGH, Settings.CLOUDS_MEDIUM, Settings.CLOUDS_ULTRA]:
+		s.clouds_quality = quality
+		Settings.apply_settings(s)
+		for i in 10: await process_frame
+		var p: Dictionary = Settings.CLOUD_PRESETS[quality]
+		assert(clouds.resolution_scale == p.res and clouds.max_step_count == p.steps)
+		assert(driver.tracked_directional_light_shadow_steps == [p.sun_steps])
+		assert(clouds.directional_lights_data[0].w == p.sun_steps)
 	var size := clouds.last_size
 	var pipeline := clouds.pipeline
 	assert(size != Vector2i.ZERO and pipeline.is_valid())
@@ -82,6 +100,7 @@ func check() -> void:
 	sky.compositor = null
 	RenderingServer.call_on_render_thread(clouds.clear_compute)
 	await RenderingServer.frame_post_draw
+	assert(not clouds.history_valid, "Retired GPU buffers must invalidate temporal history")
 	level.queue_free()
 	for i in 3:
 		await process_frame

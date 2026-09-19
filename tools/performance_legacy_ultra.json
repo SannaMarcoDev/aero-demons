@@ -1,0 +1,42 @@
+{
+  "description": "Immutable pre-rebalance reference. Reproduce original renderer at code_revision; --preset=legacy restores parameters, not historical code.",
+  "code_revision": "27c3c879805e119867d243bf2e208498d00a59e4",
+  "sha256": {
+    "scripts/ui/settings_manager.gd": "dad313e9a8a792848f71c05640feded7738aae7e853b4c37a1241b79cd967d71",
+    "resources/environments/tutorial_clouds.tres": "732e9c3b1fcfa8cec0d7bc3c691bf302c36ead1682127508499ea3509fa67618",
+    "addons/SunshineClouds2/SunshineClouds.gd": "c36942113cf9b6f5178eb8ec3888a9d5acfa18ae78989dc3c491f80b106b506a",
+    "addons/SunshineClouds2/SunshineCloudsCompute.glsl": "05226768a1f4f174057a6d9c28d9424f9f1f47ed0106f4af173d6988a255a54b",
+    "addons/SunshineClouds2/SunshineCloudsPostCompute.comp": "bfb39ff61908bcb401410494883ef7bf1b38f32fcee4e83ad0965d8d51dea154",
+    "addons/SunshineClouds2/SunshineCloudsDriver.gd": "5a14258c5aa73c5198dc948470e226e653313ea6e0f6043f2244ab456a2ae786",
+    "project.godot": "8dd3c216eed82b708c0ce9b0eb9b60ffc2033b999beedbb443439121f00473aa"
+  },
+  "clouds": {
+    "res": 0,
+    "steps": 700,
+    "light_steps": 32,
+    "lod": 0.9,
+    "blur_q": 2,
+    "blur_p": 1.65,
+    "travel": 3000,
+    "accum": 0.85,
+    "min_d": 50,
+    "max_d": 140,
+    "sun_steps": 32
+  },
+  "settings": {
+    "quality_preset": 4,
+    "clouds_quality": 4,
+    "clouds_coverage": 0.834,
+    "shadows": 4,
+    "ssao": true,
+    "ssil": false,
+    "ssr": false,
+    "glow": true,
+    "volumetric_fog": false,
+    "sky_cirrus": true,
+    "sky_cumulus": false,
+    "sky_fog": false,
+    "tonemap": 3,
+    "exposure": 1
+  }
+}

@@ -53,14 +53,16 @@ const GRAPHICS_CFG_PATH := "user://graphics.cfg"
 const FPS_LIMITS: Array[int] = [0, 30, 60, 120, 144, 240]
 const RENDER_SCALES: Array[float] = [0.5, 0.59, 0.67, 0.77, 1.0, 1.25, 1.5]
 
-## SunshineClouds raymarch budgets per quality step (index = CLOUDS_*). ULTRA matches
-## the authored tutorial_clouds.tres; OFF only flips the compositor effect's enabled flag.
+## SunshineClouds budgets (index = CLOUDS_*). Half-res Ultra retains the authored
+## march reach/detail, with temporal + bicubic reconstruction (scene stays native).
+## Keep the startup resource/driver defaults aligned; settings_apply_check verifies them.
+## OFF only flips the compositor effect's enabled flag.
 const CLOUD_PRESETS: Array[Dictionary] = [
 	{},
 	{"res": 3, "steps": 128.0, "light_steps": 8.0, "lod": 1.6, "blur_q": 1.0, "blur_p": 1.2, "travel": 1500.0, "accum": 0.75, "min_d": 60.0, "max_d": 160.0, "sun_steps": 6},
 	{"res": 2, "steps": 256.0, "light_steps": 12.0, "lod": 1.3, "blur_q": 1.5, "blur_p": 1.4, "travel": 2000.0, "accum": 0.8, "min_d": 55.0, "max_d": 150.0, "sun_steps": 12},
-	{"res": 1, "steps": 384.0, "light_steps": 20.0, "lod": 1.0, "blur_q": 2.0, "blur_p": 1.65, "travel": 2500.0, "accum": 0.85, "min_d": 50.0, "max_d": 140.0, "sun_steps": 20},
-	{"res": 0, "steps": 700.0, "light_steps": 32.0, "lod": 0.9, "blur_q": 2.0, "blur_p": 1.65, "travel": 3000.0, "accum": 0.85, "min_d": 50.0, "max_d": 140.0, "sun_steps": 32},
+	{"res": 1, "steps": 384.0, "light_steps": 12.0, "lod": 1.0, "blur_q": 1.0, "blur_p": 1.65, "travel": 2500.0, "accum": 0.85, "min_d": 50.0, "max_d": 140.0, "sun_steps": 12},
+	{"res": 1, "steps": 700.0, "light_steps": 16.0, "lod": 0.9, "blur_q": 1.0, "blur_p": 1.65, "travel": 3000.0, "accum": 0.85, "min_d": 50.0, "max_d": 140.0, "sun_steps": 16},
 ]
 
 ## Directional shadow presets (index = SHADOWS_*): PSSM split count and reach.
@@ -406,21 +408,24 @@ static func _apply_clouds(root: Viewport, settings: Dictionary) -> void:
 		return
 	var quality := clampi(int(settings.get("clouds_quality", CLOUDS_ULTRA)), 0, CLOUDS_COUNT - 1)
 	clouds.enabled = quality != CLOUDS_OFF
-	var sun_steps := 32
 	if quality != CLOUDS_OFF:
-		var p: Dictionary = CLOUD_PRESETS[quality]
-		clouds.resolution_scale = int(p["res"])
-		clouds.max_step_count = float(p["steps"])
-		clouds.max_lighting_steps = float(p["light_steps"])
-		clouds.lod_bias = float(p["lod"])
-		clouds.blur_quality = float(p["blur_q"])
-		clouds.blur_power = float(p["blur_p"])
-		clouds.lighting_travel_distance = float(p["travel"])
-		clouds.accumulation_decay = float(p["accum"])
-		clouds.min_step_distance = float(p["min_d"])
-		clouds.max_step_distance = float(p["max_d"])
-		sun_steps = int(p["sun_steps"])
+		apply_cloud_preset(root, clouds, CLOUD_PRESETS[quality])
 	clouds.clouds_coverage = clampf(float(settings.get("clouds_coverage", 0.834)), 0.0, 1.0)
+
+
+## Shared by normal settings and the non-persistent benchmark overrides.
+static func apply_cloud_preset(root: Viewport, clouds: SunshineCloudsGD, p: Dictionary) -> void:
+	clouds.resolution_scale = int(p["res"])
+	clouds.max_step_count = float(p["steps"])
+	clouds.max_lighting_steps = float(p["light_steps"])
+	clouds.lod_bias = float(p["lod"])
+	clouds.blur_quality = float(p["blur_q"])
+	clouds.blur_power = float(p["blur_p"])
+	clouds.lighting_travel_distance = float(p["travel"])
+	clouds.accumulation_decay = float(p["accum"])
+	clouds.min_step_distance = float(p["min_d"])
+	clouds.max_step_distance = float(p["max_d"])
+	var sun_steps := int(p["sun_steps"])
 	for node in root.find_children("*", "SunshineCloudsDriverGD", true, false):
 		var steps: Array[int] = []
 		steps.resize(node.tracked_directional_lights.size())
