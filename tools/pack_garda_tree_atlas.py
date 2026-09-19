@@ -36,7 +36,7 @@ def padded(image, rectangles):
 def build(phase, output, source=SOURCE):
     atlas = Image.new('RGBA', (2048, 2048))
     branch = Image.open(source / 'branchleaves.png').convert('RGBA')
-    rgb = ImageEnhance.Color(ImageEnhance.Brightness(branch.convert('RGB')).enhance(1.65)).enhance(.8)
+    rgb = ImageEnhance.Color(ImageEnhance.Brightness(branch.convert('RGB')).enhance(2.05)).enhance(.65)
     rgb.putalpha(branch.getchannel('A'))
     atlas.paste(rgb.resize((1536, 394), Image.Resampling.LANCZOS), (0, 0))
     bark = Image.open(source / 'bark_brown_02_diff_1k.jpg').convert('RGBA')
@@ -52,13 +52,29 @@ def build(phase, output, source=SOURCE):
     print('GARDA ATLAS PASS', phase, output)
 
 
+def pack_normals(output, source=SOURCE):
+    atlas = Image.new('RGB', (2048, 2048), (128, 255, 128))
+    for view, xy, size in [('front', (0, 512), 1024), ('side', (1024, 512), 1024), ('top', (0, 1536), 512)]:
+        pixels = np.array(Image.open(source / (view + '_normal.png')).convert('RGBA'))
+        # Blender Z-up -> glTF/Godot Y-up; this is object-space, not a tangent normal map.
+        rgb = pixels[:, :, [0, 2, 1]].copy()
+        rgb[:, :, 2] = 255 - rgb[:, :, 2]
+        solid = pixels[:, :, 3] > 128
+        rgb[~solid] = (128, 255, 128)
+        atlas.paste(Image.fromarray(rgb).resize((size, size), Image.Resampling.LANCZOS), xy)
+    atlas.save(output)
+    print('GARDA NORMAL ATLAS PASS', output)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('phase', choices=['base', 'pack', 'check'])
+    parser.add_argument('phase', choices=['base', 'pack', 'check', 'normals'])
     parser.add_argument('--output', type=Path, default=ATLAS)
     parser.add_argument('--source', type=Path, default=SOURCE)
     args = parser.parse_args()
-    if args.phase == 'check':
+    if args.phase == 'normals':
+        pack_normals(args.output if args.output != ATLAS else ATLAS.with_name('garda_broadleaf_normals.png'), args.source)
+    elif args.phase == 'check':
         expected = Image.open(args.output).convert('RGBA')
         with TemporaryDirectory() as directory:
             path = Path(directory) / 'atlas.png'
@@ -69,6 +85,9 @@ if __name__ == '__main__':
             build('pack', path, args.source)
             actual = Image.open(path).convert('RGBA')
             assert actual.size == expected.size and actual.tobytes() == expected.tobytes()
+            pack_normals(path, args.source)
+            expected_normals = Image.open(args.output.with_name('garda_broadleaf_normals.png')).convert('RGB')
+            assert Image.open(path).tobytes() == expected_normals.tobytes()
         print('GARDA ATLAS REPRODUCTION PASS')
     else:
         build(args.phase, args.output, args.source)

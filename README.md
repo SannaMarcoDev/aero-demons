@@ -67,6 +67,14 @@ Il controllo tutorial verifica i tre incontri, trasformazioni, sincronizzazione 
 
 La mappa usa `resources/materials/garda_water.tres`: increspature conservate ma ferme, senza schiuma, terreno invariato. FXAA sostituisce FSR2 come antialiasing globale per evitare il tremolio dell'acqua. [Confronti visivi, comandi e limiti](docs/water-lookdev.md); `tools/water_capture.gd` offre nove viste A/B, viewer e passaggio diagnostico. `--still --view=low` verifica 32 fotogrammi consecutivi a camera ferma, senza salvare modifiche alla scena.
 
+## Paesaggio Garda
+
+Boschi runtime, albero Blender a tre LOD, erba locale e atmosfera rivista:
+[confronti prima/dopo, esperimenti, prestazioni e limiti](docs/landscape-lookdev.md).
+Il nuovo paesaggio **non è certificato a 200 FPS costanti**; le misure storiche
+precedono l'ampliamento dei boschi. Terrain3D e impostazioni personali non vengono
+risalvati dai tool di confronto.
+
 ## Convenzioni
 
 - Usare `snake_case` per nuovi file e cartelle del progetto; mantenere i nomi originali dei pacchetti esterni.

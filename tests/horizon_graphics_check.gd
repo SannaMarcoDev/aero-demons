@@ -43,7 +43,7 @@ func check() -> void:
 		assert(camera.attributes.exposure_multiplier == environment_attributes.exposure_multiplier)
 		assert(camera.attributes.auto_exposure_enabled == environment_attributes.auto_exposure_enabled)
 		assert(not environment_attributes.dof_blur_far_enabled)
-		assert(is_equal_approx(clouds.atmospheric_density, 2.0))
+		assert(is_equal_approx(clouds.atmospheric_density, 1.3))
 		assert(is_equal_approx(clouds.use_environment_fog, 0.65))
 		assert(clouds.atmosphere_color.is_equal_approx(Color(0.55, 0.64, 0.75)))
 		assert(clouds.sampled_environment_fog_color.is_equal_approx(clouds.atmosphere_color))
@@ -92,7 +92,7 @@ func check() -> void:
 		assert(viewport_state == [root.msaa_3d, root.use_taa, root.scaling_3d_mode, root.scaling_3d_scale, root.screen_space_aa])
 		assert(scene.mode == 0, "F7 must not cycle F6 filters")
 		assert(not environment_attributes.dof_blur_far_enabled, "Shared exposure/DOF resource unchanged")
-		assert(is_equal_approx(clouds.atmospheric_density, 2.0) and is_equal_approx(clouds.use_environment_fog, 0.65))
+		assert(is_equal_approx(clouds.atmospheric_density, 1.3) and is_equal_approx(clouds.use_environment_fog, 0.65))
 		assert(clouds.atmosphere_color.is_equal_approx(Color(0.55, 0.64, 0.75)))
 		scene.queue_free()
 		await process_frame
@@ -100,4 +100,9 @@ func check() -> void:
 	if capture:
 		print("Captures: ", ProjectSettings.globalize_path(output))
 	print("PASS: C default, F7 D/C, persistence across both scenes, pause/echo/release, exposure preserved, no F6/atmosphere changes")
+	for audio in root.get_node("AudioManager").get_children():
+		if audio is AudioStreamPlayer:
+			audio.stop()
+			audio.stream = null
+	await create_timer(0.1).timeout
 	quit()

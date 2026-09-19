@@ -2,25 +2,22 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bxk0jvmvd8w27"
-path.s3tc="res://.godot/imported/garda_broadleaf_garda_broadleaf_atlas.png-dd3ae40aa9aa18f8593534d1d5ba7446.s3tc.ctex"
+uid="uid://bv7ldi6s5qovi"
+path.bptc="res://.godot/imported/garda_broadleaf_normals.png-0a5519a42693a2e4a3a3f5f34e379283.bptc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
 }
-generator_parameters={
-"md5": "0b818441d3c8014f0558d4cc1a198d45"
-}
 
 [deps]
 
-source_file="res://assets/environment/garda_forest/garda_broadleaf_garda_broadleaf_atlas.png"
-dest_files=["res://.godot/imported/garda_broadleaf_garda_broadleaf_atlas.png-dd3ae40aa9aa18f8593534d1d5ba7446.s3tc.ctex"]
+source_file="res://assets/environment/garda_forest/garda_broadleaf_normals.png"
+dest_files=["res://.godot/imported/garda_broadleaf_normals.png-0a5519a42693a2e4a3a3f5f34e379283.bptc.ctex"]
 
 [params]
 
 compress/mode=2
-compress/high_quality=false
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

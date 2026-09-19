@@ -52,6 +52,7 @@ func _run() -> void:
 	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 	var map: Node3D = load(MAP).instantiate()
 	map.get_node("Forests").enabled = false # Isolate the surface; legacy assets have no tree slot.
+	map.get_node("GroundCover").process_mode = Node.PROCESS_MODE_DISABLED
 	var terrain: Terrain3D = map.get_node("GardaTerrain")
 	# Native READY frees texture descriptors after uploading arrays. Keep them for A/B swaps.
 	terrain.free_editor_textures = false
@@ -186,5 +187,5 @@ func _run() -> void:
 	camera.queue_free()
 	for frame in 3:
 		await process_frame
-	print("GARDA SURFACE REVIEW PASS")
+	print("PASS: GARDA SURFACE REVIEW")
 	quit()

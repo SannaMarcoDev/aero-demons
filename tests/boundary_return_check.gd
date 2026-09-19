@@ -53,7 +53,7 @@ func run() -> void:
 	check(not dome.fog_visible, "SkyDome fog disabled: Sunshine is sole atmosphere")
 	check(not map.get_node("Sky3D").fog_enabled, "Sky3D fog_enabled stays off")
 	var clouds = map.get_node("SunshineCloudsDriverGD").clouds_resource
-	check(is_equal_approx(clouds.atmospheric_density, 2.0), "cloud atmospheric_density uses standard horizon preset C")
+	check(is_equal_approx(clouds.atmospheric_density, 1.3), "cloud atmospheric_density uses authored landscape atmosphere")
 
 	# Effectors: registered through the driver and uploaded to the resource.
 	var driver = map.get_node("SunshineCloudsDriverGD")
@@ -77,6 +77,7 @@ func run() -> void:
 
 	# --- Full gameplay scene: real player resolution ---
 	var level: Node3D = load("res://scenes/levels/tutorial.tscn").instantiate()
+	level.get_node("Player").start_on_ground = false # This fixture exercises airborne return, not airport taxi.
 	root.add_child(level)
 	await process_frame
 	await physics_frame
@@ -126,6 +127,11 @@ func run() -> void:
 
 	map.queue_free()
 	level.queue_free()
+	for audio in root.get_node("AudioManager").get_children():
+		if audio is AudioStreamPlayer:
+			audio.stop()
+			audio.stream = null
+	await create_timer(0.1).timeout
 	if failures.is_empty():
 		print("ALL CHECKS PASSED")
 		quit()

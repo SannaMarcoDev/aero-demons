@@ -160,7 +160,12 @@ func place_aircraft(loc: Dictionary, t: float) -> void:
 		camera.snap_to_target()
 
 func measure(loc: Dictionary, meta: Dictionary, warm: float, meas: float) -> void:
+	var physics_enabled := player.is_physics_processing()
+	player.set_physics_process(false)
 	place_aircraft(loc, 0.0)
+	scene.get_node("GardaLake/Forests").update_center(camera.global_position)
+	while not scene.get_node("GardaLake/Forests").built: await process_frame
+	player.set_physics_process(physics_enabled)
 	await create_timer(warm).timeout
 	var frames: Array[float] = []
 	var gpu: Array[float] = []

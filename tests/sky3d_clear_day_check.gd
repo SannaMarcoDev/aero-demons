@@ -49,7 +49,7 @@ func check() -> void:
 		assert(sky.sun.transform == sun_pose, "Sun must remain fixed")
 		var driver = map.get_node("SunshineCloudsDriverGD")
 		assert(DisplayServer.get_name() == "headless" or driver.clouds_resource.enabled, "Volumetric compositor must render")
-		assert(is_equal_approx(driver.clouds_resource.clouds_coverage, 0.834), "Preserve the separate volumetric layer")
+		assert(is_equal_approx(driver.clouds_resource.clouds_coverage, 0.72), "Authored scattered volumetric layer")
 		if capture:
 			var player = level.get_node("Player")
 			var camera: Camera3D = player.get_node("FlightCamera")
@@ -76,4 +76,9 @@ func check() -> void:
 			await process_frame
 	if capture:
 		print("Captures: ", ProjectSettings.globalize_path(output))
+	for audio in root.get_node("AudioManager").get_children():
+		if audio is AudioStreamPlayer:
+			audio.stop()
+			audio.stream = null
+	await create_timer(0.1).timeout
 	quit()

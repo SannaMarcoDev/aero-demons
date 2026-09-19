@@ -18,6 +18,7 @@
 [ext_resource type="Material" uid="uid://30yhc4wq6lxr" path="res://resources/materials/garda_water.tres" id="24_water"]
 
 [ext_resource type="Script" path="res://scripts/maps/garda_forests.gd" id="25_forests"]
+[ext_resource type="Script" path="res://scripts/maps/garda_ground_cover.gd" id="26_ground_cover"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_surface"]
 seed = 7319
@@ -262,6 +263,9 @@ mesh = SubResource("PlaneMesh_garda_water")
 
 [node name="Forests" type="Node" parent="."]
 script = ExtResource("25_forests")
+
+[node name="GroundCover" type="Node3D" parent="."]
+script = ExtResource("26_ground_cover")
 
 [node name="Airport" parent="." unique_id=97443345 instance=ExtResource("16_8bik1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36418.484, 234.52104, 413.42773)

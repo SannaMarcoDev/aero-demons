@@ -1,5 +1,8 @@
 # Native 1080p / 5 ms budget: integrated cloud presets
 
+> These measurements predate the expanded forest and landscape revision.
+> They do **not** certify its performance. See [current landscape measurements](landscape-lookdev.md).
+
 ## Result and scope
 
 **The integrated Ultra preset exceeds 200 average FPS in all measured warmed

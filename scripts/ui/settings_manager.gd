@@ -115,7 +115,7 @@ static func load_settings(path: String = CONFIG_PATH) -> Dictionary:
 		"fsr_sharpness": 0.2,
 		"quality_preset": QUALITY_ULTRA,
 		"clouds_quality": CLOUDS_ULTRA,
-		"clouds_coverage": 0.834,
+		"clouds_coverage": 0.72,
 		"sky_cirrus": true,
 		"sky_cumulus": false,
 		"sky_fog": false,
@@ -150,7 +150,7 @@ static func load_settings(path: String = CONFIG_PATH) -> Dictionary:
 		settings["fsr_sharpness"] = config.get_value("rendering", "fsr_sharpness", 0.2)
 		settings["quality_preset"] = config.get_value("rendering", "quality_preset", QUALITY_ULTRA)
 		settings["clouds_quality"] = config.get_value("clouds", "quality", CLOUDS_ULTRA)
-		settings["clouds_coverage"] = config.get_value("clouds", "coverage", 0.834)
+		settings["clouds_coverage"] = config.get_value("clouds", "coverage", 0.72)
 		settings["sky_cirrus"] = config.get_value("sky", "cirrus", true)
 		settings["sky_cumulus"] = config.get_value("sky", "cumulus", false)
 		settings["sky_fog"] = config.get_value("sky", "fog", false)
@@ -188,7 +188,7 @@ static func load_settings(path: String = CONFIG_PATH) -> Dictionary:
 	settings["shadows"] = _clamp_enum(settings["shadows"], SHADOWS_COUNT, SHADOWS_HIGH)
 	settings["tonemap"] = _clamp_enum(settings["tonemap"], TONEMAP_COUNT, TONEMAP_ACES)
 	var coverage = settings["clouds_coverage"]
-	settings["clouds_coverage"] = clampf(float(coverage), 0.0, 1.0) if coverage is float or coverage is int else 0.834
+	settings["clouds_coverage"] = clampf(float(coverage), 0.0, 1.0) if coverage is float or coverage is int else 0.72
 	var exposure = settings["exposure"]
 	settings["exposure"] = clampf(float(exposure), 0.25, 4.0) if exposure is float or exposure is int else 1.0
 	if not settings["sky_cirrus"] is bool:
@@ -222,7 +222,7 @@ static func save_settings(settings: Dictionary, path: String = CONFIG_PATH) -> E
 	config.set_value("rendering", "fsr_sharpness", settings.get("fsr_sharpness", 0.2))
 	config.set_value("rendering", "quality_preset", settings.get("quality_preset", QUALITY_ULTRA))
 	config.set_value("clouds", "quality", settings.get("clouds_quality", CLOUDS_ULTRA))
-	config.set_value("clouds", "coverage", settings.get("clouds_coverage", 0.834))
+	config.set_value("clouds", "coverage", settings.get("clouds_coverage", 0.72))
 	config.set_value("sky", "cirrus", settings.get("sky_cirrus", true))
 	config.set_value("sky", "cumulus", settings.get("sky_cumulus", false))
 	config.set_value("sky", "fog", settings.get("sky_fog", false))
@@ -410,7 +410,7 @@ static func _apply_clouds(root: Viewport, settings: Dictionary) -> void:
 	clouds.enabled = quality != CLOUDS_OFF
 	if quality != CLOUDS_OFF:
 		apply_cloud_preset(root, clouds, CLOUD_PRESETS[quality])
-	clouds.clouds_coverage = clampf(float(settings.get("clouds_coverage", 0.834)), 0.0, 1.0)
+	clouds.clouds_coverage = clampf(float(settings.get("clouds_coverage", 0.72)), 0.0, 1.0)
 
 
 ## Shared by normal settings and the non-persistent benchmark overrides.

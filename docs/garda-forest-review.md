@@ -1,5 +1,8 @@
 # Garda — alberi Blender e verifica runtime
 
+> Baseline storica: geometria, densità, materiale e misure sono stati successivamente
+> rivisti. Vedere il [report corrente del paesaggio](landscape-lookdev.md).
+
 Sostituito il prototipo a grandi cartelloni con un albero costruito tramite
 Blender MCP: tronco e rami tridimensionali, gruppi di foglie fotografici su
 piccole superfici piegate e tre LOD. **Un modello**, variato per rotazione,

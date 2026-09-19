@@ -101,20 +101,23 @@ def build():
     centers = []
     branches = []
     rng = random.Random(7319)
-    for i in range(11):
+    # Layered, irregular ovoid crown, not a ring of umbrella-shaped branches.
+    for i in range(18):
         angle = i * 2.39996
+        height = 5.2 + i * .43
+        radius = 3.8 * math.sqrt(max(.12, 1 - ((height - 8.5) / 5.5) ** 2))
         direction = Vector((math.cos(angle), math.sin(angle), 0))
-        start = Vector((.1, 0, 2.6 + i * .32))
-        end = direction * rng.uniform(2.3, 3.6) + Vector((-.25, .1, rng.uniform(7, 9.5)))
-        mid = start.lerp(end, .48) + Vector((0, 0, .55))
-        branches.append(([start, mid, end], [.18 - i * .008, .1, .035]))
-        for j in range(3):
-            spin = angle + (j - 1) * .65
-            tip = end + Vector((math.cos(spin) * rng.uniform(.4, 1.2),
-                                math.sin(spin) * rng.uniform(.4, 1.2), rng.uniform(.2, 1.5)))
+        start = Vector((.1, 0, 2.8 + i * .38))
+        end = direction * radius + Vector((-.25, .1, height))
+        mid = start.lerp(end, .52) + Vector((0, 0, .4))
+        branches.append(([start, mid, end], [.16 - i * .006, .07, .02]))
+        for j in range(2):
+            spin = angle + (j - .5) * .85
+            tip = end + Vector((math.cos(spin) * rng.uniform(.3, 1.0),
+                                math.sin(spin) * rng.uniform(.3, 1.0), rng.uniform(.1, 1.0)))
             centers.append(tip)
-            branches.append(([mid, end.lerp(tip, .4), tip], [.065, .04, .01]))
-    centers.append(Vector((-.4, .1, 10.8)))
+            branches.append(([mid, end.lerp(tip, .4), tip], [.045, .025, .008]))
+    centers.extend([Vector((-.4, .1, 13.8)), Vector((.6, -.3, 10)), Vector((-.8, .7, 7.5))])
     for lod in (0, 1):
         g = Geometry()
         g.tube([(0, 0, -.18), (.13, -.05, 1.8), (-.1, .15, 4), (.18, .04, 6.2), (-.35, .1, 9.7)],
@@ -124,7 +127,7 @@ def build():
                 g.tube(points, radii, 5 if lod == 0 else 3)
         rng = random.Random(9123)
         for center in centers:
-            for j in range(28 if lod == 0 else 6):
+            for j in range(16 if lod == 0 else 5):
                 delta = Vector((rng.uniform(-1, 1), rng.uniform(-1, 1), rng.uniform(-.7, .9)))
                 pos = center + delta * 1.25
                 angle = rng.uniform(0, math.tau)
@@ -132,11 +135,11 @@ def build():
                 side = u.cross(Vector((0, 0, 1))).normalized()
                 roll = rng.uniform(0, math.tau)
                 v = side * math.cos(roll) + u.cross(side) * math.sin(roll)
-                width = rng.uniform(1.65, 2.6) * (1 if lod == 0 else 1.8)
+                width = rng.uniform(2.0, 3.2) * (1 if lod == 0 else 1.75)
                 u *= width * .5
-                v *= width * .1283
-                n = Vector((pos.x * .2, pos.y * .2, (pos.z - 7) * .35 + .3)).normalized()
-                shade = rng.uniform(.8, 1.07) * min(1, .7 + (pos.z - 6) * .075)
+                v *= width * .20
+                n = Vector((pos.x * .16, pos.y * .16, (pos.z - 8) * .20 + .65)).normalized()
+                shade = rng.uniform(.88, 1.08) * min(1, .78 + (pos.z - 5) * .045)
                 if lod == 0:
                     fold = n * .10
                     g.quad([pos-u-v, pos-v+fold, pos+v+fold, pos-u+v], uv_rect(0, 0, 768, 394), [n]*4, shade)
@@ -182,6 +185,52 @@ def bake(view):
     print('GARDA TREE BAKE PASS', view)
 
 
+def bake_normals(view):
+    """Object-space crown normals for the distant flight impostor (linear RGB)."""
+    scene = bpy.data.scenes[STUDIO]
+    bpy.context.window.scene = scene
+    material = scene.objects['GardaTree_LOD0'].data.materials[0]
+    nodes, links = material.node_tree.nodes, material.node_tree.links
+    shader = nodes.get('Principled BSDF')
+    original = next(n for n in nodes if n.bl_idname == 'ShaderNodeMixRGB')
+    geometry = nodes.new('ShaderNodeNewGeometry')
+    encode = nodes.new('ShaderNodeVectorMath')
+    encode.operation = 'MULTIPLY_ADD'
+    encode.inputs[1].default_value = (.5, .5, .5)
+    encode.inputs[2].default_value = (.5, .5, .5)
+    facing = nodes.new('ShaderNodeMath')
+    facing.operation = 'MULTIPLY_ADD'
+    facing.inputs[1].default_value = -2
+    facing.inputs[2].default_value = 1
+    links.new(geometry.outputs['Backfacing'], facing.inputs[0])
+    unflip = nodes.new('ShaderNodeVectorMath')
+    unflip.operation = 'SCALE'
+    links.new(geometry.outputs['Normal'], unflip.inputs[0])
+    links.new(facing.outputs[0], unflip.inputs['Scale'])
+    links.new(unflip.outputs[0], encode.inputs[0])
+    links.new(encode.outputs[0], shader.inputs['Emission Color'])
+    shader.inputs['Emission Strength'].default_value = 1
+    shader.inputs['Base Color'].default_value = (0, 0, 0, 1)
+    base_link = shader.inputs['Base Color'].links[0]
+    links.remove(base_link)
+    scene.objects['Garda Preview Sun'].hide_render = True
+    scene.world.color = (0, 0, 0)
+    scene.view_settings.view_transform = 'Raw'
+    target = Vector((0, 0, 7.8 if view != 'top' else 8))
+    scene.camera.location = target + {'front': Vector((0, -30, 0)), 'side': Vector((30, 0, 0)), 'top': Vector((0, 0, 30))}[view]
+    scene.camera.rotation_euler = (target - scene.camera.location).to_track_quat('-Z', 'Y').to_euler()
+    scene.render.filepath = str(ART / (view + '_normal.png'))
+    bpy.ops.render.render(write_still=True)
+    nodes.remove(geometry)
+    nodes.remove(encode)
+    nodes.remove(facing)
+    nodes.remove(unflip)
+    links.new(original.outputs[0], shader.inputs['Base Color'])
+    links.new(original.outputs[0], shader.inputs['Emission Color'])
+    scene.view_settings.view_transform = 'Standard'
+    print('GARDA NORMAL BAKE PASS', view)
+
+
 def finish():
     scene = bpy.data.scenes[STUDIO]
     bpy.context.window.scene = scene
@@ -198,8 +247,14 @@ def finish():
         bpy.data.objects.remove(scene.objects['GardaTree_LOD2'], do_unlink=True)
     g = Geometry()
     # Matching orthographic projections: two side cards + overhead canopy for flight.
-    g.quad([(-8, 0, -.2), (8, 0, -.2), (8, 0, 15.8), (-8, 0, 15.8)], uv_rect(0, 512, 1024, 1024), [(0, -1, 0)]*4)
-    g.quad([(0, -8, -.2), (0, 8, -.2), (0, 8, 15.8), (0, -8, 15.8)], uv_rect(1024, 512, 1024, 1024), [(1, 0, 0)]*4)
+    for side in range(2):
+        points = [(-8, 0, -.2), (8, 0, -.2), (8, 0, 15.8), (-8, 0, 15.8)]
+        if side:
+            points = [(0, x, z) for x, _, z in points]
+        normals = [Vector((x * .12, y * .12, .35 + z * .035)).normalized() for x, y, z in points]
+        g.quad(points, uv_rect(side * 1024, 512, 1024, 1024), normals)
+        # Crown-scale occlusion survives minification; no directional sunlight baked in.
+        g.colors[-4:] = [(s, s, s, 1) for s in [.40, .40, .92, .92]]
     g.quad([(-8, -8, 8), (8, -8, 8), (8, 8, 8), (-8, 8, 8)], uv_rect(0, 1536, 512, 512), [(0, 0, 1)]*4)
     obj = g.object(scene, 'GardaTree_LOD2', material)
     for o in scene.objects:
@@ -217,7 +272,7 @@ def finish():
         scene.objects['GardaTree_LOD' + str(i)].hide_set(True)
         scene.objects['GardaTree_LOD' + str(i)].hide_render = True
     # Explicit artifact path; never overwrite the user's open .blend.
-    path = Path('C:/Users/sanna/Workspace/3D_models/garda_broadleaf_game_ready.blend')
+    path = ART / 'garda_broadleaf_landscape.blend'
     material.node_tree.nodes.get('Image Texture').image.pack()
     bpy.ops.wm.save_as_mainfile(filepath=str(path), copy=True)
     print('GARDA TREE EXPORT PASS', ASSETS / 'garda_broadleaf.glb')

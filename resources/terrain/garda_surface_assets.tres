@@ -26,8 +26,8 @@ material_override = ExtResource("16_tree_material")
 last_lod = 2
 last_shadow_lod = 2
 shadow_impostor = 2
-lod0_range = 450.0
-lod1_range = 1000.0
+lod0_range = 140.0
+lod1_range = 650.0
 lod2_range = 18000.0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yq1fy"]

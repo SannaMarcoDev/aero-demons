@@ -29,6 +29,7 @@ uniform highp sampler2DArray _texture_array_normal : hint_normal, filter_linear_
 
 // Noise is linear data (not source_color). The material supplies a seamless mipmapped texture.
 uniform sampler2D surface_noise : filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D forest_cover : hint_default_black, filter_linear_mipmap, repeat_disable;
 uniform float detail_size : hint_range(1.0, 16.0) = 4.0;
 uniform float meso_size : hint_range(16.0, 256.0) = 72.0;
 uniform float macro_size : hint_range(100.0, 10000.0) = 4500.0;
@@ -194,9 +195,9 @@ void add_surface(float id, float weight, vec3 n, vec3 dx, vec3 dy,
 		float luminance = dot(alb.rgb, vec3(0.2126, 0.7152, 0.0722));
 		alb.rgb = mix(vec3(luminance), alb.rgb, 0.45);
 	}
-	if (id == 2.0) { tint = vec3(0.75, 0.95, 0.63); }
+	if (id == 2.0) { tint = vec3(0.67, 0.88, 0.52); }
 	if (id == 3.0) { tint = vec3(1.10, 1.03, 0.83); }
-	if (id == 0.0) { tint = vec3(0.30, 0.41, 0.55); }
+	if (id == 0.0) { tint = vec3(0.43, 0.45, 0.43); }
 	albedo += alb.rgb * tint * height_weight;
 	detail_normal += perturbation * height_weight;
 	roughness += rough * height_weight;
@@ -235,7 +236,9 @@ void fragment() {
 	perturbation -= n * dot(n, perturbation);
 	NORMAL = normalize(mat3(VIEW_MATRIX) * normalize(n + perturbation));
 	float macro = 1.0 + ((large - 0.5) * 0.8 + (medium - 0.5) * 0.4) * macro_strength;
-	ALBEDO = albedo * inv_weight * macro;
+	// Runtime canopy density, shared with actual tree placement; broad understory remains at flight LOD.
+	float woodland = texture(forest_cover, (v_vertex.xz + vec2(125000.0)) / 250000.0).r;
+	ALBEDO = albedo * inv_weight * macro * mix(vec3(1.0), vec3(0.67, 0.76, 0.59), woodland * (1.0 - rock) * (1.0 - snow));
 	ROUGHNESS = clamp(roughness * inv_weight, 0.55, 1.0);
 	SPECULAR = 0.25;
 }
