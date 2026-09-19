@@ -49,4 +49,16 @@ const main = shader.slice(shader.indexOf('void main()')).replace(/\/\/[^\n]*/g, 
 assert(main.indexOf('directionalPhase[lightI] = pow(HenyeyGreenstein') < main.indexOf('for (int i = 0; i < stepCount; i++)'));
 assert(main.includes('float henyeygreenstein = directionalPhase[lightI];'));
 assert.equal((main.match(/HenyeyGreenstein\(genericData\.data\.anisotropy, directionalLightSunUpPower/g) || []).length, 1, 'Compute directional phase once per ray/light');
-console.log(`PASS: ${comparisons} density cases, effectors, original UVs, empty history and per-ray phase`);
+// Execute the actual depth guard: a ray cannot sample or light behind its opaque receiver.
+const depthGuard = main.match(/if \(traveledDistance > linear_depth\)\s*\{[^}]+\}/)?.[0];
+assert(depthGuard && depthGuard.includes('break;'));
+assert(main.indexOf(depthGuard) < main.indexOf('newdensity = pow(sampleScene'));
+const march = new Function('linear_depth', 'traveledDistance', `let depthBreak = false, samples = 0;
+  for (let i = 0; i < 700; i++) { ${depthGuard} samples++; traveledDistance += 50; }
+  return {samples, depthBreak};`);
+for (const depth of [0, 49, 50, 51, 1000]) {
+  for (const start of [0, 32, 90]) {
+    assert.deepEqual(march(depth, start), {samples: Math.max(0, Math.floor((depth - start) / 50) + 1), depthBreak: true});
+  }
+}
+console.log(`PASS: ${comparisons} density cases, effectors, original UVs, empty history, per-ray phase and opaque depth clipping`);

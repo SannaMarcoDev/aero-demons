@@ -191,6 +191,8 @@ func measure(loc: Dictionary, meta: Dictionary, warm: float, meas: float) -> voi
 	if frames.size() < 30:
 		push_warning("Few frames at " + loc.id + ": " + str(frames.size()))
 	var elapsed_ms := float(previous - began) / 1000.0
+	var frame_times := frames.duplicate()
+	var frame_summary := summarize_frames(frames)
 	frames.sort()
 	gpu.sort()
 	cpu.sort()
@@ -202,14 +204,30 @@ func measure(loc: Dictionary, meta: Dictionary, warm: float, meas: float) -> voi
 	result["window"] = str(root.size)
 	result["frames"] = n
 	result["fps"] = snappedf(n * 1000.0 / elapsed_ms, 0.1)
-	result["median_ms"] = snappedf(frames[n / 2], 0.01)
-	result["p90_ms"] = snappedf(frames[mini(ceili(n * 0.9) - 1, n - 1)], 0.01)
-	result["p99_ms"] = snappedf(frames[mini(ceili(n * 0.99) - 1, n - 1)], 0.01)
+	result.merge(frame_summary)
 	result["gpu_median_ms"] = snappedf(gpu[gpu.size() / 2], 0.01) if not gpu.is_empty() else 0.0
 	result["gpu_p99_ms"] = snappedf(gpu[mini(ceili(gpu.size() * 0.99) - 1, gpu.size() - 1)], 0.01) if not gpu.is_empty() else 0.0
 	result["cpu_render_ms"] = snappedf(cpu[cpu.size() / 2], 0.01) if not cpu.is_empty() else 0.0
 	result["draw_calls"] = int(draws[draws.size() / 2])
 	result["primitives_k"] = int(prims[prims.size() / 2] / 1000.0)
 	result["vram_mb"] = int(Performance.get_monitor(Performance.RENDER_VIDEO_MEM_USED) / 1048576.0)
-	results.append(result)
 	print(JSON.stringify(result))
+	result["frame_times_ms"] = frame_times
+	results.append(result)
+
+
+static func summarize_frames(frames: Array[float]) -> Dictionary:
+	assert(not frames.is_empty())
+	var ordered := frames.duplicate()
+	ordered.sort()
+	var summary := {}
+	for percentile in [50, 90, 95, 99]:
+		var key := "median_ms" if percentile == 50 else "p%d_ms" % percentile
+		summary[key] = snappedf(ordered[ceili(ordered.size() * percentile / 100.0) - 1], 0.01)
+	summary["max_ms"] = snappedf(ordered.back(), 0.01)
+	for threshold in [5.0, 16.667, 33.333, 50.0]:
+		var count := 0
+		for duration in ordered:
+			if duration > threshold: count += 1
+		summary["frames_over_%s_ms" % str(threshold)] = count
+	return summary

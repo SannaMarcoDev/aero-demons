@@ -111,6 +111,9 @@ var positionQueryCallables : Array[Callable] = []
 var positionQuerying : bool = false
 var positionResetting : bool = false
 
+var profile_gpu := "--profile-gpu" in OS.get_cmdline_user_args()
+var profile_frame := 0
+
 var lights_updated = false
 
 var maskDrawnRid : RID = RID()
@@ -797,24 +800,36 @@ func _render_callback(effect_callback_type, render_data):
 			var x_groups = ((size.x - 1) / 8 / resscale) + 1
 			var y_groups = ((size.y - 1) / 8 / resscale) + 1
 			
+			if profile_gpu:
+				profile_frame += 1
+				if profile_frame % 200 == 0:
+					var times := {}
+					for index in rd.get_captured_timestamps_count():
+						var marker := rd.get_captured_timestamp_name(index)
+						if marker.begins_with("SC/"):
+							times[marker] = rd.get_captured_timestamp_gpu_time(index)
+					print(JSON.stringify({"profile_gpu": times, "camera": str(cameraTR.origin)}))
 			var shadow_params := PackedFloat32Array([ground_shadow_strength, ground_shadow_height_fraction, 0.0, 0.0]).to_byte_array()
 			for view in view_count:
 				if view * 4 + 3 >= uniform_sets.size():
 					continue
 				if not rd.uniform_set_is_valid(uniform_sets[view * 4]) or not rd.uniform_set_is_valid(uniform_sets[view * 4 + 1]) or not rd.uniform_set_is_valid(uniform_sets[view * 4 + 2]) or not rd.uniform_set_is_valid(uniform_sets[view * 4 + 3]):
 					continue
+				if profile_gpu: rd.capture_timestamp("SC/start")
 				var prepass_list = rd.compute_list_begin()
 				rd.compute_list_bind_compute_pipeline(prepass_list, prepass_pipeline)
 				rd.compute_list_bind_uniform_set(prepass_list, uniform_sets[view * 4], 0)
 				rd.compute_list_dispatch(prepass_list, x_groups, y_groups, 1)
 				rd.compute_list_end()
 
+				if profile_gpu: rd.capture_timestamp("SC/pre")
 				var compute_list = rd.compute_list_begin()
 				rd.compute_list_bind_compute_pipeline(compute_list, pipeline)
 				rd.compute_list_bind_uniform_set(compute_list, uniform_sets[view * 4 + 1], 0)
 				rd.compute_list_dispatch(compute_list, x_groups, y_groups, 1)
 				rd.compute_list_end()
 
+				if profile_gpu: rd.capture_timestamp("SC/march")
 				var postpass_list = rd.compute_list_begin()
 				rd.compute_list_bind_compute_pipeline(postpass_list, postpass_pipeline)
 				rd.compute_list_bind_uniform_set(postpass_list, uniform_sets[view * 4 + 2], 0)
@@ -822,12 +837,14 @@ func _render_callback(effect_callback_type, render_data):
 				rd.compute_list_dispatch(postpass_list, prepass_x_groups, prepass_y_groups, 1)
 				rd.compute_list_end()
 
+				if profile_gpu: rd.capture_timestamp("SC/post")
 				var display_list := rd.draw_list_begin(framebuffer, RenderingDevice.DRAW_DEFAULT_ALL)
 				rd.draw_list_bind_render_pipeline(display_list, display_pipeline)
 				rd.draw_list_bind_uniform_set(display_list, uniform_sets[view * 4 + 3], 0)
 				rd.draw_list_bind_vertex_array(display_list, display_vertex_array)
 				rd.draw_list_draw(display_list, false, 1)
 				rd.draw_list_end()
+				if profile_gpu: rd.capture_timestamp("SC/display")
 
 			if (!positionResetting && positionQuerying):
 				positionResetting = true

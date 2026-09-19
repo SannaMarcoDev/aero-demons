@@ -646,8 +646,8 @@ void main() {
 	for (int i = 0; i < stepCount; i++) {
 		
 		if (traveledDistance > linear_depth){
-			// depthFade = 1.0 - smoothstep(linear_depth - newStep, linear_depth, traveledDistance);
 			depthBreak = true;
+			break;
 		}
 		
 		curPos = rayOrigin + raydirection * traveledDistance;
