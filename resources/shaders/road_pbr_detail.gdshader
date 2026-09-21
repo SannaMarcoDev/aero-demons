@@ -84,11 +84,15 @@ void fragment() {
 		vec2 st0 = dFdx(detail_uv);
 		vec2 st1 = dFdy(detail_uv);
 		vec3 n = normalize(NORMAL);
-		vec3 t = q1 * st0.y - q0 * st1.y;
-		vec3 b = q0 * st1.x - q1 * st0.x;
-		vec3 n_tex = detail_norm_sample * 2.0 - 1.0;
-		n_tex.xy *= normal_depth;
-		mat3 tbn = mat3(normalize(cross(n, t)), normalize(cross(b, n)), n);
+		vec3 q1_perp = cross(q1, n);
+		vec3 q0_perp = cross(n, q0);
+		vec3 t = q1_perp * st0.x + q0_perp * st1.x;
+		vec3 b = q1_perp * st0.y + q0_perp * st1.y;
+		float frame_scale = inversesqrt(max(max(dot(t, t), dot(b, b)), 1e-12));
+		// Imported normal maps may store only RG (RGTC); blue is not the Z normal.
+		vec2 xy = detail_norm_sample.rg * 2.0 - 1.0;
+		vec3 n_tex = vec3(xy * normal_depth, sqrt(max(1.0 - dot(xy, xy), 0.0)));
+		mat3 tbn = mat3(t * frame_scale, b * frame_scale, n);
 		NORMAL = normalize(tbn * n_tex);
 	} else {
 		// Native tangent-space normal map (mesh has generated tangents)

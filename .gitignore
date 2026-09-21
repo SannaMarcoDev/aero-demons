@@ -17,6 +17,8 @@ nul
 # Redundant local terrain variants (active data lives in terrain/garda_final_wc_uniform_250km/)
 terrain/garda_final_wc/
 terrain/garda_outer_height_5x/
+# Independent road sandbox; recreate with node tools/prepare_road_sandbox.cjs
+/terrain/garda_roads_test/
 # Retired local experiment; its original source regions are no longer present
 /tools/scale_garda_outer_height.gd
 /tools/scale_garda_outer_height.gd.uid

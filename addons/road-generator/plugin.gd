@@ -237,7 +237,9 @@ func get_plugin_version() -> String:
 ## Finds and returns the most relevant connector if any in this scene
 func get_connector() -> Node:
 	var scene_root := EditorInterface.get_edited_scene_root()
-	var connector: Node = _find_nodetype_recursive(scene_root, "RoadTerrain3DConnector")
+	var connector: Node = _find_nodetype_recursive(scene_root, "RoadTerrainConformer")
+	if connector == null:
+		connector = _find_nodetype_recursive(scene_root, "RoadTerrain3DConnector")
 	return connector
 
 
@@ -466,8 +468,8 @@ func _on_regenerate_pressed() -> void:
 	
 	# In case we just changed scenes, clear the state used to avoid unnecessary reloading
 	var connector = get_connector()
-	if is_instance_valid(connector):
-		connector._skip_scene_load = false 
+	if connector is RoadTerrain3DConnector:
+		connector._skip_scene_load = false
 	
 	if nd is RoadManager:
 		for ch_container in nd.get_containers():
