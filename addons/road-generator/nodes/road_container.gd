@@ -1386,6 +1386,10 @@ func _create_collisions(road_mesh: MeshInstance3D) -> void:
 	for ch in road_mesh.get_children():
 		ch.queue_free()  # Prior collision meshes
 
+	# Editor authoring uses terrain heights; build physics shapes only in game.
+	if Engine.is_editor_hint():
+		return
+
 	var manager = get_manager()
 
 	# Could also manually create with Mesh.create_trimesh_shape(),

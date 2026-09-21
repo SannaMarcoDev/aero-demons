@@ -1,6 +1,7 @@
 extends SceneTree
 ## Read-only on disk. Exercises regeneration, terrain sculpt signals, geometry and collisions.
-## node tools/run_godot_check.cjs 120 subagent-artifacts/roads/check.log <godot> --headless --path . --script res://tools/check_road_sandbox.gd
+## node tools/run_godot_check.cjs 120 subagent-artifacts/roads/check.log <godot> --headless --path . --script res://tools/check_garda_roads.gd
+## Add --editor to exercise editor-only collision suppression (no map is loaded).
 
 func _initialize() -> void:
 	_run.call_deferred()
@@ -13,17 +14,29 @@ func _settle() -> void:
 
 
 func _run() -> void:
+	if Engine.is_editor_hint():
+		await _check_editor_collisions()
+		quit()
+		return
 	assert(load("res://addons/road-generator/plugin.gd").can_instantiate())
 	for audio in root.get_node("AudioManager").get_children():
 		if audio is AudioStreamPlayer:
 			audio.stop()
 			audio.stream = null
-	var map: Node3D = load("res://scenes/maps/garda_roads_test.tscn").instantiate()
+	var map: Node3D = load("res://scenes/maps/garda_final.tscn").instantiate()
+	assert(not map.has_node("RoadReviewCamera"), "Do not override the gameplay camera")
+	assert(map.get_node("TutorialBoundaryController").process_mode != Node.PROCESS_MODE_DISABLED)
+	map.get_node("TutorialBoundaryController").process_mode = Node.PROCESS_MODE_DISABLED
 	var terrain: Terrain3D = map.get_node("GardaTerrain")
-	assert(terrain.data_directory == "res://terrain/garda_roads_test")
-	terrain.collision_mode = 0
+	assert(terrain.data_directory == "res://terrain/garda_geographic_250km")
+	assert(terrain.collision_mode == 1, "Terrain collision must be Dynamic / Game")
+	terrain.collision_mode = 0 # Geometry regression reads height data, not terrain physics.
 	map.get_node("Forests").enabled = false
 	map.get_node("GroundCover").process_mode = Node.PROCESS_MODE_DISABLED
+	var camera := Camera3D.new() # Test-only; gameplay supplies its own camera.
+	camera.position = map.get_node("RoadManager").position + Vector3(80, 80, -80)
+	camera.current = true
+	map.add_child(camera)
 	root.add_child(map)
 	await _settle()
 	var manager: RoadManager = map.get_node("RoadManager")
@@ -78,11 +91,30 @@ func _run() -> void:
 	terrain.data.update_maps(Terrain3DRegion.TYPE_HEIGHT)
 	await _settle()
 	assert(hash(region.get_map(Terrain3DRegion.TYPE_HEIGHT).get_data()) == original_hash)
-	print("PASS: thin conforming roads, rounded T/X junctions, automatic spline/sculpt updates, stable refresh, untouched heightmap; vertices=", count)
+	print("PASS: GardaFinal roads, runtime collisions, rounded T/X junctions, automatic spline/sculpt updates, stable refresh, untouched heightmap; vertices=", count)
 	map.queue_free()
 	await process_frame
 	await create_timer(0.5).timeout
 	quit()
+
+
+func _check_editor_collisions() -> void:
+	var manager := RoadManager.new()
+	var container := RoadContainer.new()
+	var instance := MeshInstance3D.new()
+	instance.mesh = BoxMesh.new()
+	manager.add_child(container)
+	container.add_child(instance)
+	# Also remove old colliders, rather than only preventing future generation.
+	instance.create_trimesh_collision()
+	assert(instance.get_child_count() == 1)
+	container._create_collisions(instance)
+	await process_frame
+	assert(instance.get_child_count() == 0, "Editor kept a stale road collider")
+	container._create_collisions(instance)
+	assert(instance.get_child_count() == 0, "Editor generated road collision shapes")
+	manager.free()
+	print("PASS: editor road collisions removed and not regenerated")
 
 
 func _check_geometry(container: RoadContainer, terrain: Terrain3D, clearance: float) -> int:

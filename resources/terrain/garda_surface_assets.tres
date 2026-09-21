@@ -15,7 +15,7 @@
 [ext_resource type="Texture2D" uid="uid://4fadgroyy3ky" path="res://textures/terrain/rocks_ground_03_albedo_packed.png" id="13_alb6"]
 [ext_resource type="Texture2D" uid="uid://dpda70aadxr1w" path="res://textures/terrain/rocks_ground_03_normal_packed.png" id="14_nrm6"]
 [ext_resource type="PackedScene" uid="uid://dgw3flpoxfmlg" path="res://assets/environment/garda_forest/garda_broadleaf.glb" id="15_tree"]
-[ext_resource type="Material" path="res://resources/terrain/garda_tree_material.tres" id="16_tree_material"]
+[ext_resource type="Material" uid="uid://ctvnixvl85mww" path="res://resources/terrain/garda_tree_material.tres" id="16_tree_material"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yq1fy"]
 transparency = 4

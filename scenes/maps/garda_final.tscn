@@ -18,6 +18,12 @@
 [ext_resource type="Material" uid="uid://30yhc4wq6lxr" path="res://resources/materials/garda_water.tres" id="24_water"]
 [ext_resource type="Script" uid="uid://dcp1kek7gt3ik" path="res://scripts/maps/garda_forests.gd" id="25_forests"]
 [ext_resource type="Script" uid="uid://dcn2geieg0s6j" path="res://scripts/maps/garda_ground_cover.gd" id="26_ground_cover"]
+[ext_resource type="Script" uid="uid://bxp3i4cnonh8y" path="res://addons/road-generator/nodes/road_manager.gd" id="27_road_manager"]
+[ext_resource type="Script" uid="uid://cph7euje06kel" path="res://addons/road-generator/nodes/road_container.gd" id="28_road_container"]
+[ext_resource type="Script" uid="uid://difs1qg4mpcpw" path="res://addons/road-generator/nodes/road_point.gd" id="29_road_point"]
+[ext_resource type="Script" uid="uid://dx0pklu2apuar" path="res://addons/road-generator/nodes/road_intersection.gd" id="30_road_intersection"]
+[ext_resource type="Script" uid="uid://pi185aml8gam" path="res://scripts/maps/road_terrain_conformer.gd" id="31_road_terrain"]
+[ext_resource type="Resource" path="res://resources/roads/rounded_rural_junction.tres" id="32_road_junction"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_surface"]
 seed = 7319
@@ -114,8 +120,8 @@ shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.7
 shader_parameter/cirrus_size = 1.0
 shader_parameter/cirrus_uv = Vector2(0.045, 0.14)
-shader_parameter/cirrus_position1 = Vector2(0.0019452506, 0.0019452506)
-shader_parameter/cirrus_position2 = Vector2(0.0019452506, 0.0019452506)
+shader_parameter/cirrus_position1 = Vector2(0.11541629, 0.11541629)
+shader_parameter/cirrus_position2 = Vector2(0.11541629, 0.11541629)
 shader_parameter/cirrus_texture = SubResource("NoiseTexture2D_clear_cirrus")
 shader_parameter/cumulus_visible = false
 shader_parameter/cumulus_intensity = 0.6
@@ -279,3 +285,206 @@ script = ExtResource("26_ground_cover")
 
 [node name="Airport" parent="." unique_id=97443345 instance=ExtResource("16_8bik1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36418.484, 234.52104, 413.42773)
+
+[node name="RoadManager" type="Node3D" parent="." unique_id=451128961]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -35000, 269.20236, 3000)
+script = ExtResource("27_road_manager")
+density = 2.0
+
+[node name="TwoLaneRoads" type="Node3D" parent="RoadManager" unique_id=1305605043]
+script = ExtResource("28_road_container")
+use_lowpoly_preview = true
+flatten_terrain = false
+edge_containers = Array[NodePath]([NodePath(""), NodePath(""), NodePath(""), NodePath(""), NodePath("")])
+edge_rp_targets = Array[NodePath]([NodePath(""), NodePath(""), NodePath(""), NodePath(""), NodePath("")])
+edge_rp_target_dirs = Array[int]([-1, -1, -1, -1, -1])
+edge_rp_locals = Array[NodePath]([NodePath("WestEnd"), NodePath("EastEnd"), NodePath("X_WestEnd"), NodePath("X_EastEnd"), NodePath("SouthEnd")])
+edge_rp_local_dirs = Array[int]([0, 0, 0, 0, 0])
+
+[node name="T_Junction" type="Node3D" parent="RoadManager/TwoLaneRoads" unique_id=2121864710 node_paths=PackedStringArray("edge_points")]
+script = ExtResource("30_road_intersection")
+settings = ExtResource("32_road_junction")
+edge_points = [NodePath("../T_West"), NodePath("../T_East"), NodePath("../T_South")]
+
+[node name="T_West" type="Node3D" parent="RoadManager/TwoLaneRoads" unique_id=1030463148]
+transform = Transform3D(7.54979e-08, 0, -1, 0, 1, 0, 1, 0, 7.54979e-08, -12, 0, 0)
+script = ExtResource("29_road_point")
+traffic_dir = Array[int]([2, 1])
+lanes = Array[int]([5, 5])
+prior_mag = 6.0
+next_mag = 25.0
+lane_width = 3.5
+shoulder_width_l = 0.4
+shoulder_width_r = 0.4
+gutter_profile = Vector2(0, 0)
+prior_pt_init = NodePath("../T_Junction")
+next_pt_init = NodePath("../WestEnd")
+
+[node name="WestEnd" type="Node3D" parent="RoadManager/TwoLaneRoads" unique_id=1679850119]
+transform = Transform3D(7.54979e-08, 0, -1, 0, 1, 0, 1, 0, 7.54979e-08, -100, 7.514862, 0)
+script = ExtResource("29_road_point")
+traffic_dir = Array[int]([2, 1])
+lanes = Array[int]([5, 5])
+prior_mag = 25.0
+lane_width = 3.5
+shoulder_width_l = 0.4
+shoulder_width_r = 0.4
+gutter_profile = Vector2(0, 0)
+prior_pt_init = NodePath("../T_West")
+
+[node name="T_East" type="Node3D" parent="RoadManager/TwoLaneRoads" unique_id=607292508]
+transform = Transform3D(7.54979e-08, 0, 1, 0, 1, 0, -1, 0, 7.54979e-08, 12, 0, 0)
+script = ExtResource("29_road_point")
+traffic_dir = Array[int]([2, 1])
+lanes = Array[int]([5, 5])
+prior_mag = 6.0
+next_mag = 25.0
+lane_width = 3.5
+shoulder_width_l = 0.4
+shoulder_width_r = 0.4
+gutter_profile = Vector2(0, 0)
+prior_pt_init = NodePath("../T_Junction")
+next_pt_init = NodePath("../EastEnd")
+
+[node name="EastEnd" type="Node3D" parent="RoadManager/TwoLaneRoads" unique_id=35177382]
+transform = Transform3D(7.54979e-08, 0, 1, 0, 1, 0, -1, 0, 7.54979e-08, 100, -5.528442, 0)
+script = ExtResource("29_road_point")
+traffic_dir = Array[int]([2, 1])
+lanes = Array[int]([5, 5])
+prior_mag = 25.0
+lane_width = 3.5
+shoulder_width_l = 0.4
+shoulder_width_r = 0.4
+gutter_profile = Vector2(0, 0)
+prior_pt_init = NodePath("../T_East")
+
+[node name="T_South" type="Node3D" parent="RoadManager/TwoLaneRoads" unique_id=1666394583]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 12)
+script = ExtResource("29_road_point")
+traffic_dir = Array[int]([2, 1])
+lanes = Array[int]([5, 5])
+prior_mag = 6.0
+next_mag = 25.0
+lane_width = 3.5
+shoulder_width_l = 0.4
+shoulder_width_r = 0.4
+gutter_profile = Vector2(0, 0)
+prior_pt_init = NodePath("../T_Junction")
+next_pt_init = NodePath("../Bend")
+
+[node name="Bend" type="Node3D" parent="RoadManager/TwoLaneRoads" unique_id=14749182]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 25, 5.534576, 90)
+script = ExtResource("29_road_point")
+traffic_dir = Array[int]([2, 1])
+lanes = Array[int]([5, 5])
+prior_mag = 25.0
+next_mag = 25.0
+lane_width = 3.5
+shoulder_width_l = 0.4
+shoulder_width_r = 0.4
+gutter_profile = Vector2(0, 0)
+prior_pt_init = NodePath("../T_South")
+next_pt_init = NodePath("../X_North")
+
+[node name="X_North" type="Node3D" parent="RoadManager/TwoLaneRoads" unique_id=424040769]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16.854675, 168)
+script = ExtResource("29_road_point")
+traffic_dir = Array[int]([2, 1])
+lanes = Array[int]([5, 5])
+prior_mag = 25.0
+next_mag = 6.0
+lane_width = 3.5
+shoulder_width_l = 0.4
+shoulder_width_r = 0.4
+gutter_profile = Vector2(0, 0)
+prior_pt_init = NodePath("../Bend")
+next_pt_init = NodePath("../X_Junction")
+
+[node name="X_Junction" type="Node3D" parent="RoadManager/TwoLaneRoads" unique_id=262783885 node_paths=PackedStringArray("edge_points")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16.854675, 180)
+script = ExtResource("30_road_intersection")
+settings = ExtResource("32_road_junction")
+edge_points = [NodePath("../X_West"), NodePath("../X_North"), NodePath("../X_East"), NodePath("../X_South")]
+
+[node name="X_West" type="Node3D" parent="RoadManager/TwoLaneRoads" unique_id=153082007]
+transform = Transform3D(7.54979e-08, 0, -1, 0, 1, 0, 1, 0, 7.54979e-08, -12, 16.854675, 180)
+script = ExtResource("29_road_point")
+traffic_dir = Array[int]([2, 1])
+lanes = Array[int]([5, 5])
+prior_mag = 6.0
+next_mag = 25.0
+lane_width = 3.5
+shoulder_width_l = 0.4
+shoulder_width_r = 0.4
+gutter_profile = Vector2(0, 0)
+prior_pt_init = NodePath("../X_Junction")
+next_pt_init = NodePath("../X_WestEnd")
+
+[node name="X_WestEnd" type="Node3D" parent="RoadManager/TwoLaneRoads" unique_id=77728902]
+transform = Transform3D(7.54979e-08, 0, -1, 0, 1, 0, 1, 0, 7.54979e-08, -100, 23.096558, 180)
+script = ExtResource("29_road_point")
+traffic_dir = Array[int]([2, 1])
+lanes = Array[int]([5, 5])
+prior_mag = 25.0
+lane_width = 3.5
+shoulder_width_l = 0.4
+shoulder_width_r = 0.4
+gutter_profile = Vector2(0, 0)
+prior_pt_init = NodePath("../X_West")
+
+[node name="X_East" type="Node3D" parent="RoadManager/TwoLaneRoads" unique_id=1219060957]
+transform = Transform3D(7.54979e-08, 0, 1, 0, 1, 0, -1, 0, 7.54979e-08, 12, 16.854675, 180)
+script = ExtResource("29_road_point")
+traffic_dir = Array[int]([2, 1])
+lanes = Array[int]([5, 5])
+prior_mag = 6.0
+next_mag = 25.0
+lane_width = 3.5
+shoulder_width_l = 0.4
+shoulder_width_r = 0.4
+gutter_profile = Vector2(0, 0)
+prior_pt_init = NodePath("../X_Junction")
+next_pt_init = NodePath("../X_EastEnd")
+
+[node name="X_EastEnd" type="Node3D" parent="RoadManager/TwoLaneRoads" unique_id=58361038]
+transform = Transform3D(7.54979e-08, 0, 1, 0, 1, 0, -1, 0, 7.54979e-08, 100, 2.697632, 180)
+script = ExtResource("29_road_point")
+traffic_dir = Array[int]([2, 1])
+lanes = Array[int]([5, 5])
+prior_mag = 25.0
+lane_width = 3.5
+shoulder_width_l = 0.4
+shoulder_width_r = 0.4
+gutter_profile = Vector2(0, 0)
+prior_pt_init = NodePath("../X_East")
+
+[node name="X_South" type="Node3D" parent="RoadManager/TwoLaneRoads" unique_id=1251764303]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16.854675, 192)
+script = ExtResource("29_road_point")
+traffic_dir = Array[int]([2, 1])
+lanes = Array[int]([5, 5])
+prior_mag = 6.0
+next_mag = 30.0
+lane_width = 3.5
+shoulder_width_l = 0.4
+shoulder_width_r = 0.4
+gutter_profile = Vector2(0, 0)
+prior_pt_init = NodePath("../X_Junction")
+next_pt_init = NodePath("../SouthEnd")
+
+[node name="SouthEnd" type="Node3D" parent="RoadManager/TwoLaneRoads" unique_id=1818422346]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 20.893341, 300)
+script = ExtResource("29_road_point")
+traffic_dir = Array[int]([2, 1])
+lanes = Array[int]([5, 5])
+prior_mag = 30.0
+lane_width = 3.5
+shoulder_width_l = 0.4
+shoulder_width_r = 0.4
+gutter_profile = Vector2(0, 0)
+prior_pt_init = NodePath("../X_South")
+
+[node name="RoadTerrain" type="Node" parent="." unique_id=383266020 node_paths=PackedStringArray("terrain", "road_manager")]
+script = ExtResource("31_road_terrain")
+terrain = NodePath("../GardaTerrain")
+road_manager = NodePath("../RoadManager")
