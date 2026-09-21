@@ -375,6 +375,25 @@ vec4 sampleAllAtmospherics(
 }
 
 
+// Skip clear air analytically: the sample budget belongs to the cloud layer,
+// not the distance from the camera to it (which grows towards the horizon).
+float cloudEntryDistance(float height, float directionY, float cloudfloor, float cloudceiling) {
+	if (height > cloudceiling && directionY < 0.0) {
+		return (cloudceiling - height) / directionY;
+	}
+	if (height < cloudfloor && directionY > 0.0) {
+		return (cloudfloor - height) / directionY;
+	}
+	return 0.0;
+}
+
+float cloudExitDistance(float height, float directionY, float cloudfloor, float cloudceiling, float depth) {
+	if (directionY == 0.0) {
+		return depth;
+	}
+	return min(depth, max(0.0, max((cloudfloor - height) / directionY, (cloudceiling - height) / directionY)));
+}
+
 void main() {
 	//SETTING UP UVS/RAY DATA
 	ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
@@ -497,7 +516,9 @@ void main() {
 	
 
 	float newStep = maxstep * ditherValue;
-	float traveledDistance = newStep;
+	float cloudStart = cloudEntryDistance(rayOrigin.y, raydirection.y, cloudfloor, cloudceiling);
+	float traveledDistance = cloudStart + newStep;
+	float cloudEnd = cloudExitDistance(rayOrigin.y, raydirection.y, cloudfloor, cloudceiling, linear_depth);
 
 	vec4 currentColorAccumilation = vec4(0.0);
 	vec4 currentDataAccumilation = vec4(0.0);
@@ -763,7 +784,7 @@ void main() {
 				newStep = maxstep;
 			}
 
-			if (i == 0){
+			if (i == 0 && cloudStart == 0.0){
 				newdensity = mix(newdensity, 0.0, traveledDistance / maxstep);
 			}
 
@@ -776,7 +797,7 @@ void main() {
 		else{
 			if (min(curPos.y - cloudceiling, raydirection.y) > 0.0 || max(curPos.y - cloudfloor, raydirection.y) < 0.0){
 				
-				traveledDistance = min(maxTheoreticalStep, linear_depth);
+				traveledDistance = min(max(traveledDistance, maxTheoreticalStep), linear_depth);
 				curPos = rayOrigin + raydirection * traveledDistance;
 				
 				//debugCollisions = true;
@@ -786,6 +807,12 @@ void main() {
 			newStep = maxstep;
 		}
 		
+		// Keep the first half detailed; spend the remaining budget across the
+		// visible layer, however long its grazing-angle intersection is.
+		// ponytail: coarse far samples can miss tiny wisps; raise quality if needed.
+		if (i >= stepCount / 2) {
+			newStep = max(newStep, (cloudEnd - traveledDistance) / float(stepCount - i));
+		}
 		traveledDistance += newStep;
 		if (depthBreak){
 			break;
@@ -793,7 +820,8 @@ void main() {
 		
 	}
 
-	density *= clamp(smoothstep(maxstep * stepCount, minstep * stepCount, traveledDistance), 0.0, 1.0);
+	// Do not fade opacity with the quality budget: it cuts a visible circular
+	// hole in the distant deck. Atmospheric scattering supplies the horizon haze.
 
 	// Empty rays have no lighting samples; keep their history finite.
 	ambient = clamp(ambient / max(lightingSamples, 1.0), 0.0, 1.0);

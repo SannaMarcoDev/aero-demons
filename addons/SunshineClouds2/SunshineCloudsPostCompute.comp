@@ -304,6 +304,27 @@ vec4 sampleAllAtmospherics(
 }
 
 
+// The local marches cannot resolve the atmospheric tail of an infinite deck.
+// Integrate its exponential height profile analytically, identically for sky,
+// opaque terrain and clouds. This changes radiance, never cloud opacity.
+float farAtmosphereWeight(float height, float directionY, float distance, float atmosphericDensity) {
+	const float start = 60000.0;
+	const float scaleHeight = 8000.0;
+	if (height > 0.0 && directionY < 0.0) {
+		distance = min(distance, height / -directionY);
+	}
+	float segment = max(distance - start, 0.0);
+	float startHeight = max(height + directionY * start, 0.0);
+	float endHeight = max(height + directionY * max(distance, start), 0.0);
+	float column = segment * exp(-startHeight / scaleHeight);
+	if (abs(directionY) > 0.00001) {
+		column = scaleHeight * (exp(-startHeight / scaleHeight) - exp(-endHeight / scaleHeight)) / directionY;
+	}
+	// ponytail: single Rayleigh-like extinction and authored haze tint;
+	// spectral scattering is only needed for a physical day/night atmosphere.
+	return 1.0 - exp(-max(column, 0.0) * 0.00002 * max(atmosphericDensity, 0.0));
+}
+
 void main() {
     ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
     ivec2 lowres_size = ivec2(genericData.data.raster_size);
@@ -428,7 +449,11 @@ void main() {
 
         color.rgb = mix(physicalFogColor, mix(color.rgb, ambientfogdistancecolor, clamp(fogweight, 0.0, 1.0)),  genericData.data.atmosphere_simple_blend);
 
-		color.rgb = mix(color.rgb, currentAccumilation.rgb, density);
+		float backgroundHaze = farAtmosphereWeight(rayOrigin.y, raydirection.y, linear_depth, atmosphericDensity);
+		float cloudHaze = farAtmosphereWeight(rayOrigin.y, raydirection.y, max(initialdistanceSample, finalDensityDistance), atmosphericDensity);
+		color.rgb = mix(color.rgb, ambientfogdistancecolor, backgroundHaze);
+		vec3 cloudColor = mix(currentAccumilation.rgb, ambientfogdistancecolor, cloudHaze);
+		color.rgb = mix(color.rgb, cloudColor, density);
 		// color.rgb = vec3(clamp(traveledDistance / maxTheoreticalStep, 0.0, 1.0));
 
 		if (debugCollisions){

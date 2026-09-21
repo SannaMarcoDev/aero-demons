@@ -58,7 +58,7 @@ assert(post.includes('genericData.data.extralargenoiseposition.xz') && post.incl
 assert(post.includes('depth > 0.0 && ground_shadow.strength > 0.0'), 'Exclude clear sky depth');
 assert(post.includes('(vec2(uv) + 0.5) / vec2(size)') && post.includes('ivec2 size = textureSizeMSAA(depth_image)'));
 assert(post.indexOf('color.rgb *= 1.0 - sampleGroundShadow') < post.indexOf('vec3 physicalFogColor = color.rgb'), 'Shadow before haze');
-assert(post.indexOf('vec3 physicalFogColor = color.rgb') < post.indexOf('color.rgb = mix(color.rgb, currentAccumilation.rgb, density)'));
+assert(post.indexOf('vec3 physicalFogColor = color.rgb') < post.indexOf('color.rgb = mix(color.rgb, cloudColor, density)'));
 for (const name of ['SunshineCloudsPostCompute.glsl', 'SunshineCloudsPostCompute.msaa.glsl']) {
   assert(read(base + name).includes('#include "./SunshineCloudsPostCompute.comp"'));
   assert(read(base + name).includes('#include "./CloudsCoarseDensity.comp"'));

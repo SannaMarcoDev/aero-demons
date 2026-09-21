@@ -49,7 +49,10 @@ func check() -> void:
 		assert(sky.sun.transform == sun_pose, "Sun must remain fixed")
 		var driver = map.get_node("SunshineCloudsDriverGD")
 		assert(DisplayServer.get_name() == "headless" or driver.clouds_resource.enabled, "Volumetric compositor must render")
-		assert(is_equal_approx(driver.clouds_resource.clouds_coverage, 0.72), "Authored scattered volumetric layer")
+		assert(is_equal_approx(driver.clouds_resource.clouds_coverage, 0.834), "Authored continuous cloud sea")
+		assert(driver.clouds_resource.cloud_floor == 2000.0 and driver.clouds_resource.cloud_ceiling == 5500.0)
+		assert(driver.clouds_resource.large_noise_scale == 12000.0, "Broad masses, not scattered wisps")
+		assert(is_equal_approx(SettingsManager.load_settings("user://cloud_sea_missing.cfg").clouds_coverage, driver.clouds_resource.clouds_coverage))
 		if capture:
 			var player = level.get_node("Player")
 			var camera: Camera3D = player.get_node("FlightCamera")

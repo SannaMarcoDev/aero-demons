@@ -61,4 +61,47 @@ for (const depth of [0, 49, 50, 51, 1000]) {
     assert.deepEqual(march(depth, start), {samples: Math.max(0, Math.floor((depth - start) / 50) + 1), depthBreak: true});
   }
 }
-console.log(`PASS: ${comparisons} density cases, effectors, original UVs, empty history, per-ray phase and opaque depth clipping`);
+// Execute the shader's slab-entry calculation: even Low must reach the deck
+// beyond the old Ultra cutoff, without spending samples in kilometres of clear air.
+const entryBody = shader.slice(shader.indexOf('float cloudEntryDistance('), shader.indexOf('float cloudExitDistance('));
+const entry = new Function('height', 'directionY', 'cloudfloor', 'cloudceiling', entryBody.slice(entryBody.indexOf('{') + 1, entryBody.lastIndexOf('}')));
+for (const height of [0, 2000, 3800, 5500, 7114, 12000]) {
+  for (const dy of [-1, -0.1, -0.001, 0, 0.001, 0.1, 1]) {
+    const start = entry(height, dy, 2000, 5500);
+    assert(Number.isFinite(start) && start >= 0);
+    const approaching = (height > 5500 && dy < 0) || (height < 2000 && dy > 0);
+    if (approaching) {
+      assert(Math.abs(height + dy * start - (dy < 0 ? 5500 : 2000)) < 1e-8);
+      assert.equal(march(start - 1, start).samples, 0, 'Opaque terrain before the deck must still occlude it');
+    } else assert.equal(start, 0, 'Inside/parallel/away rays retain their original start');
+  }
+}
+const exitBody = shader.slice(shader.indexOf('float cloudExitDistance('), shader.indexOf('void main()'));
+const exit = new Function('height', 'directionY', 'cloudfloor', 'cloudceiling', 'depth', helpers + exitBody.slice(exitBody.indexOf('{') + 1, exitBody.lastIndexOf('}')));
+assert.equal(exit(3800, 0, 2000, 5500, 5000), 5000);
+assert.equal(exit(7114, 1, 2000, 5500, 5000), 0);
+const farStep = main.match(/if \(i >= stepCount \/ 2\)\s*\{[^}]+\}/)?.[0];
+assert(farStep, 'Reserve distant samples without enlarging the budget');
+const advance = new Function('i', 'stepCount', 'newStep', 'cloudEnd', 'traveledDistance', helpers + farStep.replace(/float\(/g, 'Number(') + 'return newStep;');
+for (const steps of [128, 256, 384, 700]) {
+  for (const [height, dy] of [[7114, -0.001], [5501, -0.0001], [0, 0.001], [1999, 0.0001], [3800, -0.001]]) {
+    const end = exit(height, dy, 2000, 5500, 4e7);
+    let distance = entry(height, dy, 2000, 5500) + 80, hitInterior = false;
+    for (let i = 0; i < steps && distance <= end; i++) {
+      const y = height + dy * distance;
+      hitInterior ||= y > 2700 && y < 4800;
+      const step = advance(i, steps, 140, end, distance);
+      if (i < steps / 2) assert.equal(step, 140, 'Near detail stays unchanged');
+      assert(step >= 140 && Number.isFinite(step));
+      distance += step;
+    }
+    assert(hitInterior, `Grazing rays must reach the dense interior: ${steps}, ${height}, ${dy}`);
+  }
+}
+assert(entry(7114, -0.01, 2000, 5500) > 700 * 140, 'Test must exceed the old Ultra cutoff');
+assert(main.includes('float traveledDistance = cloudStart + newStep;'));
+assert(main.includes('if (i == 0 && cloudStart == 0.0)'), 'First-sample fade must not make distant density negative');
+assert(main.includes('min(max(traveledDistance, maxTheoreticalStep), linear_depth)'), 'Layer exit must not rewind a distant ray');
+assert(!/density\s*\*=.*(?:stepCount|maxTheoreticalStep)/.test(main), 'Quality budgets must not erase the distant sea');
+assert(main.includes('for (int i = 0; i < stepCount; i++)'), 'Retain the bounded quality budget');
+console.log(`PASS: ${comparisons} density cases, effectors, UVs, history, lighting, depth clipping, horizon slab entry and bounded distant sampling`);

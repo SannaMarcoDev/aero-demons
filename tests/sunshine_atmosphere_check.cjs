@@ -5,7 +5,7 @@ const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 const sources = ['SunshineCloudsCompute.glsl', 'SunshineCloudsPostCompute.comp'].map(name =>
   fs.readFileSync(path.join(root, 'addons/SunshineClouds2', name), 'utf8'));
-const block = source => source.slice(source.indexOf('void sampleAtmospherics('), source.indexOf('\nvoid main()'));
+const block = source => source.slice(source.indexOf('void sampleAtmospherics('), source.indexOf('\n}', source.indexOf('vec4 sampleAllAtmospherics(')) + 2);
 const clean = source => source.replace(/\/\/[^\n]*/g, '').replace(/\s+/g, '');
 assert.equal(clean(block(sources[0])), clean(block(sources[1])), 'Cloud and post atmosphere must stay identical');
 for (const shader of sources) assert(shader.includes('/ 20.0, 20.0, atmosphericDensity'), 'Both callers use 20 samples');
@@ -47,4 +47,32 @@ const integrate = n => Array.from({length: n}, (_, i) => profile({y: 5000 + 9800
 const exact = 8000 * (Math.exp(-5000 / 8000) - Math.exp(-103000 / 8000));
 const error10 = Math.abs(integrate(10) / exact - 1), error20 = Math.abs(integrate(20) / exact - 1);
 assert(error20 < error10 && error20 < 0.02);
-console.log(`PASS: shader parity, metre profiles, negative/zero/far rays, sampling gain; Rayleigh errors 10=${error10.toFixed(4)}, 20=${error20.toFixed(4)}`);
+// Execute the actual distant-haze GLSL; it must converge on the same tint
+// on both sides of the horizon without fading the opaque cloud deck.
+const post = sources[1];
+const far = post.slice(post.indexOf('float farAtmosphereWeight('), post.indexOf('\nvoid main()'));
+const farBody = far.slice(far.indexOf('{') + 1, far.lastIndexOf('}')).replace(/const float/g, 'const').replace(/\bfloat\b/g, 'let');
+const haze = new Function('height', 'directionY', 'distance', 'atmosphericDensity', 'const {min, max, exp, abs} = Math;' + farBody);
+for (const height of [0, 1200, 7114, 19500]) {
+  for (const dy of [-1, -0.1, -0.00001, 0, 0.00001, 0.1, 1]) {
+    let previous = 0;
+    for (const distance of [0, 1000, 59999, 60000, 60001, 100000, 400000, 4e7]) {
+      const weight = haze(height, dy, distance, 1.3);
+      assert(Number.isFinite(weight) && weight >= 0 && weight <= 1);
+      assert(weight >= previous - 1e-12, 'Extinction must not decrease at long range');
+      if (distance <= 60000) assert.equal(weight, 0, 'No haze on nearby aircraft/terrain/clouds');
+      assert.equal(haze(height, dy, distance, 0), 0, 'Atmosphere OFF remains off');
+      previous = weight;
+    }
+  }
+}
+assert(haze(7114, 1, 4e7, 1.3) < 0.001, 'Do not wash out the zenith');
+assert.equal(haze(1200, -0.1, 4e7, 1.3), 0, 'No underground atmosphere');
+for (const height of [1200, 7114, 19500]) {
+  assert(haze(height, -0.00001, 4e7, 1.3) > 0.999);
+  assert(haze(height, 0.00001, 4e7, 1.3) > 0.999, 'Sky and deck must share the horizon limit');
+}
+assert(post.includes('mix(currentAccumilation.rgb, ambientfogdistancecolor, cloudHaze)'));
+assert(post.includes('mix(color.rgb, ambientfogdistancecolor, backgroundHaze)'));
+assert(post.includes('mix(color.rgb, cloudColor, density)'), 'Keep cloud opacity; never reveal distant terrain');
+console.log(`PASS: atmosphere parity/profiles, near/far rays, horizon convergence without opacity fade; Rayleigh errors 10=${error10.toFixed(4)}, 20=${error20.toFixed(4)}`);
