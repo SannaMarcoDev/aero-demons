@@ -1,6 +1,7 @@
 extends SceneTree
 ## godot --headless --path . --script tests/tutorial_mission_check.gd --fixed-fps 60
-const LEVEL := preload("res://scenes/levels/tutorial.tscn")
+# Load after SceneTree initialization: the map contains native rendering resources.
+const LEVEL := "res://scenes/levels/tutorial.tscn"
 const Bindings = preload("res://scripts/ui/controller_bindings.gd")
 var arena: Node3D
 var mission: TutorialMission
@@ -14,7 +15,7 @@ func _initialize() -> void:
 
 
 func _new_tutorial(ground_start := false) -> void:
-	arena = LEVEL.instantiate()
+	arena = load(LEVEL).instantiate()
 	arena.set_script(null)
 	if ground_start:
 		var airport := arena.get_node("GardaLake/Airport")
@@ -219,8 +220,9 @@ func _run() -> void:
 	for audio in root.get_node("AudioManager").get_children():
 		if audio is AudioStreamPlayer:
 			audio.stop()
+			audio.stream = null
 	await create_timer(0.1).timeout
-	print("Tutorial mission check passed: flight, informational panels, 25 loadouts without weapon actions, vulnerability, 2/4/8, victory/defeat, pause and retry")
+	print("PASS: Tutorial mission check passed: flight, informational panels, 25 loadouts without weapon actions, vulnerability, 2/4/8, victory/defeat, pause and retry")
 	quit()
 
 

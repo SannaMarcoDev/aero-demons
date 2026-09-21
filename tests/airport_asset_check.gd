@@ -71,6 +71,6 @@ func _check() -> void:
 	assert(not space.intersect_ray(PhysicsRayQueryParameters3D.create(Vector3(394, 5, 965), Vector3(398, 5, 965))).is_empty(), "Interior structural column collides without capping the aisle")
 	var dome_hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(Vector3(-354, 50, -990), Vector3(-354, 0, -990)))
 	assert(not dome_hit.is_empty() and absf(dome_hit.position.y - 32.2) < 0.02)
-	print("AIRPORT_ASSET_CHECK_OK meshes=103 materials=13 PBR_maps=ok linked_shelters=ok runway=60x2400 collision_seams_and_openings=ok")
+	print("PASS: AIRPORT_ASSET_CHECK_OK meshes=103 materials=13 PBR_maps=ok linked_shelters=ok runway=60x2400 collision_seams_and_openings=ok")
 	airport.free()
 	quit(0)

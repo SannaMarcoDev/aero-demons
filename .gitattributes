@@ -10,4 +10,6 @@ assets/audio/music/*.wav filter=lfs diff=lfs merge=lfs -text
 terrain/**/baked_*.tres filter=lfs diff=lfs merge=lfs -text
 # Blender source files
 *.blend filter=lfs diff=lfs merge=lfs -text
+# Large authored airport/city exports
+assets/environment/airport/*.glb filter=lfs diff=lfs merge=lfs -text
 

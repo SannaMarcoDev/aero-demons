@@ -59,11 +59,12 @@ func _run() -> void:
 	for audio in root.get_node("AudioManager").get_children():
 		if audio is AudioStreamPlayer:
 			audio.stop()
+			audio.stream = null
 	await create_timer(0.1).timeout
 	current_scene.queue_free()
 	await process_frame
 	await process_frame
-	print("HANGAR_DEPARTURE_CHECK_PASSED")
+	print("PASS: HANGAR_DEPARTURE_CHECK_PASSED")
 	quit(0)
 
 func _capture(stem: String) -> void:

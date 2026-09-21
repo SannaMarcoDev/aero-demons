@@ -1,5 +1,9 @@
 # Aero Demons — aeroporto militare, revisione ravvicinata
 
+> Documento della revisione precedente dell'aeroporto. Il sorgente comprende ora
+> anche la città: [consegna e verifiche correnti](CITY_DELIVERY.md).
+> Ingombri e geometria aeroportuali restano invariati; asfalto ed export sono aggiornati.
+
 ## Consegna
 
 - `../airport_layout.glb`: aeroporto assemblato, componenti separati sotto `airport_root`.

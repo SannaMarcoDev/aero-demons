@@ -1,7 +1,8 @@
 # Native 1080p / 5 ms budget: integrated cloud presets
 
 > These measurements predate the expanded forest and landscape revision.
-> They do **not** certify its performance. See [current landscape measurements](landscape-lookdev.md).
+> They do **not** certify its performance. See [landscape measurements](landscape-lookdev.md)
+> and the newer [airport-city measurements and remaining frame spikes](../assets/environment/airport/source/CITY_DELIVERY.md#prestazioni).
 
 ## Result and scope
 

@@ -1,8 +1,7 @@
 extends Node
 ## Camera-local woodland over the entire DEM. No region edits, per-tree nodes or collisions.
 const MESH_ID := 1
-const AIRPORT := Vector2(-36418.484, 413.428)
-const AIRPORT_CLEARANCE := 4000.0
+const Development = preload("res://scripts/maps/garda_development.gd")
 const MIN_HEIGHT := 195.0
 const MAX_HEIGHT := 1850.0
 const MIN_NORMAL_Y := 0.819152 # 35 degrees: exposed cliffs remain bare.
@@ -162,4 +161,4 @@ func suitable(position: Vector3, normal: Vector3) -> bool:
 	return position.is_finite() and normal.is_finite() \
 		and position.y >= MIN_HEIGHT and position.y <= MAX_HEIGHT \
 		and normal.y >= MIN_NORMAL_Y \
-		and Vector2(position.x, position.z).distance_squared_to(AIRPORT) >= AIRPORT_CLEARANCE * AIRPORT_CLEARANCE
+		and not Development.contains(position)

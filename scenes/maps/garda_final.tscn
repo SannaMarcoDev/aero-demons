@@ -24,6 +24,7 @@
 [ext_resource type="Script" uid="uid://dx0pklu2apuar" path="res://addons/road-generator/nodes/road_intersection.gd" id="30_road_intersection"]
 [ext_resource type="Script" uid="uid://pi185aml8gam" path="res://scripts/maps/road_terrain_conformer.gd" id="31_road_terrain"]
 [ext_resource type="Resource" path="res://resources/roads/rounded_rural_junction.tres" id="32_road_junction"]
+[ext_resource type="PackedScene" path="res://scenes/maps/airport_city.tscn" id="33_airport_city"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_surface"]
 seed = 7319
@@ -284,6 +285,9 @@ script = ExtResource("25_forests")
 script = ExtResource("26_ground_cover")
 
 [node name="Airport" parent="." unique_id=97443345 instance=ExtResource("16_8bik1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36418.484, 234.52104, 413.42773)
+
+[node name="AirportCity" parent="." unique_id=879363383 instance=ExtResource("33_airport_city")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36418.484, 234.52104, 413.42773)
 
 [node name="RoadManager" type="Node3D" parent="." unique_id=451128961]

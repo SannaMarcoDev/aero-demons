@@ -16,7 +16,7 @@ func _run() -> void:
 	await create_timer(0.2).timeout
 	_check()
 	await process_frame
-	print("GARDA FINAL IMPORT CHECK PASS")
+	print("PASS: GARDA FINAL IMPORT CHECK")
 	quit()
 
 func _check() -> void:

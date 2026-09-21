@@ -3,7 +3,7 @@ extends Node3D
 const TILE := 40.0
 const RADIUS := 2
 const CANDIDATES := 1500
-const AIRPORT := Vector2(-36418.484, 413.428)
+const Development = preload("res://scripts/maps/garda_development.gd")
 var tiles: Dictionary = {}
 var pending: Array[Vector2i] = []
 var center := Vector2i(2147483647, 2147483647)
@@ -41,7 +41,7 @@ func _process(_delta: float) -> void:
 
 func suitable(point: Vector3, normal: Vector3) -> bool:
 	return point.is_finite() and normal.is_finite() and point.y > 197.0 and point.y < 1900.0 \
-		and normal.y > 0.90 and Vector2(point.x, point.z).distance_to(AIRPORT) > 3500.0
+		and normal.y > 0.90 and not Development.contains(point)
 
 func make_transforms(key: Vector2i) -> Array[Transform3D]:
 	var rng := RandomNumberGenerator.new()

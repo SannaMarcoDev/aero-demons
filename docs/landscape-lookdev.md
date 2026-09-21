@@ -8,6 +8,15 @@ Il miglioramento più evidente è vicino al bosco. **Non è ancora la qualità d
 
 Base di partenza: `fbb446b49378b5e605c7c9b344660dddfa4601cf`; checkout inizialmente pulito e allineamento `origin/HEAD` verificato. Nessun commit/push. Nessuna modifica ai dati height/control/region Terrain3D; nessun salvataggio delle impostazioni personali durante le catture.
 
+## Aggiornamento: città aeroportuale
+
+[Città integrata e misure correnti](../assets/environment/airport/source/CITY_DELIVERY.md).
+I precedenti dischi vuoti da 4 km (boschi) e 3,5 km (erba) sono sostituiti da
+`garda_development.gd` e dalla maschera statica `garda_development.res`: isolati,
+strade, aeroporto e corridoi di avvicinamento restano liberi, i boschi tornano
+negli interstizi. Nessun cambiamento ai file delle regioni Terrain3D.
+Le misure sotto precedono questa aggiunta e non ne certificano le prestazioni.
+
 ## Aggiornamento: copertura continua dei boschi
 
 La segnalazione delle vallate completamente spoglie era corretta: il codice popolava solo **16 ellissi predefinite**, non era un difetto del LOD. Quella limitazione è rimossa.
