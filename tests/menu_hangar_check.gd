@@ -13,7 +13,9 @@ func _check() -> void:
 	var stage = menu.get_node("AircraftViewportContainer/SubViewport/MenuAircraftStage")
 	assert(stage.get_node("Hangar/HAS_Concrete_Floor") is MeshInstance3D)
 	assert(stage.get_node("Aircraft").scene_file_path == "res://scenes/aircraft/fa_n26.tscn")
-	assert(stage.find_children("*Afterburn*", "", true, false).is_empty())
+	var exhausts: Array[Node] = stage.find_children("*JetExhaust*", "", true, false)
+	for exhaust in exhausts:
+		assert(not exhaust.get_node("Volume").visible, "Hangar afterburners must remain off")
 	var aircraft_transform: Transform3D = stage.get_node("Aircraft").transform
 	await process_frame
 	assert(stage.get_node("Aircraft").transform == aircraft_transform)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://p6o1wseuocmt"]
+[gd_scene format=3 uid="uid://8vtgc40ff8u5"]
 
 [ext_resource type="Script" uid="uid://cppbt1insu407" path="res://scripts/player/finished_aircraft.gd" id="1_finished_aircraft"]
 [ext_resource type="PackedScene" uid="uid://clj5y1oba3bd" path="res://assets/aircraft/finished/aereo_caccia.fbx" id="2_aereo_caccia"]

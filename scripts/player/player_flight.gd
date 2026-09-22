@@ -135,7 +135,7 @@ var _accelerating_audio_active := false
 var _engine_audio: AudioStreamPlayer3D
 var _accelerating_audio: AudioStreamPlayer3D
 
-@onready var _afterburners: Afterburner = $Afterburners
+var _afterburners: Afterburner
 @onready var _targeting: TargetLock = get_node_or_null("TargetLock")
 @onready var _weapons: WeaponController = get_node_or_null("WeaponController")
 @onready var _hitbox: Area3D = get_node_or_null("Hitbox") as Area3D
@@ -160,11 +160,17 @@ func _ready() -> void:
 		grounded = true
 	health = max_health
 	_spawn_transform = global_transform
-	_damage_emitters = find_children("*", "DamageFire", true, false)
+	update_aircraft_references()
 	_setup_aircraft_audio()
 	_setup_collision_detection()
 	if _targeting != null and faction_group == "player":
 		_targeting.lock_completed.connect(_on_target_lock_completed)
+	_update_damage_effects()
+
+
+func update_aircraft_references() -> void:
+	_afterburners = find_child("Afterburners", true, false) as Afterburner
+	_damage_emitters = find_children("*", "DamageFire", true, false)
 	_update_damage_effects()
 
 
@@ -332,7 +338,8 @@ func _apply_ground_capable_flight(delta: float) -> void:
 	if not grounded:
 		_return_to_arena(delta)
 	var throttle := clampf(speed / max_speed, 0.0, 1.0)
-	_afterburners.set_throttle(lerpf(0.1, 0.5, throttle))
+	if _afterburners != null:
+		_afterburners.set_throttle(lerpf(0.1, 0.5, throttle))
 	_update_engine_audio(throttle)
 
 
@@ -379,8 +386,9 @@ func _apply_flight(delta: float) -> void:
 	var boost := spin_dash_camera_recovery_weight()
 	# Exhaust follows airspeed: the plume grows and shrinks as the aircraft gains or loses speed.
 	var speed_ratio := clampf(inverse_lerp(min_speed, max_speed, speed), 0.0, 1.0)
-	_afterburners.set_throttle(lerpf(0.25, 0.5, speed_ratio))
-	_afterburners.set_boost(boost)
+	if _afterburners != null:
+		_afterburners.set_throttle(lerpf(0.25, 0.5, speed_ratio))
+		_afterburners.set_boost(boost)
 	_update_engine_audio(maxf(engine_throttle, boost))
 
 
@@ -526,8 +534,9 @@ func _apply_spin_dash(delta: float) -> void:
 		var charge := clampf(_spin_dash_elapsed / maxf(spin_dash_charge_time, 0.001), 0.0, 1.0)
 		basis = _spin_dash_entry_basis
 		speed = _spin_dash_entry_speed
-		_afterburners.set_throttle(lerpf(0.35, 0.5, charge))
-		_afterburners.set_boost(0.0)
+		if _afterburners != null:
+			_afterburners.set_throttle(lerpf(0.35, 0.5, charge))
+			_afterburners.set_boost(0.0)
 	else:
 		var progress := clampf(
 			(_spin_dash_elapsed - spin_dash_charge_time) / maxf(spin_dash_duration, 0.001),
@@ -537,8 +546,9 @@ func _apply_spin_dash(delta: float) -> void:
 		var phase := progress * TAU * spin_dash_turns
 		basis = (_spin_dash_entry_basis * Basis(Vector3.FORWARD, phase)).orthonormalized()
 		speed = spin_dash_speed
-		_afterburners.set_throttle(0.5)
-		_afterburners.set_boost(1.0)
+		if _afterburners != null:
+			_afterburners.set_throttle(0.5)
+			_afterburners.set_boost(1.0)
 	_spin_dash_velocity = (global_position - previous_position) / maxf(step, 0.001)
 	_update_engine_audio(clampf(speed / maxf(max_speed, 0.001), 0.0, 1.0))
 	if _spin_dash_elapsed >= total_time:
@@ -661,8 +671,9 @@ func reset_flight(start_transform: Transform3D) -> void:
 	_spin_dash_velocity = Vector3.ZERO
 	_spin_dash_camera_hold_until = 0.0
 	_spin_dash_camera_recover_until = 0.0
-	_afterburners.set_boost(0.0)
-	_afterburners.set_throttle(0.35)
+	if _afterburners != null:
+		_afterburners.set_boost(0.0)
+		_afterburners.set_throttle(0.35)
 	is_returning = false
 	health = max_health
 	visible = true

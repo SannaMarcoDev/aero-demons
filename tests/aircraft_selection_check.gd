@@ -64,13 +64,16 @@ func _run() -> void:
 			assert(muzzle.basis.get_scale().is_equal_approx(Vector3.ONE))
 			assert(muzzle.origin.is_equal_approx(weapons.to_global(offset)))
 		assert(player.camera_depth > 20.0, "Camera must remain behind the full-size airframe")
-		var afterburners := player.get_node("Afterburners") as Node3D
-		assert(afterburners.get_child_count() == definition.engines.size())
+		var afterburners := model.get_node("Afterburners") as Node3D
+		assert(afterburners.get_child_count() == 2)
 		for i in afterburners.get_child_count():
 			var thruster := afterburners.get_child(i) as Node3D
-			assert((afterburners.transform * thruster.position).is_equal_approx(definition.engines[i] * player.airframe_scale))
 			var socket := mesh.get_node("Engine_Left" if i == 0 else "Engine_Right") as Node3D
 			assert(thruster.global_position.distance_to(socket.global_position) < 0.001, "Exhaust detached from N26 nozzle")
+			assert(is_equal_approx(thruster.nozzle_radius * thruster.global_basis.get_scale().x, 0.405), "N26 plume must fit the actual nozzle opening")
+		var wing_damage := model.get_node("WingDamage") as Node3D
+		assert(wing_damage != null and wing_damage.get_child_count() >= 2)
+		assert(player._damage_emitters.size() == wing_damage.get_child_count())
 		assert(player.get_node("WeaponController").equipped_missile_ids == Session.selected_missiles)
 		player.reset_player()
 		assert(player.get_node("AircraftModel") == model)

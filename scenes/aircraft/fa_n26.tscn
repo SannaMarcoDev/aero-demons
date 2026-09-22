@@ -2,9 +2,34 @@
 
 [ext_resource type="Script" uid="uid://c8rysquo2yfnx" path="res://scripts/aircraft/fa_n26.gd" id="1_script"]
 [ext_resource type="PackedScene" uid="uid://kf7hjwfkqwgo" path="res://assets/aircraft/fa_n26/fa_n26.glb" id="2_model"]
+[ext_resource type="Script" uid="uid://cf6to0ge1naqu" path="res://scripts/vfx/afterburner.gd" id="3_afterburner"]
+[ext_resource type="PackedScene" path="res://scenes/vfx/jet_exhaust.tscn" id="4_exhaust"]
+[ext_resource type="PackedScene" uid="uid://biquwm5xmc1t8" path="res://scenes/vfx/damage_fire.tscn" id="5_damage"]
 
 [node name="FAN26" type="Node3D" unique_id=1060996039]
 script = ExtResource("1_script")
 livery = "Camo 4"
 
 [node name="Model" parent="." unique_id=364714823 instance=ExtResource("2_model")]
+
+[node name="Afterburners" type="Node3D" parent="." unique_id=691199736]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.8300371)
+script = ExtResource("3_afterburner")
+
+[node name="Left" parent="Afterburners" unique_id=910398250 instance=ExtResource("4_exhaust")]
+transform = Transform3D(0.9, 0, 0, 0, 0.9, 0, 0, 0, 0.9, -0.881486, 0.985134, 8.0556)
+throttle = 1.0
+
+[node name="Right" parent="Afterburners" unique_id=1594931339 instance=ExtResource("4_exhaust")]
+transform = Transform3D(0.9, 0, 0, 0, 0.9, 0, 0, 0, 0.9, 0.882134, 0.985134, 8.0556)
+throttle = 1.0
+
+[node name="WingDamage" type="Node3D" parent="." unique_id=536810288]
+
+[node name="Left" parent="WingDamage" unique_id=1496987325 instance=ExtResource("5_damage")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 0.95, 1.5)
+movement_randomness = 0.0
+
+[node name="Right" parent="WingDamage" unique_id=736135914 instance=ExtResource("5_damage")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 0.95, 1.5)
+movement_randomness = 0.0

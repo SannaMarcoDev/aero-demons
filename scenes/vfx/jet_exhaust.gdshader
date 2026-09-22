@@ -9,16 +9,17 @@ uniform float power : hint_range(0.0, 1.0) = 0.0;
 uniform float burn : hint_range(0.0, 1.0) = 0.0;
 uniform float clock = 0.0;
 uniform float nozzle_radius = 0.45;
-uniform float plume_length = 3.8;
-uniform float haze_length = 7.0;
-uniform float distortion = 12.0;
+uniform float plume_length = 1.6;
+uniform float haze_length = 3.6;
+uniform float distortion = 3.0;
 uniform float brightness = 1.0;
-uniform float turbulence = 0.7;
+uniform float turbulence = 0.2;
 uniform float phase = 0.0;
 uniform int steps = 24;
 uniform float distance_fade = 1.0;
-uniform vec4 hot_color : source_color = vec4(1.0, 0.67, 0.34, 1.0);
-uniform vec4 edge_color : source_color = vec4(0.30, 0.39, 0.72, 1.0);
+uniform vec4 hot_color : source_color = vec4(1.0, 0.85, 0.67, 1.0);
+uniform vec4 edge_color : source_color = vec4(0.70, 0.45, 1.0, 1.0);
+uniform vec4 halo_color : source_color = vec4(1.0, 0.45, 0.12, 1.0);
 varying vec3 local_surface;
 varying flat mat4 view_to_local;
 
@@ -56,6 +57,26 @@ void fragment() {
     float haze = 0.0;
     vec2 bend = vec2(0.0);
     vec3 light = vec3(0.0);
+    // Integrate the thin luminous nozzle as a plane, not jittered volume samples.
+    // This keeps the mouth smooth at dry thrust and avoids a white slab in side views.
+    float nozzle_t = (-0.5 - origin.z) * inv_ray.z;
+    vec2 nozzle_xy = (origin + direction * nozzle_t).xy * 2.4;
+    float nozzle_r = length(nozzle_xy);
+    // Derivatives outside the intersection branch keep the stationary grille antialiased.
+    float grille_aa = max(length(fwidth(nozzle_xy)) * 0.65, 0.001);
+    float grille = 0.0;
+    if (nozzle_t >= entry - 0.00001 && nozzle_t <= exit_t) {
+        float nozzle = 1.0 - smoothstep(0.88, 1.0, nozzle_r);
+        float angle = atan(nozzle_xy.y, nozzle_xy.x + 0.00001);
+        float spokes = abs(sin(angle * 6.0)) * nozzle_r / 6.0;
+        float rings = min(abs(nozzle_r - 0.28), min(abs(nozzle_r - 0.53), abs(nozzle_r - 0.78)));
+        float ribs = 1.0 - smoothstep(0.016 - grille_aa, 0.016 + grille_aa, min(spokes, rings));
+        float hub = 1.0 - smoothstep(0.14, 0.18, nozzle_r);
+        // Fade subpixel detail instead of letting distant engines sparkle.
+        grille = ribs * (1.0 - hub) * nozzle * (1.0 - smoothstep(0.08, 0.18, grille_aa));
+        vec3 face_color = mix(hot_color.rgb, halo_color.rgb * 0.6, hub);
+        light += face_color * nozzle * power * power * mix(0.7, 1.6, burn);
+    }
     float active_length = plume_length * mix(mix(0.12, 0.42, power), 1.0, burn);
     float haze_end = mix(0.28, 1.0, power);
     for (int i = 0; i < steps; i++) {
@@ -75,21 +96,22 @@ void fragment() {
         haze += gas * ds;
         bend += eddy * gas * ds;
 
-        // Stationary compression cells inside advecting, irregular gas; no bead sprites.
-        float cell_phase = z / nozzle_radius * 3.7;
-        float cell = pow(0.5 + 0.5 * cos(cell_phase), 4.0) * exp(-z / max(active_length, 0.01));
-        float jet_radius = (0.88 - burn * 0.16 * cos(cell_phase)) * (1.0 - 0.20 * smoothstep(0.0, active_length, z));
-        float radial = exp(-3.2 * r * r / max(jet_radius * jet_radius, 0.01));
-        float tail = 1.0 - smoothstep(active_length * 0.2, active_length, z);
-        float flame = radial * tail * (0.65 + 0.7 * n) * smoothstep(0.0, nozzle_radius * 0.10, z);
-        float hot_axis = exp(-r * r * 8.0);
-        vec3 color = mix(edge_color.rgb, hot_color.rgb, hot_axis * (0.72 + 0.28 * cell));
-        light += color * flame * burn * (0.75 + 1.1 * cell * hot_axis) * ds;
-        // Dry thrust is a faint near-nozzle glow, not a long flame or smoke cone.
-        float core = exp(-z / (nozzle_radius * 0.22)) * exp(-r * r * 5.0);
-        light += hot_color.rgb * core * power * power * (0.065 + 0.55 * burn) * ds;
-        light += vec3(0.16, 0.14, 0.12) * flame * smoothstep(0.28, 0.8, power) * 0.12 * ds;
+        // Broad, coherent pink-violet jet; weak compression, not a string of bright beads.
+        float axial = z / max(active_length, 0.01);
+        float cell = 1.0 + 0.08 * burn * cos(z / nozzle_radius * 3.7);
+        float jet_radius = 0.90 - 0.18 * smoothstep(0.0, 1.0, axial);
+        float radial = exp(-2.4 * pow(r / jet_radius, 4.0));
+        float tail = 1.0 - smoothstep(0.25, 1.0, axial);
+        float flame = radial * tail * (0.94 + 0.12 * n) * cell;
+        float thrust = power * power * mix(0.16, 1.0, burn);
+        light += edge_color.rgb * flame * thrust * 1.1 * ds;
+        // Warm translucent outer halo, separate from the violet centre.
+        float halo = exp(-1.8 * r * r) * smoothstep(0.35, 0.85, r)
+            * (1.0 - smoothstep(0.1, 1.25, axial));
+        light += halo_color.rgb * halo * thrust * ds;
     }
+    // Keep the flame-holder rings and spokes legible through the bright foreground gas.
+    light *= 1.0 - grille * 0.8;
     float coverage = (1.0 - exp(-haze * 0.55)) * smoothstep(0.0, 0.16, power) * distance_fade;
     if (coverage < 0.001) { discard; }
     float camera_distance = length(VERTEX);

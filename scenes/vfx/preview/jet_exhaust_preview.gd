@@ -1,7 +1,9 @@
 extends Node3D
-## Isolated look-development scene. All geometry is new, procedural test-fixture geometry.
+## Isolated look-development scene: procedural nozzle fixtures and the actual N26 player rig.
 const EXHAUST = preload("res://scenes/vfx/jet_exhaust.tscn")
-const VIEWS = ["Rear", "Side", "Rear quarter", "Close", "Gameplay", "Twin engines"]
+const VIEWS = ["Rear", "Side", "Rear quarter", "Close", "Gameplay", "Twin engines", "N26 chase", "N26 side"]
+const PLAYER = preload("res://scenes/player/player.tscn")
+var aircraft: Node3D
 var engine: Node3D
 var twin: Node3D
 var camera: Camera3D
@@ -104,6 +106,13 @@ func _ready() -> void:
 	engine = nozzle(Vector3(0, 1.9, 0))
 	twin = nozzle(Vector3(1.65, 1.9, 0))
 	twin.visible = false
+	# Actual player rig verifies socket alignment and inherited exhaust/light scaling.
+	aircraft = PLAYER.instantiate()
+	aircraft.position = Vector3(24, 8, 12)
+	add_child(aircraft)
+	aircraft.set_physics_process(false)
+	aircraft.get_node("FlightCamera").set_physics_process(false)
+	aircraft.visible = false
 	camera = Camera3D.new()
 	camera.fov = 48
 	camera.near = 0.05
@@ -154,14 +163,26 @@ func _build_ui() -> void:
 	view_picker.item_selected.connect(set_view)
 	column.add_child(view_picker)
 	var hint := Label.new()
-	hint.text = "1–6: views   T: throttle sweep   H: hide UI
+	hint.text = "1–8: views   T: throttle sweep   H: hide UI
 B: afterburner on/off   D: distortion on/off"
 	column.add_child(hint)
 
 func set_view(index: int) -> void:
-	view_index = clampi(index, 0, 5)
+	view_index = clampi(index, 0, VIEWS.size() - 1)
 	view_picker.select(view_index)
+	engine.visible = view_index < 6
 	twin.visible = view_index == 5
+	aircraft.visible = view_index >= 6
+	camera.fov = 70.0 if view_index == 6 else 48.0
+	if view_index >= 6:
+		if view_index == 6:
+			# Match freeroam's chase camera, without moving the aircraft during look-dev.
+			camera.position = aircraft.position + Vector3(0, 3.2, 22)
+			camera.rotation_degrees = Vector3(7, 0, 0)
+		else:
+			camera.position = aircraft.position + Vector3(25, 4, 13)
+			camera.look_at(aircraft.position + Vector3(0, -1, 5))
+		return
 	var positions := [Vector3(0, 2.0, 11), Vector3(11, 2.8, 3.0), Vector3(7, 4.3, 10), Vector3(2.0, 2.65, 4.3), Vector3(28, 12, 43), Vector3(5, 3.8, 11)]
 	var target := Vector3(0, 1.9, 2.0)
 	if view_index == 0:
@@ -181,12 +202,16 @@ func _process(delta: float) -> void:
 		slider.value = 0.5 - 0.5 * cos(time * 0.45)
 	engine.get_node("JetExhaust").throttle = slider.value
 	twin.get_node("JetExhaust").throttle = slider.value * 0.65 if twin.visible else 0.0
+	var aircraft_burners := aircraft.find_child("Afterburners", true, false)
+	if aircraft_burners != null:
+		for exhaust in aircraft_burners.get_children():
+			exhaust.throttle = slider.value if aircraft.visible else 0.0
 	caption.text = "%s   |   Throttle %3.0f%%   |   %.0f FPS" % [VIEWS[view_index], slider.value * 100, Engine.get_frames_per_second()]
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if not event is InputEventKey or not event.pressed or event.echo:
 		return
-	if event.keycode >= KEY_1 and event.keycode <= KEY_6:
+	if event.keycode >= KEY_1 and event.keycode <= KEY_8:
 		set_view(event.keycode - KEY_1)
 	elif event.keycode == KEY_T:
 		auto_sweep = not auto_sweep
@@ -195,6 +220,14 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	elif event.keycode == KEY_B:
 		var effect := engine.get_node("JetExhaust")
 		effect.afterburner_enabled = not effect.afterburner_enabled
+		var burners := aircraft.find_child("Afterburners", true, false)
+		if burners != null:
+			for exhaust in burners.get_children():
+				exhaust.afterburner_enabled = effect.afterburner_enabled
 	elif event.keycode == KEY_D:
 		var effect := engine.get_node("JetExhaust")
-		effect.heat_distortion = 12.0 if effect.heat_distortion == 0.0 else 0.0
+		effect.heat_distortion = 3.0 if effect.heat_distortion == 0.0 else 0.0
+		var burners := aircraft.find_child("Afterburners", true, false)
+		if burners != null:
+			for exhaust in burners.get_children():
+				exhaust.heat_distortion = effect.heat_distortion

@@ -1,0 +1,30 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="PackedScene" uid="uid://borsed5v37nxx" path="res://assets/aircraft/aircraft_game_ready.glb" id="1_model"]
+[ext_resource type="Script" uid="uid://cf6to0ge1naqu" path="res://scripts/vfx/afterburner.gd" id="2_afterburner"]
+[ext_resource type="PackedScene" path="res://scenes/vfx/jet_exhaust.tscn" id="3_exhaust"]
+[ext_resource type="PackedScene" uid="uid://biquwm5xmc1t8" path="res://scenes/vfx/damage_fire.tscn" id="4_damage"]
+
+[node name="Fighter" type="Node3D"]
+
+[node name="Model" parent="." instance=ExtResource("1_model")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, -1.375, 1.88)
+
+[node name="Afterburners" type="Node3D" parent="."]
+script = ExtResource("2_afterburner")
+
+[node name="Left" parent="Afterburners" instance=ExtResource("3_exhaust")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.96, -0.46, 5.5)
+
+[node name="Right" parent="Afterburners" instance=ExtResource("3_exhaust")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.103, -0.46, 5.5)
+
+[node name="WingDamage" type="Node3D" parent="."]
+
+[node name="Left" parent="WingDamage" instance=ExtResource("4_damage")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.3, -0.8, 1.7)
+movement_randomness = 0.0
+
+[node name="Right" parent="WingDamage" instance=ExtResource("4_damage")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.3, -0.8, 1.7)
+movement_randomness = 0.0
