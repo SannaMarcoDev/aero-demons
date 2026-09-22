@@ -60,6 +60,12 @@ var _ground_contact_seen := false
 @export var high_g_turn_factor := 1.4
 @export_range(0.1, 1.0, 0.05) var high_g_trigger_threshold := 0.5
 
+@export_category("Level flight")
+## Hold accelerate+brake together in flight: the autopilot rolls wings upright and puts
+## the nose on the horizon through the normal input fields, so inertia still applies.
+@export_range(0.1, 1.0, 0.05) var level_flight_threshold := 0.5
+@export var level_flight_gain := 3.0
+
 @export_category("Spin dash")
 ## Double-tap acceleration: a brief camera charge, then two axial rolls at burst speed.
 @export var spin_dash_tap_window := 0.3
@@ -100,6 +106,7 @@ var is_returning := false
 var health := 100.0
 var high_g_active := false
 var spin_dash_active := false
+var level_flight_active := false
 
 var _angular_velocity := Vector3.ZERO
 
@@ -223,6 +230,7 @@ func clear_player_controls() -> void:
 	switch_missile_trigger = false
 	cycle_trigger = false
 	_cycle_press_time = -INF
+	level_flight_active = false
 
 
 ## Fills the control fields for this tick. The player reads the gamepad; subclasses read an AI.
@@ -262,6 +270,13 @@ func _update_controls() -> void:
 	# AI overrides this input reader; shared flight dynamics remain unchanged.
 	high_g_active = false
 	spin_dash_trigger = false
+	# Accelerate+brake held together levels the aircraft; on the ground those
+	# buttons stay the taxi throttle and wheel brake.
+	level_flight_active = not grounded \
+		and throttle_input > level_flight_threshold \
+		and brake_input > level_flight_threshold
+	if level_flight_active:
+		_level_flight_inputs()
 
 
 func toggle_landing_gear() -> void:
@@ -272,6 +287,23 @@ func toggle_landing_gear() -> void:
 
 func landing_gear_retracted() -> bool:
 	return not gear_down and gear_extension <= 0.0
+
+
+## Accelerate+brake autopilot: shortest roll to wings-upright, nose onto the horizon
+## on the current heading. Neutral throttle lets speed drift back to cruise.
+func _level_flight_inputs() -> void:
+	var forward := _travel_direction()
+	var target := Vector3(forward.x, 0.0, forward.z)
+	if target.length_squared() < 0.0001:
+		# Vertical flight keeps no heading; the canopy's horizon point does.
+		target = Vector3(global_basis.y.x, 0.0, global_basis.y.z)
+	var local := (global_basis.inverse() * target).normalized()
+	var up_local := global_basis.inverse() * Vector3.UP
+	roll_input = clampf(atan2(up_local.x, up_local.y) * level_flight_gain, -1.0, 1.0)
+	pitch_input = clampf(-local.y * level_flight_gain, -1.0, 1.0)
+	yaw_input = 0.0
+	throttle_input = 0.0
+	brake_input = 0.0
 
 
 func _update_gear(delta: float) -> void:
@@ -657,6 +689,7 @@ func reset_flight(start_transform: Transform3D) -> void:
 	high_g_active = false
 	spin_dash_active = false
 	spin_dash_trigger = false
+	level_flight_active = false
 	pitch_input = 0.0
 	yaw_input = 0.0
 	roll_input = 0.0

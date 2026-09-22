@@ -94,6 +94,8 @@ func _chase_transform() -> Transform3D:
 	var speed_range := maxf(target.max_speed - target.cruise_speed, 0.001)
 	var speed_ratio := clampf((target.speed - target.cruise_speed) / speed_range, 0.0, 1.0)
 	var acceleration_input := Input.get_action_strength("accelerate")
+	if target.level_flight_active:
+		acceleration_input = 0.0
 	var acceleration_shift := target.camera_acceleration_shift * maxf(speed_ratio, acceleration_input)
 	var camera_offset := Vector3(
 		0.0,
