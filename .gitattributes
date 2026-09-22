@@ -12,4 +12,5 @@ terrain/**/baked_*.tres filter=lfs diff=lfs merge=lfs -text
 *.blend filter=lfs diff=lfs merge=lfs -text
 # Large authored airport/city exports
 assets/environment/airport/*.glb filter=lfs diff=lfs merge=lfs -text
+assets/environment/airport/library/*.glb filter=lfs diff=lfs merge=lfs -text
 

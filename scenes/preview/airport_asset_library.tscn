@@ -1,0 +1,480 @@
+[gd_scene load_steps=30 format=3]
+
+[ext_resource type="PackedScene" path="res://assets/environment/airport/library/residence_gabled.glb" id="1"]
+[ext_resource type="PackedScene" path="res://assets/environment/airport/library/residence_courtyard.glb" id="2"]
+[ext_resource type="PackedScene" path="res://assets/environment/airport/library/industrial_shed.glb" id="3"]
+[ext_resource type="PackedScene" path="res://assets/environment/airport/library/control_tower.glb" id="4"]
+[ext_resource type="PackedScene" path="res://assets/environment/airport/library/satellite_dish_70m.glb" id="5"]
+[ext_resource type="Script" path="res://scripts/preview/asset_library_camera.gd" id="6"]
+[ext_resource type="Script" path="res://addons/road-generator/nodes/road_manager.gd" id="7"]
+[ext_resource type="Script" path="res://addons/road-generator/nodes/road_container.gd" id="8"]
+[ext_resource type="Script" path="res://addons/road-generator/nodes/road_point.gd" id="9"]
+[ext_resource type="Script" path="res://addons/road-generator/nodes/road_intersection.gd" id="10"]
+[ext_resource type="Resource" path="res://resources/roads/rounded_rural_junction.tres" id="11"]
+
+[ext_resource type="PackedScene" path="res://assets/environment/airport/library/residence_l.glb" id="12"]
+[ext_resource type="PackedScene" path="res://assets/environment/airport/library/residence_terraced.glb" id="13"]
+[ext_resource type="PackedScene" path="res://assets/environment/airport/library/offices_twins.glb" id="14"]
+[ext_resource type="PackedScene" path="res://assets/environment/airport/library/office_spire.glb" id="15"]
+[ext_resource type="PackedScene" path="res://assets/environment/airport/library/research_center.glb" id="16"]
+[ext_resource type="PackedScene" path="res://assets/environment/airport/library/civic_canopy.glb" id="17"]
+[ext_resource type="PackedScene" path="res://assets/environment/airport/library/warehouse_vault.glb" id="18"]
+
+[sub_resource type="ProceduralSkyMaterial" id="SkyMaterial"]
+sky_top_color = Color(0.22, 0.32, 0.41, 1)
+sky_horizon_color = Color(0.65, 0.70, 0.73, 1)
+ground_bottom_color = Color(0.24, 0.25, 0.25, 1)
+ground_horizon_color = Color(0.65, 0.70, 0.73, 1)
+sky_curve = 0.18
+
+[sub_resource type="Sky" id="Sky"]
+sky_material = SubResource("SkyMaterial")
+
+[sub_resource type="Environment" id="Environment"]
+background_mode = 2
+sky = SubResource("Sky")
+ambient_light_source = 3
+ambient_light_color = Color(0.76, 0.81, 0.88, 1)
+ambient_light_energy = 0.55
+reflected_light_source = 2
+tonemap_mode = 3
+ssao_enabled = true
+ssao_radius = 2.0
+ssao_intensity = 1.3
+ssil_enabled = true
+ssil_radius = 5.0
+
+[sub_resource type="StandardMaterial3D" id="FloorMaterial"]
+albedo_color = Color(0.30, 0.33, 0.34, 1)
+roughness = 0.95
+
+[sub_resource type="PlaneMesh" id="Floor"]
+material = SubResource("FloorMaterial")
+size = Vector2(1800, 1800)
+
+[sub_resource type="StandardMaterial3D" id="TileMaterial"]
+albedo_color = Color(0.52, 0.53, 0.51, 1)
+roughness = 0.92
+
+[sub_resource type="BoxMesh" id="Tile"]
+material = SubResource("TileMaterial")
+size = Vector3(160, 0.16, 190)
+
+[sub_resource type="LabelSettings" id="TitleStyle"]
+font_size = 26
+font_color = Color(0.92, 0.94, 0.93, 1)
+
+[sub_resource type="LabelSettings" id="SubtitleStyle"]
+font_size = 17
+font_color = Color(0.62, 0.78, 0.77, 1)
+
+[sub_resource type="LabelSettings" id="ControlStyle"]
+font_size = 16
+font_color = Color(0.86, 0.89, 0.89, 1)
+
+[sub_resource type="StyleBoxFlat" id="HUDStyle"]
+bg_color = Color(0.027, 0.043, 0.052, 0.92)
+content_margin_left = 24.0
+content_margin_top = 16.0
+content_margin_right = 24.0
+content_margin_bottom = 16.0
+border_width_left = 3
+border_color = Color(0.39, 0.66, 0.65, 1)
+
+[node name="AirportAssetLibrary" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-42, -32, 0)
+light_color = Color(1, 0.94, 0.85, 1)
+light_energy = 1.35
+shadow_enabled = true
+directional_shadow_max_distance = 1100.0
+directional_shadow_mode = 2
+
+[node name="Floor" type="MeshInstance3D" parent="."]
+position = Vector3(0, -0.19, 0)
+mesh = SubResource("Floor")
+
+[node name="DisplayPads" type="Node3D" parent="."]
+
+[node name="Pad01" type="MeshInstance3D" parent="DisplayPads"]
+position = Vector3(-180, -0.08, 110)
+mesh = SubResource("Tile")
+
+[node name="Pad02" type="MeshInstance3D" parent="DisplayPads"]
+position = Vector3(0, -0.08, 110)
+mesh = SubResource("Tile")
+
+[node name="Pad03" type="MeshInstance3D" parent="DisplayPads"]
+position = Vector3(180, -0.08, 110)
+mesh = SubResource("Tile")
+
+[node name="Pad04" type="MeshInstance3D" parent="DisplayPads"]
+position = Vector3(-180, -0.08, -120)
+mesh = SubResource("Tile")
+
+[node name="Pad05" type="MeshInstance3D" parent="DisplayPads"]
+position = Vector3(0, -0.08, -120)
+mesh = SubResource("Tile")
+
+[node name="Pad06" type="MeshInstance3D" parent="DisplayPads"]
+position = Vector3(180, -0.08, -120)
+mesh = SubResource("Tile")
+
+[node name="ResidenceGabled" parent="." instance=ExtResource("1")]
+position = Vector3(-180, 0, 110)
+
+[node name="ResidenceCourtyard" parent="." instance=ExtResource("2")]
+position = Vector3(0, 0, 110)
+
+[node name="IndustrialShed" parent="." instance=ExtResource("3")]
+position = Vector3(180, 0, 110)
+
+[node name="ControlTower" parent="." instance=ExtResource("4")]
+position = Vector3(-180, 0, -120)
+
+[node name="SatelliteDish" parent="." instance=ExtResource("5")]
+position = Vector3(0, 0, -120)
+
+[node name="Labels" type="Node3D" parent="."]
+
+[node name="Gabled" type="Label3D" parent="Labels"]
+position = Vector3(-180, 0.08, 185)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.035
+font_size = 64
+outline_size = 0
+modulate = Color(0.08, 0.13, 0.15, 1)
+text = "01 / PALAZZINA A FALDE\n36 × 24 m / H 17 m"
+
+[node name="Courtyard" type="Label3D" parent="Labels"]
+position = Vector3(0, 0.08, 185)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.035
+font_size = 64
+outline_size = 0
+modulate = Color(0.08, 0.13, 0.15, 1)
+text = "02 / RESIDENZA A CORTE\n63 × 55 m / H 25 m"
+
+[node name="Shed" type="Label3D" parent="Labels"]
+position = Vector3(180, 0.08, 185)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.035
+font_size = 64
+outline_size = 0
+modulate = Color(0.08, 0.13, 0.15, 1)
+text = "05 / CAPANNONE A SHED\n43 × 61 m / H 14 m"
+
+[node name="Tower" type="Label3D" parent="Labels"]
+position = Vector3(-180, 0.08, -45)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.035
+font_size = 64
+outline_size = 0
+modulate = Color(0.08, 0.13, 0.15, 1)
+text = "11 / TORRE DI CONTROLLO\nH 70 m / cabina panoramica"
+
+[node name="Dish" type="Label3D" parent="Labels"]
+position = Vector3(0, 0.08, -45)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.035
+font_size = 64
+outline_size = 0
+modulate = Color(0.08, 0.13, 0.15, 1)
+text = "12 / PARABOLA SATELLITARE\nØ 70 m / inclinazione 35°"
+
+[node name="Road" type="Label3D" parent="Labels"]
+position = Vector3(180, 0.08, -40)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.035
+font_size = 64
+outline_size = 0
+modulate = Color(0.08, 0.13, 0.15, 1)
+text = "13 / ROADMANAGER\n2 corsie / incrocio modificabile"
+
+[node name="RoadManager" type="Node3D" parent="."]
+position = Vector3(180, 0.06, -120)
+script = ExtResource("7")
+density = 2.0
+
+[node name="TwoLaneRoads" type="Node3D" parent="RoadManager"]
+script = ExtResource("8")
+flatten_terrain = false
+
+[node name="Junction" type="Node3D" parent="RoadManager/TwoLaneRoads" node_paths=PackedStringArray("edge_points")]
+script = ExtResource("10")
+settings = ExtResource("11")
+edge_points = [NodePath("../West"), NodePath("../North"), NodePath("../East"), NodePath("../South")]
+
+[node name="West" type="Node3D" parent="RoadManager/TwoLaneRoads"]
+position = Vector3(-12, 0, 0)
+rotation_degrees = Vector3(0, -90, 0)
+script = ExtResource("9")
+auto_lanes = false
+traffic_dir = Array[int]([2, 1])
+lanes = Array[int]([2, 2])
+prior_mag = 6.0
+next_mag = 15.0
+lane_width = 3.5
+shoulder_width_l = 0.4
+shoulder_width_r = 0.4
+gutter_profile = Vector2(0, 0)
+prior_pt_init = NodePath("../Junction")
+next_pt_init = NodePath("../WestEnd")
+
+[node name="WestEnd" type="Node3D" parent="RoadManager/TwoLaneRoads"]
+position = Vector3(-65, 0, 0)
+rotation_degrees = Vector3(0, -90, 0)
+script = ExtResource("9")
+auto_lanes = false
+traffic_dir = Array[int]([2, 1])
+lanes = Array[int]([2, 2])
+prior_mag = 15.0
+lane_width = 3.5
+shoulder_width_l = 0.4
+shoulder_width_r = 0.4
+gutter_profile = Vector2(0, 0)
+prior_pt_init = NodePath("../West")
+
+[node name="East" type="Node3D" parent="RoadManager/TwoLaneRoads"]
+position = Vector3(12, 0, 0)
+rotation_degrees = Vector3(0, 90, 0)
+script = ExtResource("9")
+auto_lanes = false
+traffic_dir = Array[int]([2, 1])
+lanes = Array[int]([2, 2])
+prior_mag = 6.0
+next_mag = 18.0
+lane_width = 3.5
+shoulder_width_l = 0.4
+shoulder_width_r = 0.4
+gutter_profile = Vector2(0, 0)
+prior_pt_init = NodePath("../Junction")
+next_pt_init = NodePath("../EastEnd")
+
+[node name="EastEnd" type="Node3D" parent="RoadManager/TwoLaneRoads"]
+position = Vector3(65, 0, -18)
+rotation_degrees = Vector3(0, 115, 0)
+script = ExtResource("9")
+auto_lanes = false
+traffic_dir = Array[int]([2, 1])
+lanes = Array[int]([2, 2])
+prior_mag = 18.0
+lane_width = 3.5
+shoulder_width_l = 0.4
+shoulder_width_r = 0.4
+gutter_profile = Vector2(0, 0)
+prior_pt_init = NodePath("../East")
+
+[node name="North" type="Node3D" parent="RoadManager/TwoLaneRoads"]
+position = Vector3(0, 0, -12)
+rotation_degrees = Vector3(0, 180, 0)
+script = ExtResource("9")
+auto_lanes = false
+traffic_dir = Array[int]([2, 1])
+lanes = Array[int]([2, 2])
+prior_mag = 6.0
+next_mag = 15.0
+lane_width = 3.5
+shoulder_width_l = 0.4
+shoulder_width_r = 0.4
+gutter_profile = Vector2(0, 0)
+prior_pt_init = NodePath("../Junction")
+next_pt_init = NodePath("../NorthEnd")
+
+[node name="NorthEnd" type="Node3D" parent="RoadManager/TwoLaneRoads"]
+position = Vector3(0, 0, -65)
+rotation_degrees = Vector3(0, 180, 0)
+script = ExtResource("9")
+auto_lanes = false
+traffic_dir = Array[int]([2, 1])
+lanes = Array[int]([2, 2])
+prior_mag = 15.0
+lane_width = 3.5
+shoulder_width_l = 0.4
+shoulder_width_r = 0.4
+gutter_profile = Vector2(0, 0)
+prior_pt_init = NodePath("../North")
+
+[node name="South" type="Node3D" parent="RoadManager/TwoLaneRoads"]
+position = Vector3(0, 0, 12)
+script = ExtResource("9")
+auto_lanes = false
+traffic_dir = Array[int]([2, 1])
+lanes = Array[int]([2, 2])
+prior_mag = 6.0
+next_mag = 15.0
+lane_width = 3.5
+shoulder_width_l = 0.4
+shoulder_width_r = 0.4
+gutter_profile = Vector2(0, 0)
+prior_pt_init = NodePath("../Junction")
+next_pt_init = NodePath("../SouthEnd")
+
+[node name="SouthEnd" type="Node3D" parent="RoadManager/TwoLaneRoads"]
+position = Vector3(0, 0, 65)
+script = ExtResource("9")
+auto_lanes = false
+traffic_dir = Array[int]([2, 1])
+lanes = Array[int]([2, 2])
+prior_mag = 15.0
+lane_width = 3.5
+shoulder_width_l = 0.4
+shoulder_width_r = 0.4
+gutter_profile = Vector2(0, 0)
+prior_pt_init = NodePath("../South")
+
+[node name="Camera" type="Camera3D" parent="."]
+position = Vector3(680, 500, 870)
+rotation_degrees = Vector3(-24, 34, 0)
+current = true
+fov = 50.0
+near = 0.2
+far = 2500.0
+script = ExtResource("6")
+move_speed = 45.0
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Margin" type="PanelContainer" parent="HUD"]
+offset_left = 28.0
+offset_top = 24.0
+offset_right = 780.0
+offset_bottom = 170.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("HUDStyle")
+
+[node name="VBox" type="VBoxContainer" parent="HUD/Margin"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 7
+
+[node name="Title" type="Label" parent="HUD/Margin/VBox"]
+layout_mode = 2
+text = "AERO DEMONS / 10 EDIFICI + STRUTTURE SPECIALI"
+label_settings = SubResource("TitleStyle")
+
+[node name="Selection" type="Label" parent="HUD/Margin/VBox"]
+layout_mode = 2
+text = "CAMPIONI DA APPROVARE / città attuale non modificata"
+label_settings = SubResource("SubtitleStyle")
+
+[node name="Controls" type="Label" parent="HUD/Margin/VBox"]
+layout_mode = 2
+text = "← / →: tutti i 13 elementi   ·   1–9: accesso rapido   ·   0/Home: insieme\nWASD + mouse: esplora   ·   Q/E: quota   ·   Shift: veloce   ·   Esc: libera/esci"
+label_settings = SubResource("ControlStyle")
+
+[node name="ResidenceL" parent="." instance=ExtResource("12")]
+position = Vector3(-400, 0, 110)
+
+[node name="ResidenceTerraced" parent="." instance=ExtResource("13")]
+position = Vector3(-400, 0, -120)
+
+[node name="OfficesTwins" parent="." instance=ExtResource("14")]
+position = Vector3(-240, 0, -360)
+
+[node name="OfficeSpire" parent="." instance=ExtResource("15")]
+position = Vector3(0, 0, -360)
+
+[node name="ResearchCenter" parent="." instance=ExtResource("16")]
+position = Vector3(400, 0, -120)
+
+[node name="CivicCanopy" parent="." instance=ExtResource("17")]
+position = Vector3(400, 0, 110)
+
+[node name="WarehouseVault" parent="." instance=ExtResource("18")]
+position = Vector3(240, 0, -360)
+
+[node name="PadL" type="MeshInstance3D" parent="DisplayPads"]
+position = Vector3(-400, -0.08, 110)
+mesh = SubResource("Tile")
+
+[node name="PadTerraced" type="MeshInstance3D" parent="DisplayPads"]
+position = Vector3(-400, -0.08, -120)
+mesh = SubResource("Tile")
+
+[node name="PadTwins" type="MeshInstance3D" parent="DisplayPads"]
+position = Vector3(-240, -0.08, -360)
+mesh = SubResource("Tile")
+
+[node name="PadSpire" type="MeshInstance3D" parent="DisplayPads"]
+position = Vector3(0, -0.08, -360)
+mesh = SubResource("Tile")
+
+[node name="PadResearch" type="MeshInstance3D" parent="DisplayPads"]
+position = Vector3(400, -0.08, -120)
+mesh = SubResource("Tile")
+
+[node name="PadCivic" type="MeshInstance3D" parent="DisplayPads"]
+position = Vector3(400, -0.08, 110)
+mesh = SubResource("Tile")
+
+[node name="PadWarehouse" type="MeshInstance3D" parent="DisplayPads"]
+position = Vector3(240, -0.08, -360)
+mesh = SubResource("Tile")
+
+[node name="ResidenceL" type="Label3D" parent="Labels"]
+position = Vector3(-400, 0.08, 185)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.035
+font_size = 64
+outline_size = 0
+modulate = Color(0.08, 0.13, 0.15, 1)
+text = "03 / RESIDENZA A L\n53 × 53 m / H 32 m"
+
+[node name="Terraced" type="Label3D" parent="Labels"]
+position = Vector3(-400, 0.08, -45)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.035
+font_size = 64
+outline_size = 0
+modulate = Color(0.08, 0.13, 0.15, 1)
+text = "04 / TORRE RESIDENZIALE A TERRAZZE\nH 107 m / quattro arretramenti"
+
+[node name="Twins" type="Label3D" parent="Labels"]
+position = Vector3(-240, 0.08, -285)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.035
+font_size = 64
+outline_size = 0
+modulate = Color(0.08, 0.13, 0.15, 1)
+text = "06 / TORRI DIREZIONALI COLLEGATE\nH 116 / 91 m / ponte sospeso"
+
+[node name="Spire" type="Label3D" parent="Labels"]
+position = Vector3(0, 0.08, -285)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.035
+font_size = 64
+outline_size = 0
+modulate = Color(0.08, 0.13, 0.15, 1)
+text = "07 / TORRE A CORONA OBLIQUA\nH 132 m / facciata diagonale"
+
+[node name="Research" type="Label3D" parent="Labels"]
+position = Vector3(400, 0.08, -45)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.035
+font_size = 64
+outline_size = 0
+modulate = Color(0.08, 0.13, 0.15, 1)
+text = "08 / CENTRO RICERCA A GRADONI\n73 × 59 m / H 37 m"
+
+[node name="Civic" type="Label3D" parent="Labels"]
+position = Vector3(400, 0.08, 185)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.035
+font_size = 64
+outline_size = 0
+modulate = Color(0.08, 0.13, 0.15, 1)
+text = "09 / CENTRO CIVICO\n76 × 58 m / copertura piegata"
+
+[node name="Warehouse" type="Label3D" parent="Labels"]
+position = Vector3(240, 0.08, -285)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.035
+font_size = 64
+outline_size = 0
+modulate = Color(0.08, 0.13, 0.15, 1)
+text = "10 / DEPOSITO A GRANDE LUCE\n76 × 56 m / copertura a volta"

@@ -37,6 +37,26 @@ incroci; le UV native restano dedicate alla segnaletica. In questo modo la textu
 non riparte in direzioni diverse su ogni triangolo dell’incrocio. I simboli azzurri
 visibili selezionando i nodi sono manipolatori dell’editor, non oggetti del gioco.
 
+## Rete della città aeroportuale
+
+La rete preesistente sopra è conservata. La nuova città aggiunge
+`AirportCity/RoadManager`, modificabile nella scena `scenes/maps/airport_city.tscn`:
+**187 segmenti, 84 incroci**, due/quattro corsie secondo il ruolo della strada.
+
+- `Ground`: quartieri, collegamenti e servizi; proiezione Terrain3D con clearance 20 cm.
+- `Elevated`: viadotto e rampe; mantiene le quote progettate, senza proiezione.
+- `AirportCity/RoadTerrain / Excluded Containers` contiene `Elevated`: non rimuoverlo,
+  altrimenti le carreggiate del ponte vengono adagiate sul fondo della baia.
+- Il terminale `Ground/UserRoadLink` si collega nativamente al `WestEnd` esistente
+  all'apertura della mappa, se quest'ultimo è ancora libero. Non sovrascrive connessioni utente.
+- Se sposti un intero container collegato, riallinea anche il terminale gemello tramite
+  lo snap nativo; il plugin segnala i due terminali se non coincidono più.
+- Agli incroci acuti servono bracci più distanti dal centro: non ridurre tutti i
+  raccordi a 12–15 m. Le strade restano modificabili e non scolpiscono il terreno.
+
+Il controllo completo è `tests/airport_city_check.gd`; rigenerazione, maschera
+vegetazione e asset sono descritti in `assets/environment/airport/source/CITY_DELIVERY.md`.
+
 ## Aderenza automatica, senza scavi
 
 `RoadTerrain`, con script `scripts/maps/road_terrain_conformer.gd`, adatta le mesh
@@ -95,8 +115,9 @@ ricaricabile di Terrain3D; il test normale non richiede di chiuderlo.
 
 ## Limiti
 
-- Nessun ponte, tunnel, livellamento ingegneristico o rimozione automatica della
-  vegetazione. La rete dimostrativa è nell’esclusione boschiva dell’aeroporto.
+- La proiezione non crea ponti, tunnel o livellamenti. Il viadotto della città usa
+  un container escluso e quote esplicite. La vegetazione usa esclusioni statiche,
+  da rigenerare dopo modifiche al layout.
 - L’aderenza corrisponde alla griglia dettagliata del terreno. I LOD lontani di
   Terrain3D possono differire; non è garantita l’aderenza a qualunque distanza.
 - Una scultura aggiorna l’intera rete dopo il rilascio: per reti molto grandi

@@ -6,12 +6,14 @@ var output := "res://subagent-artifacts/city-revision/baseline"
 var survey := false
 var closeups := false
 var motion := false
+var catalog := false
 
 func _initialize() -> void:
 	for arg in OS.get_cmdline_user_args():
 		if arg == "--survey": survey = true
 		elif arg == "--closeups": closeups = true
 		elif arg == "--motion": motion = true
+		elif arg == "--catalog": catalog = true
 		elif arg.begins_with("--out="): output = arg.trim_prefix("--out=")
 	_run.call_deferred()
 
@@ -96,6 +98,17 @@ func _views() -> void:
 			{"id": "waterfront", "pos": Vector3(-1050, 75, -2220), "target": Vector3(-1420, -35, -1940)},
 			{"id": "apron", "pos": Vector3(445, 12, 1260), "target": Vector3(300, 7, 980)},
 			{"id": "approach", "pos": Vector3(0, 75, 1770), "target": Vector3(0, 1, 150)},
+		]
+	if catalog:
+		views = [
+			{"id":"city_street", "pos":Vector3(-1230,35,250), "target":Vector3(-1560,20,250)},
+			{"id":"skyline", "pos":Vector3(-1100,165,-580), "target":Vector3(-1580,60,-50)},
+			{"id":"telecom", "pos":Vector3(-3080,115,-660), "target":Vector3(-2810,30,-830)},
+			{"id":"bridge", "pos":Vector3(-1090,50,-2130), "target":Vector3(-1130,-30,-1780)},
+			{"id":"bay_road", "pos":Vector3(-1840,95,-1930), "target":Vector3(-1890,-10,-1580)},
+			{"id":"control_tower", "pos":Vector3(-335,38,750), "target":Vector3(-520,35,660)},
+			{"id":"logistics", "pos":Vector3(1260,100,1430), "target":Vector3(880,20,1000)},
+			{"id":"user_road_link", "pos":Vector3(1220,130,2520), "target":Vector3(1320,42,2586)},
 		]
 	var results: Array = []
 	for view in views:

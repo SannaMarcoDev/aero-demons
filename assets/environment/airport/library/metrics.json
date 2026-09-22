@@ -1,0 +1,110 @@
+{
+  "residence_gabled": {
+    "triangles": 4992,
+    "dimensions_blender": [
+      36.48463439941406,
+      24.100000381469727,
+      17.190000534057617
+    ],
+    "min_z": 0.0
+  },
+  "residence_courtyard": {
+    "triangles": 14964,
+    "dimensions_blender": [
+      62.59000015258789,
+      54.49500274658203,
+      24.69999885559082
+    ],
+    "min_z": 0.0
+  },
+  "industrial_shed": {
+    "triangles": 2052,
+    "dimensions_blender": [
+      43.0,
+      60.79999923706055,
+      14.109999656677246
+    ],
+    "min_z": 0.0
+  },
+  "control_tower": {
+    "triangles": 940,
+    "dimensions_blender": [
+      41.0,
+      30.199999809265137,
+      70.05000305175781
+    ],
+    "min_z": 0.0
+  },
+  "satellite_dish_70m": {
+    "triangles": 9592,
+    "dimensions_blender": [
+      70.68000030517578,
+      58.52133560180664,
+      65.20133972167969
+    ],
+    "min_z": 0.0
+  },
+  "residence_l": {
+    "triangles": 10752,
+    "dimensions_blender": [
+      52.70000076293945,
+      52.85000038146973,
+      32.0
+    ],
+    "min_z": 0.0
+  },
+  "residence_terraced": {
+    "triangles": 4104,
+    "dimensions_blender": [
+      57.0,
+      44.0,
+      106.7300033569336
+    ],
+    "min_z": 0.0
+  },
+  "offices_twins": {
+    "triangles": 3240,
+    "dimensions_blender": [
+      68.0,
+      48.0,
+      115.5999984741211
+    ],
+    "min_z": 0.0
+  },
+  "office_spire": {
+    "triangles": 2180,
+    "dimensions_blender": [
+      61.0,
+      48.0,
+      131.66000366210938
+    ],
+    "min_z": 0.0
+  },
+  "research_center": {
+    "triangles": 10296,
+    "dimensions_blender": [
+      73.0,
+      59.0,
+      37.34000015258789
+    ],
+    "min_z": 0.0
+  },
+  "civic_canopy": {
+    "triangles": 394,
+    "dimensions_blender": [
+      76.0,
+      58.0,
+      29.0
+    ],
+    "min_z": 0.0
+  },
+  "warehouse_vault": {
+    "triangles": 1946,
+    "dimensions_blender": [
+      76.0,
+      56.0,
+      21.32972526550293
+    ],
+    "min_z": 0.0
+  }
+}

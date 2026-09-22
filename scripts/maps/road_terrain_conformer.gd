@@ -14,6 +14,8 @@ extends Node
 		road_manager = value
 		if is_inside_tree():
 			_bind_sources.call_deferred()
+## Engineered decks/ramps retain RoadGenerator's authored elevations.
+@export var excluded_containers: Array[RoadContainer] = []
 ## Small separation in metres, not an embankment or terrain excavation.
 @export_range(0.01, 0.2, 0.01) var clearance := 0.05:
 	set(value):
@@ -98,7 +100,8 @@ func _queue_container(container: RoadContainer) -> void:
 
 func _queue_roads(roads: Array) -> void:
 	for road in roads:
-		_pending[road] = true
+		if road.container not in excluded_containers:
+			_pending[road] = true
 
 
 func _physics_process(_delta: float) -> void:
