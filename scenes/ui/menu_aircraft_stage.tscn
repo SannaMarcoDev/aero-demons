@@ -42,6 +42,12 @@ environment = SubResource("Environment_hangar")
 position = Vector3(0, 1.2, -3)
 rotation_degrees = Vector3(0, 180, 0)
 
+[node name="Left" parent="Aircraft/WingDamage" index="0"]
+intensity = 0.0
+
+[node name="Right" parent="Aircraft/WingDamage" index="1"]
+intensity = 0.0
+
 [node name="DisplayLandingGear" parent="Aircraft" instance=ExtResource("4_gear")]
 
 [node name="HangarReflections" type="ReflectionProbe" parent="."]

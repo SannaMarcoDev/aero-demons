@@ -9,6 +9,7 @@
 *.blend1
 
 .pi/
+.devin/
 *.TMP
 ~*
 subagent-artifacts/

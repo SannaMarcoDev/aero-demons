@@ -10,9 +10,26 @@ func _check() -> void:
 	var menu = load("res://scenes/ui/main_menu.tscn").instantiate()
 	root.add_child(menu)
 	await process_frame
-	var stage = menu.get_node("AircraftViewportContainer/SubViewport/MenuAircraftStage")
+	var viewport: SubViewport = menu.get_node("AircraftViewportContainer/SubViewport")
+	var stage = viewport.get_node("MenuAircraftStage")
+	var camera = stage.get_node("Camera3D")
+	assert(viewport.render_target_update_mode != SubViewport.UPDATE_ALWAYS)
+	camera.travel_duration = 0.05
+	var travel: Tween = camera.travel_to(true)
+	assert(viewport.render_target_update_mode == SubViewport.UPDATE_ALWAYS)
+	await travel.finished
+	assert(viewport.render_target_update_mode == SubViewport.UPDATE_ONCE)
+	camera.set_view(0.0)
+	viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
+	viewport.size_changed.emit()
+	assert(viewport.render_target_update_mode == SubViewport.UPDATE_ONCE)
+	viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
+	menu.options_panel._changed()
+	assert(viewport.render_target_update_mode == SubViewport.UPDATE_ONCE)
 	assert(stage.get_node("Hangar/HAS_Concrete_Floor") is MeshInstance3D)
 	assert(stage.get_node("Aircraft").scene_file_path == "res://scenes/aircraft/fa_n26.tscn")
+	for fire in stage.get_node("Aircraft/WingDamage").get_children():
+		assert(fire.intensity == 0.0 and not fire.get_node("Smoke").emitting)
 	var exhausts: Array[Node] = stage.find_children("*JetExhaust*", "", true, false)
 	for exhaust in exhausts:
 		assert(not exhaust.get_node("Volume").visible, "Hangar afterburners must remain off")

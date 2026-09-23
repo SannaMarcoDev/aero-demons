@@ -203,6 +203,10 @@ func _changed() -> void:
 		return
 	dirty = true
 	Settings.apply_settings(settings)
+	# The menu hangar is cached while idle; repaint it after a graphics change.
+	var menu_viewport := get_tree().root.get_node_or_null("MainMenu/AircraftViewportContainer/SubViewport") as SubViewport
+	if menu_viewport != null and menu_viewport.render_target_update_mode != SubViewport.UPDATE_ALWAYS:
+		menu_viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 
 
 func _mark_custom() -> void:

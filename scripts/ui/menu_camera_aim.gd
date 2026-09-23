@@ -11,6 +11,11 @@ var _travel := 0.0
 func _ready() -> void:
 	_overview_position = position
 	set_view(0.0)
+	var viewport := get_viewport() as SubViewport
+	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
+	viewport.size_changed.connect(func():
+		if viewport.render_target_update_mode != SubViewport.UPDATE_ALWAYS:
+			viewport.render_target_update_mode = SubViewport.UPDATE_ONCE)
 
 func set_view(progress: float) -> void:
 	_travel = progress
@@ -20,8 +25,11 @@ func set_view(progress: float) -> void:
 	look_at(target_position.lerp(rear_target, progress), Vector3.UP)
 
 func travel_to(rear: bool) -> Tween:
+	var viewport := get_viewport() as SubViewport
+	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	var tween := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	tween.tween_method(set_view, _travel, 1.0 if rear else 0.0, travel_duration)
+	tween.finished.connect(func(): viewport.render_target_update_mode = SubViewport.UPDATE_ONCE)
 	return tween
 
 func fade_ui(ui: Control, show_ui: bool, overlay: CanvasItem = null) -> Tween:
