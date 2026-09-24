@@ -9,7 +9,7 @@ from pathlib import Path
 from mathutils import Vector
 
 HERE = Path(__file__).resolve().parent
-SCALE = 1.5  # 17.4 m wide x 7.32 m high opening; N26: 14.08 m x 4.744 m.
+SCALE = 2.0  # 23.2 m wide x 9.76 m high opening; N26: 14.08 m x 4.744 m.
 SOURCE = HERE.parents[2] / 'small_hangar/source/small_hangar.blend'
 scene = bpy.data.scenes['AERO_DEMONS_LAYOUT_V2']
 bpy.context.window.scene = scene
@@ -41,7 +41,7 @@ for i, old in enumerate(blocks, 1):
     instance['runtime_scene'] = 'res://scenes/maps/small_hangar.tscn'
     instance['replaces'] = old.name
     instance['door_width_m'] = 11.6*SCALE
-    instance['note'] = 'Uniform N26 scale; entrance +X toward apron; 1.66 m wingtip clearance per side.'
+    instance['note'] = 'Uniform N26 scale; entrance +X toward apron; 4.56 m wingtip clearance per side.'
     bpy.context.view_layer.update()
     door = instance.matrix_world @ Vector((0, -12.36, 0))
     assert abs(door.x-front) < .001 and abs(door.y-old.location.y) < .001

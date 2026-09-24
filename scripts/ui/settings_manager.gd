@@ -48,6 +48,7 @@ const TONEMAP_AGX := 4
 const TONEMAP_COUNT := 5
 
 const CLOUDS_RESOURCE_PATH := "res://resources/environments/tutorial_clouds.tres"
+const GARDA_CLOUDS_RESOURCE_PATH := "res://resources/environments/garda_clouds.tres"
 const GRAPHICS_CFG_PATH := "user://graphics.cfg"
 
 const FPS_LIMITS: Array[int] = [0, 30, 60, 120, 144, 240]
@@ -390,7 +391,7 @@ static func _apply_window(settings: Dictionary) -> void:
 		DisplayServer.window_set_position(centered)
 
 
-## Applies scene-level quality: the shared SunshineClouds resource plus any Sky3D,
+## Applies scene-level quality: the SunshineClouds resources plus any Sky3D,
 ## SkyDome, WorldEnvironment and SunLight nodes currently in the tree. Safe in the
 ## main menu (finds nothing); the level HUD reapplies everything once the map exists.
 static func _apply_scene_quality(root: Viewport, settings: Dictionary) -> void:
@@ -401,16 +402,16 @@ static func _apply_scene_quality(root: Viewport, settings: Dictionary) -> void:
 
 
 static func _apply_clouds(root: Viewport, settings: Dictionary) -> void:
-	# The .tres is shared (not local_to_scene): runtime edits carry into every
-	# scene that instances it, and benchmarks run in separate processes.
-	var clouds: SunshineCloudsGD = ResourceLoader.load(CLOUDS_RESOURCE_PATH)
-	if clouds == null:
-		return
 	var quality := clampi(int(settings.get("clouds_quality", CLOUDS_ULTRA)), 0, CLOUDS_COUNT - 1)
-	clouds.enabled = quality != CLOUDS_OFF
-	if quality != CLOUDS_OFF:
-		apply_cloud_preset(root, clouds, CLOUD_PRESETS[quality])
-	clouds.clouds_coverage = clampf(float(settings.get("clouds_coverage", 0.834)), 0.0, 1.0)
+	var coverage := clampf(float(settings.get("clouds_coverage", 0.834)), 0.0, 1.0)
+	for path in [CLOUDS_RESOURCE_PATH, GARDA_CLOUDS_RESOURCE_PATH]:
+		var clouds: SunshineCloudsGD = ResourceLoader.load(path)
+		if clouds == null:
+			continue
+		clouds.enabled = quality != CLOUDS_OFF
+		if quality != CLOUDS_OFF:
+			apply_cloud_preset(root, clouds, CLOUD_PRESETS[quality])
+		clouds.clouds_coverage = minf(coverage, 0.28) if path == GARDA_CLOUDS_RESOURCE_PATH and quality != CLOUDS_OFF else coverage
 
 
 ## Shared by normal settings and the non-persistent benchmark overrides.

@@ -37,7 +37,7 @@ volumetric_fog_length = 48.0
 environment = SubResource("Environment_hangar")
 
 [node name="Hangar" parent="." instance=ExtResource("1_hangar")]
-scale = Vector3(1.5, 1.5, 1.5)
+scale = Vector3(2, 2, 2)
 
 [node name="Aircraft" parent="." instance=ExtResource("2_aircraft")]
 position = Vector3(0, 1.2, -1.5)

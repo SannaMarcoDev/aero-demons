@@ -143,12 +143,30 @@ func _on_free_flight_pressed() -> void:
 		return
 	_transitioning = true
 	_play_sfx()
-	await hangar_camera.fade_ui(menu_ui, false, vignette).finished
-	await hangar_camera.travel_to(true).finished
 	Session.free_flight = true
-	Session.menu_section = "free_flight"
+	Session.menu_section = ""
 	Session.selected_map = Session.FREE_FLIGHT
-	await _open_loadout()
+	free_flight_btn.text = "CARICAMENTO…"
+	free_flight_btn.disabled = true
+	await get_tree().process_frame
+	var path := Session.FREE_FLIGHT
+	var status := ResourceLoader.load_threaded_get_status(path)
+	var error := OK
+	if status == ResourceLoader.THREAD_LOAD_INVALID_RESOURCE:
+		error = ResourceLoader.load_threaded_request(path)
+	while error == OK and ResourceLoader.load_threaded_get_status(path) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+		await get_tree().process_frame
+	if error == OK and ResourceLoader.load_threaded_get_status(path) == ResourceLoader.THREAD_LOAD_LOADED:
+		var scene := ResourceLoader.load_threaded_get(path) as PackedScene
+		error = Session.change_scene(get_tree(), path, scene) if scene != null else ERR_FILE_CANT_OPEN
+	elif error == OK:
+		error = ERR_FILE_CANT_OPEN
+	if error != OK:
+		free_flight_btn.text = "RIPROVA · FREE FLIGHT"
+		free_flight_btn.disabled = false
+		free_flight_btn.grab_focus()
+		dossier_desc.text = "Impossibile avviare il volo libero. Riprova."
+		_transitioning = false
 
 
 func _on_options_pressed() -> void:
@@ -236,8 +254,8 @@ func _set_dossier(mode_key: String) -> void:
 			threat_badge.modulate = Color(0.2, 0.95, 0.4)
 			dossier_title.text = "VOLO LIBERO (FREE FLIGHT)"
 			dossier_subtitle.text = "SETTORE: GARDA // NESSUN NEMICO RILEVATO"
-			dossier_desc.text = "Configura i due slot missili del caccia predefinito e decolla sopra il Garda. Nessun nemico, nessuna ondata e nessun timer di missione.\n\nProva i comandi di volo oppure esplora liberamente lo scenario. High-G e spin dash non sono disponibili nella build interna. I confini di volo rimangono attivi."
-			dossier_telemetry.text = "SETTORE: GARDA  •  MODALITA': ESPLORAZIONE  •  PAYLOAD: CONFIGURABILE"
+			dossier_desc.text = "Entra subito in volo sopra il Garda con l'armamento già selezionato. Nessun nemico, nessuna ondata e nessun timer di missione.\n\nProva i comandi di volo oppure esplora liberamente lo scenario. High-G e spin dash non sono disponibili nella build interna. I confini di volo rimangono attivi."
+			dossier_telemetry.text = "SETTORE: GARDA  •  MODALITA': ESPLORAZIONE  •  PARTENZA IN VOLO"
 
 		"options":
 			dossier_tag.text = "// AVIONICS & SYSTEM TELEMETRY"

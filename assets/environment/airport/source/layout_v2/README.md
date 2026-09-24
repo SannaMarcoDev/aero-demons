@@ -8,7 +8,7 @@
 - `res://scenes/preview/main_airport_layout_preview.tscn`: anteprima navigabile; WASD/mouse, Q/E quota, Shift velocità, Esc.
 - `11_n26_hangars_row.png`, `12_n26_hangar_entry_open.png`: render finali della fila e di un portale aperto.
 
-Non sostituisce `airport.blend`, gli asset della città o la mappa esistente. Il sorgente del piccolo hangar (`../../../small_hangar/source/small_hangar.blend`) e il suo GLB restano a scala nativa: la scala 1,5× è applicata **solo alle tre istanze dell'aeroporto**, sia in Blender sia in Godot.
+Non sostituisce `airport.blend`, gli asset della città o la mappa esistente. Il sorgente del piccolo hangar (`../../../small_hangar/source/small_hangar.blend`) e il suo GLB restano a scala nativa: la scala 2× è applicata **alle tre istanze dell'aeroporto** in Godot; il sorgente Blender richiede un nuovo export per allinearsi.
 
 ## Geometria
 
@@ -18,9 +18,9 @@ Un unico proxy invisibile `Pavement_collision-colonly` (4099 triangoli) evita gi
 
 ### Hangar per N26
 
-I piazzamenti sono in `asset_placements.json`: centri Blender **(-365,54, -170 / -65 / 40, 0) m**, Z +90°, ingressi verso +X sulla linea **X = -347 m** (in Godot coordinate `(X,Z,-Y)` e rotazione Y +90°). Le tre istanze hanno scala uniforme **1,5×**. Fondazione **37,05 × 42,75 m**; l'apron visivo e i giunti sono ritagliati sulla fondazione, lasciando integro il collider continuo sottostante. Pavimento a quota zero.
+I piazzamenti sono in `asset_placements.json`: centri previsti **(-371,72, -170 / -65 / 40, 0) m**, Z +90°, ingressi verso +X sulla linea **X = -347 m** (in Godot coordinate `(X,Z,-Y)` e rotazione Y +90°). Le tre istanze hanno scala uniforme **2×**. Fondazione prevista **49,4 × 57 m**; il GLB consegnato conserva ancora il ritaglio dell'apron per la vecchia impronta 1,5× e va riesportato da Blender per eliminarne la sovrapposizione. Pavimento a quota zero.
 
-Portale aperto: **17,4 m** di larghezza, circa **7,32 m** di altezza; l'N26 importato misura **14,0784 × 4,744 × 20,7585 m** (larghezza × altezza × lunghezza). Margine orizzontale **1,66 m per estremità alare**; profondità interna circa **36 m**. Dimensioni e collider della porta verificati, ma **non** è stata simulata una manovra di rullaggio con l'aereo effettivo. Non usare l'hangar nativo senza scala per l'N26.
+Portale aperto: **23,2 m** di larghezza, circa **9,76 m** di altezza; l'N26 importato misura **14,0784 × 4,744 × 20,7585 m** (larghezza × altezza × lunghezza). Margine orizzontale **4,56 m per estremità alare**; profondità interna circa **48 m**. Dimensioni e collider della porta verificati, ma **non** è stata simulata una manovra di rullaggio con l'aereo effettivo. Non usare l'hangar nativo senza scala per l'N26.
 
 ## Riproduzione
 

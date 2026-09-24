@@ -12,7 +12,7 @@
 [ext_resource type="PackedScene" path="res://scenes/maps/main_airport_layout.tscn" id="16_8bik1"]
 [ext_resource type="Texture2D" uid="uid://djpfuyxkryegn" path="res://addons/sky_3d/assets/textures/noise.jpg" id="16_noise"]
 [ext_resource type="Texture2D" uid="uid://bm7dot7t7u1q4" path="res://addons/sky_3d/assets/thirdparty/textures/milkyway/StarField.jpg" id="17_stars"]
-[ext_resource type="CompositorEffect" uid="uid://dnuaohkyn5spa" path="res://resources/environments/tutorial_clouds.tres" id="21_sunshine"]
+[ext_resource type="CompositorEffect" path="res://resources/environments/garda_clouds.tres" id="21_sunshine"]
 [ext_resource type="Script" uid="uid://djusduuxf0voj" path="res://addons/SunshineClouds2/SunshineCloudsDriver.gd" id="22_clouds_driver"]
 [ext_resource type="Script" uid="uid://bke3xwkhruy37" path="res://scripts/maps/tutorial_boundary_controller.gd" id="23_boundary"]
 [ext_resource type="Material" uid="uid://30yhc4wq6lxr" path="res://resources/materials/garda_water.tres" id="24_water"]
@@ -121,8 +121,8 @@ shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.7
 shader_parameter/cirrus_size = 1.0
 shader_parameter/cirrus_uv = Vector2(0.045, 0.14)
-shader_parameter/cirrus_position1 = Vector2(0.11541629, 0.11541629)
-shader_parameter/cirrus_position2 = Vector2(0.11541629, 0.11541629)
+shader_parameter/cirrus_position1 = Vector2(0.0491981, 0.0491981)
+shader_parameter/cirrus_position2 = Vector2(0.0491981, 0.0491981)
 shader_parameter/cirrus_texture = SubResource("NoiseTexture2D_clear_cirrus")
 shader_parameter/cumulus_visible = false
 shader_parameter/cumulus_intensity = 0.6
@@ -299,9 +299,9 @@ density = 2.0
 script = ExtResource("28_road_container")
 use_lowpoly_preview = true
 flatten_terrain = false
-edge_containers = Array[NodePath]([NodePath(""), NodePath(""), NodePath(""), NodePath(""), NodePath("")])
-edge_rp_targets = Array[NodePath]([NodePath(""), NodePath(""), NodePath(""), NodePath(""), NodePath("")])
-edge_rp_target_dirs = Array[int]([-1, -1, -1, -1, -1])
+edge_containers = Array[NodePath]([NodePath("../../AirportCity/RoadManager/Ground"), NodePath(""), NodePath(""), NodePath(""), NodePath("")])
+edge_rp_targets = Array[NodePath]([NodePath("UserRoadLink"), NodePath(""), NodePath(""), NodePath(""), NodePath("")])
+edge_rp_target_dirs = Array[int]([1, -1, -1, -1, -1])
 edge_rp_locals = Array[NodePath]([NodePath("WestEnd"), NodePath("EastEnd"), NodePath("X_WestEnd"), NodePath("X_EastEnd"), NodePath("SouthEnd")])
 edge_rp_local_dirs = Array[int]([0, 0, 0, 0, 0])
 

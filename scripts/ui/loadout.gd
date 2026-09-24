@@ -324,25 +324,28 @@ func _on_avvia_pressed() -> void:
 	Session.selected_missiles = _selected_missiles.duplicate()
 	avvia_btn.disabled = true
 	back_btn.disabled = true
-	await hangar_camera.fade_ui($Main, false, $Background).finished
-	await _darken_hangar()
-	loading_screen.modulate.a = 0.0
-	loading_screen.show()
-	await create_tween().tween_property(loading_screen, "modulate:a", 1.0, 0.25).finished
-	# Present the fully black loading screen before the synchronous terrain load.
-	await get_tree().process_frame
-	await get_tree().process_frame
+	if not Session.free_flight:
+		await hangar_camera.fade_ui($Main, false, $Background).finished
+		await _darken_hangar()
+		loading_screen.modulate.a = 0.0
+		loading_screen.show()
+		await create_tween().tween_property(loading_screen, "modulate:a", 1.0, 0.25).finished
+		# Present the fully black loading screen before the synchronous terrain load.
+		await get_tree().process_frame
+		await get_tree().process_frame
 	if Session.change_scene(get_tree(), Session.selected_map) != OK:
-		await create_tween().tween_property(loading_screen, "modulate:a", 0.0, 0.3).finished
-		loading_screen.hide()
-		for light: Light3D in hangar_lights.get_children():
-			light.light_energy = light.get_meta("initial_energy")
-		hangar_environment.environment.ambient_light_energy = 0.38
+		if not Session.free_flight:
+			await create_tween().tween_property(loading_screen, "modulate:a", 0.0, 0.3).finished
+			loading_screen.hide()
+			for light: Light3D in hangar_lights.get_children():
+				light.light_energy = light.get_meta("initial_energy")
+			hangar_environment.environment.ambient_light_energy = 0.38
 		avvia_btn.disabled = false
 		back_btn.disabled = false
 		avvia_btn.text = "RIPROVA"
 		detail_label.text = "Impossibile caricare la missione. Torna al menu e riprova."
-		await hangar_camera.fade_ui($Main, true, $Background).finished
+		if not Session.free_flight:
+			await hangar_camera.fade_ui($Main, true, $Background).finished
 		_launching = false
 		avvia_btn.grab_focus()
 

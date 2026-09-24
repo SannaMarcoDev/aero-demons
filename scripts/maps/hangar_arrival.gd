@@ -1,10 +1,8 @@
 extends Node3D
-## The same S01 door opens in the loaded world before either sortie begins.
+## Open the S01 door in the loaded tutorial before handing over control.
 signal finished
 
-@export var free_flight := false
 var completed := false
-const FLIGHT_SPAWN := Vector3(0, 7114.1436, 0)
 
 func _ready() -> void:
 	var player: PlayerFlight = get_node("../Player")
@@ -30,18 +28,8 @@ func _ready() -> void:
 	hangar.set_open(true)
 	while hangar.openness < 0.999:
 		await get_tree().process_frame
-	if free_flight:
-		await create_tween().tween_property(black, "modulate:a", 1.0, 0.3).finished
-		player.start_on_ground = false
-		player.reset_flight(Transform3D(Basis.IDENTITY, FLIGHT_SPAWN))
-		player._ground_body.queue_free()
-		player._ground_body = null
-		player.get_node("FlightCamera").snap_to_target()
 	player.get_node("FlightCamera").make_current()
 	camera.queue_free()
-	if free_flight:
-		await create_tween().tween_property(black, "modulate:a", 0.0, 0.35).finished
-		player.controls_enabled = true
 	overlay.queue_free()
 	hud.visible = true
 	completed = true

@@ -1,0 +1,69 @@
+[gd_resource type="CompositorEffect" script_class="SunshineCloudsGD" format=3 uid="uid://c207k528um13c"]
+
+[ext_resource type="RDShaderFile" uid="uid://cqhejbalsrvjp" path="res://addons/SunshineClouds2/SunshineCloudsPostCompute.glsl" id="8_qmoll"]
+[ext_resource type="RDShaderFile" uid="uid://dx1y5cye1m1hu" path="res://addons/SunshineClouds2/SunshineCloudsCompute.glsl" id="15_clouds_comp"]
+[ext_resource type="CompressedTexture3D" uid="uid://dei12lsgrjpyu" path="res://addons/SunshineClouds2/NoiseTextures/curl_noise_varied.tga" id="16_clouds_curl"]
+[ext_resource type="CompressedTexture3D" uid="uid://b3uyfsp4in821" path="res://addons/SunshineClouds2/NoiseTextures/bluenoise_Dither.png" id="17_clouds_dither"]
+[ext_resource type="Texture2D" uid="uid://de2nsujnhdlg0" path="res://addons/SunshineClouds2/NoiseTextures/ExtraLargeScaleNoise.tres" id="19_clouds_xlarge"]
+[ext_resource type="Texture2D" uid="uid://uluwoblan66a" path="res://resources/environments/tutorial_cloud_height.tres" id="20_clouds_height"]
+[ext_resource type="NoiseTexture3D" uid="uid://6ed3lvlpbqmg" path="res://addons/SunshineClouds2/NoiseTextures/LargeScaleNoise.tres" id="21_clouds_large"]
+[ext_resource type="NoiseTexture3D" uid="uid://dxyewgt7o40m0" path="res://addons/SunshineClouds2/NoiseTextures/MediumScaleNoise.tres" id="22_clouds_medium"]
+[ext_resource type="RDShaderFile" uid="uid://crfpk8ta4qxsk" path="res://addons/SunshineClouds2/SunshineCloudsPreCompute.glsl" id="24_clouds_pre"]
+[ext_resource type="Script" uid="uid://dnblgqynq1t7l" path="res://addons/SunshineClouds2/SunshineClouds.gd" id="25_clouds_script"]
+[ext_resource type="NoiseTexture3D" uid="uid://bnck2kxeg5bkg" path="res://addons/SunshineClouds2/NoiseTextures/SmallScaleNoise.tres" id="26_clouds_small"]
+
+[resource]
+resource_local_to_scene = false
+resource_name = ""
+enabled = true
+effect_callback_type = 3
+access_resolved_color = true
+access_resolved_depth = true
+needs_motion_vectors = true
+needs_normal_roughness = false
+script = ExtResource("25_clouds_script")
+clouds_coverage = 0.28
+clouds_density = 0.022
+atmospheric_density = 0.7
+lighting_density = 4.0
+use_environment_fog = 0.65
+clouds_anisotropy = 0.22
+clouds_powder = 0.35
+cloud_ambient_color = Color(0.35, 0.4, 0.48, 1)
+cloud_ambient_tint = Color(0.1, 0.15, 0.22, 1)
+atmosphere_color = Color(0.55, 0.64, 0.75, 1)
+sampled_environment_fog_color = Color(0.55, 0.64, 0.75, 1)
+ambient_occlusion_color = Color(0.35, 0.4, 0.5, 0.5)
+accumulation_decay = 0.85
+extra_large_noise_scale = 73332.003
+large_noise_scale = 6500.0
+medium_noise_scale = 1300.0
+small_noise_scale = 320.0
+clouds_sharpness = 0.767
+clouds_detail_power = 1.25
+curl_noise_strength = 250.0
+lighting_sharpness = 0.7
+wind_swept_range = 0.6
+wind_swept_strength = 100.0
+cloud_floor = 2600.0
+cloud_ceiling = 4400.0
+ground_shadow_strength = 0.4
+max_step_count = 700.0
+max_lighting_steps = 16.0
+lod_bias = 0.9
+dither_noise = ExtResource("17_clouds_dither")
+height_gradient = ExtResource("20_clouds_height")
+extra_large_noise_patterns = ExtResource("19_clouds_xlarge")
+large_scale_noise = ExtResource("21_clouds_large")
+medium_scale_noise = ExtResource("22_clouds_medium")
+small_scale_noise = ExtResource("26_clouds_small")
+curl_noise = ExtResource("16_clouds_curl")
+blur_power = 1.65
+min_step_distance = 50.0
+max_step_distance = 140.0
+lighting_travel_distance = 3000.0
+pre_pass_compute_shader = ExtResource("24_clouds_pre")
+compute_shader = ExtResource("15_clouds_comp")
+post_pass_compute_shader = ExtResource("8_qmoll")
+wind_direction = Vector3(1.4, 0, 0.55)
+directional_lights_data = Array[Vector4]([Vector4(0.63845956, 0.73486, 0.22880165, 16), Vector4(1, 0.98, 0.95000005, 0.5)])

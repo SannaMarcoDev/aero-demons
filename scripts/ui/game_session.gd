@@ -34,10 +34,10 @@ static func level_name() -> String:
 	return sector + (" · VOLO LIBERO" if free_flight else " · TUTORIAL")
 
 
-static func change_scene(tree: SceneTree, path: String) -> Error:
+static func change_scene(tree: SceneTree, path: String, packed_scene: PackedScene = null) -> Error:
 	var was_paused := tree.paused
 	tree.paused = false
-	var error := tree.change_scene_to_file(path)
+	var error := tree.change_scene_to_packed(packed_scene) if packed_scene != null else tree.change_scene_to_file(path)
 	if error != OK:
 		tree.paused = was_paused
 		push_error("Cannot open %s: %s" % [path, error_string(error)])
