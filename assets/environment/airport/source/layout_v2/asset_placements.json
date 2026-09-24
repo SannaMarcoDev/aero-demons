@@ -1,0 +1,50 @@
+[
+  {
+    "name": "S01_SmallHangar",
+    "position_blender": [
+      -365.5400085449219,
+      -170.0,
+      0.0
+    ],
+    "yaw_blender_degrees": 90,
+    "foundation_size_xy": [
+      37.05,
+      42.75
+    ],
+    "front_x": -347.0,
+    "scene": "res://scenes/maps/small_hangar.tscn",
+    "scale": 1.5
+  },
+  {
+    "name": "S02_SmallHangar",
+    "position_blender": [
+      -365.5400085449219,
+      -65.0,
+      0.0
+    ],
+    "yaw_blender_degrees": 90,
+    "foundation_size_xy": [
+      37.05,
+      42.75
+    ],
+    "front_x": -347.0,
+    "scene": "res://scenes/maps/small_hangar.tscn",
+    "scale": 1.5
+  },
+  {
+    "name": "S03_SmallHangar",
+    "position_blender": [
+      -365.5400085449219,
+      40.0,
+      0.0
+    ],
+    "yaw_blender_degrees": 90,
+    "foundation_size_xy": [
+      37.05,
+      42.75
+    ],
+    "front_x": -347.0,
+    "scene": "res://scenes/maps/small_hangar.tscn",
+    "scale": 1.5
+  }
+]

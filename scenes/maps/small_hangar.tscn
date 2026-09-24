@@ -1,0 +1,92 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/maps/small_hangar.gd" id="1_33ifa"]
+[ext_resource type="PackedScene" path="res://assets/environment/small_hangar/small_hangar.glb" id="2_xwdif"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_pnqwx"]
+size = Vector3(28.5, 0.36, 24.7)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_yh5kl"]
+size = Vector3(0.4, 0.62, 23.1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_lxbym"]
+size = Vector3(0.4, 0.62, 23.1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_yqkfh"]
+size = Vector3(16.352446, 0.16, 24.65)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_uwri2"]
+points = PackedVector3Array(-5.98, 0, 12, -13.95, 0, 12, -13.95, 0.55, 12, -5.98, 5.36, 12, -5.98, 0, 11.55, -13.95, 0, 11.55, -13.95, 0.55, 11.55, -5.98, 5.36, 11.55)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_7o71t"]
+size = Vector3(16.352446, 0.16, 24.65)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_x504a"]
+points = PackedVector3Array(5.98, 0, 12, 13.95, 0, 12, 13.95, 0.55, 12, 5.98, 5.36, 12, 5.98, 0, 11.55, 13.95, 0, 11.55, 13.95, 0.55, 11.55, 5.98, 5.36, 11.55)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_5snea"]
+points = PackedVector3Array(-5.98, 5.18, 12, 5.98, 5.18, 12, 5.98, 5.36, 12, 0, 8.97, 12, -5.98, 5.36, 12, -5.98, 5.18, 11.55, 5.98, 5.18, 11.55, 5.98, 5.36, 11.55, 0, 8.97, 11.55, -5.98, 5.36, 11.55)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_i7avs"]
+points = PackedVector3Array(-13.95, 0, -11.55, 13.95, 0, -11.55, 13.95, 0.55, -11.55, 0, 8.97, -11.55, -13.95, 0.55, -11.55, -13.95, 0, -12, 13.95, 0, -12, 13.95, 0.55, -12, 0, 8.97, -12, -13.95, 0.55, -12)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_lq4ke"]
+size = Vector3(11.6, 2.55, 0.28)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_l0ioi"]
+size = Vector3(11.6, 2.55, 0.28)
+
+[node name="SmallHangar" type="Node3D" unique_id=1901818594]
+script = ExtResource("1_33ifa")
+
+[node name="Model" type="Node3D" parent="." unique_id=1793257706 instance=ExtResource("2_xwdif")]
+
+[node name="ShellCollision" type="StaticBody3D" parent="." unique_id=458710493]
+
+[node name="Shape0" type="CollisionShape3D" parent="ShellCollision" unique_id=536209148]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.18, 0)
+shape = SubResource("BoxShape3D_pnqwx")
+
+[node name="Shape1" type="CollisionShape3D" parent="ShellCollision" unique_id=2118769531]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.73, 0.31, 0)
+shape = SubResource("BoxShape3D_yh5kl")
+
+[node name="Shape2" type="CollisionShape3D" parent="ShellCollision" unique_id=1734040451]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.73, 0.31, 0)
+shape = SubResource("BoxShape3D_lxbym")
+
+[node name="Shape3" type="CollisionShape3D" parent="ShellCollision" unique_id=2115423190]
+transform = Transform3D(0.85614103, -0.5167422, 0, 0.5167422, 0.85614103, 0, 0, 0, 1, -7, 4.8, 0)
+shape = SubResource("BoxShape3D_yqkfh")
+
+[node name="Shape4" type="CollisionShape3D" parent="ShellCollision" unique_id=1216604858]
+shape = SubResource("ConvexPolygonShape3D_uwri2")
+
+[node name="Shape5" type="CollisionShape3D" parent="ShellCollision" unique_id=965652851]
+transform = Transform3D(0.85614103, 0.5167422, 0, -0.5167422, 0.85614103, 0, 0, 0, 1, 7, 4.8, 0)
+shape = SubResource("BoxShape3D_7o71t")
+
+[node name="Shape6" type="CollisionShape3D" parent="ShellCollision" unique_id=254049208]
+shape = SubResource("ConvexPolygonShape3D_x504a")
+
+[node name="Shape7" type="CollisionShape3D" parent="ShellCollision" unique_id=1765977200]
+shape = SubResource("ConvexPolygonShape3D_5snea")
+
+[node name="Shape8" type="CollisionShape3D" parent="ShellCollision" unique_id=1202699278]
+shape = SubResource("ConvexPolygonShape3D_i7avs")
+
+[node name="DoorUpperCollision" type="AnimatableBody3D" parent="." unique_id=1278817289]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.16, 12.36)
+sync_to_physics = false
+
+[node name="Shape" type="CollisionShape3D" parent="DoorUpperCollision" unique_id=1790004685]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.275, 0.15)
+shape = SubResource("BoxShape3D_lq4ke")
+
+[node name="DoorLowerCollision" type="AnimatableBody3D" parent="." unique_id=1176045072]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.61, 12.36)
+sync_to_physics = false
+
+[node name="Shape" type="CollisionShape3D" parent="DoorLowerCollision" unique_id=2107065726]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.275, 0.15)
+shape = SubResource("BoxShape3D_l0ioi")

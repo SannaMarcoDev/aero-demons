@@ -1,0 +1,73 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/maps/small_hangar_preview.gd" id="1_da315"]
+[ext_resource type="PackedScene" path="res://scenes/maps/small_hangar.tscn" id="2_503dp"]
+[ext_resource type="Script" path="res://scripts/maps/small_hangar.gd" id="3_b2pqy"]
+[ext_resource type="Script" path="res://scripts/camera/free_fly_camera.gd" id="4_o4o87"]
+
+[sub_resource type="Environment" id="Environment_l5rj2"]
+background_mode = 1
+background_color = Color(0.42745098, 0.45882353, 0.4862745, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.6745098, 0.7490196, 0.8156863, 1)
+ambient_light_energy = 0.3
+tonemap_mode = 2
+ssao_enabled = true
+ssao_radius = 0.35
+ssao_intensity = 0.7
+
+[node name="SmallHangarPreview" type="Node3D" unique_id=1732497904]
+script = ExtResource("1_da315")
+
+[node name="Hangar" type="Node3D" parent="." unique_id=1901818594 instance=ExtResource("2_503dp")]
+script = ExtResource("3_b2pqy")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1157049469]
+environment = SubResource("Environment_l5rj2")
+
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=1499719739]
+transform = Transform3D(0.8660254, 0.37157243, -0.33456528, 0, 0.66913056, 0.74314487, 0.5, -0.64358234, 0.57948405, 0, 0, 0)
+light_energy = 1.4
+shadow_enabled = true
+directional_shadow_max_distance = 180.0
+
+[node name="ReviewLamp3" type="OmniLight3D" parent="." unique_id=1344550715]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.25, 7)
+light_color = Color(0.90588236, 0.92156863, 0.85490197, 1)
+light_energy = 2.5
+omni_range = 12.0
+
+[node name="ReviewLamp4" type="OmniLight3D" parent="." unique_id=878886959]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.25, -1)
+light_color = Color(0.90588236, 0.92156863, 0.85490197, 1)
+light_energy = 2.5
+omni_range = 12.0
+
+[node name="ReviewLamp5" type="OmniLight3D" parent="." unique_id=1467836808]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.25, -9)
+light_color = Color(0.90588236, 0.92156863, 0.85490197, 1)
+light_energy = 2.5
+omni_range = 12.0
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1041848176]
+transform = Transform3D(0.7943579, -0.16398284, 0.58489764, 0, 0.9628736, 0.26995277, -0.60745007, -0.21443912, 0.76486623, 26, 15, 35)
+current = true
+fov = 42.0
+far = 350.0
+script = ExtResource("4_o4o87")
+move_speed = 8.0
+
+[node name="UI" type="CanvasLayer" parent="." unique_id=1954985348]
+
+[node name="Controls" type="Label" parent="UI" unique_id=237909973]
+offset_left = 24.0
+offset_top = 20.0
+offset_right = 24.0
+offset_bottom = 20.0
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 18
+text = "H-01  /  SMALL MILITARY HANGAR
+O  open / close    1 exterior   2 interior   3 distance
+WASD + mouse   Q/E height   Shift fast   Esc release mouse / exit"

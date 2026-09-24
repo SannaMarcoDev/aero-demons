@@ -3,6 +3,8 @@ Use the Godot AI MCP whenever possible.
 
 ## Development loop
 
+Do not write any tests.
+
 For implementation tasks, complete this loop; do not stop after writing files:
 
 1. **Inspect:** read applicable instructions and `git status`; preserve existing user changes. Read affected scenes/scripts and trace callers, resource references and node paths before editing.

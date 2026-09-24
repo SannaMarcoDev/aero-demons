@@ -1,0 +1,25 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://assets/environment/airport/main_airport_layout.glb" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/maps/small_hangar.tscn" id="2"]
+
+[node name="MainAirportLayout" type="Node3D"]
+
+[node name="Infrastructure" parent="." instance=ExtResource("1")]
+
+[node name="SmallHangars" type="Node3D" parent="."]
+
+[node name="S01_SmallHangar" parent="SmallHangars" instance=ExtResource("2")]
+position = Vector3(-365.54, 0, 170)
+rotation_degrees = Vector3(0, 90, 0)
+scale = Vector3(1.5, 1.5, 1.5)
+
+[node name="S02_SmallHangar" parent="SmallHangars" instance=ExtResource("2")]
+position = Vector3(-365.54, 0, 65)
+rotation_degrees = Vector3(0, 90, 0)
+scale = Vector3(1.5, 1.5, 1.5)
+
+[node name="S03_SmallHangar" parent="SmallHangars" instance=ExtResource("2")]
+position = Vector3(-365.54, 0, -40)
+rotation_degrees = Vector3(0, 90, 0)
+scale = Vector3(1.5, 1.5, 1.5)
