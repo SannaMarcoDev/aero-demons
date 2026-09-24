@@ -75,6 +75,10 @@ Il nuovo paesaggio **non è certificato a 200 FPS costanti**; le misure storiche
 precedono l'ampliamento dei boschi. Terrain3D e impostazioni personali non vengono
 risalvati dai tool di confronto.
 
+## Sfera energetica viola
+
+Scena pronta all'uso: `scenes/vfx/energy_sphere.tscn`, sfera 3D solida da 500 m con nucleo scuro, energia animata, archi e alone. Anteprima F6: `scenes/vfx/preview/energy_sphere_preview.tscn`. Parametri sull'Inspector del nodo radice; [uso, controlli e limiti](docs/energy-sphere.md). Nessuna mappa o missione modificata.
+
 ## Convenzioni
 
 - Usare `snake_case` per nuovi file e cartelle del progetto; mantenere i nomi originali dei pacchetti esterni.

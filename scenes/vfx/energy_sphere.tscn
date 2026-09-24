@@ -1,0 +1,56 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scripts/vfx/energy_sphere.gd" id="1_script"]
+[ext_resource type="Shader" path="res://resources/shaders/vfx/energy_sphere.gdshader" id="2_surface"]
+[ext_resource type="Shader" path="res://resources/shaders/vfx/energy_sphere_halo.gdshader" id="3_halo"]
+
+[sub_resource type="FastNoiseLite" id="FastNoise_energy"]
+seed = 71
+frequency = 0.065
+fractal_octaves = 3
+
+[sub_resource type="NoiseTexture3D" id="Noise_energy"]
+width = 64
+height = 64
+depth = 64
+seamless = true
+noise = SubResource("FastNoise_energy")
+
+[sub_resource type="ShaderMaterial" id="Material_surface"]
+resource_local_to_scene = true
+shader = ExtResource("2_surface")
+shader_parameter/energy_noise = SubResource("Noise_energy")
+
+[sub_resource type="ShaderMaterial" id="Material_halo"]
+resource_local_to_scene = true
+shader = ExtResource("3_halo")
+
+[sub_resource type="SphereMesh" id="Mesh_sphere"]
+radius = 1.0
+height = 2.0
+radial_segments = 128
+rings = 64
+
+[sub_resource type="SphereShape3D" id="Shape_sphere"]
+resource_local_to_scene = true
+radius = 250.0
+
+[node name="EnergySphere" type="StaticBody3D"]
+collision_layer = 1
+collision_mask = 0
+script = ExtResource("1_script")
+
+[node name="Surface" type="MeshInstance3D" parent="."]
+scale = Vector3(250, 250, 250)
+cast_shadow = 0
+mesh = SubResource("Mesh_sphere")
+material_override = SubResource("Material_surface")
+
+[node name="Halo" type="MeshInstance3D" parent="."]
+scale = Vector3(282.5, 282.5, 282.5)
+cast_shadow = 0
+mesh = SubResource("Mesh_sphere")
+material_override = SubResource("Material_halo")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("Shape_sphere")

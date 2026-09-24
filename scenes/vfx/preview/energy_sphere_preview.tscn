@@ -1,0 +1,106 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/vfx/energy_sphere.tscn" id="1_sphere"]
+[ext_resource type="Script" path="res://scenes/vfx/preview/energy_sphere_preview.gd" id="2_camera"]
+[ext_resource type="PackedScene" path="res://scenes/aircraft/fa_n26.tscn" id="3_aircraft"]
+
+[sub_resource type="ProceduralSkyMaterial" id="Sky_material"]
+sky_top_color = Color(0.022, 0.036, 0.065, 1)
+sky_horizon_color = Color(0.22, 0.28, 0.34, 1)
+ground_bottom_color = Color(0.025, 0.035, 0.05, 1)
+ground_horizon_color = Color(0.22, 0.28, 0.34, 1)
+
+[sub_resource type="Sky" id="Sky"]
+sky_material = SubResource("Sky_material")
+
+[sub_resource type="Environment" id="Environment"]
+background_mode = 2
+sky = SubResource("Sky")
+ambient_light_source = 3
+ambient_light_color = Color(0.4, 0.48, 0.65, 1)
+ambient_light_energy = 0.7
+tonemap_mode = 2
+glow_enabled = true
+glow_intensity = 0.5
+
+[sub_resource type="Shader" id="Grid_shader"]
+code = "shader_type spatial;
+void fragment() {
+ vec2 grid = UV * 100.0;
+ vec2 line = abs(fract(grid - 0.5) - 0.5) / max(fwidth(grid), vec2(0.0001));
+ float ink = 1.0 - min(min(line.x, line.y), 1.0);
+ ALBEDO = mix(vec3(0.035, 0.047, 0.06), vec3(0.13, 0.17, 0.21), ink * 0.5);
+ ROUGHNESS = 0.95;
+}"
+
+[sub_resource type="ShaderMaterial" id="Grid_material"]
+shader = SubResource("Grid_shader")
+
+[sub_resource type="PlaneMesh" id="Ground_mesh"]
+size = Vector2(10000, 10000)
+material = SubResource("Grid_material")
+
+[sub_resource type="BoxMesh" id="Scale_mesh"]
+size = Vector3(12, 100, 12)
+
+[node name="EnergySpherePreview" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-35, -25, 0)
+light_color = Color(0.65, 0.73, 0.95, 1)
+light_energy = 1.4
+
+[node name="EnergySphere" parent="." instance=ExtResource("1_sphere")]
+position = Vector3(0, 500, 0)
+
+[node name="Ground" type="MeshInstance3D" parent="."]
+mesh = SubResource("Ground_mesh")
+
+[node name="Scale100m" type="MeshInstance3D" parent="."]
+position = Vector3(-350, 50, 0)
+mesh = SubResource("Scale_mesh")
+
+[node name="ScaleLabel" type="Label3D" parent="."]
+position = Vector3(-350, 125, 0)
+pixel_size = 0.5
+billboard = 1
+text = "100 m"
+font_size = 32
+
+[node name="AircraftScale" parent="." instance=ExtResource("3_aircraft")]
+position = Vector3(-220, 265, 200)
+rotation_degrees = Vector3(0, -35, -12)
+
+[node name="Camera3D" type="Camera3D" parent="."]
+position = Vector3(0, 540, 1050)
+current = true
+fov = 52.0
+near = 0.5
+far = 20000.0
+script = ExtResource("2_camera")
+move_speed = 180.0
+mouse_look_enabled = false
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Caption" type="Label" parent="HUD"]
+offset_left = 24.0
+offset_top = 20.0
+theme_override_colors/font_color = Color(0.85, 0.8, 1, 1)
+theme_override_colors/font_shadow_color = Color(0.005, 0.005, 0.015, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 20
+text = "ENERGY ANOMALY / DIAMETER 500 m
+1 overview · 2 distant · 3 close · 4 reverse · O orbit · G glow · B background
+WASD / QE move · Shift boost · M mouse look · C flight / impact · H hide UI"
+
+[node name="Status" type="Label" parent="HUD"]
+offset_left = 24.0
+offset_top = 112.0
+theme_override_colors/font_shadow_color = Color(0.005, 0.005, 0.015, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
