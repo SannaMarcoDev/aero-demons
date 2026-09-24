@@ -7,7 +7,7 @@ const CONTEXTS := [
 	["ui_accept", "ui_cancel", "ui_left", "ui_right", "ui_up", "ui_down"],
 	["pitch_up", "pitch_down", "roll_left", "roll_right", "yaw_left", "yaw_right",
 		"accelerate", "brake", "fire_gun", "fire_missile", "cycle_target",
-		"switch_missile", "landing_gear", "pause_menu", "look_left", "look_right", "look_up", "look_down"],
+		"switch_missile", "landing_gear", "pause_menu", "reset_camera", "look_left", "look_right", "look_up", "look_down"],
 ]
 
 

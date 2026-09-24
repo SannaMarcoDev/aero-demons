@@ -12,6 +12,7 @@ const LABELS := {
 	"accelerate": "Accelera", "brake": "Frena", "fire_gun": "Cannone",
 	"fire_missile": "Lancia missile", "cycle_target": "Bersaglio / freno a terra",
 	"landing_gear": "Carrello", "switch_missile": "Cambia missile", "pause_menu": "Pausa",
+	"reset_camera": "Centra visuale",
 	"look_left": "Visuale sinistra", "look_right": "Visuale destra",
 	"look_up": "Visuale su", "look_down": "Visuale giù",
 	"ui_accept": "Conferma", "ui_cancel": "Indietro",

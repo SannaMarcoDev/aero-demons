@@ -1,7 +1,8 @@
 extends Camera3D
 
-const LOOK_ORBIT_LIMIT_DEG := 180.0
-const LOOK_REAR_CURVE := 8.0
+const LOOK_SPEED_DEG := 80.0
+const LOOK_PITCH_LIMIT_DEG := 80.0
+const LOOK_RETURN_RESPONSE := 6.0
 const TRACK_PITCH_LIMIT_DEG := 80.0
 @export_category("Camera tuning")
 ## Higher values follow aircraft rotation faster.
@@ -21,6 +22,8 @@ const SPEED_FOV_RESPONSE := 3.0
 var _follow_transform := Transform3D.IDENTITY
 var _last_target_position := Vector3.ZERO
 var _look_input := Vector2.ZERO
+var _look_angles := Vector2.ZERO
+var _look_returning := false
 var _track_weight := 0.0
 var _cycle_hold_time := 0.0
 var _maneuver_offset := 0.0
@@ -47,13 +50,23 @@ func _physics_process(delta: float) -> void:
 	if SettingsManager.controls_invert_y:
 		look_input.y = -look_input.y
 	look_input = look_input.limit_length(1.0)
-	_look_input = _look_input.lerp(look_input, 1.0 - exp(-look_response * delta))
-	if look_input.is_zero_approx() and _look_input.length_squared() < 0.000001:
+	_look_input = _look_input.lerp(look_input, 1.0 - exp(-look_response * delta)) if not look_input.is_zero_approx() else Vector2.ZERO
+	if Input.is_action_just_pressed("reset_camera") or (not target.grounded and Input.is_action_just_released("cycle_target")):
+		_look_returning = true
 		_look_input = Vector2.ZERO
+	if _look_returning:
+		_look_angles = _look_angles.lerp(Vector2.ZERO, 1.0 - exp(-LOOK_RETURN_RESPONSE * delta))
+		if _look_angles.length_squared() < 0.000001:
+			_look_angles = Vector2.ZERO
+			_look_returning = false
+	elif target.grounded or not Input.is_action_pressed("cycle_target"):
+		_look_angles += _look_input * deg_to_rad(LOOK_SPEED_DEG) * delta
+		_look_angles.x = wrapf(_look_angles.x, -PI, PI)
+		_look_angles.y = clampf(_look_angles.y, deg_to_rad(-LOOK_PITCH_LIMIT_DEG), deg_to_rad(LOOK_PITCH_LIMIT_DEG))
 
-	var normal_transform := _dynamic_transform(_orbit_transform(_follow_transform, _look_input))
+	var normal_transform := _dynamic_transform(_orbit_transform(_follow_transform, _look_angles))
 
-	# Hold cycle_target (>0.25s) to center current target — only camera moves, no aircraft input.
+	# Hold cycle_target (>0.30s) to center current target — only camera moves, no aircraft input.
 	if _targeting == null and target != null:
 		_targeting = target.get_node_or_null("TargetLock") as TargetLock
 	if not target.grounded and Input.is_action_pressed("cycle_target"):
@@ -77,6 +90,8 @@ func _physics_process(delta: float) -> void:
 func snap_to_target() -> void:
 	fov = target.camera_fov
 	_look_input = Vector2.ZERO
+	_look_angles = Vector2.ZERO
+	_look_returning = false
 	_track_weight = 0.0
 	_cycle_hold_time = 0.0
 	_maneuver_offset = 0.0
@@ -142,7 +157,7 @@ func _update_dynamic_camera(delta: float) -> void:
 
 
 func _dynamic_transform(camera_transform: Transform3D) -> Transform3D:
-	var weight := (1.0 - clampf(_look_input.length(), 0.0, 1.0)) * (1.0 - _track_weight)
+	var weight := (1.0 - clampf(_look_angles.length() / deg_to_rad(90.0), 0.0, 1.0)) * (1.0 - _track_weight)
 	var dynamic_rotation := Basis.from_euler(Vector3(
 		0.0,
 		deg_to_rad(-_maneuver_offset * maneuver_yaw_deg * weight),
@@ -152,18 +167,11 @@ func _dynamic_transform(camera_transform: Transform3D) -> Transform3D:
 	return camera_transform
 
 
-func _orbit_transform(camera_transform: Transform3D, look_input: Vector2) -> Transform3D:
-	if look_input.is_zero_approx():
+func _orbit_transform(camera_transform: Transform3D, angles: Vector2) -> Transform3D:
+	if angles.is_zero_approx():
 		return camera_transform
 	var local_camera := _target_anchor().affine_inverse() * camera_transform
-	var strength := clampf(look_input.length(), 0.0, 1.0)
-	var direction := look_input.normalized()
-	var orbit_axis := Vector3(direction.y, direction.x, 0.0)
-	# Keep the old 90-degree range through most of the stick, then open to a rear view at the rim.
-	var orbit_angle := deg_to_rad(
-		LOOK_ORBIT_LIMIT_DEG * 0.5 * (strength + pow(strength, LOOK_REAR_CURVE))
-	)
-	var orbit_rotation := Basis(orbit_axis, orbit_angle)
+	var orbit_rotation := Basis.from_euler(Vector3(angles.y, angles.x, 0.0))
 	var pivot := Vector3(0.0, ORBIT_PIVOT_HEIGHT, 0.0)
 	var orbit_transform := Transform3D(orbit_rotation, pivot - orbit_rotation * pivot)
 	return _target_anchor() * orbit_transform * local_camera
