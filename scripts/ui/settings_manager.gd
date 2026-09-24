@@ -351,6 +351,8 @@ static func _apply_rendering(root: Viewport, settings: Dictionary) -> void:
 		scale = minf(scale, 1.0)
 	if scaling_mode != Viewport.SCALING_3D_MODE_BILINEAR and root.scaling_3d_scale > 1.0:
 		root.scaling_3d_scale = 1.0
+	if scaling_mode == Viewport.SCALING_3D_MODE_FSR2:
+		root.use_taa = false # Clear TAA before selecting FSR2, not after the warning.
 	root.scaling_3d_mode = scaling_mode
 	root.scaling_3d_scale = scale
 	root.fsr_sharpness = clampf(float(settings.get("fsr_sharpness", 0.2)), 0.0, 2.0)
@@ -358,7 +360,7 @@ static func _apply_rendering(root: Viewport, settings: Dictionary) -> void:
 	# with the SunshineClouds pipeline (see freeroam_filter_toggle.gd).
 	match int(settings.get("aa_mode", AA_FXAA)):
 		AA_TAA:
-			root.use_taa = true
+			root.use_taa = scaling_mode != Viewport.SCALING_3D_MODE_FSR2
 			root.screen_space_aa = Viewport.SCREEN_SPACE_AA_DISABLED
 		AA_FXAA:
 			root.use_taa = false

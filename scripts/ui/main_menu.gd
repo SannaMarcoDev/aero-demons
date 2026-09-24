@@ -9,6 +9,7 @@ const Bindings = preload("res://scripts/ui/controller_bindings.gd")
 @onready var storia_btn: Button = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/RootMenu/StoriaButton
 @onready var free_flight_btn: Button = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/RootMenu/FreeFlightButton
 @onready var options_btn: Button = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/RootMenu/OptionsButton
+@onready var benchmark_btn: Button = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/RootMenu/BenchmarkButton
 @onready var quit_btn: Button = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/RootMenu/QuitButton
 
 # Storia Submenu
@@ -89,6 +90,10 @@ func _wire_signals() -> void:
 	options_btn.pressed.connect(_on_options_pressed)
 	options_btn.focus_entered.connect(func(): _set_dossier("options"))
 	options_btn.mouse_entered.connect(func(): _set_dossier("options"))
+
+	benchmark_btn.pressed.connect(_on_benchmark_pressed)
+	benchmark_btn.focus_entered.connect(func(): _set_dossier("benchmark"))
+	benchmark_btn.mouse_entered.connect(func(): _set_dossier("benchmark"))
 
 	quit_btn.pressed.connect(_on_quit_pressed)
 	quit_btn.focus_entered.connect(func(): _set_dossier("quit"))
@@ -181,6 +186,16 @@ func _on_options_pressed() -> void:
 	_set_dossier("options")
 
 
+func _on_benchmark_pressed() -> void:
+	if _transitioning:
+		return
+	_transitioning = true
+	_play_sfx()
+	if Session.change_scene(get_tree(), Session.BENCHMARK) != OK:
+		dossier_desc.text = "Impossibile avviare il benchmark."
+		_transitioning = false
+
+
 func _on_quit_pressed() -> void:
 	if _transitioning:
 		return
@@ -265,6 +280,15 @@ func _set_dossier(mode_key: String) -> void:
 			dossier_subtitle.text = "PARAMETRI AVIONICI // CALIBRAZIONE AUDIO & GRAFICA"
 			dossier_desc.text = "Preset qualità rapidi (Basso→Ultra) oppure controllo fine su nuvole volumetriche (fino a spegnerle), cielo, ombre, effetti post, tonemap, upscaler FSR 1.0/2.2, scala di rendering con supersampling, anti-aliasing, V-Sync e limite FPS.\n\nMixer audio, risoluzione e controlli di volo in coda alla lista. Salvataggio automatico all'uscita."
 			dossier_telemetry.text = "BUS AUDIO: 3 ATTIVI  •  SALVA CON INDIETRO [%s]" % Bindings.action_label("ui_cancel")
+
+		"benchmark":
+			dossier_tag.text = "// PERFORMANCE CALIBRATION"
+			threat_badge.text = "TEST: 1080P ULTRA"
+			threat_badge.modulate = Color(0.3, 0.85, 1.0)
+			dossier_title.text = "BENCHMARK GARDA"
+			dossier_subtitle.text = "TRE PASSAGGI AUTOMATICI // CONFRONTO TRA PC"
+			dossier_desc.text = "Cinque viste e un sorvolo del Garda, 1080p Ultra nativo, V-Sync disattivato. Circa 3–5 minuti, in base al caricamento dello scenario. Mostra score, FPS medi e 1% low; salva i dettagli in un JSON locale. Non misura una battaglia completa."
+			dossier_telemetry.text = "1000 PUNTI = 60 FPS  •  NON INTERROMPERE IL TEST"
 
 		"quit":
 			dossier_tag.text = "// TAC-OPS DISENGAGEMENT"

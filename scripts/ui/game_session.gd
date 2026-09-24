@@ -5,6 +5,7 @@ class_name GameSession
 const AircraftCatalog = preload("res://scripts/aircraft/aircraft_catalog.gd")
 
 const MAIN_MENU := "res://scenes/ui/main_menu.tscn"
+const BENCHMARK := "res://scenes/ui/benchmark.tscn"
 const LOADOUT := "res://scenes/ui/loadout.tscn"
 const DOGFIGHT := "res://scenes/levels/tutorial.tscn"
 const FREE_FLIGHT := "res://scenes/levels/freeroam.tscn"

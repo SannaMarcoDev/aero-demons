@@ -103,14 +103,7 @@ func benchmark() -> void:
 	driver.retrieve_texture_data()
 	reset_weather(driver, clouds)
 	world_env.get_node("SkyDome").process_method = 2
-	var locations := [
-		{"id": "spawn", "pos": Vector3(0, 7114, 0), "pitch": -6.0, "yaw": 15.0},
-		{"id": "clouds", "pos": Vector3(-60000, 3800, -10000), "pitch": -3.0, "yaw": 0.0},
-		{"id": "lake", "pos": Vector3(-60000, 1200, 30000), "pitch": 2.0, "yaw": -55.0},
-		{"id": "alpine", "pos": Vector3(-119420, 3400, -115080), "pitch": -24.0, "yaw": 80.0},
-		{"id": "airport", "pos": Vector3(-36418, 275, 1500), "pitch": -2.0, "yaw": 0.0},
-		{"id": "flight", "path_from": Vector3(-80000, 900, 60000), "path_to": Vector3(-74000, 900, 54000), "pitch": -3.0, "yaw": 0.0},
-	]
+	var locations: Array = Sampler.GARDA_LOCATIONS.duplicate(true)
 	if gameplay:
 		locations = locations.filter(func(loc): return loc.id in ["spawn", "clouds", "airport"])
 		# The static runway pose would fly into airport buildings; use an actual flyover.

@@ -267,7 +267,7 @@ alignment = 0
 custom_minimum_size = Vector2(0, 62)
 layout_mode = 2
 focus_neighbor_top = NodePath("../FreeFlightButton")
-focus_neighbor_bottom = NodePath("../QuitButton")
+focus_neighbor_bottom = NodePath("../BenchmarkButton")
 theme_override_colors/font_color = Color(0.9, 0.94, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
@@ -280,10 +280,27 @@ theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
 text = "[03]   OPTIONS"
 alignment = 0
 
-[node name="QuitButton" type="Button" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/RootMenu"]
+[node name="BenchmarkButton" type="Button" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/RootMenu"]
 custom_minimum_size = Vector2(0, 62)
 layout_mode = 2
 focus_neighbor_top = NodePath("../OptionsButton")
+focus_neighbor_bottom = NodePath("../QuitButton")
+theme_override_colors/font_color = Color(0.9, 0.94, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "[04]   BENCHMARK"
+alignment = 0
+
+[node name="QuitButton" type="Button" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/RootMenu"]
+custom_minimum_size = Vector2(0, 62)
+layout_mode = 2
+focus_neighbor_top = NodePath("../BenchmarkButton")
 focus_neighbor_bottom = NodePath("../StoriaButton")
 theme_override_colors/font_color = Color(0.9, 0.94, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
@@ -294,7 +311,7 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
 theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
-text = "[04]   QUIT"
+text = "[05]   QUIT"
 alignment = 0
 
 [node name="StoriaMenu" type="VBoxContainer" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer"]

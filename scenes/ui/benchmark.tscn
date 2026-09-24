@@ -1,0 +1,93 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/benchmark.gd" id="1_script"]
+[ext_resource type="FontFile" path="res://assets/fonts/Michroma-Regular.ttf" id="2_font"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_result"]
+bg_color = Color(0.02, 0.05, 0.09, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.3, 0.8, 1, 1)
+content_margin_left = 40.0
+content_margin_top = 36.0
+content_margin_right = 40.0
+content_margin_bottom = 36.0
+
+[node name="Benchmark" type="Node3D"]
+script = ExtResource("1_script")
+
+[node name="Overlay" type="CanvasLayer" parent="."]
+layer = 20
+
+[node name="Background" type="ColorRect" parent="Overlay"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.008, 0.015, 0.027, 1)
+
+[node name="Progress" type="Label" parent="Overlay"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 480.0
+offset_top = 28.0
+offset_right = -480.0
+offset_bottom = 85.0
+theme_override_colors/font_color = Color(0.35, 0.85, 1, 1)
+theme_override_colors/font_outline_color = Color(0.01, 0.02, 0.04, 1)
+theme_override_constants/outline_size = 6
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 16
+text = "BENCHMARK  •  CARICAMENTO"
+horizontal_alignment = 1
+
+[node name="ResultPanel" type="CenterContainer" parent="Overlay"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="Overlay/ResultPanel"]
+custom_minimum_size = Vector2(650, 360)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_result")
+
+[node name="VBox" type="VBoxContainer" parent="Overlay/ResultPanel/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 22
+
+[node name="Title" type="Label" parent="Overlay/ResultPanel/Panel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.85, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 15
+text = "// AERO DEMONS  ·  BENCHMARK GARDA"
+
+[node name="Result" type="Label" parent="Overlay/ResultPanel/Panel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.98, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 24
+text = "MISURAZIONE COMPLETATA"
+
+[node name="Detail" type="Label" parent="Overlay/ResultPanel/Panel/VBox"]
+layout_mode = 2
+autowrap_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.82, 0.92, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 12
+text = "1080p ULTRA  •  3 PASSAGGI"
+
+[node name="MenuButton" type="Button" parent="Overlay/ResultPanel/Panel/VBox"]
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 15
+text = "TORNA AL MENU"
