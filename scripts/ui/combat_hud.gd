@@ -86,6 +86,23 @@ var _disconnect_pause := false
 var _controller_missing := false
 var _mission_detail_base := ""
 var tutorial_panel: PanelContainer
+var cinematic_mode := false
+var _cinematic_hidden: Array[CanvasItem] = []
+
+
+func set_cinematic(enabled: bool) -> void:
+	cinematic_mode = enabled
+	if enabled:
+		for child in $HudText.get_children():
+			if child is Label or child == _canvas:
+				if child.visible:
+					_cinematic_hidden.append(child)
+				child.hide()
+	else:
+		for child in _cinematic_hidden:
+			child.show()
+		_cinematic_hidden.clear()
+		_update_labels()
 
 
 class HudCanvas extends Control:
@@ -316,6 +333,8 @@ func _node_from_path(path: NodePath):
 
 
 func _update_labels() -> void:
+	if cinematic_mode:
+		return
 	_objectives_line.text = _objectives_text()
 	if GameSession.free_flight:
 		_score_label.text = "MODE : FREE FLIGHT"

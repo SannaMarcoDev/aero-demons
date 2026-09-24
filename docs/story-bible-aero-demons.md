@@ -1,6 +1,6 @@
 # Aero Demons — Story Bible: fondazione narrativa
 
-> **Stato:** canon narrativo di base / v0.1  
+> **Stato:** canon narrativo di base / v0.2 — collaudo cinematico
 > **Scopo:** raccogliere in un unico punto le decisioni narrative già prese per **Aero Demons**, in modo che mission design, dialoghi, personaggi e futuri agenti partano dalla stessa base.  
 > **Nota:** le voci marcate **TBD** sono volutamente ancora aperte e non vanno considerate decise.
 
@@ -193,7 +193,7 @@ La squadra principale è composta da tre piloti:
 
 - **Demon 1** — protagonista;
 - **Demon 2** — wingwoman e amica storica;
-- **Demon 3** — wingman più recente, proveniente da un ambiente molto più regolamentato.
+- **Demon 3 / Aegis** — ingegnere e secondo wingman, responsabile della ricostruzione del caccia; vola con gli altri due.
 
 Il nome **Aero Demon** è anche il cuore dell'identità del gioco.
 
@@ -214,13 +214,14 @@ Con il tempo Demon 3 smette di essere semplicemente “quello normale” e diven
 ## Demon 1 — Protagonista
 
 **Nome reale:** TBD.  
-**Callsign definitivo:** Demon 1 / eventuale callsign personale TBD.
+**Callsign definitivo:** Demon 1 / Callsign personale: **Aurelius**.
+*(Vedi scheda di dettaglio in `docs/schede-personaggi.md`)*
 
 ### Concetto
 
 È il personaggio controllato dal giocatore.
 
-Non parla mai direttamente.
+Non parla e non compie gesti o manovre per comunicare. Le azioni di gameplay appartengono al giocatore; rullaggio e volo automatico delle cinematiche non sono risposte narrative.
 
 Il suo silenzio non deve essere trattato come una stranezza drammatica: diventa naturalmente parte della dinamica del gruppo.
 
@@ -281,7 +282,8 @@ Nel prototipo attuale l'aereo è rappresentato dall'F/A-26 usato nel tutorial; l
 ## Demon 2 — Wingwoman
 
 **Nome reale:** TBD.  
-**Callsign:** Demon 2 / callsign personale TBD.
+**Callsign:** Demon 2 / Callsign personale: **Ubris**.
+*(Vedi scheda di dettaglio in `docs/schede-personaggi.md`)*
 
 ### Personalità
 
@@ -335,7 +337,11 @@ Questo è il nucleo emotivo della loro relazione.
 ## Demon 3 — Wingman
 
 **Nome reale:** TBD.  
-**Callsign:** Demon 3 / callsign personale TBD.
+**Callsign:** Demon 3 / **Aegis**. Ingegnere e pilota, non una voce da terra.
+
+Ha ricostruito il caccia di Demon 1 e segue la telemetria dal proprio velivolo. Nel tutorial domanda dell'incidente; Demon 2 risponde senza una reazione imposta al protagonista.
+
+In radio si usano Demon 1, 2 e 3 (anche Uno, Due, Tre). I nomi personali sono riservati ai momenti particolari: l'intro nell'hangar è un'eccezione approvata.
 
 ### Personalità iniziale
 
@@ -393,7 +399,7 @@ Demon 2 lo segue volontariamente.
 
 La coppia diventa il nucleo iniziale di **Aero Demon**.
 
-Demon 3 viene assegnato al gruppo più tardi, poco prima o all'inizio degli eventi della campagna.
+Demon 3 partecipa alla ricostruzione dell'aereo prima del gioco e vola con il gruppo nel collaudo iniziale.
 
 ### Timeline indicativa
 
@@ -405,8 +411,8 @@ Demon 3 viene assegnato al gruppo più tardi, poco prima o all'inizio degli even
 6. La task force lo recluta.
 7. Demon 2 decide di seguirlo.
 8. Nasce il nucleo di Aero Demon.
-9. L'aereo entra in un lungo processo di riparazione.
-10. Demon 3 viene successivamente assegnato alla squadra.
+9. L'aereo entra in un lungo processo di riparazione seguito da Aegis.
+10. Aegis assume anche il ruolo operativo di Demon 3, secondo wingman.
 11. **Missione 1:** il velivolo è finalmente pronto per il primo test operativo.
 
 Le distanze temporali esatte tra i punti 3–10 sono ancora **TBD**.
@@ -505,6 +511,10 @@ Serve solo a porre la domanda:
 
 > “Perché questa gente è qui, e perché si sta muovendo così tanto?”
 
+**Flusso concordato del tutorial:** cinematica hangar e uscita → consegna comandi sulla pista → decollo e formazione con Ubris e Aegis → conversazione ed esercizi di volo → fade e zoom manuali sulla sfera scortata da dieci caccia → quattro si separano e intercettano → pannelli armi → combattimento. La prima versione termina dopo i quattro abbattimenti. Sfera e sei scorte residue sono scenici. Nessuna conferma del collegamento con l'incidente: i dati vengono soltanto registrati.
+
+Regia dettagliata: `docs/regia-missione-1-tutorial.md`.
+
 ## Missione 2 — Qualcosa non torna
 
 Aero Demon viene mandato a capire cosa stia facendo il gruppo nemico.
@@ -587,7 +597,7 @@ Questi elementi non sono obbligatori, ma costituiscono un piccolo serbatoio di r
 - Demon 3 ha studiato o sentito parlare della reputazione di Aero Demon prima di entrarci.
 - Demon 3 scopre progressivamente che molte “leggende” sul duo sono probabilmente vere.
 - Il vecchio incidente dell'aereo è un argomento delicato solo quando serve alla trama; il resto del tempo Demon 2 può scherzare sull'atterraggio assurdo che ne seguì.
-- Il modo in cui Demon 1 comunica senza parlare può diventare una gag costante.
+- Le interpretazioni di Demon 2 e Demon 3 possono creare gag, senza attribuire gesti comunicativi a Demon 1.
 - Le storie d'infanzia possono riapparire durante momenti totalmente sproporzionati, per esempio mentre un Kaiju sta distruggendo qualcosa sullo sfondo.
 
 ---
@@ -597,8 +607,8 @@ Questi elementi non sono obbligatori, ma costituiscono un piccolo serbatoio di r
 Quando si scrivono scene o dialoghi:
 
 ### Demon 1
-- non parla;
-- agisce;
+- non parla e non gesticola per comunicare;
+- le sue azioni giocabili sono decise dal giocatore;
 - la sua personalità emerge da ciò che fa e da ciò che gli altri dicono di lui;
 - non trasformare il silenzio in un continuo mistero drammatico.
 
@@ -647,11 +657,14 @@ Demon 1 è importante perché è stato **accidentalmente il primo personaggio pr
 
 Da definire in seguito:
 
+- [x] callsign personali di Demon 1 (**Aurelius**) e Demon 2 (**Ubris**);
+- [x] ruolo e identità di **Demon 3 / Aegis**, ingegnere e pilota, responsabile recupero/avionica e telemetria;
+- [x] schede operative dei 3 protagonisti (vedi `docs/schede-personaggi.md`);
 - [ ] nome della task force indipendente;
 - [ ] nome della fazione nemica;
 - [ ] nome e background dettagliato del leader nemico;
 - [ ] nomi reali di Demon 1, Demon 2 e Demon 3;
-- [ ] callsign personali, se diversi dalla numerazione Demon;
+- [x] callsign personali: Aurelius, Ubris, Aegis;
 - [ ] aspetto visivo dei tre membri;
 - [ ] età dei personaggi;
 - [ ] distanza temporale esatta tra incidente e Missione 1;
@@ -672,7 +685,7 @@ Da definire in seguito:
 2. Il tono è spettacolare, sarcastico e volutamente sopra le righe.
 3. Il protagonista è **muto**.
 4. Demon 1 e Demon 2 si conoscono dall'infanzia.
-5. Demon 3 entra nel gruppo più tardi e arriva da un ambiente più formale.
+5. Demon 3 è Aegis, ingegnere e secondo wingman. Ha ricostruito il caccia e vola nella formazione del tutorial.
 6. **Aero Demon è la squadra**, non il nome della task force.
 7. Demon 1 viene cacciato dalla precedente organizzazione dopo la perdita di un aereo costosissimo.
 8. L'incidente **non è realmente colpa sua**.

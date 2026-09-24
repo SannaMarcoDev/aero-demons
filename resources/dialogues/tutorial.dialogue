@@ -1,26 +1,41 @@
 ~ intro
-Radio: Le riparazioni sono terminate. Questo volo sul Garda serve a controllare che l'aereo risponda bene.
-Radio: Qui fuori è tutto libero. Ti aspettiamo sopra il lago.
+Demon 3: Telemetria agganciata. Aurelius, quel bimotore è costato mesi di notti insonni. Portalo sulla pista e trattalo bene.
+Demon 2: Smettila di fare il tragico, Aegis. È in cielo che deve stare, non chiuso nel tuo hangar a prendere polvere.
+Demon 3: Dico solo che è il primo volo dopo il disastro... andateci piano finché non ho dati stabili sui flussi termici.
+Demon 2: Ricevuto, capo. Allineati alla pista, Aurelius: vediamo se questo ferro ha ancora il morso di un tempo.
 => END
 
-~ contacts
-Radio: Contatti nemici in lontananza. Per ora non stanno attaccando.
-Radio: Avviciniamoci e controlliamo anche la risposta del motore.
+~ collaudo
+Demon 3: Telemetria agganciata. Pressione idraulica perfetta, flussi del carburante regolari... Demon 1, i controlli rispondono persino meglio dei dati di fabbrica.
+Demon 2: Te l'avevo detto di fidarti, Tre. Guarda come fila liscio sopra il lago.
+Demon 3: Sì, ma... dimmi una cosa, Demon 1. Ora che sei di nuovo lassù a stringere quella barra... ti ricordi qualcosa di quell'incidente? Qualsiasi dettaglio che la scatola nera non ha registrato?
+Demon 2: Demon 3, lascialo in pace. Te l'ho già detto cinquanta volte: un secondo prima era a velocità di crociera, il secondo dopo tutti i sistemi erano morti e veniva giù come una pietra.
+Demon 3: Lo so, Due, lo so! Ma nessun impulso convenzionale può friggere un'avionica blindata in quel modo. Volevo solo capire se avesse visto qualcosa... un lampo, una scia anomala...
+Demon 2: Ha visto solo la commissione militare che gli dava la colpa per salvarsi la faccia e coprire il costo del velivolo.
+Demon 3: Quei burocrati non capiscono nulla di fisica dei circuiti. La versione dell'"errore del pilota" era una farsa dal primo giorno.
+Demon 2: Appunto. Quella storia è chiusa: l'aereo è intero, Demon 1 è di nuovo in aria, e stavolta gli copro la coda io.
+Demon 2: Goditi un po' la vista ogni tanto, Tre. La vita è molto di più che matite e schemi insensati.
+=> END
+
+~ sphere
+Demon 3: Aspettate... ho un'anomalia sui sensori. Qualcosa di enorme sta attraversando il settore.
+Demon 2: Contatto visivo. Ma che diavolo... Tre, vedi anche tu quello che vedo io?!
+Demon 3: Lo vedo. I sensori non riescono a classificarlo... sembra una sfera di energia. E ci sono dieci aerei che le fanno da scorta.
+Demon 2: Nessun segnale IFF conosciuto. Chi è quella gente? E cosa diavolo stanno trasportando?
+=> END
+
+~ interceptors
+Demon 3: Quattro contatti si staccano dalla scorta. Stanno virando verso di noi!
+Demon 2: Li vedo! Vengono a chiuderci la bocca prima ancora che possiamo fare domande!
+Demon 3: Demon 1, l'avionica di tiro è in linea. Hai i missili pronti: non farti sorprendere.
+Demon 2: Ricevuto, Tre. A quanto pare il collaudo è finito prima del previsto. Demon 1... facciamogli vedere cosa fa Aero Demon!
 => END
 
 ~ combat
-Radio: Due caccia davanti a noi. Ti copriamo.
+Demon 2: Demon 1, prendi l'iniziativa. Ti copro la coda!
+Demon 3: Tengo d'occhio gli altri due. Tutti i dati sono in registrazione.
 => END
 
-~ after_1
-Radio: Primo gruppo abbattuto. Altri quattro contatti in arrivo da est.
-=> END
-
-~ after_2
-Radio: Secondo gruppo eliminato. Otto nuovi contatti da ovest: restiamo insieme.
-=> END
-
-~ outro
-Radio: Ultimo gruppo abbattuto. Nessun altro contatto nella zona.
-Radio: Area libera. Rientriamo alla base.
+~ half
+Demon 3: Due contatti rimasti. Restiamo uniti!
 => END

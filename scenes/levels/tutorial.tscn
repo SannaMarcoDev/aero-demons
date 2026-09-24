@@ -32,7 +32,8 @@ burst_interval = 5.5
 aim_accuracy = 0.7
 invulnerable = true
 faction_group = "allies"
-label = "WING 1 · COVER"
+label = "DEMON 2 · UBRIS"
+airframe_scale = 2.0
 
 [node name="Wingman2" parent="." unique_id=79740025 instance=ExtResource("6_enemy")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, 7950, -250)
@@ -41,7 +42,8 @@ burst_interval = 5.5
 aim_accuracy = 0.7
 invulnerable = true
 faction_group = "allies"
-label = "WING 2 · SUPPORT"
+label = "DEMON 3 · AEGIS"
+airframe_scale = 2.0
 
 [node name="CombatDirector" type="Node" parent="." unique_id=432296202]
 script = ExtResource("7_director")
@@ -59,76 +61,7 @@ mode_label = "TUTORIAL"
 script = ExtResource("9_mission")
 dialogue = ExtResource("11_dialogue")
 
-[node name="FlightContact" type="Marker3D" parent="." unique_id=1034777400]
-
 [node name="SpawnedEnemies" type="Node3D" parent="." unique_id=1917299753]
-
-[node name="EnemySpawnMarkers" type="Node3D" parent="." unique_id=255367846]
-
-[node name="Encounter1" type="Node3D" parent="EnemySpawnMarkers" unique_id=818369125]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 8000, -5000)
-
-[node name="Bandit01" type="Marker3D" parent="EnemySpawnMarkers/Encounter1" unique_id=59352238]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -300, 80, 0)
-gizmo_extents = 100.0
-
-[node name="Bandit02" type="Marker3D" parent="EnemySpawnMarkers/Encounter1" unique_id=800123999]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, -80, 150)
-gizmo_extents = 100.0
-
-[node name="Encounter2" type="Node3D" parent="EnemySpawnMarkers" unique_id=1580724211]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 4500, 8000, -3500)
-
-[node name="Bandit03" type="Marker3D" parent="EnemySpawnMarkers/Encounter2" unique_id=388005609]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -450, 120, 0)
-gizmo_extents = 100.0
-
-[node name="Bandit04" type="Marker3D" parent="EnemySpawnMarkers/Encounter2" unique_id=506302805]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -150, -120, 200)
-gizmo_extents = 100.0
-
-[node name="Bandit05" type="Marker3D" parent="EnemySpawnMarkers/Encounter2" unique_id=1758613110]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 150, 120, 200)
-gizmo_extents = 100.0
-
-[node name="Bandit06" type="Marker3D" parent="EnemySpawnMarkers/Encounter2" unique_id=1575832460]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 450, -120, 0)
-gizmo_extents = 100.0
-
-[node name="Encounter3" type="Node3D" parent="EnemySpawnMarkers" unique_id=992479204]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -5000, 8000, -2500)
-
-[node name="Bandit07" type="Marker3D" parent="EnemySpawnMarkers/Encounter3" unique_id=1876389073]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -900, 150, 0)
-gizmo_extents = 100.0
-
-[node name="Bandit08" type="Marker3D" parent="EnemySpawnMarkers/Encounter3" unique_id=390584536]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -300, -150, 0)
-gizmo_extents = 100.0
-
-[node name="Bandit09" type="Marker3D" parent="EnemySpawnMarkers/Encounter3" unique_id=167248450]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, 150, 0)
-gizmo_extents = 100.0
-
-[node name="Bandit10" type="Marker3D" parent="EnemySpawnMarkers/Encounter3" unique_id=946072506]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 900, -150, 0)
-gizmo_extents = 100.0
-
-[node name="Bandit11" type="Marker3D" parent="EnemySpawnMarkers/Encounter3" unique_id=880876619]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -900, -150, 700)
-gizmo_extents = 100.0
-
-[node name="Bandit12" type="Marker3D" parent="EnemySpawnMarkers/Encounter3" unique_id=1988440455]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -300, 150, 700)
-gizmo_extents = 100.0
-
-[node name="Bandit13" type="Marker3D" parent="EnemySpawnMarkers/Encounter3" unique_id=437092717]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, -150, 700)
-gizmo_extents = 100.0
-
-[node name="Bandit14" type="Marker3D" parent="EnemySpawnMarkers/Encounter3" unique_id=1869152811]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 900, 150, 700)
-gizmo_extents = 100.0
 
 [node name="HorizonGraphics" type="CanvasLayer" parent="." unique_id=1374869459]
 script = ExtResource("8_horizon")

@@ -23,9 +23,19 @@ func _run() -> void:
 			assert(hud.get_node("SortieController").objectives_text() == ">FREE FLIGHT")
 		else:
 			assert(level.has_node("Wingman1") and level.has_node("Wingman2"))
-			for i in 3:
-				assert(level.get_node("EnemySpawnMarkers/Encounter%d" % (i + 1)).get_child_count() == [2, 4, 8][i])
+			var mission := hud.mission_controller as TutorialMission
+			assert(mission.phase == TutorialMission.Phase.FLIGHT)
+			assert(level.has_node("HangarArrival") and mission.radio.playing)
+			assert(not mission.weapons.firing_enabled and mission.active_enemies.is_empty())
 		level.free()
 		await process_frame
-	print("UTAH LEVELS CHECK PASS")
+	for audio in root.get_node("AudioManager").get_children():
+		if audio is AudioStreamPlayer:
+			audio.stop()
+			audio.stream = null
+	var flush_until := Time.get_ticks_msec() + 600
+	while Time.get_ticks_msec() < flush_until:
+		await process_frame
+		OS.delay_msec(10)
+	print("PASS: Utah levels, airborne tutorial compatibility")
 	quit()
