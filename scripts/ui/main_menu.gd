@@ -227,7 +227,7 @@ func _set_dossier(mode_key: String) -> void:
 			threat_badge.modulate = Color(1.0, 0.4, 0.2)
 			dossier_title.text = "OPERAZIONI AEREE"
 			dossier_subtitle.text = "TUTORIAL SUL GARDA // PREPARA LA MISSIONE"
-			dossier_desc.text = "Configura i due slot missili del caccia predefinito. Il collaudo dell'aereo appena riparato inizia già in volo sul Garda, con due gregari invulnerabili.\n\nProva movimento e velocità durante il collaudo iniziale. Al punto di contatto trovi le spiegazioni di targeting e armi, poi affronti tre gruppi di caccia nemici: 2, poi 4, infine 8."
+			dossier_desc.text = "Configura i due slot missili del caccia predefinito. Il collaudo dell'aereo appena riparato parte dall'hangar dell'aeroporto, con due gregari invulnerabili.\n\nRulla, decolla e prova movimento e velocità durante il collaudo iniziale. Al punto di contatto trovi le spiegazioni di targeting e armi, poi affronti tre gruppi di caccia nemici: 2, poi 4, infine 8."
 			dossier_telemetry.text = "STATO: AUTORIZZATO  •  PAYLOAD: ARMATO  •  RADAR: ATTIVO  •  DATALINK: CONNESSO"
 
 		"free_flight":
@@ -263,7 +263,7 @@ func _set_dossier(mode_key: String) -> void:
 			threat_badge.modulate = Color(1.0, 0.3, 0.2)
 			dossier_title.text = "SETTORE 01: GARDA"
 			dossier_subtitle.text = "COLLAUDO PROTETTO // DUE GREGARI"
-			dossier_desc.text = "Ascolta la radio e prova i comandi di volo. Al punto di contatto, tre box spiegano targeting, missili e mitragliatrice mettendo in pausa il gioco.\n\nPoi affronta liberamente le ondate da 2, 4 e 8 caccia, senza esercizi obbligatori o altre interruzioni tutorial.\n[%s] Conferma · [%s] Pausa / opzioni" % [Bindings.action_label("ui_accept"), Bindings.action_label("pause_menu")]
+			dossier_desc.text = "Apri l'hangar, rulla verso la pista e decolla seguendo gli indicatori. Al punto di contatto, tre box spiegano targeting, missili e mitragliatrice mettendo in pausa il gioco.\n\nPoi affronta liberamente le ondate da 2, 4 e 8 caccia, senza esercizi obbligatori o altre interruzioni tutorial.\n[%s] Conferma · [%s] Pausa / opzioni" % [Bindings.action_label("ui_accept"), Bindings.action_label("pause_menu")]
 			dossier_telemetry.text = "SETTORE: GARDA  •  MISSIONE: TUTORIAL  •  MISSILI: DUE SLOT"
 
 

@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://bheh07h6v4hg5" path="res://scripts/ui/horizon_graphics.gd" id="6_horizon"]
 [ext_resource type="PackedScene" path="res://scenes/ui/combat_hud.tscn" id="7_hud"]
 [ext_resource type="Script" uid="uid://xj5o3oegucop" path="res://scripts/combat/sortie_controller.gd" id="8_sortie"]
+[ext_resource type="Script" path="res://scripts/maps/hangar_arrival.gd" id="9_arrival"]
 
 [node name="Freeroam" type="Node3D" unique_id=1151233576]
 script = ExtResource("5_filters")
@@ -13,7 +14,8 @@ script = ExtResource("5_filters")
 [node name="GardaLake" parent="." unique_id=51425002 instance=ExtResource("1_map")]
 
 [node name="Player" parent="." unique_id=1784232784 instance=ExtResource("2_player")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7114.1436, 0)
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -36786, 239.45, 583.43)
+start_on_ground = true
 camera_fov = 70.0
 camera_height = 3.2
 camera_depth = 22.0
@@ -31,3 +33,7 @@ script = ExtResource("8_sortie")
 
 [node name="HorizonGraphics" type="CanvasLayer" parent="." unique_id=2023952006]
 script = ExtResource("6_horizon")
+
+[node name="HangarArrival" type="Node3D" parent="."]
+script = ExtResource("9_arrival")
+free_flight = true

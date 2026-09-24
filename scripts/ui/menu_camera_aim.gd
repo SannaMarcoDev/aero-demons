@@ -1,8 +1,8 @@
 extends Camera3D
 
 @export var target_position := Vector3(0.0, 0.2, 0.0)
-@export var rear_position := Vector3(-5.5, 4.5, -14.5)
-@export var rear_target := Vector3(-0.5, 2.7, -1)
+@export var rear_position := Vector3(-3, 6, -15)
+@export var rear_target := Vector3(0, 3, 12)
 @export var travel_duration := 2.2
 
 var _overview_position: Vector3
@@ -21,7 +21,7 @@ func set_view(progress: float) -> void:
 	_travel = progress
 	# Arc around the wing and tail rather than cutting through the aircraft.
 	position = _overview_position.bezier_interpolate(
-		Vector3(-17, 4, 5), Vector3(-14, 5, -24), rear_position, progress)
+		Vector3(-19, 6, 10), Vector3(-15, 7, -18), rear_position, progress)
 	look_at(target_position.lerp(rear_target, progress), Vector3.UP)
 
 func travel_to(rear: bool) -> Tween:

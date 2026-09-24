@@ -37,22 +37,14 @@ var _missile_button_list: Array[Button] = []
 var _launching := false
 var _transitioning := true
 @onready var hangar_camera = $HangarViewportContainer/SubViewport/MenuAircraftStage/Camera3D
-@onready var door_player: AnimationPlayer = $HangarViewportContainer/SubViewport/MenuAircraftStage/Hangar/AnimationPlayer
+@onready var hangar_lights: Node3D = $HangarViewportContainer/SubViewport/MenuAircraftStage/Lighting
+@onready var hangar_environment: WorldEnvironment = $HangarViewportContainer/SubViewport/MenuAircraftStage/WorldEnvironment
 @onready var loading_screen: ColorRect = $LoadingScreen
 
 func _ready() -> void:
 	hangar_camera.set_view(1.0)
-	# Imported clips contain rest tracks for the opposite leaf: copy only each moving door.
-	var opening := Animation.new()
-	for side in ["Left", "Right"]:
-		var clip := door_player.get_animation("Action_Front_Door_%s_Slide" % side)
-		opening.length = maxf(opening.length, clip.length)
-		for track in clip.get_track_count():
-			if clip.track_get_path(track) == NodePath("HAS_Front_Door_" + side):
-				clip.copy_track(track, opening)
-	var library := AnimationLibrary.new()
-	library.add_animation("open", opening)
-	door_player.add_animation_library("departure", library)
+	# The shared stage resource belongs to both menus; dim only this instance.
+	hangar_environment.environment = hangar_environment.environment.duplicate()
 	$Main.modulate.a = 0.0
 	$Main.scale = Vector2(0.985, 0.985)
 	$Background.modulate.a = 0.0
@@ -333,17 +325,19 @@ func _on_avvia_pressed() -> void:
 	avvia_btn.disabled = true
 	back_btn.disabled = true
 	await hangar_camera.fade_ui($Main, false, $Background).finished
-	door_player.play("departure/open")
-	await door_player.animation_finished
+	await _darken_hangar()
 	loading_screen.modulate.a = 0.0
 	loading_screen.show()
-	await create_tween().tween_property(loading_screen, "modulate:a", 1.0, 0.8).finished
+	await create_tween().tween_property(loading_screen, "modulate:a", 1.0, 0.25).finished
 	# Present the fully black loading screen before the synchronous terrain load.
 	await get_tree().process_frame
 	await get_tree().process_frame
 	if Session.change_scene(get_tree(), Session.selected_map) != OK:
 		await create_tween().tween_property(loading_screen, "modulate:a", 0.0, 0.3).finished
 		loading_screen.hide()
+		for light: Light3D in hangar_lights.get_children():
+			light.light_energy = light.get_meta("initial_energy")
+		hangar_environment.environment.ambient_light_energy = 0.38
 		avvia_btn.disabled = false
 		back_btn.disabled = false
 		avvia_btn.text = "RIPROVA"
@@ -351,6 +345,16 @@ func _on_avvia_pressed() -> void:
 		await hangar_camera.fade_ui($Main, true, $Background).finished
 		_launching = false
 		avvia_btn.grab_focus()
+
+func _darken_hangar() -> void:
+	var viewport := hangar_camera.get_viewport() as SubViewport
+	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	var environment := hangar_environment.environment
+	create_tween().tween_property(environment, "ambient_light_energy", 0.0, 1.4)
+	for light: Light3D in hangar_lights.get_children():
+		light.set_meta("initial_energy", light.light_energy)
+		await create_tween().tween_property(light, "light_energy", 0.0, 0.2).finished
+	environment.ambient_light_energy = 0.0
 
 func _on_back_pressed() -> void:
 	if _launching or _transitioning:

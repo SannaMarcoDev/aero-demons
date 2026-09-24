@@ -5,7 +5,7 @@ signal flight_training_completed
 
 enum Phase { OPENING, MOVEMENT_READING, MOVEMENT, CONTACT_RADIO, SPEED_READING, APPROACH,
 	TARGET_READING, MISSILE_READING, GUN_READING, COMBAT, WAVE_RADIO, OUTRO,
-	GROUND_READING, TAXI_EXIT, TAXI_APPROACH, TAXI_ALIGN, TAKEOFF_READING, TAKEOFF, CLIMB, GEAR }
+	GROUND_READING, TAXI_EXIT, TAXI_APPROACH, TAXI_FEED, TAXI_TURN, TAXI_ALIGN, TAKEOFF_READING, TAKEOFF, CLIMB, GEAR }
 const PRACTICE_SECONDS := 0.35
 const CONTACT_DISTANCE := 6000.0
 const HANDOFF_DISTANCE := 1800.0
@@ -25,7 +25,7 @@ var _movement_armed := false
 var _acceleration_armed := false
 
 @onready var radio: RadioDialogue = get_node_or_null("../HudText/RadioDialogue")
-@onready var taxi_markers: Array[Node3D] = [get_node_or_null("../../Marker3D"), get_node_or_null("../../Marker3D2"), get_node_or_null("../../Marker3D3"), get_node_or_null("../../Marker3D4")]
+@onready var taxi_markers: Array[Node3D] = [get_node_or_null("../../Marker3D"), get_node_or_null("../../Marker3D2"), get_node_or_null("../../Marker3D3"), get_node_or_null("../../Marker3D4"), get_node_or_null("../../TaxiRunway"), get_node_or_null("../../TaxiTakeoff")]
 @onready var director: CombatDirector = get_node("../../CombatDirector")
 @onready var contact: Marker3D = get_node("../../FlightContact")
 @onready var spawn_root: Node3D = get_node("../../SpawnedEnemies")
@@ -63,7 +63,11 @@ func _start() -> void:
 		_finish("ERRORE MISSIONE", "Marker di rullaggio mancanti")
 		return
 	hud.tutorial_panel.confirmed.connect(_on_tutorial_confirmed)
-	radio.play(dialogue, "intro")
+	var arrival := get_node("../../HangarArrival")
+	if not arrival.completed:
+		await arrival.finished
+	if not terminal:
+		radio.play(dialogue, "intro")
 
 
 func objectives_text() -> String:
@@ -72,16 +76,16 @@ func objectives_text() -> String:
 	match phase:
 		Phase.TAXI_EXIT:
 			return ">ESCI DALL'HANGAR · SEGUI L'INDICATORE\n" + _ground_controls()
-		Phase.TAXI_APPROACH:
-			return ">HANGAR LIBERO · PASSA A SINISTRA DEGLI HANGAR VERSO LA PISTA\n" + _ground_controls()
+		Phase.TAXI_APPROACH, Phase.TAXI_FEED, Phase.TAXI_TURN:
+			return ">SEGUI GLI INDICATORI SUL PIAZZALE VERSO LA PISTA\n" + _ground_controls()
 		Phase.TAXI_ALIGN:
-			return ">CHECKPOINT 3 · ALLINEA IL MUSO LUNGO LA PISTA VERSO NORD\n" + _ground_controls()
+			return ">ALLINEATI ALLA PISTA VERSO NORD\n" + _ground_controls()
 		Phase.TAKEOFF:
 			if player.speed >= player.rotation_speed:
 				return ">ALZA IL MUSO [%s] · DECOLLA LUNGO LA PISTA" % Bindings.action_label("pitch_up")
 			return ">ACCELERA [%s] · ROTAZIONE A %.0f KM/H" % [Bindings.action_label("accelerate"), player.rotation_speed * 3.6]
 		Phase.CLIMB:
-			return ">SALI A %.0f M SOPRA LA PISTA · QUOTA RELATIVA %.0f M" % [safety_height, player.global_position.y - taxi_markers[2].global_position.y]
+			return ">SALI A %.0f M SOPRA LA PISTA · QUOTA RELATIVA %.0f M" % [safety_height, player.global_position.y - taxi_markers[4].global_position.y]
 		Phase.GEAR:
 			return ">RETRAI IL CARRELLO [%s] · ARMI BLOCCATE FINO A RETRAZIONE COMPLETA" % Bindings.action_label("landing_gear")
 		Phase.MOVEMENT:
@@ -115,8 +119,10 @@ func tutorial_contact() -> Node3D:
 		match phase:
 			Phase.TAXI_EXIT: return taxi_markers[0]
 			Phase.TAXI_APPROACH: return taxi_markers[1]
-			Phase.TAXI_ALIGN: return taxi_markers[2]
-			Phase.TAKEOFF: return taxi_markers[3]
+			Phase.TAXI_FEED: return taxi_markers[2]
+			Phase.TAXI_TURN: return taxi_markers[3]
+			Phase.TAXI_ALIGN: return taxi_markers[4]
+			Phase.TAKEOFF: return taxi_markers[5]
 	return contact if phase >= Phase.CONTACT_RADIO and phase <= Phase.APPROACH and not terminal else null
 
 
@@ -177,16 +183,16 @@ func _physics_process(delta: float) -> void:
 	if terminal or get_tree().paused:
 		return
 	match phase:
-		Phase.TAXI_EXIT, Phase.TAXI_APPROACH, Phase.TAXI_ALIGN:
+		Phase.TAXI_EXIT, Phase.TAXI_APPROACH, Phase.TAXI_FEED, Phase.TAXI_TURN, Phase.TAXI_ALIGN:
 			_update_taxi()
 		Phase.TAKEOFF:
-			if not player.grounded and player.global_position.y > taxi_markers[2].global_position.y + 8.0:
+			if not player.grounded and player.global_position.y > taxi_markers[4].global_position.y + 8.0:
 				phase = Phase.CLIMB
 		Phase.CLIMB:
-			if not player.grounded and player.global_position.y >= taxi_markers[2].global_position.y + safety_height:
+			if not player.grounded and player.global_position.y >= taxi_markers[4].global_position.y + safety_height:
 				phase = Phase.GEAR
 		Phase.GEAR:
-			if not player.grounded and player.global_position.y >= taxi_markers[2].global_position.y + safety_height and player.landing_gear_retracted():
+			if not player.grounded and player.global_position.y >= taxi_markers[4].global_position.y + safety_height and player.landing_gear_retracted():
 				movement_practice = Vector3(1.0, 0.0, 1.0) # Credit pitch/rudder already used during departure.
 				phase = Phase.MOVEMENT_READING
 				hud.tutorial_panel.open("COLLAUDO · VOLO", "Decollo completato e carrello retratto.\n\nHai già usato motore, imbardata e beccheggio. Ora prova il rollio [{roll_left} / {roll_right}]: inclina le ali, poi alza il muso per virare.\n\nIn volo, rilasciando accelerazione e decelerazione torni gradualmente alla velocità di crociera. [{landing_gear}] apre o chiude il carrello; le armi funzionano solo a carrello completamente retratto.")
@@ -234,10 +240,15 @@ func _update_taxi() -> void:
 	match phase:
 		Phase.TAXI_EXIT:
 			phase = Phase.TAXI_APPROACH
+			player.camera_depth = 22.0
 		Phase.TAXI_APPROACH:
+			phase = Phase.TAXI_FEED
+		Phase.TAXI_FEED:
+			phase = Phase.TAXI_TURN
+		Phase.TAXI_TURN:
 			phase = Phase.TAXI_ALIGN
 		Phase.TAXI_ALIGN:
-			var runway := taxi_markers[3].global_position - taxi_markers[2].global_position
+			var runway := taxi_markers[5].global_position - taxi_markers[4].global_position
 			runway.y = 0.0
 			var forward := -player.global_basis.z
 			forward.y = 0.0
