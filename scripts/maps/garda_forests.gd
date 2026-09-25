@@ -1,16 +1,16 @@
 extends Node
 ## Camera-local woodland over the entire DEM. No region edits, per-tree nodes or collisions.
 const MESH_ID := 1
+const Landcover = preload("res://scripts/maps/garda_landcover.gd")
 const Development = preload("res://scripts/maps/garda_development.gd")
 const MIN_HEIGHT := 195.0
 const MAX_HEIGHT := 1850.0
 const MIN_NORMAL_Y := 0.819152 # 35 degrees: exposed cliffs remain bare.
-const TILE := 488.28125 # 250 km / 512; each tile owns exactly one understory texel.
-const COVER_SIZE := 512
+const TILE := 488.28125
 
 @export var enabled := true
 @export var seed_value := 7319
-@export_range(8.0, 40.0, 1.0) var spacing := 17.0
+@export_range(8.0, 40.0, 0.5) var spacing := 12.0
 @export_range(2, 20, 1) var radius := 16 # ~7.8 km; beyond the shader's 7 km disappearance.
 var tiles: Dictionary = {}
 var pending: Array[Vector2i] = []
@@ -23,8 +23,6 @@ var largest_tile_msec := 0.0
 var cover_image: Image
 var cover_texture: ImageTexture
 var noise := FastNoiseLite.new()
-var _cover_dirty := false
-var _cover_updates := 0
 var _started := 0
 @onready var terrain: Terrain3D = get_parent().get_node("GardaTerrain")
 
@@ -32,10 +30,12 @@ func _ready() -> void:
 	noise.seed = seed_value
 	noise.frequency = 0.0025
 	noise.fractal_octaves = 3
-	cover_image = Image.create(COVER_SIZE, COVER_SIZE, false, Image.FORMAT_RF)
-	cover_image.generate_mipmaps()
+	cover_image = Landcover.IMAGE
 	cover_texture = ImageTexture.create_from_image(cover_image)
 	terrain.material.set_shader_param("forest_cover", cover_texture)
+	var water := get_parent().get_node_or_null("Water") as MeshInstance3D
+	if water != null:
+		water.get_active_material(0).set_shader_parameter("land_cover", cover_texture)
 	terrain.visibility_changed.connect(func():
 		for tile: Node3D in tiles.values(): tile.visible = terrain.visible)
 	built = not enabled
@@ -52,11 +52,6 @@ func _process(_delta: float) -> void:
 	var start := Time.get_ticks_usec()
 	_build_tile(pending.pop_front())
 	largest_tile_msec = maxf(largest_tile_msec, (Time.get_ticks_usec() - start) / 1000.0)
-	if _cover_dirty and (_cover_updates >= 32 or pending.is_empty()):
-		cover_image.generate_mipmaps()
-		cover_texture.update(cover_image)
-		_cover_updates = 0
-		_cover_dirty = false
 	if pending.is_empty():
 		built = true
 		build_msec = (Time.get_ticks_usec() - _started) / 1000.0
@@ -84,6 +79,7 @@ func update_center(position: Vector3) -> void:
 func make_tile(key: Vector2i) -> Dictionary:
 	var transforms: Array[Transform3D] = []
 	var colors := PackedColorArray()
+	var species := PackedInt32Array()
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_value + key.x * 73856093 + key.y * 19349663
 	var steps := ceili(TILE / spacing)
@@ -91,20 +87,23 @@ func make_tile(key: Vector2i) -> Dictionary:
 	for z in steps:
 		for x in steps:
 			var point := (Vector2(key) + (Vector2(x, z) + Vector2(rng.randf_range(0.1, 0.9), rng.randf_range(0.1, 0.9))) / steps) * TILE
-			var density := 0.85 * smoothstep(-0.32, 0.03, noise.get_noise_2d(point.x, point.y))
+			var cover := Landcover.sample(Vector3(point.x, 0, point.y))
+			var density := smoothstep(0.12, 0.72, cover.r) * (0.80 + 0.20 * smoothstep(-0.4, 0.3, noise.get_noise_2d(point.x, point.y)))
 			if rng.randf() > density: continue
 			var position := Vector3(point.x, 0, point.y)
 			position.y = terrain.data.get_height(position)
 			var normal := terrain.data.get_normal(position)
 			if not suitable(position, normal) or normal.y < MIN_NORMAL_Y + 0.001: continue
-			var scale_value := rng.randf_range(0.75, 1.4)
-			var width := scale_value * rng.randf_range(0.95, 1.3)
+			var scale_value := rng.randf_range(0.65, 1.5)
+			var width := scale_value * rng.randf_range(0.72, 1.25)
 			var basis := Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3(width, scale_value, width))
 			position.y -= 0.15
 			transforms.append(Transform3D(basis, position))
-			var shade := rng.randf_range(0.82, 1.08)
-			colors.append(Color(shade * rng.randf_range(0.92, 1.08), shade, shade * rng.randf_range(0.85, 1.0), 1.0))
-	return {"transforms": transforms, "colors": colors}
+			var shade := rng.randf_range(0.70, 1.05)
+			colors.append(Color(shade * rng.randf_range(0.83, 1.05), shade, shade * rng.randf_range(0.90, 1.12), 1.0))
+			# Mixed stands below the treeline, mostly broadleaf by the lake.
+			species.append(2 if rng.randf() < 0.08 + 0.80 * smoothstep(600.0, 1650.0, position.y) else MESH_ID)
+	return {"transforms": transforms, "colors": colors, "species": species}
 
 func _build_tile(key: Vector2i) -> void:
 	var data := make_tile(key)
@@ -117,12 +116,17 @@ func _build_tile(key: Vector2i) -> void:
 	tile.position = Vector3(key.x * TILE, 0, key.y * TILE)
 	tiles[key] = tile
 	tree_count += transforms.size()
-	# Retain visited density after eviction for distant understory; revisits overwrite, never accumulate.
-	cover_image.set_pixelv(key + Vector2i(256, 256), Color(clampf(float(transforms.size()) / 650.0, 0.0, 1.0), 0, 0))
-	_cover_dirty = true
-	_cover_updates += 1
-	if transforms.is_empty(): return
-	var asset := terrain.assets.get_mesh_asset(MESH_ID)
+	for mesh_id in [MESH_ID, 2]:
+		var selected: Array[Transform3D] = []
+		var colors := PackedColorArray()
+		for i in transforms.size():
+			if data.species[i] == mesh_id:
+				selected.append(transforms[i])
+				colors.append(data.colors[i])
+		if not selected.is_empty(): _add_batch(tile, mesh_id, selected, colors)
+
+func _add_batch(tile: Node3D, mesh_id: int, transforms: Array[Transform3D], colors: PackedColorArray) -> void:
+	var asset := terrain.assets.get_mesh_asset(mesh_id)
 	var batch: MultiMesh
 	var bounds: AABB
 	for lod in 3:
@@ -135,11 +139,11 @@ func _build_tile(key: Vector2i) -> void:
 			var transform := transforms[i]
 			transform.origin -= tile.position
 			batch.set_instance_transform(i, transform)
-			batch.set_instance_color(i, data.colors[i])
+			batch.set_instance_color(i, colors[i])
 		if lod == 0: bounds = batch.get_aabb()
 		batch.custom_aabb = bounds # All LODs switch at the same distance.
 		var node := MultiMeshInstance3D.new()
-		node.name = "Trees_M1_L%d" % lod
+		node.name = "Trees_M%d_L%d" % [mesh_id, lod]
 		node.multimesh = batch
 		node.material_override = asset.material_override
 		node.extra_cull_margin = 1.0
@@ -152,7 +156,7 @@ func _build_tile(key: Vector2i) -> void:
 		tile.add_child(node)
 	# Same inexpensive LOD2 shadow proxy as the Terrain3D asset, also for nearby trees.
 	var shadow := MultiMeshInstance3D.new()
-	shadow.name = "Trees_M1_LS"
+	shadow.name = "Trees_M%d_LS" % mesh_id
 	shadow.multimesh = batch
 	shadow.material_override = asset.material_override
 	shadow.extra_cull_margin = 1.0

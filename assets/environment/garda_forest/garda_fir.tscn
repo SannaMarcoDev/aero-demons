@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="ArrayMesh" path="res://assets/environment/garda_forest/garda_fir_near.res" id="1_near"]
+[ext_resource type="ArrayMesh" path="res://assets/environment/garda_forest/garda_fir_far.res" id="2_far"]
+
+[node name="GardaFir" type="Node3D"]
+
+[node name="Fir_LOD0" type="MeshInstance3D" parent="."]
+mesh = ExtResource("1_near")
+
+[node name="Fir_LOD1" type="MeshInstance3D" parent="."]
+mesh = ExtResource("2_far")
+
+[node name="Fir_LOD2" type="MeshInstance3D" parent="."]
+mesh = ExtResource("2_far")

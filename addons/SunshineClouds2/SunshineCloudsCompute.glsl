@@ -830,6 +830,9 @@ void main() {
 
 	vec3 ambientLight = genericData.data.ambientLightColor.rgb * totalLightPower;
 	ambientLight = mix(ambientLight, ambientLight * aobase.rgb, ambient * aobase.a) * paintedColor;
+	// The post pass blends radiance by opacity. Average the lighting samples here:
+	// summing them made thin clouds overexpose as march quality increased.
+	lightColor.rgb /= max(lightingSamples, 1.0);
 	lightColor.rgb += ambientLight;
 	// lightColor.rgb = ambientLight + clamp(lightColor.rgb / lightingSamples, vec3(0.0), vec3(1.0));
 	lightColor.a = density;

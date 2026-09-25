@@ -7,6 +7,8 @@ group_uniforms Water;
 uniform vec3 water_color : source_color = vec3(0.055, 0.145, 0.18);
 uniform float surface_roughness : hint_range(0.08, 0.6) = 0.23;
 uniform float normal_strength : hint_range(0.0, 1.0) = 0.38;
+// Same immutable landscape map as the terrain: BA encodes elevation, not opacity.
+uniform sampler2D land_cover : filter_linear, repeat_disable;
 
 group_uniforms Ripples;
 uniform sampler2D wave_normal : hint_normal, repeat_enable, filter_linear_mipmap_anisotropic;
@@ -25,8 +27,7 @@ void vertex() {
 
 void fragment() {
 	vec2 p = world_position.xz;
-	// Fixed phase: retain the approved ripples without scrolling them.
-	vec2 drift = vec2(9.6, 3.6);
+	vec2 drift = vec2(9.6, 3.6) + TIME * vec2(0.32, 0.12);
 	float distance_to_camera = length(VERTEX);
 	float fine_weight = 1.0 - smoothstep(250.0, 3000.0, distance_to_camera);
 	float wave_weight = 1.0 - smoothstep(2500.0, 16000.0, distance_to_camera);
@@ -44,7 +45,12 @@ void fragment() {
 
 	// Subtle wind patches, not luminous foam or tropical caustics.
 	float patch = texture(surface_noise, (p - drift * 0.25) / 11000.0).r;
-	ALBEDO = water_color * mix(0.88, 1.12, patch);
+	vec2 map_uv = (p + vec2(125000.0)) / 250000.0;
+	vec2 packed_height = texture(land_cover, map_uv).ba;
+	float bed = dot(packed_height, vec2(65280.0, 255.0)) / 65535.0 * 4224.0 - 128.0;
+	float shallow = (1.0 - smoothstep(2.0, 30.0, max(world_position.y - bed, 0.0)));
+	shallow *= step(0.0, map_uv.x) * step(map_uv.x, 1.0) * step(0.0, map_uv.y) * step(map_uv.y, 1.0);
+	ALBEDO = mix(water_color, vec3(0.008, 0.026, 0.021), shallow * 0.55) * mix(0.88, 1.12, patch);
 	METALLIC = 0.0;
 	SPECULAR = 0.35; // Godot dielectric F0 = 0.16 * SPECULAR^2: water ~0.02.
 	// Broaden unresolved glints instead of sparkling at flight altitude.

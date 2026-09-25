@@ -204,6 +204,44 @@ void add_surface(float id, float weight, vec3 n, vec3 dx, vec3 dy,
 	total += height_weight;
 }
 
+// Metre-scale irregular parcels; a single world-space pattern at every flight LOD.
+vec2 parcel_hash(vec2 p) {
+	return fract(sin(vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)))) * 43758.5453);
+}
+
+vec3 farmland(vec2 p, float variation) {
+	mat2 turn = mat2(vec2(0.9063, 0.4226), vec2(-0.4226, 0.9063));
+	vec2 q = turn * p / 1800.0;
+	q += vec2(texture(surface_noise, p / 6800.0).r, texture(surface_noise, p / 6800.0 + 0.37).r) * 0.20;
+	vec2 lower = floor(q);
+	vec2 upper = lower + 1.0;
+	vec2 chosen = lower;
+	// Unequal rectangular subdivisions, not Voronoi honeycomb or a uniform chessboard.
+	for (int i = 0; i < 5; i++) {
+		vec2 random = parcel_hash(chosen + float(i) * 19.7);
+		bool axis = (upper.x - lower.x) > (upper.y - lower.y);
+		float split = mix(axis ? lower.x : lower.y, axis ? upper.x : upper.y, mix(0.30, 0.70, random.x));
+		bool side = (axis ? q.x : q.y) > split;
+		if (axis) { if (side) { lower.x = split; } else { upper.x = split; } }
+		else { if (side) { lower.y = split; } else { upper.y = split; } }
+		chosen = chosen * 1.31 + vec2(side ? 7.13 : 2.71, float(i) + 1.0);
+	}
+	vec2 seed = parcel_hash(chosen + 53.0);
+	vec3 crop = mix(vec3(0.090, 0.123, 0.040), vec3(0.165, 0.185, 0.080), seed.x);
+	if (seed.x > 0.68) { crop = mix(vec3(0.155, 0.128, 0.075), vec3(0.235, 0.205, 0.115), seed.y); }
+	vec2 direction = (upper.x - lower.x) > (upper.y - lower.y) ? vec2(-0.4226, 0.9063) : vec2(0.9063, 0.4226);
+	float row = dot(p, direction) / mix(4.0, 8.0, seed.x);
+	float stripes = sin(row * 6.28318) * (1.0 - smoothstep(0.25, 0.75, fwidth(row)));
+	Surface soil = sample_tile(p / 45.0 + seed * 17.0, dFdx(p) / 45.0, dFdy(p) / 45.0, seed.x > 0.68 ? 3.0 : 2.0);
+	float detail = clamp(dot(soil.albedo_height.rgb, vec3(0.2126, 0.7152, 0.0722)) / 0.24, 0.45, 1.7);
+	crop *= (0.82 + stripes * 0.06 + variation * 0.26) * mix(0.6, 1.25, detail / 1.7);
+	// Narrow grassy margins, not roads. Filter subpixel boundaries.
+	vec2 border = min(q - lower, upper - q) * 1800.0;
+	float edge = min(border.x, border.y);
+	float interior = smoothstep(0.7, 2.2 + fwidth(edge), edge);
+	return mix(vec3(0.072, 0.103, 0.039), crop, interior);
+}
+
 void fragment() {
 	vec2 uv = UV; // Terrain3D editor/checker overlay injection expects this local.
 	vec3 n = terrain_normal(uv);
@@ -213,7 +251,8 @@ void fragment() {
 	float large = textureGrad(surface_noise, v_vertex.xz / macro_size + continental * 0.7, dx.xz / macro_size, dy.xz / macro_size).r;
 	float medium = textureGrad(surface_noise, v_vertex.xz / 170.0 + vec2(0.27), dx.xz / 170.0, dy.xz / 170.0).r;
 	float small = textureGrad(surface_noise, v_vertex.xz / 23.0, dx.xz / 23.0, dy.xz / 23.0).r;
-	// ponytail: procedural biomes, not geographic land cover; add classified masks for forests/fields.
+	// Authored land use is static across all 250 km, independent of streamed tree tiles.
+	vec4 cover = texture(forest_cover, (v_vertex.xz + vec2(125000.0)) / 250000.0);
 	float slope = 1.0 - n.y;
 	float rock = smoothstep(rock_start, max(rock_start + 0.01, rock_end), slope + (medium - 0.5) * 0.13);
 	rock = max(rock, smoothstep(1850.0, 2600.0, v_vertex.y + (large - 0.5) * 450.0) * 0.85);
@@ -236,9 +275,19 @@ void fragment() {
 	perturbation -= n * dot(n, perturbation);
 	NORMAL = normalize(mat3(VIEW_MATRIX) * normalize(n + perturbation));
 	float macro = 1.0 + ((large - 0.5) * 0.8 + (medium - 0.5) * 0.4) * macro_strength;
-	// Runtime canopy density, shared with actual tree placement; broad understory remains at flight LOD.
-	float woodland = texture(forest_cover, (v_vertex.xz + vec2(125000.0)) / 250000.0).r;
-	ALBEDO = albedo * inv_weight * macro * mix(vec3(1.0), vec3(0.67, 0.76, 0.59), woodland * (1.0 - rock) * (1.0 - snow));
+	vec3 ground = albedo * inv_weight * macro;
+	float cultivation = smoothstep(0.18, 0.72, cover.g) * (1.0 - rock) * (1.0 - snow);
+	if (cultivation > 0.001) { ground = mix(ground, farmland(v_vertex.xz, medium), cultivation); }
+	float woodland = smoothstep(0.12, 0.72, cover.r) * (1.0 - rock) * (1.0 - snow);
+	vec3 canopy = vec3(0.032, 0.053, 0.024) * mix(0.72, 1.28, medium) * mix(0.85, 1.15, small);
+	ground = mix(ground, canopy, woodland * 0.88);
+	// Exposed gravel and damp mineral banks replace grass dipping straight into the lake.
+	float shore = (1.0 - smoothstep(186.0, 190.0, v_vertex.y + (medium - 0.5) * 2.0)) * (1.0 - smoothstep(0.2, 0.6, slope));
+	if (shore > 0.001) {
+		Surface gravel = sample_tile(v_vertex.xz / 5.0, dx.xz / 5.0, dy.xz / 5.0, 5.0);
+		ground = mix(ground, gravel.albedo_height.rgb * vec3(0.48, 0.50, 0.46), shore);
+	}
+	ALBEDO = ground;
 	ROUGHNESS = clamp(roughness * inv_weight, 0.55, 1.0);
 	SPECULAR = 0.25;
 }

@@ -1,6 +1,97 @@
 # Garda — revisione paesaggio e confronto Nuclear Option
 
-## Risultato e limiti
+## Pass corrente — mosaico rurale, boschi misti e atmosfera (25 settembre 2026)
+
+**Aeroporto, edifici, strade, DEM, scala e confini invariati.** Intervento sulla
+mappa condivisa da freeroam/tutorial, non su una scena dimostrativa.
+
+- Copertura immutabile 4096² dell'intero DEM: bosco/cultivazione in RG, quota
+  a 16 bit in BA. Sottobosco, distribuzione degli alberi e fondale usano gli stessi
+  dati, senza dipendere dalle zone già visitate. Generatore: `tools/bake_garda_landcover.gd`.
+  Le esclusioni esistenti di `garda_development.gd` restano attive.
+- Campi irregolari con colori delle colture, solchi filtrati e margini erbosi
+  nello shader; nessuna nuova strada. Texture montana CC0 Aerial Rocks 02,
+  transizioni ghiaiose alla riva e acqua animata con colore di basso fondale.
+  Piano acqua esteso per rimuovere il bordo rettangolare precedentemente visibile.
+- Conifera CC0 Poly Haven accanto alla latifoglia: miscela dipendente dalla quota,
+  spaziatura nominale 12 m, massimo 797 tile residenti, stessi LOD e dissolvenza.
+  [Sorgenti/bake](../assets/environment/garda_forest/SOURCES.md),
+  [texture roccia](../textures/terrain/garda/SOURCES.md).
+- Mattino fisso alle 09:00, luce indiretta ridotta e ombre Garda estese a 8/16 km
+  per High/Ultra; Low/Medium e le altre mappe mantengono la distanza precedente.
+  Nuvole volumetriche sparse 2600–4400 m, copertura massima Garda 0,68, cirri più
+  discreti e foschia progressiva. La somma della luce nel compute Sunshine è ora
+  normalizzata per il numero di campioni: è un correttivo dello shader condiviso.
+
+### Confronto e misure
+
+[Prima/dopo: cinque camere identiche](images/landscape-review/rural-before-after.jpg)
+· [Passaggio basso](images/landscape-review/rural-motion.jpg)
+· [Misure complete e frame time grezzi](images/landscape-review/rural-measurements.json).
+Camera/FOV identici; luce e meteo cambiano volutamente. Le immagini al suolo
+aggiunte dopo la baseline non sono presentate come confronti prima/dopo.
+
+Godot 4.7.2, Linux/Vulkan Forward+, RX 9070 XT, 1920×1080 nativo, TAA, Ultra.
+Catture statiche dopo streaming: 139–222 FPS nelle 13 viste del run `final`,
+GPU mediana 4,24–6,79 ms; il passaggio ravvicinato aggiunto misura 124 FPS.
+Ultimo run in movimento (`final-settled`), quattro segmenti da 8 s a circa
+348 m/s, senza I/O delle immagini, vento e aggiornamenti Sunshine attivi:
+
+| Segmento | FPS | GPU mediana ms | p95 frame ms | massimo ms |
+|---|---:|---:|---:|---:|
+| Valle | 124,8 | 5,165 | 10,914 | 15,757 |
+| Lago | 173,6 | 3,813 | 7,573 | 10,763 |
+| Alpi | 195,5 | 3,172 | 6,696 | 9,840 |
+| Quota 5 km | 155,6 | 4,485 | 7,930 | 11,017 |
+
+Memoria rendering indicata da Godot: circa **4820 MiB**, non una misura esterna
+completa della VRAM. Massimo lavoro CPU per tile bosco 8,82 ms. I run precedenti
+hanno FPS diversi: non sono medie di benchmark ripetuti né garanzie di fluidità
+su tutta la mappa o per sessioni lunghe. I quattro segmenti coprono zone distinte,
+non un volo continuo attraverso tutti i 250 km.
+
+### Verifiche e limiti rimasti
+
+- `git diff --check`: PASS; nessuna modifica alle regioni DEM o agli asset aeroportuali.
+- `garda_surface_review.gd --check`: PASS headless, risorse e otto viste del DEM.
+- `garda_forest_review.gd`: PASS headless e Forward+; adattato il verificatore
+  esistente ai due gruppi di specie e alla maschera statica. Determinismo,
+  inclusione/esclusione, riuso/eviction, LOD/proxy e readback dei buffer sulla GPU.
+- `garda_screenshot_capture.gd`: PASS, dieci camere originali in `original-cameras/`;
+  rimosso il limite di 60 frame che lasciava lo streaming incompleto. Il limite
+  temporale è gestito dal runner esterno, non da una cattura parziale silenziosa.
+- Catture e quattro tratti in movimento: PASS; volo con fisica/HUD per 12 s,
+  circa 1893 m percorsi e salute 100. Marker espliciti, exit 0, nessun errore script.
+- Freeroam (`r859881-1`) e tutorial (`r911192-2`) avviati tramite Godot AI MCP
+  con `autosave=false`, confermati **live**, log game e boot/editor controllati;
+  nessun errore del run. Errori `OptionsPanel` in vecchi verificatori controller
+  erano già trattenuti nel log editor prima del cursore 6, non errori dei due avvii.
+- Corretto il warmup della cattura: prima si assestava una posa troppo bassa e
+  solo al primo frame misurato veniva applicata la distanza di sicurezza dal DEM,
+  producendo macchie chiare temporali. Ora posa, orientamento, streaming e storia
+  TAA/nuvole si stabilizzano prima del movimento. Le immagini `final-settled`
+  sostituiscono le sequenze intermedie `final`/`final-motion`.
+- Rimangono warning UID FA-N26, collegamento Road Generator e API deprecata;
+  alla chiusura GPU sono segnalati RID Compute/Shader/Sampler/Vertex non liberati.
+  Il run termina correttamente, ma **il teardown GPU non è privo di warning**.
+  Non è stata eseguita l'intera suite; i vecchi controlli di cielo/impostazioni
+  contengono aspettative di ora/meteo/distanza ombre precedenti a questa direzione.
+- **Non è ancora parità con Nuclear Option**: chiome/impostori ripetuti, sponde e
+  sagome limitate dal DEM, campi procedurali anziché GIS e dettaglio delle nuvole
+  ancora morbido. Nessuna fog aggiunta per occultare i limiti geografici. Serve
+  approvazione estetica dell'utente, distinta dai controlli di avvio.
+
+Catture PNG: `subagent-artifacts/garda-lookdev/final/`; movimento corretto:
+`final-settled/`; log: `subagent-artifacts/garda-lookdev/logs/`. Artefatti locali
+ignorati da Git; i confronti JPEG e le misure qui collegate sono conservati in `docs/`.
+
+```sh
+node tools/run_godot_check.cjs 300 /tmp/garda-review.log GODOT --path . --script res://tools/landscape_review.gd -- --out=res://subagent-artifacts/garda-lookdev/new-run --motion --gameplay
+```
+
+Le sezioni seguenti documentano **revisioni storiche**, non i parametri correnti.
+
+## Risultato e limiti (revisione precedente)
 
 La revisione è integrata nella **mappa reale condivisa da freeroam e tutorial**, non in una scena dimostrativa: chiome ricostruite, boschi estesi con radure e margini irregolari, sottobosco collegato alla densità effettiva, erba locale, roccia meno blu, nuvole più frammentate e atmosfera meno opaca.
 

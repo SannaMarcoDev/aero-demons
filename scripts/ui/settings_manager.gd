@@ -425,7 +425,7 @@ static func _apply_clouds(root: Viewport, settings: Dictionary) -> void:
 		clouds.enabled = quality != CLOUDS_OFF
 		if quality != CLOUDS_OFF:
 			apply_cloud_preset(root, clouds, CLOUD_PRESETS[quality])
-		clouds.clouds_coverage = minf(coverage, 0.28) if path == GARDA_CLOUDS_RESOURCE_PATH and quality != CLOUDS_OFF else coverage
+		clouds.clouds_coverage = minf(coverage, 0.68) if path == GARDA_CLOUDS_RESOURCE_PATH and quality != CLOUDS_OFF else coverage
 
 
 ## Shared by normal settings and the non-persistent benchmark overrides.
@@ -466,7 +466,8 @@ static func _apply_shadows(root: Viewport, settings: Dictionary) -> void:
 		sun.shadow_enabled = bool(preset["enabled"])
 		if preset["enabled"]:
 			sun.directional_shadow_mode = int(preset["mode"])
-			sun.directional_shadow_max_distance = float(preset["distance"])
+			var landscape_scale := float(node.get_meta("shadow_distance_scale", 1.0)) if int(settings.get("shadows", SHADOWS_HIGH)) >= SHADOWS_HIGH else 1.0
+			sun.directional_shadow_max_distance = float(preset["distance"]) * landscape_scale
 			if sun.directional_shadow_mode == DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS:
 				sun.directional_shadow_split_1 = 0.025
 				sun.directional_shadow_split_2 = 0.08

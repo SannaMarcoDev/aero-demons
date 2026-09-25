@@ -3,7 +3,7 @@
 Asset: [Marble Cliff 01](https://polyhaven.com/a/marble_cliff_01), Poly Haven.
 Downloadable textures are **CC0 1.0 / public domain**: modification and commercial redistribution permitted; attribution appreciated, not required. [License](https://polyhaven.com/license), [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
 
-Only this rock asset was added. Grass, rocky ground and snow remain the existing project assets. The surface shader's Terrain3D geometry code derives from the installed 1.0.2 minimum shader; its MIT license is in `addons/terrain_3d/LICENSE.txt`.
+Marble Cliff was the original added rock asset; the current pass uses Aerial Rocks 02 below. Grass, rocky ground and snow remain the existing project assets. The surface shader's Terrain3D geometry code derives from the installed 1.0.2 minimum shader; its MIT license is in `addons/terrain_3d/LICENSE.txt`.
 
 ## Original 2048 × 2048 PNG sources
 
@@ -24,3 +24,23 @@ No rescaling or upscaling. Diffuse RGB + displacement in alpha; OpenGL normal RG
 - `marble_cliff_01_normal_packed.png` SHA-256: `f60ae4ba206123834398dab6a5a0bc1f10ad0585e07cc446b738f84100510de2`
 
 Repack with Pillow: convert the diffuse and normal images to `RGBA`, `putalpha()` the corresponding displacement/roughness converted to `L`, then save as PNG. Do not invert the OpenGL normal's green channel.
+
+## Current mountain texture — Aerial Rocks 02
+
+[Aerial Rocks 02](https://polyhaven.com/a/aerial_rocks_02), Poly Haven, **CC0** under the license linked above.
+Uses the same 2K packing as Marble Cliff; no rescaling. Packed files:
+`aerial_rocks_02_albedo_packed.png` and `aerial_rocks_02_normal_packed.png`.
+Mipmaps enabled, lossless import, normal-map conversion and alpha-border processing
+explicitly disabled because alpha carries height/roughness, not transparency.
+
+Base URL: `https://dl.polyhaven.org/file/ph-assets/Textures/png/2k/aerial_rocks_02/`
+
+| Original file | SHA-256 |
+| --- | --- |
+| `aerial_rocks_02_diff_2k.png` | `6d0319b0ebc97dae5e7ebeb02fe9252bdc78654b46b276907222a12935c07b18` |
+| `aerial_rocks_02_disp_2k.png` | `3f080f5bec4b092ad4a7a6324c727010905c0f10b900a36bdeab4b2ef741147c` |
+| `aerial_rocks_02_nor_gl_2k.png` | `53d4c2cac90801132a99054bd7d6132b230ddf9b12cc20c515caa7da0da6f01a` |
+| `aerial_rocks_02_rough_2k.png` | `2f5f3f21d17a82378f29ea3501b5f5d5bc827493bc309e5f7ab1c0795880fdb2` |
+
+Source downloads were also checked against the Poly Haven API's MD5 manifest.
+The previous Marble Cliff files are retained for older scenes/comparisons.

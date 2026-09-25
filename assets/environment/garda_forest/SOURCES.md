@@ -110,5 +110,36 @@ Godot di override è quello verificato nei test di gioco.
 - `garda_broadleaf_normals.png` (1.624.754 byte):
   `77d9d1bd8449d5c17f82049ee4d8c31278d4e840ac94df09af7dac874947c2e2`
 
+## Conifera aggiunta — Fir Tree 01 (Poly Haven, CC0)
+
+[Asset](https://polyhaven.com/a/fir_tree_01), [licenza CC0](https://polyhaven.com/license),
+[manifest dei download](https://api.polyhaven.com/files/fir_tree_01).
+La variante B è ridimensionata a 22 m e semplificata dal generatore LOD di Godot.
+`garda_fir.tscn` registra la geometria vicina e le proiezioni frontale/laterale/superiore
+nello slot Terrain3D **2**. I LOD 1 e 2 riutilizzano lo stesso impostore da 6 triangoli.
+Nessun acquisto e nessuna dipendenza aggiuntiva nel gioco.
+
+Ricostruzione dalla radice del progetto (sovrascrive gli asset della conifera):
+
+```sh
+python3 tools/fetch_garda_fir.py
+node tools/run_godot_check.cjs 120 /tmp/fir-bake.log GODOT --path . --script res://tools/bake_garda_fir.gd
+```
+
+Il downloader richiede Pillow, verifica gli MD5 upstream e conserva il manifest
+in `subagent-artifacts/garda-lookdev/sources/fir_tree_01.json`. Ripristina l'alpha
+separata del rametto, assente nel JPEG del glTF originale. Il bake richiede Forward+,
+produce albedo senza illuminazione e normali object-space, con margini RGB dilatati
+prima delle mipmap. Le mesh `.res` incorporano texture/materiali; i PNG separati
+sono gli output di authoring, non dipendenze aggiuntive della scena.
+
+SHA-256 degli output:
+
+- `garda_fir.tscn`: `c2aae21af10bcd8a9b90516c6435500651b55c35ff37a345e11dfb8d355bd2a2`
+- `garda_fir_near.res`: `59aa47cba9eaba42e188577441337d3b2d0c8bf43c0033a6810d23030600e021`
+- `garda_fir_far.res`: `fda322245246c9bed150edeaee13b8dfc8bf28ad73b60e16e20c2074fd692c91`
+- `garda_fir_atlas.png`: `0c4f53acd8be11d2a9ccec68e15b0ca0f139213a7f893f95e34a898868f62fbf`
+- `garda_fir_normals.png`: `9f7d5d660433ead5c2886d073f0bbbc945a2b3a51d9f3f119cd924887debe37e`
+
 Prestazioni, esperimenti e limiti: [report corrente](../../../docs/landscape-lookdev.md).
 Il [report precedente](../../../docs/garda-forest-review.md) resta una baseline storica.

@@ -44,8 +44,8 @@ _shader_parameters = {
 &"macro_strength": 0.6,
 &"meso_size": 72.0,
 &"normal_strength": 0.8,
-&"rock_end": 0.55,
-&"rock_start": 0.2,
+&"rock_end": 0.48,
+&"rock_start": 0.17,
 &"snow_line": 2700.0,
 &"snow_transition": 450.0,
 &"surface_noise": SubResource("NoiseTexture2D_surface")
@@ -72,7 +72,7 @@ seamless = true
 shader = ExtResource("11_skyshader")
 shader_parameter/sky_visible = true
 shader_parameter/color_correction = Vector2(0, 1)
-shader_parameter/ground_color = Color(1, 1, 1, 1)
+shader_parameter/ground_color = Color(0.22, 0.25, 0.19, 1)
 shader_parameter/horizon_offset = 0.0
 shader_parameter/atm_darkness = 0.4
 shader_parameter/atm_sun_intensity = 16.0
@@ -114,13 +114,13 @@ shader_parameter/star_scintillation_speed = 0.01
 shader_parameter/noise_tex = ExtResource("16_noise")
 shader_parameter/clouds_night_color = Color(0.090196, 0.094118, 0.129412, 1)
 shader_parameter/cirrus_visible = true
-shader_parameter/cirrus_intensity = 2.6
-shader_parameter/cirrus_coverage = 0.42
+shader_parameter/cirrus_intensity = 1.2
+shader_parameter/cirrus_coverage = 0.22
 shader_parameter/cirrus_thickness = 0.9
 shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.7
 shader_parameter/cirrus_size = 1.0
-shader_parameter/cirrus_uv = Vector2(0.045, 0.14)
+shader_parameter/cirrus_uv = Vector2(0.06, 0.10)
 shader_parameter/cirrus_position1 = Vector2(0.0491981, 0.0491981)
 shader_parameter/cirrus_position2 = Vector2(0.0491981, 0.0491981)
 shader_parameter/cirrus_texture = SubResource("NoiseTexture2D_clear_cirrus")
@@ -153,6 +153,7 @@ background_mode = 2
 sky = SubResource("Sky_sky3d")
 ambient_light_source = 3
 ambient_light_color = Color(1, 0.98, 0.95000005, 1)
+ambient_light_energy = 0.65
 reflected_light_source = 2
 tonemap_mode = 3
 tonemap_white = 6.0
@@ -164,7 +165,7 @@ compositor_effects = Array[CompositorEffect]([ExtResource("21_sunshine")])
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_garda_water"]
 material = ExtResource("24_water")
-size = Vector2(150000, 250000)
+size = Vector2(1000000, 1000000)
 
 [node name="GardaFinal" type="Node3D" unique_id=1907416372]
 
@@ -185,12 +186,15 @@ script = ExtResource("8_sky3d")
 fog_enabled = false
 editor_time_enabled = false
 game_time_enabled = false
-current_time = 10.5
+current_time = 9.0
 sun_energy = 1.8
+sky_contribution = 0.3
+ambient_energy = 0.22
 sun_shadow_opacity = 0.8
 wind_speed = 0.35
 wind_direction = 2.35619451204804
 metadata/_custom_type_script = "uid://deo0gxkmk2ahd"
+metadata/shadow_distance_scale = 2.0
 
 [node name="SunLight" type="DirectionalLight3D" parent="Sky3D" unique_id=730235234]
 transform = Transform3D(0.3373567, -0.69178027, 0.63845956, 0, 0.6782189, 0.73486, -0.9413769, -0.24790993, 0.22880165, 0.63845956, 0.73486, 0.22880165)
@@ -216,7 +220,7 @@ directional_shadow_max_distance = 256.0
 
 [node name="SkyDome" type="Node" parent="Sky3D" unique_id=1928374650]
 script = ExtResource("10_dome")
-ground_color = Color(1, 1, 1, 1)
+ground_color = Color(0.22, 0.25, 0.19, 1)
 sun_disk_size = 0.009
 sun_azimuth = -1.9149039
 sun_altitude = -0.7453361
@@ -242,12 +246,12 @@ fog_falloff = 0.0
 wind_speed = 0.35
 wind_direction = 2.35619451204804
 cirrus_speed_reduction = 0.12
-cirrus_intensity = 2.6
+cirrus_intensity = 1.2
 cirrus_thickness = 0.9
-cirrus_coverage = 0.42
+cirrus_coverage = 0.22
 cirrus_sky_tint_fade = 0.7
 cirrus_texture = SubResource("NoiseTexture2D_clear_cirrus")
-cirrus_uv = Vector2(0.045, 0.14)
+cirrus_uv = Vector2(0.06, 0.10)
 cumulus_visible = false
 
 [node name="TimeOfDay" type="Node" parent="Sky3D" unique_id=1738492056]
@@ -255,7 +259,7 @@ script = ExtResource("9_tod")
 editor_time_enabled = false
 game_time_enabled = false
 dome_path = NodePath("../SkyDome")
-current_time = 10.5
+current_time = 9.0
 day = 15
 month = 7
 latitude = 0.7967428035354114
@@ -268,7 +272,7 @@ update_continuously = true
 clouds_resource = ExtResource("21_sunshine")
 tracked_directional_lights = [NodePath("../Sky3D/SunLight")]
 tracked_directional_light_shadow_steps = Array[int]([16])
-directional_light_power_multiplier = 0.3
+directional_light_power_multiplier = 0.7
 wind_direction = Vector3(1.4, 0, 0.55)
 extra_large_structures_wind_speed = 90.0
 large_structures_wind_speed = 65.0

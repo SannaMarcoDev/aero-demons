@@ -64,7 +64,8 @@ func _run() -> void:
 	clouds.large_scale_clouds_position = Vector3.ZERO
 	clouds.medium_scale_clouds_position = Vector3.ZERO
 	clouds.detail_clouds_position = Vector3.ZERO
-	if style != "authored":
+	if style == "no_clouds": clouds.enabled = false
+	if style not in ["authored", "no_clouds"]:
 		var env: Environment = sky.environment
 		env.fog_enabled = true
 		env.fog_mode = Environment.FOG_MODE_DEPTH
@@ -96,12 +97,20 @@ func _run() -> void:
 	while not scene.get_node("GardaLake/Forests").built: await process_frame
 	# Fixed world positions, not samples derived from the changing forest population.
 	var center := Vector3(0, terrain.data.get_height(Vector3(0, 0, -2200)), -2200)
+	var low_pass := center + Vector3(900, 170, 1300)
+	low_pass.y = maxf(low_pass.y, terrain.data.get_height(low_pass) + 40.0)
 	var views := [
 		{"id": "ground", "pos": center + Vector3(75, 3, 140), "target": center + Vector3(0, 9, 0)},
 		{"id": "grove", "pos": center + Vector3(140, 65, 220), "target": center + Vector3(0, 8, 0)},
 		{"id": "low_flight", "pos": center + Vector3(900, 520, 1300), "target": center + Vector3(-1800, 100, -2600)},
+		{"id": "low_pass", "pos": low_pass, "target": low_pass + Vector3(-1500, -70, -2500)},
 		{"id": "cruise", "pos": center + Vector3(0, 3300, 5500), "target": center + Vector3(-4000, 0, -7000)},
 		{"id": "airport", "pos": Vector3(-36418, 280, 1500), "target": Vector3(-36418, 260, -3000)},
+		{"id": "lake", "pos": Vector3(-45300, 430, 40), "target": Vector3(-45242, 408, 0)},
+		{"id": "coast", "pos": Vector3(-54000, 460, -11000), "target": Vector3(-50000, 408, -10000)},
+		{"id": "alpine", "pos": Vector3(-118420, 2626, -115300), "target": Vector3(-120920, 1876, -114800)},
+		{"id": "high", "pos": Vector3(-30000, 11000, 18000), "target": Vector3(-45000, 408, -5000)},
+		{"id": "upper_cruise", "pos": center + Vector3(0, 5000, 5500), "target": center + Vector3(-4000, 0, -7000)},
 	]
 	# Previously outside every authored forest ellipse: coverage regression views.
 	for remote in [{"id": "east", "point": Vector3(14000, 0, -4000)}, {"id": "west", "point": Vector3(-22000, 0, -7000)}]:
@@ -149,39 +158,53 @@ func _run() -> void:
 				"primitives": RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_PRIMITIVES_IN_FRAME)})
 		assert(root.get_texture().get_image().save_png(output.path_join(view.id + ".png")) == OK)
 		print("LANDSCAPE ", results.back())
+	if motion or gameplay:
+		driver.set_process(true) # Exercise real wind/temporal updates, not only a moving camera.
 	if motion:
-		# Measure continuous translation before any screenshot I/O, uncapped and with no frame filtering.
-		camera.position = center + Vector3(900, 170, 1300)
+		# Separate 8-second flight segments; teleport/warmup and screenshot I/O are not timed.
+		for route in [
+			{"id": "valley", "origin": center},
+			{"id": "lake", "origin": Vector3(-45300, 330, 40)},
+			{"id": "alpine", "origin": Vector3(-118420, 3100, -115300)},
+			{"id": "upper_cruise", "origin": Vector3(0, 4830, -2200)},
+		]:
+			var origin: Vector3 = route.origin
+			camera.position = origin + Vector3(900, 170, 1300)
+			camera.position.y = maxf(camera.position.y, terrain.data.get_height(camera.position) + 40.0)
+			camera.look_at(camera.position + Vector3(-1500, -70, -2500))
+			scene.get_node("GardaLake/Forests").update_center(camera.global_position)
+			while not scene.get_node("GardaLake/Forests").built: await process_frame
+			await create_timer(2.0).timeout
+			var frames: Array[float] = []
+			var gpu: Array[float] = []
+			var start := Time.get_ticks_usec()
+			var previous := start
+			while Time.get_ticks_usec() - start < 8000000:
+				var t := float(Time.get_ticks_usec() - start) / 8000000.0
+				camera.position = origin + Vector3(900, 170, 1300).lerp(Vector3(-800, 90, -900), t)
+				camera.position.y = maxf(camera.position.y, terrain.data.get_height(camera.position) + 40)
+				camera.look_at(camera.position + Vector3(-1500, -70, -2500))
+				await RenderingServer.frame_post_draw
+				var now := Time.get_ticks_usec()
+				frames.append((now - previous) / 1000.0)
+				previous = now
+				gpu.append(RenderingServer.viewport_get_measured_render_time_gpu(root.get_viewport_rid()))
+			var raw := frames.duplicate()
+			frames.sort()
+			gpu.sort()
+			results.append({"view": "moving_" + route.id, "fps": raw.size() * 1000000.0 / (Time.get_ticks_usec() - start),
+				"gpu_ms": gpu[gpu.size() / 2], "p95_ms": frames[int(frames.size() * 0.95)], "max_ms": frames.back(), "raw_frame_ms": raw})
+		camera.position = low_pass
 		camera.look_at(camera.position + Vector3(-1500, -70, -2500))
 		scene.get_node("GardaLake/Forests").update_center(camera.global_position)
 		while not scene.get_node("GardaLake/Forests").built: await process_frame
-		await create_timer(2.0).timeout
-		var frames: Array[float] = []
-		var gpu: Array[float] = []
-		var start := Time.get_ticks_usec()
-		var previous := start
-		while Time.get_ticks_usec() - start < 8000000:
-			var t := float(Time.get_ticks_usec() - start) / 8000000.0
-			camera.position = center + Vector3(900, 170, 1300).lerp(Vector3(-800, 90, -900), t)
-			camera.position.y = maxf(camera.position.y, terrain.data.get_height(camera.position) + 40)
-			camera.look_at(camera.position + Vector3(-1500, -70, -2500))
-			await RenderingServer.frame_post_draw
-			var now := Time.get_ticks_usec()
-			frames.append((now - previous) / 1000.0)
-			previous = now
-			gpu.append(RenderingServer.viewport_get_measured_render_time_gpu(root.get_viewport_rid()))
-		var raw := frames.duplicate()
-		frames.sort()
-		gpu.sort()
-		results.append({"view": "moving_camera", "fps": raw.size() * 1000000.0 / (Time.get_ticks_usec() - start),
-			"gpu_ms": gpu[gpu.size() / 2], "p95_ms": frames[int(frames.size() * 0.95)], "max_ms": frames.back(), "raw_frame_ms": raw})
+		await create_timer(2.0).timeout # Settle TAA/cloud history after the return teleport.
 		Engine.max_fps = 60
 		for frame in 240:
 			var t := float(frame) / 239.0
 			camera.position = center + Vector3(900, 170, 1300).lerp(Vector3(-800, 90, -900), t)
 			camera.position.y = maxf(camera.position.y, terrain.data.get_height(camera.position) + 40)
 			camera.look_at(camera.position + Vector3(-1500, -70, -2500))
-			clouds.current_time = frame * clouds.dither_speed / 60.0
 			await RenderingServer.frame_post_draw
 			if video:
 				assert(root.get_texture().get_image().save_jpg(output.path_join("motion_%03d.jpg" % frame), 0.94) == OK)
@@ -218,6 +241,7 @@ func _run() -> void:
 			audio.stop()
 			audio.stream = null
 	clouds.enabled = false
+	sky.compositor = null
 	RenderingServer.call_on_render_thread(clouds.clear_compute)
 	await RenderingServer.frame_post_draw
 	scene.queue_free()
