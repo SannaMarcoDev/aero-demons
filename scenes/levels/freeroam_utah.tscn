@@ -2,14 +2,10 @@
 
 [ext_resource type="PackedScene" uid="uid://dgqv868kv3pu5" path="res://scenes/maps/utah_final.tscn" id="1_map"]
 [ext_resource type="PackedScene" uid="uid://dgqm8ooyeb3c6" path="res://scenes/player/player.tscn" id="2_player"]
-[ext_resource type="Script" uid="uid://cef3jhpp0hg8n" path="res://scripts/ui/freeroam_filter_toggle.gd" id="5_filters"]
-[ext_resource type="Script" uid="uid://bheh07h6v4hg5" path="res://scripts/ui/horizon_graphics.gd" id="6_horizon"]
 [ext_resource type="PackedScene" path="res://scenes/ui/combat_hud.tscn" id="7_hud"]
 [ext_resource type="Script" uid="uid://xj5o3oegucop" path="res://scripts/combat/sortie_controller.gd" id="8_sortie"]
 
 [node name="Freeroam" type="Node3D" unique_id=1151233576]
-script = ExtResource("5_filters")
-terrain_path = NodePath("Utah/UtahTerrain")
 
 [node name="Utah" parent="." unique_id=51425002 instance=ExtResource("1_map")]
 
@@ -30,10 +26,6 @@ mission_controller_path = NodePath("SortieController")
 
 [node name="SortieController" type="Node" parent="CombatHUD" unique_id=959809018]
 script = ExtResource("8_sortie")
-
-[node name="HorizonGraphics" type="CanvasLayer" parent="." unique_id=2023952006]
-script = ExtResource("6_horizon")
-sky_path = NodePath("../Utah/Sky3D")
 
 [node name="ValidationCamera" parent="Utah"]
 current = false

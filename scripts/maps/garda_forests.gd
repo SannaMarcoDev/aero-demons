@@ -145,6 +145,9 @@ func _build_tile(key: Vector2i) -> void:
 		node.extra_cull_margin = 1.0
 		node.visibility_range_begin = [0.0, 140.0, 650.0][lod]
 		node.visibility_range_end = [140.0, 650.0, 8500.0][lod]
+		node.visibility_range_begin_margin = [0.0, 24.0, 80.0][lod]
+		node.visibility_range_end_margin = [24.0, 80.0, 0.0][lod]
+		node.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 		node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF if lod < 2 else GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 		tile.add_child(node)
 	# Same inexpensive LOD2 shadow proxy as the Terrain3D asset, also for nearby trees.

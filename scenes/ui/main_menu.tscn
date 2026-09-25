@@ -3,9 +3,7 @@
 [ext_resource type="Script" uid="uid://c80tahrhrw2wq" path="res://scripts/ui/main_menu.gd" id="1_script"]
 [ext_resource type="FontFile" uid="uid://c7l25udrry74o" path="res://assets/fonts/Michroma-Regular.ttf" id="2_font"]
 [ext_resource type="Shader" path="res://resources/shaders/menu_tactical_vignette.gdshader" id="3_vignette"]
-[ext_resource type="Script" path="res://scripts/ui/tactical_radar_widget.gd" id="4_radar"]
 [ext_resource type="PackedScene" path="res://scenes/ui/menu_aircraft_stage.tscn" id="5_aircraft_stage"]
-[ext_resource type="PackedScene" path="res://scenes/ui/options_panel.tscn" id="6_options_panel"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_tactical_vignette"]
 shader = ExtResource("3_vignette")
@@ -250,7 +248,7 @@ alignment = 0
 custom_minimum_size = Vector2(0, 62)
 layout_mode = 2
 focus_neighbor_top = NodePath("../StoriaButton")
-focus_neighbor_bottom = NodePath("../OptionsButton")
+focus_neighbor_bottom = NodePath("../BenchmarkButton")
 theme_override_colors/font_color = Color(0.9, 0.94, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
@@ -263,27 +261,10 @@ theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
 text = "[02]   FREE FLIGHT"
 alignment = 0
 
-[node name="OptionsButton" type="Button" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/RootMenu"]
-custom_minimum_size = Vector2(0, 62)
-layout_mode = 2
-focus_neighbor_top = NodePath("../FreeFlightButton")
-focus_neighbor_bottom = NodePath("../BenchmarkButton")
-theme_override_colors/font_color = Color(0.9, 0.94, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
-theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 17
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
-theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
-text = "[03]   OPTIONS"
-alignment = 0
-
 [node name="BenchmarkButton" type="Button" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/RootMenu"]
 custom_minimum_size = Vector2(0, 62)
 layout_mode = 2
-focus_neighbor_top = NodePath("../OptionsButton")
+focus_neighbor_top = NodePath("../FreeFlightButton")
 focus_neighbor_bottom = NodePath("../QuitButton")
 theme_override_colors/font_color = Color(0.9, 0.94, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
@@ -294,7 +275,7 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
 theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
-text = "[04]   BENCHMARK"
+text = "[03]   BENCHMARK"
 alignment = 0
 
 [node name="QuitButton" type="Button" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/RootMenu"]
@@ -311,7 +292,7 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
 theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
-text = "[05]   QUIT"
+text = "[04]   QUIT"
 alignment = 0
 
 [node name="StoriaMenu" type="VBoxContainer" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer"]
@@ -356,35 +337,6 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
 theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
 text = "[ < ]   INDIETRO (MAIN MENU)"
-alignment = 0
-
-[node name="OptionsMenu" type="VBoxContainer" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer"]
-visible = false
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/separation = 16
-
-[node name="OptionsPanel" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu" instance=ExtResource("6_options_panel")]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="OptionsBackButton" type="Button" parent="MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu"]
-custom_minimum_size = Vector2(0, 50)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.85, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
-theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
-theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
-text = "[ < ]   INDIETRO (SALVA)"
 alignment = 0
 
 [node name="RightPanel" type="PanelContainer" parent="MarginContainer/MainLayout/ContentArea"]
@@ -452,19 +404,6 @@ theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 12
 text = "Scegli la missione, prepara due tipi di missile e decolla con la tua squadra."
 autowrap_mode = 2
-
-[node name="RadarContainer" type="Control" parent="MarginContainer/MainLayout/ContentArea/RightPanel/Margin/VBox"]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="TacticalRadarWidget" type="Control" parent="MarginContainer/MainLayout/ContentArea/RightPanel/Margin/VBox/RadarContainer"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-script = ExtResource("4_radar")
 
 [node name="TelemetryFooter" type="HBoxContainer" parent="MarginContainer/MainLayout/ContentArea/RightPanel/Margin/VBox"]
 layout_mode = 2

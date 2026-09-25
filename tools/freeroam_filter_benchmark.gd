@@ -16,6 +16,7 @@ func benchmark() -> void:
 	root.use_taa = false
 	root.screen_space_aa = Viewport.SCREEN_SPACE_AA_DISABLED
 	var scene = load("res://scenes/levels/tutorial.tscn").instantiate()
+	scene.set_script(load("res://scripts/ui/freeroam_filter_toggle.gd")) # Developer-only probe.
 	root.add_child(scene)
 	var player: Node3D = scene.get_node("Player")
 	player.set_physics_process(false)

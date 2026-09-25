@@ -9,6 +9,24 @@
 [ext_resource type="Texture2D" uid="uid://c6h8vck88rxgy" path="res://textures/terrain/sandy_gravel_02_albedo_packed.png" id="7_17ucw"]
 [ext_resource type="Texture2D" uid="uid://drio7csua44dj" path="res://textures/terrain/sandy_gravel_02_normal_packed.png" id="8_u7tmc"]
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_02x07"]
+transparency = 4
+cull_mode = 2
+vertex_color_use_as_albedo = true
+backlight_enabled = true
+backlight = Color(0.5, 0.5, 0.5, 1)
+distance_fade_mode = 1
+distance_fade_min_distance = 128.0
+distance_fade_max_distance = 96.0
+
+[sub_resource type="Terrain3DMeshAsset" id="Terrain3DMeshAsset_0gdi4"]
+generated_type = 1
+height_offset = 0.5
+material_override = SubResource("StandardMaterial3D_02x07")
+last_lod = 0
+last_shadow_lod = 0
+lod0_range = 128.0
+
 [sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_8fptm"]
 name = "LC_water"
 albedo_texture = ExtResource("1_nbq83")
@@ -58,4 +76,5 @@ albedo_texture = ExtResource("7_17ucw")
 normal_texture = ExtResource("8_u7tmc")
 
 [resource]
+mesh_list = Array[Terrain3DMeshAsset]([SubResource("Terrain3DMeshAsset_0gdi4")])
 texture_list = Array[Terrain3DTextureAsset]([SubResource("Terrain3DTextureAsset_8fptm"), SubResource("Terrain3DTextureAsset_id52c"), SubResource("Terrain3DTextureAsset_4xltb"), SubResource("Terrain3DTextureAsset_10y2v"), SubResource("Terrain3DTextureAsset_66oai"), SubResource("Terrain3DTextureAsset_1otut"), SubResource("Terrain3DTextureAsset_rmx48"), SubResource("Terrain3DTextureAsset_h0cf5")])

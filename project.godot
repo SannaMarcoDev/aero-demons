@@ -19,6 +19,7 @@ run/main_loop_type.performance="AeroPerformanceBenchmark"
 
 [autoload]
 
+FixedSettings="*res://scripts/ui/fixed_settings.gd"
 AudioManager="*res://scripts/audio/audio_manager.gd"
 DialogueManager="*res://addons/dialogue_manager/dialogue_manager.gd"
 _mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"

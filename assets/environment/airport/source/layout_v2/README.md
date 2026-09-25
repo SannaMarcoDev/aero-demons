@@ -18,7 +18,7 @@ Un unico proxy invisibile `Pavement_collision-colonly` (4099 triangoli) evita gi
 
 ### Hangar per N26
 
-I piazzamenti sono in `asset_placements.json`: centri previsti **(-371,72, -170 / -65 / 40, 0) m**, Z +90°, ingressi verso +X sulla linea **X = -347 m** (in Godot coordinate `(X,Z,-Y)` e rotazione Y +90°). Le tre istanze hanno scala uniforme **2×**. Fondazione prevista **49,4 × 57 m**; il GLB consegnato conserva ancora il ritaglio dell'apron per la vecchia impronta 1,5× e va riesportato da Blender per eliminarne la sovrapposizione. Pavimento a quota zero.
+I piazzamenti sono in `asset_placements.json`: centri previsti **(-371,72, -170 / -65 / 40, 0) m**, Z +90°, ingressi verso +X sulla linea **X = -347 m** (in Godot coordinate `(X,Z,-Y)` e rotazione Y +90°). Le tre istanze hanno scala uniforme **2×**. Fondazione **49,4 × 57 m**; l'apron del GLB è ritagliato sulla sua impronta 2×, senza superfici sovrapposte nel pavimento dell'hangar. Pavimento a quota zero.
 
 Portale aperto: **23,2 m** di larghezza, circa **9,76 m** di altezza; l'N26 importato misura **14,0784 × 4,744 × 20,7585 m** (larghezza × altezza × lunghezza). Margine orizzontale **4,56 m per estremità alare**; profondità interna circa **48 m**. Dimensioni e collider della porta verificati, ma **non** è stata simulata una manovra di rullaggio con l'aereo effettivo. Non usare l'hangar nativo senza scala per l'N26.
 

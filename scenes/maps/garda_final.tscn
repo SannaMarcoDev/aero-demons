@@ -197,8 +197,14 @@ transform = Transform3D(0.3373567, -0.69178027, 0.63845956, 0, 0.6782189, 0.7348
 light_color = Color(1, 0.98, 0.95000005, 1)
 light_energy = 1.8
 shadow_enabled = true
+shadow_bias = 0.03
+shadow_normal_bias = 1.0
 shadow_opacity = 0.8
-directional_shadow_blend_splits = true
+directional_shadow_mode = 2
+directional_shadow_split_1 = 0.025
+directional_shadow_split_2 = 0.08
+directional_shadow_split_3 = 0.25
+directional_shadow_blend_splits = false
 directional_shadow_max_distance = 4000.0
 
 [node name="MoonLight" type="DirectionalLight3D" parent="Sky3D" unique_id=1847293641]

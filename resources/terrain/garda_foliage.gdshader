@@ -19,8 +19,9 @@ void vertex() {
 void fragment() {
 	vec4 tex = texture(atlas, UV);
 	ALBEDO = tex.rgb * COLOR.rgb * vec3(0.82, 0.94, 0.86);
-	ALPHA = tex.a;
-	ALPHA_SCISSOR_THRESHOLD = alpha_cut;
+	ALPHA = smoothstep(alpha_cut - 0.25, alpha_cut + 0.25, tex.a);
+	// Continuous hashed coverage avoids hard on/off edges on distant leaf cards.
+	ALPHA_HASH_SCALE = 1.0;
 	NORMAL = normalize(crown_normal);
 	if (UV.y > 0.25) {
 		vec3 baked = texture(crown_normals, UV).rgb * 2.0 - 1.0;

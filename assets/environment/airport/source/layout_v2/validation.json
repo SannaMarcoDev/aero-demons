@@ -1,7 +1,7 @@
 {
   "marker": "AIRPORT_BLENDER_CHECK_OK",
   "mesh_objects": 120,
-  "triangles": 62065,
+  "triangles": 61939,
   "collision_only_triangles": 4099,
   "placeholders": 23,
   "small_hangar_instances": 3,
@@ -12,5 +12,5 @@
   ],
   "collision_meshes": 24,
   "materials": 15,
-  "glb_bytes": 4452636
+  "glb_bytes": 4448568
 }

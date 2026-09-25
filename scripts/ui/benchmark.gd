@@ -17,7 +17,7 @@ var _running := true
 
 
 func _ready() -> void:
-	_saved_settings = Settings.load_settings()
+	_saved_settings = Settings.fixed_settings()
 	_content_scale_size = get_tree().root.content_scale_size
 	menu_button.pressed.connect(_return_to_menu)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -44,13 +44,7 @@ func _run() -> void:
 	driver.set_process(false)
 	driver.retrieve_texture_data()
 	_level.get_node("GardaLake/Sky3D/SkyDome").process_method = 2
-	_level.set_process_unhandled_input(false) # Disable the level's F6 filter toggle.
-	_level.label.hide()
-	var horizon = _level.get_node("HorizonGraphics")
-	horizon.apply_blur(false)
-	horizon.label.hide()
-	horizon.set_process_unhandled_input(false) # F7 otherwise writes user://graphics.cfg.
-	_level.get_node("CombatHUD").set_process_unhandled_input(false) # No pause/options during capture.
+	_level.get_node("CombatHUD").set_process_unhandled_input(false) # No pause during capture.
 	var settings := _saved_settings.duplicate(true)
 	settings.merge(Settings.QUALITY_PRESETS[Settings.QUALITY_ULTRA], true)
 	settings.merge({"quality_preset": Settings.QUALITY_ULTRA, "resolution": "1920x1080",

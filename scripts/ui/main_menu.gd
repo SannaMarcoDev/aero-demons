@@ -1,14 +1,12 @@
 extends CanvasLayer
 
 const Session = preload("res://scripts/ui/game_session.gd")
-const OptionsPanel = preload("res://scripts/ui/options_panel.gd")
 const Bindings = preload("res://scripts/ui/controller_bindings.gd")
 
 # Root Menu Buttons
 @onready var root_menu: VBoxContainer = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/RootMenu
 @onready var storia_btn: Button = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/RootMenu/StoriaButton
 @onready var free_flight_btn: Button = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/RootMenu/FreeFlightButton
-@onready var options_btn: Button = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/RootMenu/OptionsButton
 @onready var benchmark_btn: Button = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/RootMenu/BenchmarkButton
 @onready var quit_btn: Button = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/RootMenu/QuitButton
 
@@ -17,12 +15,6 @@ const Bindings = preload("res://scripts/ui/controller_bindings.gd")
 @onready var alps_btn: Button = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/StoriaMenu/GardaButton
 @onready var storia_back_btn: Button = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/StoriaMenu/StoriaBackButton
 
-# Options Submenu
-@onready var options_menu: VBoxContainer = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu
-@onready var options_panel: OptionsPanel = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/OptionsPanel
-@onready var options_back_btn: Button = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/OptionsMenu/OptionsBackButton
-var master_slider: HSlider
-
 # Dossier / Intel Panel
 @onready var dossier_tag: Label = $MarginContainer/MainLayout/ContentArea/RightPanel/Margin/VBox/HeaderRow/DossierTag
 @onready var threat_badge: Label = $MarginContainer/MainLayout/ContentArea/RightPanel/Margin/VBox/HeaderRow/ThreatBadge
@@ -30,7 +22,6 @@ var master_slider: HSlider
 @onready var dossier_subtitle: Label = $MarginContainer/MainLayout/ContentArea/RightPanel/Margin/VBox/DossierSubtitle
 @onready var dossier_desc: Label = $MarginContainer/MainLayout/ContentArea/RightPanel/Margin/VBox/DossierDesc
 @onready var dossier_telemetry: Label = $MarginContainer/MainLayout/ContentArea/RightPanel/Margin/VBox/TelemetryFooter/TelemetryLabel
-@onready var radar_widget: Control = $MarginContainer/MainLayout/ContentArea/RightPanel/Margin/VBox/RadarContainer/TacticalRadarWidget
 @onready var section_header: Label = $MarginContainer/MainLayout/ContentArea/LeftPanel/SectionHeader
 
 @onready var hangar_camera = $AircraftViewportContainer/SubViewport/MenuAircraftStage/Camera3D
@@ -43,10 +34,7 @@ var _focused_mode: String = "storia"
 
 func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-	master_slider = options_panel.master_slider
 	_wire_signals()
-	options_panel.link_back_button(options_back_btn)
-	options_panel.get_node("ControllerRemap").bindings_saved.connect(func(_profile): _refresh_prompts())
 	var returning_section: String = Session.menu_section
 	if returning_section == "sorties":
 		hangar_camera.set_view(1.0)
@@ -72,11 +60,6 @@ func _refresh_prompts() -> void:
 	_set_dossier(_focused_mode)
 
 
-func _process(_delta: float) -> void:
-	if is_instance_valid(radar_widget) and radar_widget.is_visible_in_tree():
-		radar_widget.queue_redraw()
-
-
 func _wire_signals() -> void:
 	# Root menu button signals
 	storia_btn.pressed.connect(_on_storia_pressed)
@@ -86,10 +69,6 @@ func _wire_signals() -> void:
 	free_flight_btn.pressed.connect(_on_free_flight_pressed)
 	free_flight_btn.focus_entered.connect(func(): _set_dossier("free_flight"))
 	free_flight_btn.mouse_entered.connect(func(): _set_dossier("free_flight"))
-
-	options_btn.pressed.connect(_on_options_pressed)
-	options_btn.focus_entered.connect(func(): _set_dossier("options"))
-	options_btn.mouse_entered.connect(func(): _set_dossier("options"))
 
 	benchmark_btn.pressed.connect(_on_benchmark_pressed)
 	benchmark_btn.focus_entered.connect(func(): _set_dossier("benchmark"))
@@ -107,15 +86,11 @@ func _wire_signals() -> void:
 	storia_back_btn.pressed.connect(_on_storia_back_pressed)
 	storia_back_btn.focus_entered.connect(func(): _set_dossier("storia"))
 
-	# Options submenu signals
-	options_back_btn.pressed.connect(_on_options_back_pressed)
-
 
 func _show_root_menu() -> void:
 	Session.menu_section = ""
 	root_menu.visible = true
 	storia_menu.visible = false
-	options_menu.visible = false
 	section_header.text = "// OPERATIONAL DIRECTIVES"
 	storia_btn.grab_focus()
 	_set_dossier("storia")
@@ -136,7 +111,6 @@ func _on_storia_pressed() -> void:
 func _show_storia_menu() -> void:
 	Session.menu_section = "sorties"
 	root_menu.visible = false
-	options_menu.visible = false
 	storia_menu.visible = true
 	section_header.text = "// SELECT SORTIE SECTOR"
 	alps_btn.grab_focus()
@@ -174,18 +148,6 @@ func _on_free_flight_pressed() -> void:
 		_transitioning = false
 
 
-func _on_options_pressed() -> void:
-	if _transitioning:
-		return
-	_play_sfx()
-	root_menu.visible = false
-	storia_menu.visible = false
-	options_menu.visible = true
-	section_header.text = "// AVIONICS CONFIGURATION"
-	options_panel.grab_first_focus()
-	_set_dossier("options")
-
-
 func _on_benchmark_pressed() -> void:
 	if _transitioning:
 		return
@@ -215,16 +177,6 @@ func _on_storia_back_pressed() -> void:
 	_transitioning = false
 
 
-func _on_options_back_pressed() -> void:
-	_play_sfx()
-	var error := options_panel.save()
-	if error != OK:
-		dossier_desc.text = "Impossibile salvare le impostazioni: %s" % error_string(error)
-		return
-	_show_root_menu()
-	options_btn.grab_focus()
-
-
 func _select_storia_map(map_path: String) -> void:
 	if _transitioning:
 		return
@@ -248,10 +200,7 @@ func _set_dossier(mode_key: String) -> void:
 	_focused_mode = mode_key
 	var intel_panel: Control = $MarginContainer/MainLayout/ContentArea/RightPanel
 	intel_panel.visible = not root_menu.visible
-	intel_panel.size_flags_vertical = Control.SIZE_FILL if options_menu.visible else Control.SIZE_SHRINK_END
-	radar_widget.get_parent().visible = options_menu.visible
-	if radar_widget != null and is_instance_valid(radar_widget) and radar_widget.has_method("set_mode"):
-		radar_widget.call("set_mode", mode_key)
+	intel_panel.size_flags_vertical = Control.SIZE_SHRINK_END
 
 	match mode_key:
 		"storia":
@@ -272,15 +221,6 @@ func _set_dossier(mode_key: String) -> void:
 			dossier_desc.text = "Entra subito in volo sopra il Garda con l'armamento già selezionato. Nessun nemico, nessuna ondata e nessun timer di missione.\n\nProva i comandi di volo oppure esplora liberamente lo scenario. High-G e spin dash non sono disponibili nella build interna. I confini di volo rimangono attivi."
 			dossier_telemetry.text = "SETTORE: GARDA  •  MODALITA': ESPLORAZIONE  •  PARTENZA IN VOLO"
 
-		"options":
-			dossier_tag.text = "// AVIONICS & SYSTEM TELEMETRY"
-			threat_badge.text = "SYSTEM: READY"
-			threat_badge.modulate = Color(0.2, 0.75, 1.0)
-			dossier_title.text = "CONFIGURAZIONE SISTEMI"
-			dossier_subtitle.text = "PARAMETRI AVIONICI // CALIBRAZIONE AUDIO & GRAFICA"
-			dossier_desc.text = "Preset qualità rapidi (Basso→Ultra) oppure controllo fine su nuvole volumetriche (fino a spegnerle), cielo, ombre, effetti post, tonemap, upscaler FSR 1.0/2.2, scala di rendering con supersampling, anti-aliasing, V-Sync e limite FPS.\n\nMixer audio, risoluzione e controlli di volo in coda alla lista. Salvataggio automatico all'uscita."
-			dossier_telemetry.text = "BUS AUDIO: 3 ATTIVI  •  SALVA CON INDIETRO [%s]" % Bindings.action_label("ui_cancel")
-
 		"benchmark":
 			dossier_tag.text = "// PERFORMANCE CALIBRATION"
 			threat_badge.text = "TEST: 1080P ULTRA"
@@ -296,7 +236,7 @@ func _set_dossier(mode_key: String) -> void:
 			threat_badge.modulate = Color(0.9, 0.25, 0.25)
 			dossier_title.text = "DISCONNESSIONE E USCITA"
 			dossier_subtitle.text = "INTERRUZIONE TELEMETRIA // CHIUSURA TERMINALE"
-			dossier_desc.text = "Chiude la sessione avionica del velivolo e termina l'esecuzione dell'ambiente simulato.\n\nI dati di configurazione correnti e le impostazioni audio rimangono salvati per la prossima missione."
+			dossier_desc.text = "Chiude la sessione avionica del velivolo e termina l'esecuzione dell'ambiente simulato."
 			dossier_telemetry.text = "SISTEMA: STANDBY  •  PROTOCOLLO: SHUTDOWN SAFE"
 
 		"map_alps":
@@ -305,7 +245,7 @@ func _set_dossier(mode_key: String) -> void:
 			threat_badge.modulate = Color(1.0, 0.3, 0.2)
 			dossier_title.text = "SETTORE 01: GARDA"
 			dossier_subtitle.text = "COLLAUDO PROTETTO // DUE GREGARI"
-			dossier_desc.text = "Apri l'hangar, rulla verso la pista e decolla seguendo gli indicatori. Al punto di contatto, tre box spiegano targeting, missili e mitragliatrice mettendo in pausa il gioco.\n\nPoi affronta liberamente le ondate da 2, 4 e 8 caccia, senza esercizi obbligatori o altre interruzioni tutorial.\n[%s] Conferma · [%s] Pausa / opzioni" % [Bindings.action_label("ui_accept"), Bindings.action_label("pause_menu")]
+			dossier_desc.text = "Apri l'hangar, rulla verso la pista e decolla seguendo gli indicatori. Al punto di contatto, tre box spiegano targeting, missili e mitragliatrice mettendo in pausa il gioco.\n\nPoi affronta liberamente le ondate da 2, 4 e 8 caccia, senza esercizi obbligatori o altre interruzioni tutorial.\n[%s] Conferma · [%s] Pausa" % [Bindings.action_label("ui_accept"), Bindings.action_label("pause_menu")]
 			dossier_telemetry.text = "SETTORE: GARDA  •  MISSIONE: TUTORIAL  •  MISSILI: DUE SLOT"
 
 
@@ -321,9 +261,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		if storia_menu.visible:
 			_on_storia_back_pressed()
 			get_viewport().set_input_as_handled()
-		elif options_menu.visible:
-			_on_options_back_pressed()
-			get_viewport().set_input_as_handled()
 		else:
 			# Back at the root selects Exit; only an explicit confirmation quits.
 			quit_btn.grab_focus()
@@ -334,8 +271,6 @@ func _unhandled_input(event: InputEvent) -> void:
 				or event.is_action_pressed("ui_accept"):
 			if storia_menu.visible:
 				alps_btn.grab_focus()
-			elif options_menu.visible:
-				options_panel.grab_first_focus()
 			else:
 				storia_btn.grab_focus()
 			get_viewport().set_input_as_handled()

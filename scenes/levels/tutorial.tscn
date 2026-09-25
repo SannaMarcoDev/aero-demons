@@ -3,16 +3,13 @@
 [ext_resource type="PackedScene" uid="uid://bckioquhk2auh" path="res://scenes/maps/garda_final.tscn" id="1_map"]
 [ext_resource type="PackedScene" uid="uid://dgqm8ooyeb3c6" path="res://scenes/player/player.tscn" id="2_player"]
 [ext_resource type="PackedScene" path="res://scenes/ui/combat_hud.tscn" id="4_hud"]
-[ext_resource type="Script" uid="uid://cef3jhpp0hg8n" path="res://scripts/ui/freeroam_filter_toggle.gd" id="5_filters"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/enemy_fighter.tscn" id="6_enemy"]
 [ext_resource type="Script" uid="uid://7erqguvfj2as" path="res://scripts/combat/combat_director.gd" id="7_director"]
-[ext_resource type="Script" uid="uid://bheh07h6v4hg5" path="res://scripts/ui/horizon_graphics.gd" id="8_horizon"]
 [ext_resource type="Script" uid="uid://d3hxrtrcwcyoh" path="res://scripts/combat/tutorial_mission.gd" id="9_mission"]
 [ext_resource type="Resource" uid="uid://cpaikkcm43m27" path="res://resources/dialogues/tutorial.dialogue" id="11_dialogue"]
 [ext_resource type="Script" path="res://scripts/maps/hangar_arrival.gd" id="12_arrival"]
 
 [node name="Tutorial" type="Node3D" unique_id=1151233576]
-script = ExtResource("5_filters")
 
 [node name="GardaLake" parent="." unique_id=51425002 instance=ExtResource("1_map")]
 
@@ -62,9 +59,6 @@ script = ExtResource("9_mission")
 dialogue = ExtResource("11_dialogue")
 
 [node name="SpawnedEnemies" type="Node3D" parent="." unique_id=1917299753]
-
-[node name="HorizonGraphics" type="CanvasLayer" parent="." unique_id=1374869459]
-script = ExtResource("8_horizon")
 
 [node name="Marker3D" type="Marker3D" parent="." unique_id=54508356]
 position = Vector3(-36742, 234.52, 583.43)

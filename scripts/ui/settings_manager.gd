@@ -92,16 +92,14 @@ const RESOLUTIONS: Array[Vector2i] = [
 	Vector2i(3840, 2160),
 ]
 
-# Read live by PlayerFlight/FollowCamera; populated by apply_settings/ensure_controls_loaded.
+# Read live by PlayerFlight/FollowCamera; populated by fixed settings/ensure_controls_loaded.
 static var controls_invert_y := false
 static var controls_sensitivity := 1.0
 static var _controls_loaded := false
 
 
-static func load_settings(path: String = CONFIG_PATH) -> Dictionary:
-	var config := ConfigFile.new()
-	var err := config.load(path)
-	var settings := {
+static func default_settings() -> Dictionary:
+	return {
 		"master_volume": 1.0,
 		"music_volume": 0.8,
 		"sfx_volume": 0.9,
@@ -132,6 +130,20 @@ static func load_settings(path: String = CONFIG_PATH) -> Dictionary:
 		"controls_sensitivity": 1.0,
 		"controls_bindings": ControllerBindings.defaults(),
 	}
+
+
+static func fixed_settings() -> Dictionary:
+	var settings := default_settings()
+	settings.merge(QUALITY_PRESETS[QUALITY_ULTRA], true)
+	settings["aa_mode"] = AA_TAA
+	settings["fsr_sharpness"] = 1.0
+	return settings
+
+
+static func load_settings(path: String = CONFIG_PATH) -> Dictionary:
+	var config := ConfigFile.new()
+	var err := config.load(path)
+	var settings := default_settings()
 	if err == OK:
 		settings["master_volume"] = config.get_value("audio", "master_volume", 1.0)
 		settings["music_volume"] = config.get_value("audio", "music_volume", 0.8)
@@ -282,12 +294,12 @@ static func resolution_to_string(size: Vector2i) -> String:
 	return "%dx%d" % [size.x, size.y]
 
 
-## Populates the live control settings without touching display or audio state. Skipped in
-## headless runs so scripted checks always see the default flight model.
+## Populates the default flight controls without reading old player settings.
+## Headless runs already use the same defaults.
 static func ensure_controls_loaded() -> void:
 	if _controls_loaded or DisplayServer.get_name() == "headless":
 		return
-	apply_controls(load_settings())
+	apply_controls(default_settings())
 
 
 ## Also usable by isolated checks without applying display/audio settings.
@@ -455,6 +467,13 @@ static func _apply_shadows(root: Viewport, settings: Dictionary) -> void:
 		if preset["enabled"]:
 			sun.directional_shadow_mode = int(preset["mode"])
 			sun.directional_shadow_max_distance = float(preset["distance"])
+			if sun.directional_shadow_mode == DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS:
+				sun.directional_shadow_split_1 = 0.025
+				sun.directional_shadow_split_2 = 0.08
+				sun.directional_shadow_split_3 = 0.25
+				sun.directional_shadow_blend_splits = false
+			sun.shadow_bias = 0.03
+			sun.shadow_normal_bias = 1.0
 
 
 static func _apply_environment(root: Viewport, settings: Dictionary) -> void:

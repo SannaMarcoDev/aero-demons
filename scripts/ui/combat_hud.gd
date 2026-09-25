@@ -1,7 +1,6 @@
 extends CanvasLayer
 class_name CombatHUD
 
-const OptionsPanel = preload("res://scripts/ui/options_panel.gd")
 const Bindings = preload("res://scripts/ui/controller_bindings.gd")
 
 const TAPE_Y := 286.0
@@ -76,9 +75,6 @@ var _hit_remaining := 0.0
 @onready var _pause_panel: PanelContainer = $HudText/PauseOverlay/Panel
 @onready var _resume_button: Button = $HudText/PauseOverlay/Panel/Menu/ResumeButton
 @onready var _restart_button: Button = $HudText/PauseOverlay/Panel/Menu/RestartButton
-@onready var _options_button: Button = $HudText/PauseOverlay/Panel/Menu/OptionsButton
-@onready var _pause_options: PanelContainer = $HudText/PauseOverlay/PauseOptions
-@onready var _options_panel: OptionsPanel = $HudText/PauseOverlay/PauseOptions/Menu/OptionsPanel
 var _pause_menu_was_paused := false
 var _flight_mouse_mode := Input.MOUSE_MODE_VISIBLE
 var _resume_pending := false
@@ -117,8 +113,6 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_resolve_sources()
 	Input.joy_connection_changed.connect(_on_joy_connection_changed)
-	_options_panel.link_back_button($HudText/PauseOverlay/PauseOptions/Menu/OptionsBackButton)
-	_options_panel.get_node("ControllerRemap").bindings_saved.connect(func(_profile): _refresh_prompts())
 	_refresh_prompts()
 	if is_instance_valid(weapons):
 		weapons.hit_confirmed.connect(_on_hit_confirmed)
@@ -173,8 +167,7 @@ func show_mission_result(title: String, detail: String) -> void:
 	if _pause_overlay.visible:
 		_pause_menu_was_paused = true
 		_resume_button.disabled = true
-		if not _pause_options.visible:
-			_restart_button.grab_focus()
+		_restart_button.grab_focus()
 
 
 func _open_pause_menu() -> void:
@@ -184,7 +177,6 @@ func _open_pause_menu() -> void:
 	_flight_mouse_mode = Input.mouse_mode
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_pause_panel.visible = true
-	_pause_options.visible = false
 	_pause_overlay.visible = true
 	get_tree().paused = true
 	if is_instance_valid(player):
@@ -199,9 +191,6 @@ func _open_pause_menu() -> void:
 
 
 func _close_pause_menu() -> void:
-	if _pause_options.visible:
-		_on_options_back_pressed()
-		return
 	if _disconnect_pause and not mission_result_visible():
 		if not _controller_missing:
 			_resume_button.grab_focus()
@@ -255,31 +244,10 @@ func _on_joy_connection_changed(_device: int, connected: bool) -> void:
 	_resume_button.disabled = _controller_missing or mission_result_visible()
 	$HudText/PauseOverlay/Panel/Menu/Subtitle.text = "CONTROLLER SCOLLEGATO. RICOLLEGALO." if _controller_missing \
 		else "CONTROLLER DISPONIBILE. CONFERMA RIPRENDI."
-	if _pause_options.visible:
-		$HudText/PauseOverlay/PauseOptions/Menu/Subtitle.text = $HudText/PauseOverlay/Panel/Menu/Subtitle.text
+	if _resume_button.disabled:
+		_restart_button.grab_focus()
 	else:
-		if _resume_button.disabled:
-			_restart_button.grab_focus()
-		else:
-			_resume_button.grab_focus()
-
-
-func _on_options_pressed() -> void:
-	_resume_pending = false
-	_pause_panel.visible = false
-	_pause_options.visible = true
-	_options_panel.grab_first_focus()
-
-
-func _on_options_back_pressed() -> void:
-	var error := _options_panel.save()
-	if error != OK:
-		$HudText/PauseOverlay/PauseOptions/Menu/Subtitle.text = "Impossibile salvare: %s" % error_string(error)
-		return
-	$HudText/PauseOverlay/PauseOptions/Menu/Subtitle.text = "CONFIGURAZIONE AVIONICA // SALVATAGGIO AUTOMATICO"
-	_pause_options.visible = false
-	_pause_panel.visible = true
-	_options_button.grab_focus()
+		_resume_button.grab_focus()
 
 
 func _change_scene(path: String) -> void:
@@ -707,9 +675,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			event.is_action_pressed("ui_up") or event.is_action_pressed("ui_down")
 			or event.is_action_pressed("ui_left") or event.is_action_pressed("ui_right")
 			or event.is_action_pressed("ui_accept")):
-			if _pause_options.visible:
-				_options_panel.grab_first_focus()
-			elif _resume_button.disabled:
+			if _resume_button.disabled:
 				_restart_button.grab_focus()
 			else:
 				_resume_button.grab_focus()
