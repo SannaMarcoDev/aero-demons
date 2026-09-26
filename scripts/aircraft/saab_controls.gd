@@ -13,6 +13,7 @@ class_name SaabControls
 @onready var _elevators := [$ElevatorLPivot, $ElevatorRPivot]
 @onready var _flaps := [$FlapLPivot, $FlapRPivot]
 @onready var _rudder: Node3D = $RudderPivot
+@onready var _gear_animation: AnimationPlayer = $Model/AnimationPlayer
 
 var _pitch := 0.0
 var _roll := 0.0
@@ -28,6 +29,14 @@ func _ready() -> void:
 			push_error("Missing Saab control surface: %s" % surfaces[i])
 			continue
 		mesh.reparent(pivots[i], true)
+	_gear_animation.play("Animation")
+	_gear_animation.advance(0.0)
+	_gear_animation.pause()
+	set_gear(1.0)
+
+
+func set_gear(extension: float) -> void:
+	_gear_animation.seek((1.0 - clampf(extension, 0.0, 1.0)) * _gear_animation.current_animation_length, true)
 
 
 func set_controls(pitch: float, roll: float, yaw: float, delta: float) -> void:

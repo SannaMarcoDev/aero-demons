@@ -51,7 +51,6 @@ var grounded := false
 var gear_down := false
 var gear_extension := 0.0
 var ground_brake_input := 0.0
-var _gear: Node3D
 var _ground_body: CharacterBody3D
 var _ground_contact_seen := false
 
@@ -157,11 +156,8 @@ func _ready() -> void:
 		GameSession.AircraftCatalog.apply_to_player(self, GameSession.selected_aircraft_id)
 	_scale_airframe()
 	if faction_group == "player":
-		_gear = preload("res://scenes/aircraft/landing_gear.tscn").instantiate()
-		get_node("AircraftModel").add_child(_gear)
 		gear_down = start_on_ground
 		gear_extension = 1.0 if gear_down else 0.0
-		_update_gear(0.0)
 	if start_on_ground:
 		_setup_ground_body()
 		speed = 0.0
@@ -169,6 +165,8 @@ func _ready() -> void:
 	health = max_health
 	_spawn_transform = global_transform
 	update_aircraft_references()
+	if faction_group == "player":
+		_update_gear(0.0)
 	_setup_aircraft_audio()
 	_setup_collision_detection()
 	if _targeting != null and faction_group == "player":
@@ -284,7 +282,7 @@ func _update_controls() -> void:
 
 
 func toggle_landing_gear() -> void:
-	if _gear == null or grounded:
+	if _surface_controls == null or grounded:
 		return
 	gear_down = not gear_down
 
@@ -312,12 +310,8 @@ func _level_flight_inputs() -> void:
 
 func _update_gear(delta: float) -> void:
 	gear_extension = move_toward(gear_extension, 1.0 if gear_down else 0.0, delta / maxf(gear_travel_time, 0.01))
-	if _gear != null:
-		_gear.visible = gear_extension > 0.0
-		var fold := 1.0 - gear_extension
-		(_gear.get_node("NosePivot") as Node3D).rotation_degrees.x = -90.0 * fold
-		(_gear.get_node("LeftPivot") as Node3D).rotation_degrees.z = 90.0 * fold
-		(_gear.get_node("RightPivot") as Node3D).rotation_degrees.z = -90.0 * fold
+	if _surface_controls != null:
+		_surface_controls.set_gear(gear_extension)
 
 
 func _setup_ground_body() -> void:
@@ -334,7 +328,7 @@ func _setup_ground_body() -> void:
 	shape.size = Vector3(12, 4.5, 16)
 	var collider := CollisionShape3D.new()
 	collider.shape = shape
-	collider.position.y = -1.85 # Bottom -4.1: Viggen offset -2.4 plus wheel bottom -1.7.
+	collider.position.y = -2.4 # Bottom -4.65: Viggen offset -2.4 plus real gear bottom -2.25.
 	_ground_body.add_child(collider)
 
 

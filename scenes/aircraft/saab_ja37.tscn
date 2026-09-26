@@ -14,7 +14,7 @@ script = ExtResource("5_controls")
 [node name="Canopy_001" parent="Model" index="2"]
 transform = Transform3D(1, 0, 0, 0, 0.76604444, 0.6427876, 0, -0.6427876, 0.76604444, 0, 2.1740162, -0.02693968)
 
-[node name="Glass_1_001" parent="Model" index="8"]
+[node name="Glass_1_001" parent="Model" index="17"]
 transform = Transform3D(1, 0, 0, 0, 0.76604444, 0.6427876, 0, -0.6427876, 0.76604444, 0, 2.1740162, -0.02693968)
 
 [node name="AileronLPivot" type="Node3D" parent="."]

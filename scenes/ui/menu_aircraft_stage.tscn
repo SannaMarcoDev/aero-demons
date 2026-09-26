@@ -3,7 +3,6 @@
 [ext_resource type="PackedScene" path="res://scenes/maps/small_hangar.tscn" id="1_hangar"]
 [ext_resource type="PackedScene" path="res://scenes/aircraft/saab_ja37.tscn" id="2_aircraft"]
 [ext_resource type="Script" path="res://scripts/ui/menu_camera_aim.gd" id="3_aim"]
-[ext_resource type="PackedScene" path="res://scenes/aircraft/landing_gear.tscn" id="4_gear"]
 
 [sub_resource type="Environment" id="Environment_hangar"]
 background_mode = 1
@@ -40,7 +39,7 @@ environment = SubResource("Environment_hangar")
 scale = Vector3(2, 2, 2)
 
 [node name="Aircraft" parent="." instance=ExtResource("2_aircraft")]
-position = Vector3(0, 1.7, -1.5)
+position = Vector3(0, 2.25, -1.5)
 rotation_degrees = Vector3(0, 180, 0)
 
 [node name="Left" parent="Aircraft/WingDamage" index="0"]
@@ -48,8 +47,6 @@ intensity = 0.0
 
 [node name="Right" parent="Aircraft/WingDamage" index="1"]
 intensity = 0.0
-
-[node name="DisplayLandingGear" parent="Aircraft" instance=ExtResource("4_gear")]
 
 [node name="HangarReflections" type="ReflectionProbe" parent="."]
 position = Vector3(0, 6, -2)
