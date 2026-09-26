@@ -38,6 +38,27 @@ position = Vector3(2.1, -0.5, 5.85)
 [node name="RudderPivot" type="Node3D" parent="."]
 position = Vector3(0, 2.1, 5.78)
 
+[node name="NoseGearPivot" type="Node3D" parent="."]
+position = Vector3(0, -0.37, -3.83)
+
+[node name="NoseDoorRPivot" type="Node3D" parent="."]
+position = Vector3(0.3, -0.77, -4.4)
+
+[node name="NoseDoorLPivot" type="Node3D" parent="."]
+position = Vector3(-0.3, -0.77, -4.4)
+
+[node name="MainGearLPivot" type="Node3D" parent="."]
+position = Vector3(-2.11, -0.4, 2.28)
+
+[node name="MainGearRPivot" type="Node3D" parent="."]
+position = Vector3(2.11, -0.4, 2.28)
+
+[node name="InnerDoorLPivot" type="Node3D" parent="."]
+position = Vector3(-0.58, -0.76, 2.13)
+
+[node name="InnerDoorRPivot" type="Node3D" parent="."]
+position = Vector3(0.58, -0.76, 2.13)
+
 [node name="Afterburners" type="Node3D" parent="." unique_id=1782313227]
 script = ExtResource("2_afterburner")
 

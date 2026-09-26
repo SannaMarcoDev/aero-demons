@@ -13,7 +13,7 @@ class_name SaabControls
 @onready var _elevators := [$ElevatorLPivot, $ElevatorRPivot]
 @onready var _flaps := [$FlapLPivot, $FlapRPivot]
 @onready var _rudder: Node3D = $RudderPivot
-@onready var _gear_animation: AnimationPlayer = $Model/AnimationPlayer
+@onready var _gear_pivots := [$NoseGearPivot, $NoseDoorRPivot, $NoseDoorLPivot, $MainGearLPivot, $MainGearRPivot, $MainGearLPivot, $MainGearRPivot, $InnerDoorLPivot, $InnerDoorRPivot]
 
 var _pitch := 0.0
 var _roll := 0.0
@@ -29,14 +29,22 @@ func _ready() -> void:
 			push_error("Missing Saab control surface: %s" % surfaces[i])
 			continue
 		mesh.reparent(pivots[i], true)
-	_gear_animation.play("Animation")
-	_gear_animation.advance(0.0)
-	_gear_animation.pause()
+	for i in _gear_pivots.size():
+		var mesh := $Model.get_node_or_null("Chassis_%d_001" % (i + 1)) as MeshInstance3D
+		if mesh == null:
+			push_error("Missing Saab landing gear part: Chassis_%d_001" % (i + 1))
+			continue
+		mesh.reparent(_gear_pivots[i], true)
 	set_gear(1.0)
 
 
 func set_gear(extension: float) -> void:
-	_gear_animation.seek((1.0 - clampf(extension, 0.0, 1.0)) * _gear_animation.current_animation_length, true)
+	var fold := 1.0 - clampf(extension, 0.0, 1.0)
+	$NoseGearPivot.rotation_degrees.x = 90.0 * fold
+	for pivot in [$NoseDoorRPivot, $MainGearLPivot, $InnerDoorRPivot]:
+		pivot.rotation_degrees.z = 90.0 * fold
+	for pivot in [$NoseDoorLPivot, $MainGearRPivot, $InnerDoorLPivot]:
+		pivot.rotation_degrees.z = -90.0 * fold
 
 
 func set_controls(pitch: float, roll: float, yaw: float, delta: float) -> void:
