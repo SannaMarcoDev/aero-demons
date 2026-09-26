@@ -9,22 +9,15 @@
 [ext_resource type="Texture2D" uid="uid://c1vwcdcdvb74a" path="res://addons/sky_3d/assets/thirdparty/textures/milkyway/Milkyway.jpg" id="12_milkyway"]
 [ext_resource type="Texture2D" uid="uid://cecwdqjol0ckd" path="res://addons/sky_3d/assets/textures/noiseClouds.png" id="13_clouds"]
 [ext_resource type="Texture2D" uid="uid://2r8ylu6rg5dp" path="res://addons/sky_3d/assets/thirdparty/textures/moon/MoonMap.png" id="15_moon"]
-[ext_resource type="PackedScene" path="res://scenes/maps/main_airport_layout.tscn" id="16_8bik1"]
+[ext_resource type="PackedScene" uid="uid://b7uwjoh1k5yfl" path="res://scenes/maps/garda_airport_demo.tscn" id="16_8bik1"]
 [ext_resource type="Texture2D" uid="uid://djpfuyxkryegn" path="res://addons/sky_3d/assets/textures/noise.jpg" id="16_noise"]
 [ext_resource type="Texture2D" uid="uid://bm7dot7t7u1q4" path="res://addons/sky_3d/assets/thirdparty/textures/milkyway/StarField.jpg" id="17_stars"]
-[ext_resource type="CompositorEffect" path="res://resources/environments/garda_clouds.tres" id="21_sunshine"]
+[ext_resource type="CompositorEffect" uid="uid://c207k528um13c" path="res://resources/environments/garda_clouds.tres" id="21_sunshine"]
 [ext_resource type="Script" uid="uid://djusduuxf0voj" path="res://addons/SunshineClouds2/SunshineCloudsDriver.gd" id="22_clouds_driver"]
 [ext_resource type="Script" uid="uid://bke3xwkhruy37" path="res://scripts/maps/tutorial_boundary_controller.gd" id="23_boundary"]
 [ext_resource type="Material" uid="uid://30yhc4wq6lxr" path="res://resources/materials/garda_water.tres" id="24_water"]
 [ext_resource type="Script" uid="uid://dcp1kek7gt3ik" path="res://scripts/maps/garda_forests.gd" id="25_forests"]
 [ext_resource type="Script" uid="uid://dcn2geieg0s6j" path="res://scripts/maps/garda_ground_cover.gd" id="26_ground_cover"]
-[ext_resource type="Script" uid="uid://bxp3i4cnonh8y" path="res://addons/road-generator/nodes/road_manager.gd" id="27_road_manager"]
-[ext_resource type="Script" uid="uid://cph7euje06kel" path="res://addons/road-generator/nodes/road_container.gd" id="28_road_container"]
-[ext_resource type="Script" uid="uid://difs1qg4mpcpw" path="res://addons/road-generator/nodes/road_point.gd" id="29_road_point"]
-[ext_resource type="Script" uid="uid://dx0pklu2apuar" path="res://addons/road-generator/nodes/road_intersection.gd" id="30_road_intersection"]
-[ext_resource type="Script" uid="uid://pi185aml8gam" path="res://scripts/maps/road_terrain_conformer.gd" id="31_road_terrain"]
-[ext_resource type="Resource" path="res://resources/roads/rounded_rural_junction.tres" id="32_road_junction"]
-[ext_resource type="PackedScene" path="res://scenes/maps/airport_city.tscn" id="33_airport_city"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_surface"]
 seed = 7319
@@ -105,7 +98,7 @@ shader_parameter/starmap_flip_u = false
 shader_parameter/starmap_flip_v = false
 shader_parameter/starmap_alignment = Vector3(2.68288, -0.25891, 0.40101)
 shader_parameter/star_rotation_offset = 9.38899
-shader_parameter/star_rotation = -7.5352342500885685
+shader_parameter/star_rotation = -7.141459993917581
 shader_parameter/star_tilt = -0.7740535232594852
 shader_parameter/star_field_color = Color(1, 1, 1, 1)
 shader_parameter/star_field_texture = ExtResource("17_stars")
@@ -120,9 +113,9 @@ shader_parameter/cirrus_thickness = 0.9
 shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.7
 shader_parameter/cirrus_size = 1.0
-shader_parameter/cirrus_uv = Vector2(0.06, 0.10)
-shader_parameter/cirrus_position1 = Vector2(0.0491981, 0.0491981)
-shader_parameter/cirrus_position2 = Vector2(0.0491981, 0.0491981)
+shader_parameter/cirrus_uv = Vector2(0.06, 0.1)
+shader_parameter/cirrus_position1 = Vector2(0.1168015, 0.1168015)
+shader_parameter/cirrus_position2 = Vector2(0.1168015, 0.1168015)
 shader_parameter/cirrus_texture = SubResource("NoiseTexture2D_clear_cirrus")
 shader_parameter/cumulus_visible = false
 shader_parameter/cumulus_intensity = 0.6
@@ -142,7 +135,7 @@ shader_parameter/azimuthal_grid_rotation_offset = 0.03
 shader_parameter/show_equatorial_grid = false
 shader_parameter/equatorial_grid_color = Color(0, 0.75, 1, 1)
 shader_parameter/equatorial_grid_rotation_offset = 0.03
-shader_parameter/moon_matrix = Basis(0.1402001, 0.6921353, 0.7080202, -0.079742484, 0.7206532, -0.6886945, -0.98690677, 0.040095735, 0.15622824)
+shader_parameter/moon_matrix = Basis(0.4976025, 0.60635054, 0.6202667, -0.076134525, 0.7428544, -0.6651098, -0.8640574, 0.28373656, 0.41581038)
 
 [sub_resource type="Sky" id="Sky_sky3d"]
 sky_material = SubResource("ShaderMaterial_sky")
@@ -152,8 +145,9 @@ process_mode = 2
 background_mode = 2
 sky = SubResource("Sky_sky3d")
 ambient_light_source = 3
-ambient_light_color = Color(1, 0.98, 0.95000005, 1)
-ambient_light_energy = 0.65
+ambient_light_color = Color(0.92813873, 0.909576, 0.88173187, 1)
+ambient_light_sky_contribution = 0.3
+ambient_light_energy = 0.22
 reflected_light_source = 2
 tonemap_mode = 3
 tonemap_white = 6.0
@@ -188,31 +182,29 @@ editor_time_enabled = false
 game_time_enabled = false
 current_time = 9.0
 sun_energy = 1.8
+sun_shadow_opacity = 0.8
 sky_contribution = 0.3
 ambient_energy = 0.22
-sun_shadow_opacity = 0.8
 wind_speed = 0.35
 wind_direction = 2.35619451204804
 metadata/_custom_type_script = "uid://deo0gxkmk2ahd"
 metadata/shadow_distance_scale = 2.0
 
 [node name="SunLight" type="DirectionalLight3D" parent="Sky3D" unique_id=730235234]
-transform = Transform3D(0.3373567, -0.69178027, 0.63845956, 0, 0.6782189, 0.73486, -0.9413769, -0.24790993, 0.22880165, 0.63845956, 0.73486, 0.22880165)
+transform = Transform3D(0.020141236, -0.52803165, 0.84898585, 0, 0.8491581, 0.52813876, -0.99979717, -0.010637367, 0.017103095, 0.84898585, 0.52813876, 0.017103095)
 light_color = Color(1, 0.98, 0.95000005, 1)
 light_energy = 1.8
 shadow_enabled = true
 shadow_bias = 0.03
 shadow_normal_bias = 1.0
 shadow_opacity = 0.8
-directional_shadow_mode = 2
 directional_shadow_split_1 = 0.025
 directional_shadow_split_2 = 0.08
 directional_shadow_split_3 = 0.25
-directional_shadow_blend_splits = false
 directional_shadow_max_distance = 4000.0
 
 [node name="MoonLight" type="DirectionalLight3D" parent="Sky3D" unique_id=1847293641]
-transform = Transform3D(0, -0.16129145, -0.9869068, 0.9686083, -0.24533698, 0.04009574, -0.24859184, -0.9559262, 0.15622824, -0.9869068, 0.04009574, 0.15622824)
+transform = Transform3D(0, -0.5033933, -0.8640575, 0.8260152, -0.48702425, 0.2837366, -0.563648, -0.7137246, 0.41581044, -0.8640574, 0.28373656, 0.4158104)
 light_color = Color(0.572549, 0.776471, 0.956863, 1)
 light_energy = 0.0
 directional_shadow_blend_splits = true
@@ -222,14 +214,14 @@ directional_shadow_max_distance = 256.0
 script = ExtResource("10_dome")
 ground_color = Color(0.22, 0.25, 0.19, 1)
 sun_disk_size = 0.009
-sun_azimuth = -1.9149039
-sun_altitude = -0.7453361
+sun_azimuth = -1.5909389
+sun_altitude = -1.0143892
 sun_disk_color = Color(1, 0.97, 0.9, 1)
 sun_disk_intensity = 18.0
 sun_light_color = Color(1, 0.98, 0.95, 1)
 sun_light_energy = 1.8
-moon_azimuth = -4.555391
-moon_altitude = -1.5306898
+moon_azimuth = -4.26387
+moon_altitude = -1.2831078
 atm_darkness = 0.4
 atm_sun_intensity = 16.0
 atm_day_tint = Color(0.74, 0.89, 1, 1)
@@ -251,7 +243,7 @@ cirrus_thickness = 0.9
 cirrus_coverage = 0.22
 cirrus_sky_tint_fade = 0.7
 cirrus_texture = SubResource("NoiseTexture2D_clear_cirrus")
-cirrus_uv = Vector2(0.06, 0.10)
+cirrus_uv = Vector2(0.06, 0.1)
 cumulus_visible = false
 
 [node name="TimeOfDay" type="Node" parent="Sky3D" unique_id=1738492056]
@@ -295,210 +287,18 @@ script = ExtResource("25_forests")
 script = ExtResource("26_ground_cover")
 
 [node name="Airport" parent="." unique_id=97443345 instance=ExtResource("16_8bik1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36418.484, 234.52104, 413.42773)
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -36770, 248.02104, 247)
 
-[node name="AirportCity" parent="." unique_id=879363383 instance=ExtResource("33_airport_city")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36418.484, 234.52104, 413.42773)
+[node name="WorldEnvironment" parent="Airport" index="0"]
+environment = null
 
-[node name="RoadManager" type="Node3D" parent="." unique_id=451128961]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -35000, 269.20236, 3000)
-script = ExtResource("27_road_manager")
-density = 2.0
+[node name="Sun" parent="Airport" index="1"]
+visible = false
 
-[node name="TwoLaneRoads" type="Node3D" parent="RoadManager" unique_id=1305605043]
-script = ExtResource("28_road_container")
-use_lowpoly_preview = true
-flatten_terrain = false
-edge_containers = Array[NodePath]([NodePath("../../AirportCity/RoadManager/Ground"), NodePath(""), NodePath(""), NodePath(""), NodePath("")])
-edge_rp_targets = Array[NodePath]([NodePath("UserRoadLink"), NodePath(""), NodePath(""), NodePath(""), NodePath("")])
-edge_rp_target_dirs = Array[int]([1, -1, -1, -1, -1])
-edge_rp_locals = Array[NodePath]([NodePath("WestEnd"), NodePath("EastEnd"), NodePath("X_WestEnd"), NodePath("X_EastEnd"), NodePath("SouthEnd")])
-edge_rp_local_dirs = Array[int]([0, 0, 0, 0, 0])
+[node name="Collision" parent="Airport/Ground" index="0"]
+disabled = true
 
-[node name="T_Junction" type="Node3D" parent="RoadManager/TwoLaneRoads" unique_id=2121864710 node_paths=PackedStringArray("edge_points")]
-script = ExtResource("30_road_intersection")
-settings = ExtResource("32_road_junction")
-edge_points = [NodePath("../T_West"), NodePath("../T_East"), NodePath("../T_South")]
-
-[node name="T_West" type="Node3D" parent="RoadManager/TwoLaneRoads" unique_id=1030463148]
-transform = Transform3D(7.54979e-08, 0, -1, 0, 1, 0, 1, 0, 7.54979e-08, -12, 0, 0)
-script = ExtResource("29_road_point")
-traffic_dir = Array[int]([2, 1])
-lanes = Array[int]([5, 5])
-prior_mag = 6.0
-next_mag = 25.0
-lane_width = 3.5
-shoulder_width_l = 0.4
-shoulder_width_r = 0.4
-gutter_profile = Vector2(0, 0)
-prior_pt_init = NodePath("../T_Junction")
-next_pt_init = NodePath("../WestEnd")
-
-[node name="WestEnd" type="Node3D" parent="RoadManager/TwoLaneRoads" unique_id=1679850119]
-transform = Transform3D(7.54979e-08, 0, -1, 0, 1, 0, 1, 0, 7.54979e-08, -100, 7.514862, 0)
-script = ExtResource("29_road_point")
-traffic_dir = Array[int]([2, 1])
-lanes = Array[int]([5, 5])
-prior_mag = 25.0
-lane_width = 3.5
-shoulder_width_l = 0.4
-shoulder_width_r = 0.4
-gutter_profile = Vector2(0, 0)
-prior_pt_init = NodePath("../T_West")
-
-[node name="T_East" type="Node3D" parent="RoadManager/TwoLaneRoads" unique_id=607292508]
-transform = Transform3D(7.54979e-08, 0, 1, 0, 1, 0, -1, 0, 7.54979e-08, 12, 0, 0)
-script = ExtResource("29_road_point")
-traffic_dir = Array[int]([2, 1])
-lanes = Array[int]([5, 5])
-prior_mag = 6.0
-next_mag = 25.0
-lane_width = 3.5
-shoulder_width_l = 0.4
-shoulder_width_r = 0.4
-gutter_profile = Vector2(0, 0)
-prior_pt_init = NodePath("../T_Junction")
-next_pt_init = NodePath("../EastEnd")
-
-[node name="EastEnd" type="Node3D" parent="RoadManager/TwoLaneRoads" unique_id=35177382]
-transform = Transform3D(7.54979e-08, 0, 1, 0, 1, 0, -1, 0, 7.54979e-08, 100, -5.528442, 0)
-script = ExtResource("29_road_point")
-traffic_dir = Array[int]([2, 1])
-lanes = Array[int]([5, 5])
-prior_mag = 25.0
-lane_width = 3.5
-shoulder_width_l = 0.4
-shoulder_width_r = 0.4
-gutter_profile = Vector2(0, 0)
-prior_pt_init = NodePath("../T_East")
-
-[node name="T_South" type="Node3D" parent="RoadManager/TwoLaneRoads" unique_id=1666394583]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 12)
-script = ExtResource("29_road_point")
-traffic_dir = Array[int]([2, 1])
-lanes = Array[int]([5, 5])
-prior_mag = 6.0
-next_mag = 25.0
-lane_width = 3.5
-shoulder_width_l = 0.4
-shoulder_width_r = 0.4
-gutter_profile = Vector2(0, 0)
-prior_pt_init = NodePath("../T_Junction")
-next_pt_init = NodePath("../Bend")
-
-[node name="Bend" type="Node3D" parent="RoadManager/TwoLaneRoads" unique_id=14749182]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 25, 5.534576, 90)
-script = ExtResource("29_road_point")
-traffic_dir = Array[int]([2, 1])
-lanes = Array[int]([5, 5])
-prior_mag = 25.0
-next_mag = 25.0
-lane_width = 3.5
-shoulder_width_l = 0.4
-shoulder_width_r = 0.4
-gutter_profile = Vector2(0, 0)
-prior_pt_init = NodePath("../T_South")
-next_pt_init = NodePath("../X_North")
-
-[node name="X_North" type="Node3D" parent="RoadManager/TwoLaneRoads" unique_id=424040769]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16.854675, 168)
-script = ExtResource("29_road_point")
-traffic_dir = Array[int]([2, 1])
-lanes = Array[int]([5, 5])
-prior_mag = 25.0
-next_mag = 6.0
-lane_width = 3.5
-shoulder_width_l = 0.4
-shoulder_width_r = 0.4
-gutter_profile = Vector2(0, 0)
-prior_pt_init = NodePath("../Bend")
-next_pt_init = NodePath("../X_Junction")
-
-[node name="X_Junction" type="Node3D" parent="RoadManager/TwoLaneRoads" unique_id=262783885 node_paths=PackedStringArray("edge_points")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16.854675, 180)
-script = ExtResource("30_road_intersection")
-settings = ExtResource("32_road_junction")
-edge_points = [NodePath("../X_West"), NodePath("../X_North"), NodePath("../X_East"), NodePath("../X_South")]
-
-[node name="X_West" type="Node3D" parent="RoadManager/TwoLaneRoads" unique_id=153082007]
-transform = Transform3D(7.54979e-08, 0, -1, 0, 1, 0, 1, 0, 7.54979e-08, -12, 16.854675, 180)
-script = ExtResource("29_road_point")
-traffic_dir = Array[int]([2, 1])
-lanes = Array[int]([5, 5])
-prior_mag = 6.0
-next_mag = 25.0
-lane_width = 3.5
-shoulder_width_l = 0.4
-shoulder_width_r = 0.4
-gutter_profile = Vector2(0, 0)
-prior_pt_init = NodePath("../X_Junction")
-next_pt_init = NodePath("../X_WestEnd")
-
-[node name="X_WestEnd" type="Node3D" parent="RoadManager/TwoLaneRoads" unique_id=77728902]
-transform = Transform3D(7.54979e-08, 0, -1, 0, 1, 0, 1, 0, 7.54979e-08, -100, 23.096558, 180)
-script = ExtResource("29_road_point")
-traffic_dir = Array[int]([2, 1])
-lanes = Array[int]([5, 5])
-prior_mag = 25.0
-lane_width = 3.5
-shoulder_width_l = 0.4
-shoulder_width_r = 0.4
-gutter_profile = Vector2(0, 0)
-prior_pt_init = NodePath("../X_West")
-
-[node name="X_East" type="Node3D" parent="RoadManager/TwoLaneRoads" unique_id=1219060957]
-transform = Transform3D(7.54979e-08, 0, 1, 0, 1, 0, -1, 0, 7.54979e-08, 12, 16.854675, 180)
-script = ExtResource("29_road_point")
-traffic_dir = Array[int]([2, 1])
-lanes = Array[int]([5, 5])
-prior_mag = 6.0
-next_mag = 25.0
-lane_width = 3.5
-shoulder_width_l = 0.4
-shoulder_width_r = 0.4
-gutter_profile = Vector2(0, 0)
-prior_pt_init = NodePath("../X_Junction")
-next_pt_init = NodePath("../X_EastEnd")
-
-[node name="X_EastEnd" type="Node3D" parent="RoadManager/TwoLaneRoads" unique_id=58361038]
-transform = Transform3D(7.54979e-08, 0, 1, 0, 1, 0, -1, 0, 7.54979e-08, 100, 2.697632, 180)
-script = ExtResource("29_road_point")
-traffic_dir = Array[int]([2, 1])
-lanes = Array[int]([5, 5])
-prior_mag = 25.0
-lane_width = 3.5
-shoulder_width_l = 0.4
-shoulder_width_r = 0.4
-gutter_profile = Vector2(0, 0)
-prior_pt_init = NodePath("../X_East")
-
-[node name="X_South" type="Node3D" parent="RoadManager/TwoLaneRoads" unique_id=1251764303]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16.854675, 192)
-script = ExtResource("29_road_point")
-traffic_dir = Array[int]([2, 1])
-lanes = Array[int]([5, 5])
-prior_mag = 6.0
-next_mag = 30.0
-lane_width = 3.5
-shoulder_width_l = 0.4
-shoulder_width_r = 0.4
-gutter_profile = Vector2(0, 0)
-prior_pt_init = NodePath("../X_Junction")
-next_pt_init = NodePath("../SouthEnd")
-
-[node name="SouthEnd" type="Node3D" parent="RoadManager/TwoLaneRoads" unique_id=1818422346]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 20.893341, 300)
-script = ExtResource("29_road_point")
-traffic_dir = Array[int]([2, 1])
-lanes = Array[int]([5, 5])
-prior_mag = 30.0
-lane_width = 3.5
-shoulder_width_l = 0.4
-shoulder_width_r = 0.4
-gutter_profile = Vector2(0, 0)
-prior_pt_init = NodePath("../X_South")
-
-[node name="RoadTerrain" type="Node" parent="." unique_id=383266020 node_paths=PackedStringArray("terrain", "road_manager")]
-script = ExtResource("31_road_terrain")
-terrain = NodePath("../GardaTerrain")
-road_manager = NodePath("../RoadManager")
+[node name="Camera3D" parent="Airport" index="4"]
+visible = false
+current = false
+script = null

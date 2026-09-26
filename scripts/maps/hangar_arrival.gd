@@ -1,9 +1,6 @@
 extends Node3D
-## Tutorial-only camera direction. Tweens and flight motion pause with the scene.
-signal finished
-
+## Tutorial combat reveal. Tweens and flight motion pause with the scene.
 const SPHERE = preload("res://scenes/vfx/energy_sphere.tscn")
-var completed := false
 var active := false
 var shot := ""
 var escorts: Array[EnemyFighter] = []
@@ -85,73 +82,6 @@ func _end() -> void:
 func _fade(alpha: float, seconds := 0.65) -> void:
 	_black.show()
 	await create_tween().tween_property(_black, "modulate:a", alpha, seconds).finished
-
-
-func _hold(seconds: float) -> void:
-	await create_tween().tween_interval(seconds).finished
-
-
-func _view(position_world: Vector3, target: Vector3, fov: float) -> void:
-	_camera.global_position = position_world
-	_camera.look_at(target)
-	_camera.fov = fov
-
-
-func play_intro(radio: RadioDialogue, dialogue: DialogueResource) -> void:
-	_begin(radio, dialogue)
-	var hangar: Node3D = get_node("../GardaLake/Airport/SmallHangars/S01_SmallHangar")
-	var ground_ray := PhysicsRayQueryParameters3D.create(player.global_position, player.global_position - Vector3.UP * 20.0, 1)
-	var ground_hit := get_world_3d().direct_space_state.intersect_ray(ground_ray)
-	if not ground_hit.is_empty():
-		player.global_position.y = ground_hit.position.y + 3.6 # Same wheel proxy clearance as PlayerFlight.
-	var exit_direction: Vector3 = get_node("../Marker3D").global_position - player.global_position
-	exit_direction.y = 0.0
-	player.global_basis = Basis.looking_at(exit_direction.normalized())
-	var start := player.global_transform
-	shot = "hangar_detail"
-	_view(start * Vector3(8, 2, -8), start * Vector3(0, 0, -3), 48.0)
-	_black.modulate.a = 1.0
-	await _fade(0.0)
-	_radio.play(_dialogue, "intro")
-	await _hold(4.0)
-	shot = "hangar_airframe"
-	_view(start * Vector3(-15, 4, -14), start.origin, 55.0)
-	var pan := create_tween()
-	pan.tween_method(func(t: float): _view(start * Vector3(-15, 4, -14).lerp(Vector3(-12, 3, 10), t), start.origin, 55.0), 0.0, 1.0, 5.0)
-	await pan.finished
-	shot = "hangar_door"
-	_view(hangar.to_global(Vector3(-3, 4, 32)), hangar.to_global(Vector3(0, 2, 12)), 65.0)
-	hangar.set_open(true)
-	while hangar.openness < 0.999:
-		await get_tree().physics_frame
-	# Only the nose crosses the doorway before the side tracking shot.
-	var nose_end := start.origin - start.basis.z * 10.0
-	await create_tween().tween_property(player, "global_position", nose_end, 3.0).finished
-	shot = "hangar_tracking"
-	var exit_position := get_node("../Marker3D").global_position as Vector3
-	exit_position.y = start.origin.y
-	await create_tween().tween_method(func(t: float):
-		player.global_position = nose_end.lerp(exit_position, t)
-		var offset := Vector3(18, 2, -2).lerp(Vector3(0, 5, 28), smoothstep(0.0, 1.0, t))
-		_view(player.global_position + start.basis * offset, player.global_position, 62.0)
-	, 0.0, 1.0, 10.0).finished
-	if _radio.playing:
-		await _radio.finished
-	await _fade(1.0)
-	shot = "runway"
-	var runway: Vector3 = get_node("../TaxiRunway").global_position
-	var direction: Vector3 = get_node("../TaxiTakeoff").global_position - runway
-	direction.y = 0.0
-	runway.y += start.origin.y - get_node("../Marker3D").global_position.y
-	player.reset_flight(Transform3D(Basis.looking_at(direction.normalized()), runway))
-	player.camera_depth = 22.0
-	player.get_node("FlightCamera").snap_to_target()
-	_camera.global_transform = player.get_node("FlightCamera").global_transform
-	_camera.fov = player.camera_fov
-	await _fade(0.0)
-	_end()
-	completed = true
-	finished.emit()
 
 
 func play_reveal(radio: RadioDialogue, dialogue: DialogueResource, enemy_scene: PackedScene) -> void:

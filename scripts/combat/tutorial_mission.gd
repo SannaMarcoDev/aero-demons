@@ -1,6 +1,6 @@
 extends "res://scripts/combat/sortie_controller.gd"
 class_name TutorialMission
-## Hangar cinematic → protected collaudo → convoy reveal → four interceptors.
+## Parked aircraft intro → protected collaudo → convoy reveal → four interceptors.
 signal flight_training_completed
 
 enum Phase { OPENING, TAKEOFF, CLIMB, GEAR, FLIGHT, REVEAL,
@@ -64,8 +64,10 @@ func _start() -> void:
 		cinematic.set_script(preload("res://scripts/maps/hangar_arrival.gd"))
 		hud.get_parent().add_child(cinematic)
 	if player.start_on_ground:
-		await cinematic.play_intro(radio, dialogue)
+		radio.play(dialogue, "intro")
+		await radio.finished
 		phase = Phase.TAKEOFF
+		player.controls_enabled = true
 	else:
 		player.controls_enabled = true
 		_begin_flight()

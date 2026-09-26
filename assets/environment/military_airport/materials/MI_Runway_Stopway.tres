@@ -1,11 +1,16 @@
-[gd_resource type="StandardMaterial3D" load_steps=3 format=3]
+[gd_resource type="ShaderMaterial" load_steps=5 format=3]
 
-[ext_resource type="Texture2D" path="res://assets/environment/military_airport/textures/Runway/T_Road_Asphalt_BC.png" id="1"]
-[ext_resource type="Texture2D" path="res://assets/environment/military_airport/textures/Runway/T_Road_Asphalt_N.png" id="2"]
+[ext_resource type="Shader" path="res://assets/environment/military_airport/materials/runway_markings.gdshader" id="1"]
+[ext_resource type="Texture2D" path="res://assets/environment/military_airport/textures/Runway/T_Road_Asphalt_BC.png" id="2"]
+[ext_resource type="Texture2D" path="res://assets/environment/military_airport/textures/Runway/T_Roads_RGBMask.png" id="3"]
+[ext_resource type="Texture2D" path="res://assets/environment/military_airport/textures/Runway/T_Road_Asphalt_N.png" id="4"]
 
 [resource]
 resource_name = "MI_Runway_Stopway"
-roughness = 0.83
-albedo_texture = ExtResource("1")
-normal_enabled = true
-normal_texture = ExtResource("2")
+shader = ExtResource("1")
+shader_parameter/asphalt = ExtResource("2")
+shader_parameter/markings = ExtResource("3")
+shader_parameter/asphalt_normal = ExtResource("4")
+shader_parameter/white_channels = Vector3(0, 0, 0)
+shader_parameter/yellow_channels = Vector3(0, 0, 1)
+shader_parameter/yellow_paint = Color(0.9098039, 0.8666667, 0.4509804, 1)
