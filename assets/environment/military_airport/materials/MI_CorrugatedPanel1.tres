@@ -1,0 +1,11 @@
+[gd_resource type="StandardMaterial3D" load_steps=3 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/environment/military_airport/textures/Tileable/T_CorrugatedPanel_BC.png" id="1"]
+[ext_resource type="Texture2D" path="res://assets/environment/military_airport/textures/Tileable/T_CorrugatedPanel_N.png" id="2"]
+
+[resource]
+resource_name = "MI_CorrugatedPanel1"
+roughness = 0.83
+albedo_texture = ExtResource("1")
+normal_enabled = true
+normal_texture = ExtResource("2")

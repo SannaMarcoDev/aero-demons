@@ -1,0 +1,506 @@
+[gd_scene format=3]
+[ext_resource type="Script" path="res://assets/environment/military_airport/airport_camera.gd" id="camera"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Runway_1_Stopway_1.tscn" id="SM_Runway_1_Stopway_1"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Runway_1_Stopway_2.tscn" id="SM_Runway_1_Stopway_2"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Runway_2_Threshold.tscn" id="SM_Runway_2_Threshold"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Runway_3_AimPoint.tscn" id="SM_Runway_3_AimPoint"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Runway_4_Center.tscn" id="SM_Runway_4_Center"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Road_1.tscn" id="SM_Road_1"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Road_2.tscn" id="SM_Road_2"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Road_Connection_01.tscn" id="SM_Road_Connection_01"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Road_Connection_02.tscn" id="SM_Road_Connection_02"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Road_Connection_03.tscn" id="SM_Road_Connection_03"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Road_Corner_01.tscn" id="SM_Road_Corner_01"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Road_Corner_02.tscn" id="SM_Road_Corner_02"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Road_Corner_03.tscn" id="SM_Road_Corner_03"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Road_Asphalt_Connection_7.tscn" id="SM_Road_Asphalt_Connection_7"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Road_Asphalt_Hangar_01_32.tscn" id="SM_Road_Asphalt_Hangar_01_32"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Road_Asphalt_ConnectionVertexPaint.tscn" id="SM_Road_Asphalt_ConnectionVertexPaint"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Road_Asphalt_Connection_22.tscn" id="SM_Road_Asphalt_Connection_22"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Road_Asphalt_Connection_03_41.tscn" id="SM_Road_Asphalt_Connection_03_41"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Road_Asphalt_Corner_02_81.tscn" id="SM_Road_Asphalt_Corner_02_81"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Road_Asphalt_Corner_3.tscn" id="SM_Road_Asphalt_Corner_3"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Carpark_Asphalt.tscn" id="SM_Carpark_Asphalt"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Ground_1.tscn" id="SM_Ground_1"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Ground_2.tscn" id="SM_Ground_2"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Ground_3.tscn" id="SM_Ground_3"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Ground_SideCap.tscn" id="SM_Ground_SideCap"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Gate_Island.tscn" id="SM_Gate_Island"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Gate_Island_2.tscn" id="SM_Gate_Island_2"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Helideck.tscn" id="SM_Helideck"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_SpeedBump.tscn" id="SM_SpeedBump"]
+
+[sub_resource type="ProceduralSkyMaterial" id="SkyMat"]
+sky_top_color = Color(0.22, 0.39, 0.6, 1)
+sky_horizon_color = Color(0.7, 0.75, 0.78, 1)
+
+[sub_resource type="Sky" id="Sky"]
+sky_material = SubResource("SkyMat")
+
+[sub_resource type="Environment" id="Env"]
+background_mode = 2
+sky = SubResource("Sky")
+ambient_light_source = 3
+ambient_light_color = Color(0.7, 0.77, 0.87, 1)
+ambient_light_energy = 0.65
+tonemap_mode = 3
+
+[sub_resource type="StandardMaterial3D" id="GroundMat"]
+albedo_color = Color(0.22, 0.27, 0.29, 1)
+roughness = 1.0
+
+[sub_resource type="PlaneMesh" id="GroundMesh"]
+material = SubResource("GroundMat")
+size = Vector2(780, 850)
+
+[node name="SurfaceShowcase" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Env")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-55, -30, 0)
+light_energy = 1.1
+shadow_enabled = true
+directional_shadow_max_distance = 1200.0
+
+[node name="Backdrop" type="MeshInstance3D" parent="."]
+position = Vector3(0, -0.05, 20)
+mesh = SubResource("GroundMesh")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+position = Vector3(0, 670, 350)
+rotation_degrees = Vector3(-65, 0, 0)
+fov = 68.0
+far = 2500.0
+current = true
+script = ExtResource("camera")
+move_speed = 80.0
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Help" type="Label" parent="HUD"]
+offset_left = 20.0
+offset_top = 16.0
+mouse_filter = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 18
+text = "MILITARY AIRPORT / SUPERFICI
+29 moduli in scala originale - nessun edificio o arredo
+Click: mouse look | WASD: volo | Q/E: quota | Shift: veloce | Esc: rilascia / esci"
+
+[node name="Piste" type="Node3D" parent="."]
+
+[node name="Titolo" type="Label3D" parent="Piste"]
+position = Vector3(0.0000, 0.1000, -341.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.07
+font_size = 64
+outline_size = 8
+modulate = Color(0.45, 0.85, 1, 1)
+text = "01 / PISTE"
+
+[node name="SM_Runway_1_Stopway_1" parent="Piste" instance=ExtResource("SM_Runway_1_Stopway_1")]
+position = Vector3(-340.000000, 1.741205, -299.999975)
+
+[node name="Nome1" type="Label3D" parent="Piste"]
+position = Vector3(-290.0000, 0.1000, -267.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.04
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Runway_1_Stopway_1"
+
+[node name="SM_Runway_1_Stopway_2" parent="Piste" instance=ExtResource("SM_Runway_1_Stopway_2")]
+position = Vector3(-170.000004, 1.741194, -299.999990)
+
+[node name="Nome2" type="Label3D" parent="Piste"]
+position = Vector3(-145.0000, 0.1000, -267.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.04
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Runway_1_Stopway_2"
+
+[node name="SM_Runway_2_Threshold" parent="Piste" instance=ExtResource("SM_Runway_2_Threshold")]
+position = Vector3(-25.000004, 1.741194, -299.999990)
+
+[node name="Nome3" type="Label3D" parent="Piste"]
+position = Vector3(0.0000, 0.1000, -267.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.04
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Runway_2_Threshold"
+
+[node name="SM_Runway_3_AimPoint" parent="Piste" instance=ExtResource("SM_Runway_3_AimPoint")]
+position = Vector3(95.000000, 1.741205, -299.999975)
+
+[node name="Nome4" type="Label3D" parent="Piste"]
+position = Vector3(145.0000, 0.1000, -267.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.04
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Runway_3_AimPoint"
+
+[node name="SM_Runway_4_Center" parent="Piste" instance=ExtResource("SM_Runway_4_Center")]
+position = Vector3(240.000000, 1.741205, -299.999975)
+
+[node name="Nome5" type="Label3D" parent="Piste"]
+position = Vector3(290.0000, 0.1000, -267.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.04
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Runway_4_Center"
+
+[node name="Strade" type="Node3D" parent="."]
+
+[node name="Titolo" type="Label3D" parent="Strade"]
+position = Vector3(0.0000, 0.1000, -236.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.07
+font_size = 64
+outline_size = 8
+modulate = Color(0.45, 0.85, 1, 1)
+text = "02 / STRADE E INCROCI"
+
+[node name="SM_Road_1" parent="Strade" instance=ExtResource("SM_Road_1")]
+position = Vector3(-310.000009, 0.726478, -190.000019)
+
+[node name="Nome1" type="Label3D" parent="Strade"]
+position = Vector3(-290.0000, 0.1000, -172.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.04
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Road_1"
+
+[node name="SM_Road_2" parent="Strade" instance=ExtResource("SM_Road_2")]
+position = Vector3(-155.000010, 0.726476, -190.000019)
+
+[node name="Nome2" type="Label3D" parent="Strade"]
+position = Vector3(-145.0000, 0.1000, -172.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.04
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Road_2"
+
+[node name="SM_Road_Connection_01" parent="Strade" instance=ExtResource("SM_Road_Connection_01")]
+position = Vector3(-20.000004, 0.726479, -189.999992)
+
+[node name="Nome3" type="Label3D" parent="Strade"]
+position = Vector3(0.0000, 0.1000, -162.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.04
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Road_Connection_01"
+
+[node name="SM_Road_Connection_02" parent="Strade" instance=ExtResource("SM_Road_Connection_02")]
+position = Vector3(125.000000, 0.726480, -189.999992)
+
+[node name="Nome4" type="Label3D" parent="Strade"]
+position = Vector3(145.0000, 0.1000, -162.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.04
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Road_Connection_02"
+
+[node name="SM_Road_Connection_03" parent="Strade" instance=ExtResource("SM_Road_Connection_03")]
+position = Vector3(250.000003, 0.732484, -189.999949)
+
+[node name="Nome5" type="Label3D" parent="Strade"]
+position = Vector3(290.0000, 0.1000, -152.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.04
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Road_Connection_03"
+
+[node name="Raccordi" type="Node3D" parent="."]
+
+[node name="Titolo" type="Label3D" parent="Raccordi"]
+position = Vector3(0.0000, 0.1000, -108.7558)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.07
+font_size = 64
+outline_size = 8
+modulate = Color(0.45, 0.85, 1, 1)
+text = "03 / CURVE E RACCORDI"
+
+[node name="SM_Road_Corner_01" parent="Raccordi" instance=ExtResource("SM_Road_Corner_01")]
+position = Vector3(-330.000043, 0.726591, -59.999894)
+
+[node name="Nome1" type="Label3D" parent="Raccordi"]
+position = Vector3(-290.0000, 0.1000, 17.9999)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.04
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Road_Corner_01"
+
+[node name="SM_Road_Corner_02" parent="Raccordi" instance=ExtResource("SM_Road_Corner_02")]
+position = Vector3(-184.999988, 0.726593, -59.999984)
+
+[node name="Nome2" type="Label3D" parent="Raccordi"]
+position = Vector3(-145.0000, 0.1000, 18.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.04
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Road_Corner_02"
+
+[node name="SM_Road_Corner_03" parent="Raccordi" instance=ExtResource("SM_Road_Corner_03")]
+position = Vector3(-29.999998, 0.726588, -49.999997)
+
+[node name="Nome3" type="Label3D" parent="Raccordi"]
+position = Vector3(0.0000, 0.1000, 8.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.04
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Road_Corner_03"
+
+[node name="SM_Road_Asphalt_Connection_7" parent="Raccordi" instance=ExtResource("SM_Road_Asphalt_Connection_7")]
+position = Vector3(111.818109, 0.726485, -63.136616)
+
+[node name="Nome4" type="Label3D" parent="Raccordi"]
+position = Vector3(145.0000, 0.1000, 40.7558)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.04
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Road_Asphalt\nConnection_7"
+
+[node name="SM_Road_Asphalt_Hangar_01_32" parent="Raccordi" instance=ExtResource("SM_Road_Asphalt_Hangar_01_32")]
+position = Vector3(229.999992, 1.402969, -29.999985)
+
+[node name="Nome5" type="Label3D" parent="Raccordi"]
+position = Vector3(290.0000, 0.1000, 18.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.04
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Road_Asphalt\nHangar_01_32"
+
+[node name="Varianti" type="Node3D" parent="."]
+
+[node name="Titolo" type="Label3D" parent="Varianti"]
+position = Vector3(0.0000, 0.1000, 84.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.07
+font_size = 64
+outline_size = 8
+modulate = Color(0.45, 0.85, 1, 1)
+text = "04 / VARIANTI ASFALTO"
+
+[node name="SM_Road_Asphalt_ConnectionVertexPaint" parent="Varianti" instance=ExtResource("SM_Road_Asphalt_ConnectionVertexPaint")]
+position = Vector3(-310.000004, 0.726479, 140.000008)
+
+[node name="Nome1" type="Label3D" parent="Varianti"]
+position = Vector3(-290.0000, 0.1000, 168.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.04
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Road_Asphalt\nConnection\nVertexPaint"
+
+[node name="SM_Road_Asphalt_Connection_22" parent="Varianti" instance=ExtResource("SM_Road_Asphalt_Connection_22")]
+position = Vector3(-165.000000, 0.726480, 140.000008)
+
+[node name="Nome2" type="Label3D" parent="Varianti"]
+position = Vector3(-145.0000, 0.1000, 168.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.04
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Road_Asphalt\nConnection_22"
+
+[node name="SM_Road_Asphalt_Connection_03_41" parent="Varianti" instance=ExtResource("SM_Road_Asphalt_Connection_03_41")]
+position = Vector3(-39.999997, 0.732484, 140.000051)
+
+[node name="Nome3" type="Label3D" parent="Varianti"]
+position = Vector3(0.0000, 0.1000, 178.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.04
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Road_Asphalt\nConnection_03_41"
+
+[node name="SM_Road_Asphalt_Corner_02_81" parent="Varianti" instance=ExtResource("SM_Road_Asphalt_Corner_02_81")]
+position = Vector3(104.999957, 0.726591, 110.000106)
+
+[node name="Nome4" type="Label3D" parent="Varianti"]
+position = Vector3(145.0000, 0.1000, 187.9999)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.04
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Road_Asphalt\nCorner_02_81"
+
+[node name="SM_Road_Asphalt_Corner_3" parent="Varianti" instance=ExtResource("SM_Road_Asphalt_Corner_3")]
+position = Vector3(250.000012, 0.726593, 110.000016)
+
+[node name="Nome5" type="Label3D" parent="Varianti"]
+position = Vector3(290.0000, 0.1000, 188.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.04
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Road_Asphalt\nCorner_3"
+
+[node name="Piazzali" type="Node3D" parent="."]
+
+[node name="Titolo" type="Label3D" parent="Piazzali"]
+position = Vector3(0.0000, 0.1000, 229.8876)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.07
+font_size = 64
+outline_size = 8
+modulate = Color(0.45, 0.85, 1, 1)
+text = "05 / PARCHEGGIO E PAVIMENTAZIONI"
+
+[node name="SM_Carpark_Asphalt" parent="Piazzali" instance=ExtResource("SM_Carpark_Asphalt")]
+position = Vector3(-314.212688, 0.800009, 272.127951)
+
+[node name="Nome1" type="Label3D" parent="Piazzali"]
+position = Vector3(-290.0000, 0.1000, 282.1124)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.04
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Carpark_Asphalt"
+
+[node name="SM_Ground_1" parent="Piazzali" instance=ExtResource("SM_Ground_1")]
+position = Vector3(-157.000000, 2.050004, 272.000000)
+
+[node name="Nome2" type="Label3D" parent="Piazzali"]
+position = Vector3(-145.0000, 0.1000, 280.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.04
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Ground_1"
+
+[node name="SM_Ground_2" parent="Piazzali" instance=ExtResource("SM_Ground_2")]
+position = Vector3(-24.000000, 2.050008, 272.000000)
+
+[node name="Nome3" type="Label3D" parent="Piazzali"]
+position = Vector3(0.0000, 0.1000, 280.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.04
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Ground_2"
+
+[node name="SM_Ground_3" parent="Piazzali" instance=ExtResource("SM_Ground_3")]
+position = Vector3(133.000000, 2.050004, 264.000000)
+
+[node name="Nome4" type="Label3D" parent="Piazzali"]
+position = Vector3(145.0000, 0.1000, 272.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.04
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Ground_3"
+
+[node name="SM_Ground_SideCap" parent="Piazzali" instance=ExtResource("SM_Ground_SideCap")]
+position = Vector3(292.249993, 0.649999, 264.000000)
+
+[node name="Nome5" type="Label3D" parent="Piazzali"]
+position = Vector3(290.0000, 0.1000, 272.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.04
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Ground_SideCap"
+
+[node name="Superfici" type="Node3D" parent="."]
+
+[node name="Titolo" type="Label3D" parent="Superfici"]
+position = Vector3(0.0000, 0.1000, 311.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.07
+font_size = 64
+outline_size = 8
+modulate = Color(0.45, 0.85, 1, 1)
+text = "06 / ISOLE, ELIPIAZZOLA E DOSSO"
+
+[node name="SM_Gate_Island" parent="Superfici" instance=ExtResource("SM_Gate_Island")]
+position = Vector3(-302.000000, 0.450004, 345.000008)
+
+[node name="Nome1" type="Label3D" parent="Superfici"]
+position = Vector3(-290.0000, 0.1000, 356.3000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.04
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Gate_Island"
+
+[node name="SM_Gate_Island_2" parent="Superfici" instance=ExtResource("SM_Gate_Island_2")]
+position = Vector3(-162.999996, 0.400006, 344.999995)
+
+[node name="Nome2" type="Label3D" parent="Superfici"]
+position = Vector3(-145.0000, 0.1000, 356.3000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.04
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Gate_Island_2"
+
+[node name="SM_Helideck" parent="Superfici" instance=ExtResource("SM_Helideck")]
+position = Vector3(0.000000, 0.050001, 345.000002)
+
+[node name="Nome3" type="Label3D" parent="Superfici"]
+position = Vector3(0.0000, 0.1000, 371.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.04
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Helideck"
+
+[node name="SM_SpeedBump" parent="Superfici" instance=ExtResource("SM_SpeedBump")]
+position = Vector3(145.000000, 0.069834, 338.992225)
+
+[node name="Nome4" type="Label3D" parent="Superfici"]
+position = Vector3(145.0000, 0.1000, 359.0567)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.04
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "SpeedBump"

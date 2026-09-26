@@ -1,0 +1,11 @@
+[gd_resource type="StandardMaterial3D" load_steps=3 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/environment/military_airport/textures/Foliage/Tree/T_Oak_1_L_N.png" id="1"]
+
+[resource]
+resource_name = "MI_Tree_1_Billboard"
+roughness = 0.83
+albedo_texture = ExtResource("1")
+cull_mode = 2
+transparency = 2
+alpha_scissor_threshold = 0.45

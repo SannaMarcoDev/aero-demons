@@ -1,0 +1,507 @@
+[gd_scene format=3 uid="uid://xf8ixuxxl2gi"]
+
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Gate_Signboard.tscn" id="1"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_SpeedBump.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_GateBarrier_2_Bar.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_FuelPipe_2.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Missile_Pallet_3.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Crate_1.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Ground_SideCap.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Road_Connection_03.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Sign_6_Stop.tscn" id="9"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Carpark_Asphalt.tscn" id="10"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Sign_3_SpeedLimit.tscn" id="11"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Barrel_Stack_1.tscn" id="12"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Ground_1.tscn" id="13"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Road_Corner_02.tscn" id="14"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Pallet_2.tscn" id="15"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_FloodLight_4.tscn" id="16"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Plant_7.tscn" id="17"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Crate_3.tscn" id="18"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Missile_1.tscn" id="19"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Helideck.tscn" id="20"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Road_Corner_03.tscn" id="21"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Runway_2_Threshold.tscn" id="22"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Post_1.tscn" id="23"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Road_2.tscn" id="24"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Road_Connection_01.tscn" id="25"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Cone_1.tscn" id="26"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Fence_7.tscn" id="27"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_SecurityCamera.tscn" id="28"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_FuelPipe_3.tscn" id="29"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Barrel_2.tscn" id="30"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Runway_3_AimPoint.tscn" id="31"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_TrafficBarrier_1.tscn" id="32"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Pallet_3_Stack.tscn" id="33"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Roadblock_1.tscn" id="34"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_DrainPipe_1.tscn" id="35"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Building_01.tscn" id="36"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Crate_Stack_02.tscn" id="37"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Crate_Stack_01.tscn" id="38"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Barrel_Stack_2.tscn" id="39"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Crate_Stack_05.tscn" id="40"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_FloodLight_2.tscn" id="41"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Missile_Pallet_4.tscn" id="42"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Crate_Stack_04.tscn" id="43"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Pallet_1.tscn" id="44"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Container_2.tscn" id="45"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_FuelPipe_4.tscn" id="46"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_FuelSilo_1.tscn" id="47"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Oak_Billboard.tscn" id="48"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Sign_4_Stop.tscn" id="49"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Ground_3.tscn" id="50"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Container.tscn" id="51"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Crate_2.tscn" id="52"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Fence_3_Pole.tscn" id="53"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Pallet_4_Stack.tscn" id="54"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Missile_Pallet_2.tscn" id="55"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Ground_2.tscn" id="56"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Fence_4.tscn" id="57"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Cone_2_Bollard.tscn" id="58"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Roadblock_2.tscn" id="59"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Hangar.tscn" id="60"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Gate_Island.tscn" id="61"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Road_Connection_02.tscn" id="62"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Post_2_Camera.tscn" id="63"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Plant_5.tscn" id="64"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Plant_4.tscn" id="65"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_FuelPipe_1.tscn" id="66"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Barrel_1_Gasoline.tscn" id="67"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Fence_6.tscn" id="68"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Runway_1_Stopway_2.tscn" id="69"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Crate_Stack_03.tscn" id="70"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_FuelSilo_Combined.tscn" id="71"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Sign_5_Switch.tscn" id="72"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Road_1.tscn" id="73"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_MetalPipe_Cage.tscn" id="74"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_FloodLight_1.tscn" id="75"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Missile_2.tscn" id="76"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_TrafficBarrier_2.tscn" id="77"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Gate_Island_2.tscn" id="78"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Missile_Pallet_1.tscn" id="79"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_FloodLight_3.tscn" id="80"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Watchtower.tscn" id="81"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Barrel_Stack_3.tscn" id="82"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Sign_2_NoPasses.tscn" id="83"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Fence_2.tscn" id="84"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Sign_1_GateClosed.tscn" id="85"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Runway_1_Stopway_1.tscn" id="86"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Fence_5_Gate.tscn" id="87"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_DrainPipe_2_Stack.tscn" id="88"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Fence_8.tscn" id="89"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_FuelTank.tscn" id="90"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Runway_4_Center.tscn" id="91"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_GateBarrier_1.tscn" id="92"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Road_Corner_01_1.tscn" id="93"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Fence_1.tscn" id="94"]
+[ext_resource type="Script" uid="uid://b7lbprwagktgy" path="res://assets/environment/military_airport/airport_camera.gd" id="camera"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/foliage/Overview.scn" id="foliage"]
+[ext_resource type="Material" path="res://assets/environment/military_airport/materials/MI_TerrainGround.tres" id="ground_mat"]
+
+[sub_resource type="ProceduralSkyMaterial" id="SkyMat"]
+sky_top_color = Color(0.22, 0.39, 0.6, 1)
+sky_horizon_color = Color(0.7, 0.75, 0.78, 1)
+
+[sub_resource type="Sky" id="Sky"]
+sky_material = SubResource("SkyMat")
+
+[sub_resource type="Environment" id="Env"]
+background_mode = 2
+sky = SubResource("Sky")
+ambient_light_source = 3
+ambient_light_color = Color(0.7, 0.77, 0.87, 1)
+ambient_light_energy = 0.52
+tonemap_mode = 3
+
+[sub_resource type="BoxMesh" id="GroundMesh"]
+material = ExtResource("ground_mat")
+size = Vector3(2500, 0.1, 1500)
+
+[sub_resource type="BoxShape3D" id="GroundShape"]
+size = Vector3(2500, 0.1, 1500)
+
+[node name="Overview" type="Node3D" unique_id=2125882262]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=470935983]
+environment = SubResource("Env")
+
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=1791646803]
+transform = Transform3D(0.8660254, 0.40957603, -0.28678823, 0, 0.57357645, 0.81915206, 0.5, -0.7094065, 0.49673176, 0, 0, 0)
+light_energy = 1.1
+shadow_enabled = true
+
+[node name="Ground" type="StaticBody3D" parent="." unique_id=1779570491]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1245, -13.29, -153)
+
+[node name="Mesh" type="MeshInstance3D" parent="Ground" unique_id=1626690182]
+mesh = SubResource("GroundMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="Ground" unique_id=1485738743]
+shape = SubResource("GroundShape")
+
+[node name="Foliage" parent="." unique_id=941902756 instance=ExtResource("foliage")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, -13.24, 597)
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=524253445]
+transform = Transform3D(1, 0, 0, 0, 0.8910065, 0.4539905, 0, -0.4539905, 0.8910065, 940, 260, 520)
+current = true
+fov = 68.0
+script = ExtResource("camera")
+move_speed = 30.0
+
+[node name="DirectionalLight_1_683732226" type="Node3D" parent="." unique_id=1812828559]
+transform = Transform3D(0.21088506, 1.7606299, -1.7623045, 0.46565568, 1.7095712, 1.7636719, 2.4471824, -0.47702292, -0.18372971, 928.05054, 3.8757935, 12.326843)
+
+[node name="Main_Camera_1_1150538627" type="Node3D" parent="." unique_id=652735506]
+transform = Transform3D(0.7969623, 0.26628494, -0.54216546, 1.4901161e-08, 0.8975818, 0.440848, 0.604029, -0.35133928, 0.7153389, 926.21, 0.91, 18.03)
+
+[node name="Main_Camera_531958266" type="Node3D" parent="." unique_id=228402024]
+transform = Transform3D(1, 0, 0, 0, 0.7533684, 0.6575988, 0, -0.6575988, 0.7533684, 935, 148.7, 271.9)
+
+[node name="Overview_1566005933" type="Node3D" parent="." unique_id=1729360184]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 859.27, -13.54, 11.3)
+
+[node name="SM_Ground_SideCap10_52_5331325" parent="Overview_1566005933" unique_id=482620858 instance=ExtResource("7")]
+transform = Transform3D(-2.861023e-06, 0, 1, 0, 1, 0, -1, 0, -2.861023e-06, 37.26001, 0.42000008, -30.36026)
+
+[node name="SM_Ground_18_34131268" parent="Overview_1566005933" unique_id=2048314519 instance=ExtResource("13")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 122.31421, 0.42000008, 56.97446)
+
+[node name="SM_Fence_129_34384899" parent="Overview_1566005933" unique_id=814633383 instance=ExtResource("68")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 89.70996, 0.42000008, -28.810001)
+
+[node name="SM_Ground_SideCap9_50_44961228" parent="Overview_1566005933" unique_id=1313049536 instance=ExtResource("7")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 97.44995, 0.42000008, -6.46)
+
+[node name="SM_Road_31_45702651" parent="Overview_1566005933" unique_id=1566751272 instance=ExtResource("62")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 181.25, 0.5199995, 12.979024)
+
+[node name="SM_Fence_142_86573129" parent="Overview_1566005933" unique_id=1375713037 instance=ExtResource("75")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 71.369995, 0.42000008, -28.77)
+
+[node name="SM_Ground_SideCap11_53_87071843" parent="Overview_1566005933" unique_id=1422825040 instance=ExtResource("7")]
+transform = Transform3D(-2.861023e-06, 0, 1, 0, 1, 0, -1, 0, -2.861023e-06, 45.26001, 0.42000008, -30.360321)
+
+[node name="SM_Road_38_122696651" parent="Overview_1566005933" unique_id=2047786629 instance=ExtResource("22")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 130.78998, -0.4, 131.83)
+
+[node name="SM_Container3_69_125196391" parent="Overview_1566005933" unique_id=527728922 instance=ExtResource("51")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 75.079956, 0.42000008, -20.59)
+
+[node name="SM_Sign_3_SpeedLimit4_171_140842297" parent="Overview_1566005933" unique_id=986557175 instance=ExtResource("72")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 78.579956, 2.2399998, -18.32)
+
+[node name="SM_Sign_3_SpeedLimit6_173_182217003" parent="Overview_1566005933" unique_id=58625637 instance=ExtResource("83")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 81.17999, 2.2399998, -18.32)
+
+[node name="SM_Fence_137_197256832" parent="Overview_1566005933" unique_id=1174534422 instance=ExtResource("87")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 99.94, 0.42000008, -28.810001)
+
+[node name="SM_Plant_44_203216748" parent="Overview_1566005933" unique_id=14838735 instance=ExtResource("17")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 26.130005, 0.43999958, -19.64)
+
+[node name="SM_Fence_89_219632889" parent="Overview_1566005933" unique_id=1295281960 instance=ExtResource("94")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 82.41998, 0.42000008, -28.810001)
+
+[node name="SM_FuelSilo_2_284585924" parent="Overview_1566005933" unique_id=1935335945 instance=ExtResource("71")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 24.389954, 0.06000042, -44)
+
+[node name="SM_MetalPipe_Cage3_177_287531730" parent="Overview_1566005933" unique_id=105232231 instance=ExtResource("46")]
+transform = Transform3D(4.23193e-06, 0, 1, 0, 1, 0, -1, 0, 4.23193e-06, 90.47998, 1.04, -11.39)
+
+[node name="SM_TrafficBarrier_166_324076544" parent="Overview_1566005933" unique_id=772429633 instance=ExtResource("63")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 85.79999, 0.42000008, -13.75)
+
+[node name="SM_Road_34_324705190" parent="Overview_1566005933" unique_id=219670054 instance=ExtResource("14")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 75.24536, 0.5200014, 101.38842)
+
+[node name="SM_Sign_3_SpeedLimit_168_330667954" parent="Overview_1566005933" unique_id=1426576586 instance=ExtResource("11")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 74.109985, 0.35999966, -18.32)
+
+[node name="SM_Missile_Pallet_153_349519391" parent="Overview_1566005933" unique_id=1081816857 instance=ExtResource("5")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 109.15997, 0.42000008, -22.58)
+
+[node name="SM_Ground_SideCap4_45_353403787" parent="Overview_1566005933" unique_id=1153350962 instance=ExtResource("7")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 89.46997, 0.42000008, -6.46)
+
+[node name="SM_Cone_2_Bollard_150_419250112" parent="Overview_1566005933" unique_id=659271065 instance=ExtResource("58")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 83.859985, 0.42000008, -16.630001)
+
+[node name="SM_Oak_Billboard_41_437285044" parent="Overview_1566005933" unique_id=1324144885 instance=ExtResource("48")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 25.139954, 0.43999958, -22.810001)
+
+[node name="SM_Fence_144_449424855" parent="Overview_1566005933" unique_id=1788269685 instance=ExtResource("80")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 77.089966, 0.42000008, -28.77)
+
+[node name="SM_Plant_42_475584086" parent="Overview_1566005933" unique_id=1062667269 instance=ExtResource("65")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 24.169983, 0.43999958, -19.7)
+
+[node name="SM_Ground_26_485536662" parent="Overview_1566005933" unique_id=1372652562 instance=ExtResource("56")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 113.45996, 0.42000008, -30.369999)
+
+[node name="SM_Fence_143_515419494" parent="Overview_1566005933" unique_id=989641350 instance=ExtResource("41")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 74.26001, 0.42000008, -28.77)
+
+[node name="SM_TrafficBarrier_162_539561633" parent="Overview_1566005933" unique_id=687941610 instance=ExtResource("3")]
+transform = Transform3D(0, -8.48528e-06, 1, 4.5474735e-13, -1, -8.48528e-06, 1, 0, 0, 80.609985, 1.5299997, -13.48)
+
+[node name="SM_Road_32_567453548" parent="Overview_1566005933" unique_id=403425363 instance=ExtResource("8")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -61.606567, 0.5199995, 25.707523)
+
+[node name="SM_Ground_SideCap16_57_571144772" parent="Overview_1566005933" unique_id=742132913 instance=ExtResource("7")]
+transform = Transform3D(-2.861023e-06, 0, 1, 0, 1, 0, -1, 0, -2.861023e-06, 105.42999, 0.42000008, -30.360226)
+
+[node name="SM_Fence_118_582059302" parent="Overview_1566005933" unique_id=492724960 instance=ExtResource("57")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 86.41998, 0.42000008, -28.810001)
+
+[node name="SM_Ground_SideCap15_56_593013192" parent="Overview_1566005933" unique_id=665394279 instance=ExtResource("7")]
+transform = Transform3D(-2.861023e-06, 0, 1, 0, 1, 0, -1, 0, -2.861023e-06, 97.44995, 0.42000008, -30.36018)
+
+[node name="SM_Plant_43_626757485" parent="Overview_1566005933" unique_id=1618230204 instance=ExtResource("64")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 22.029968, 0.43999958, -19.59)
+
+[node name="SM_FuelSilo_3_627259073" parent="Overview_1566005933" unique_id=936667653 instance=ExtResource("60")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26.640015, 0.06000042, -5.51)
+
+[node name="SM_Fence_136_628613053" parent="Overview_1566005933" unique_id=100975342 instance=ExtResource("89")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 95.69995, 0.42000008, -28.810001)
+
+[node name="SM_Ground_27_663876998" parent="Overview_1566005933" unique_id=1348136509 instance=ExtResource("50")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 96.73761, 0.42000008, 29.221272)
+
+[node name="SM_Fence_145_667175318" parent="Overview_1566005933" unique_id=871221476 instance=ExtResource("16")]
+transform = Transform3D(0, 0, -1, 0.34202078, 0.9396924, 0, 0.9396924, -0.34202078, 0, 87.109985, 0.42000008, -13.23)
+
+[node name="SM_Ground_SideCap14_55_692623149" parent="Overview_1566005933" unique_id=1333379730 instance=ExtResource("7")]
+transform = Transform3D(-2.861023e-06, 0, 1, 0, 1, 0, -1, 0, -2.861023e-06, 89.45001, 0.42000008, -30.360165)
+
+[node name="SM_Ground_SideCap18_59_695853102" parent="Overview_1566005933" unique_id=1820703851 instance=ExtResource("7")]
+transform = Transform3D(-2.861023e-06, 0, 1, 0, 1, 0, -1, 0, -2.861023e-06, 73.48999, 0.42000008, -30.360077)
+
+[node name="SM_TrafficBarrier_158_707157608" parent="Overview_1566005933" unique_id=1336472613 instance=ExtResource("77")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 74.28998, 0.42000008, -13.51)
+
+[node name="SM_Barrel_65_711774567" parent="Overview_1566005933" unique_id=8521888 instance=ExtResource("39")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 100.21997, 0.42000008, -21.17)
+
+[node name="SM_Road_30_715960557" parent="Overview_1566005933" unique_id=809853677 instance=ExtResource("25")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 134.6001, 0.5199995, 12.979176)
+
+[node name="SM_Ground_SideCap_19_727848721" parent="Overview_1566005933" unique_id=35901699 instance=ExtResource("7")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 61.22998, 0.42000008, -6.46)
+
+[node name="SM_Barrel_64_819466314" parent="Overview_1566005933" unique_id=1169189805 instance=ExtResource("12")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 98.52997, 0.42000008, -21.17)
+
+[node name="SM_Fence_147_833256912" parent="Overview_1566005933" unique_id=1255396492 instance=ExtResource("59")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 104.19, 0.42000008, -28.810001)
+
+[node name="SM_Road_29_861526291" parent="Overview_1566005933" unique_id=1153600238 instance=ExtResource("24")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 86.44385, 0.5199995, 72.111496)
+
+[node name="SM_Fence_130_898334759" parent="Overview_1566005933" unique_id=1827208862 instance=ExtResource("27")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.57001, 0.42000008, -28.810001)
+
+[node name="SM_Fence_105_910476574" parent="Overview_1566005933" unique_id=1599016328 instance=ExtResource("84")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 85.54999, 0.42000008, -28.810001)
+
+[node name="SM_Ground_SideCap6_47_913949543" parent="Overview_1566005933" unique_id=1461925479 instance=ExtResource("7")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 73.48999, 0.42000008, -6.46)
+
+[node name="SM_TrafficBarrier_160_915719884" parent="Overview_1566005933" unique_id=217839672 instance=ExtResource("2")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 74.619995, 0.42000008, -11.53)
+
+[node name="SM_Barrel_66_920200057" parent="Overview_1566005933" unique_id=1215011110 instance=ExtResource("82")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 94.19, 0.42000008, -21.79)
+
+[node name="SM_Barrel_63_923227280" parent="Overview_1566005933" unique_id=2030136870 instance=ExtResource("67")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 75.17999, 0.40999985, -16.79)
+
+[node name="SM_Sign_3_SpeedLimit5_172_936512384" parent="Overview_1566005933" unique_id=420200124 instance=ExtResource("85")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 79.839966, 2.2399998, -18.32)
+
+[node name="SM_TrafficBarrier_161_954520267" parent="Overview_1566005933" unique_id=1500737239 instance=ExtResource("92")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 80.599976, 0.42000008, -13.75)
+
+[node name="SM_Ground_SideCap20_61_983826767" parent="Overview_1566005933" unique_id=108001083 instance=ExtResource("7")]
+transform = Transform3D(-2.861023e-06, 0, 1, 0, 1, 0, -1, 0, -2.861023e-06, 116.94, 0.42000008, -30.36)
+
+[node name="SM_TrafficBarrier_167_993877379" parent="Overview_1566005933" unique_id=1360996512 instance=ExtResource("23")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 86.44995, 0.42000008, -13.75)
+
+[node name="SM_Ground_67_997671654" parent="Overview_1566005933" unique_id=1684779416 instance=ExtResource("10")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 67.01947, 0.42000008, 61.88963)
+
+[node name="SM_MetalPipe_Cage4_178_1012528790" parent="Overview_1566005933" unique_id=874987034 instance=ExtResource("29")]
+transform = Transform3D(4.23193e-06, 0, 1, 0, 1, 0, -1, 0, 4.23193e-06, 92.099976, 1.04, -12.690001)
+
+[node name="SM_Road_37_1074792388" parent="Overview_1566005933" unique_id=1473060754 instance=ExtResource("69")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -130.5, -0.4, 131.83)
+
+[node name="SM_Building_01_0_1085729329" parent="Overview_1566005933" unique_id=1438730951 instance=ExtResource("36")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 0, 0, 0)
+
+[node name="SM_Sign_3_SpeedLimit2_169_1116727174" parent="Overview_1566005933" unique_id=1302777754 instance=ExtResource("49")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 75.82001, 0.35999966, -18.32)
+
+[node name="SM_TrafficBarrier_159_1121120928" parent="Overview_1566005933" unique_id=1626001676 instance=ExtResource("32")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 78.78998, 0.42000008, -13.51)
+
+[node name="SM_Pallet_4_Stack_155_1140161849" parent="Overview_1566005933" unique_id=13650019 instance=ExtResource("54")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 102.07996, 0.42000008, -21.14)
+
+[node name="SM_Ground_SideCap17_58_1147532912" parent="Overview_1566005933" unique_id=682513480 instance=ExtResource("7")]
+transform = Transform3D(-2.861023e-06, 0, 1, 0, 1, 0, -1, 0, -2.861023e-06, 65.48999, 0.42000008, -30.360039)
+
+[node name="SM_FuelSilo_1_1148754077" parent="Overview_1566005933" unique_id=111166140 instance=ExtResource("47")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -25.850037, 0.06000042, -44)
+
+[node name="SM_Barrel_78_1218154311" parent="Overview_1566005933" unique_id=539150522 instance=ExtResource("88")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 80.48999, 0.42000008, -26.01)
+
+[node name="SM_Cone_156_1246224040" parent="Overview_1566005933" unique_id=1321100197 instance=ExtResource("19")]
+transform = Transform3D(0.5000005, 0, -0.86602515, 0, 1, 0, 0.86602515, 0, 0.5000005, 84.839966, 0.42000008, -16.28)
+
+[node name="SM_Missile_Pallet_152_1249405055" parent="Overview_1566005933" unique_id=1625888438 instance=ExtResource("55")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 106.13995, 0.42000008, -21.34)
+
+[node name="SM_Container2_68_1264406402" parent="Overview_1566005933" unique_id=452868707 instance=ExtResource("45")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 70.69995, 0.42000008, -20.59)
+
+[node name="SM_Ground_SideCap8_49_1294535093" parent="Overview_1566005933" unique_id=79636893 instance=ExtResource("7")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 105.42999, 0.42000008, -6.46)
+
+[node name="SM_Watchtower_9_1301109132" parent="Overview_1566005933" unique_id=55001076 instance=ExtResource("81")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.959961, 0, -25.61)
+
+[node name="SM_Container8_74_1321874539" parent="Overview_1566005933" unique_id=1305266864 instance=ExtResource("43")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 109.76996, 0.42000008, -23.810001)
+
+[node name="SM_Ground_SideCap19_60_1334385184" parent="Overview_1566005933" unique_id=1893339579 instance=ExtResource("7")]
+transform = Transform3D(-2.861023e-06, 0, 1, 0, 1, 0, -1, 0, -2.861023e-06, 81.46997, 0.42000008, -30.360138)
+
+[node name="SM_Ground_SideCap5_46_1335889177" parent="Overview_1566005933" unique_id=1108131811 instance=ExtResource("7")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 81.46997, 0.42000008, -6.46)
+
+[node name="SM_Barrel_62_1369024029" parent="Overview_1566005933" unique_id=457185669 instance=ExtResource("30")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 74.20996, 0.40999985, -16.79)
+
+[node name="SM_MetalPipe_Cage5_179_1375718876" parent="Overview_1566005933" unique_id=734730438 instance=ExtResource("4")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 95.19, 1.04, -10.64)
+
+[node name="SM_Gate_Island_7_1380934045" parent="Overview_1566005933" unique_id=1556819347 instance=ExtResource("61")]
+transform = Transform3D(-1.4305115e-06, 0, 1, 0, 1, 0, -1, 0, -1.4305115e-06, 13.799988, 0, -23.880001)
+
+[node name="SM_FuelSilo_4_1383315262" parent="Overview_1566005933" unique_id=2073322823 instance=ExtResource("20")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 143.47998, 0.06000042, -62.28)
+
+[node name="SM_Container11_77_1466794157" parent="Overview_1566005933" unique_id=1668166761 instance=ExtResource("18")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 81.349976, 0.42000008, -16.33)
+
+[node name="SM_MetalPipe_Cage6_180_1474860913" parent="Overview_1566005933" unique_id=759582343 instance=ExtResource("66")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 105.72998, 1.04, -13.34)
+
+[node name="SM_Ground_SideCap3_21_1482041141" parent="Overview_1566005933" unique_id=1042803869 instance=ExtResource("7")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 45.25, 0.42000008, -6.46)
+
+[node name="SM_Container6_72_1487543678" parent="Overview_1566005933" unique_id=431192052 instance=ExtResource("70")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 102.09998, 0.42000008, -23.810001)
+
+[node name="SM_Sign_3_SpeedLimit3_170_1499826899" parent="Overview_1566005933" unique_id=292186992 instance=ExtResource("9")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 77.22998, 0.35999966, -18.32)
+
+[node name="SM_Road_28_1516188386" parent="Overview_1566005933" unique_id=866601374 instance=ExtResource("73")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 164.90051, 0.5199995, 67.77468)
+
+[node name="SM_Road_40_1518236184" parent="Overview_1566005933" unique_id=1057817247 instance=ExtResource("91")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -76.57001, -0.4, 131.83)
+
+[node name="SM_Road_35_1531202227" parent="Overview_1566005933" unique_id=2070801136 instance=ExtResource("21")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 172.7605, 0.5200014, 103.72379)
+
+[node name="SM_Ground_SideCap7_48_1555350899" parent="Overview_1566005933" unique_id=1998125401 instance=ExtResource("7")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 113.42999, 0.42000008, -6.46)
+
+[node name="SM_Road_33_1555985156" parent="Overview_1566005933" unique_id=1741040041 instance=ExtResource("93")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 235.19458, 0.5200014, 96.70035)
+
+[node name="SM_DrainPipe_79_1574942803" parent="Overview_1566005933" unique_id=1075466009 instance=ExtResource("35")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 73.81, 0.6199999, -15.43)
+
+[node name="SM_MetalPipe_Cage_175_1609979814" parent="Overview_1566005933" unique_id=1040286488 instance=ExtResource("74")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 95.48999, 0.42000008, -18.64)
+
+[node name="SM_Cone_149_1666692227" parent="Overview_1566005933" unique_id=613512890 instance=ExtResource("26")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 82.92999, 0.42000008, -16.68)
+
+[node name="SM_Container9_75_1680752632" parent="Overview_1566005933" unique_id=486915318 instance=ExtResource("6")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 76.76996, 0.42000008, -16.33)
+
+[node name="SM_Pallet_3_Stack2_164_1695135035" parent="Overview_1566005933" unique_id=922092927 instance=ExtResource("15")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 87.90997, 0.42000008, -13.02)
+
+[node name="SM_Missile_Pallet_154_1705443450" parent="Overview_1566005933" unique_id=1811966048 instance=ExtResource("42")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 111.14996, 0.42000008, -21.43)
+
+[node name="SM_Fence_148_1717225767" parent="Overview_1566005933" unique_id=2058056917 instance=ExtResource("34")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 108.33997, 0.42000008, -28.810001)
+
+[node name="SM_Fence_146_1780629103" parent="Overview_1566005933" unique_id=1743184852 instance=ExtResource("28")]
+transform = Transform3D(0, 0, -1, 0.6427881, 0.766044, 0, 0.766044, -0.6427881, 0, 87.130005, 2, -13.83)
+
+[node name="SM_Container10_76_1818726382" parent="Overview_1566005933" unique_id=659841041 instance=ExtResource("52")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 79.19, 0.42000008, -16.33)
+
+[node name="SM_Fence_141_1825189711" parent="Overview_1566005933" unique_id=1803415191 instance=ExtResource("53")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 89.04999, 0.42000008, -28.810001)
+
+[node name="SM_Container7_73_1839907692" parent="Overview_1566005933" unique_id=26793971 instance=ExtResource("40")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 104.44, 0.42000008, -23.810001)
+
+[node name="SM_Road_36_1863937904" parent="Overview_1566005933" unique_id=793797029 instance=ExtResource("86")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 284.29004, -0.4, 131.83)
+
+[node name="SM_Gate_Island2_8_1902423135" parent="Overview_1566005933" unique_id=1260909038 instance=ExtResource("78")]
+transform = Transform3D(-1.4305115e-06, 0, 1, 0, 1, 0, -1, 0, -1.4305115e-06, 23.95996, 0, -35.89)
+
+[node name="SM_Pallet_3_Stack_163_1966845942" parent="Overview_1566005933" unique_id=472785288 instance=ExtResource("33")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 87.19995, 0.42000008, -17.21)
+
+[node name="SM_Ground_SideCap13_54_2005021028" parent="Overview_1566005933" unique_id=8107672 instance=ExtResource("7")]
+transform = Transform3D(-2.861023e-06, 0, 1, 0, 1, 0, -1, 0, -2.861023e-06, 53.23999, 0.42000008, -30.360352)
+
+[node name="SM_Cone_157_2011112505" parent="Overview_1566005933" unique_id=277054406 instance=ExtResource("76")]
+transform = Transform3D(0.5000005, 0, -0.86602515, 0, 1, 0, 0.86602515, 0, 0.5000005, 85.94, 0.42000008, -16.08)
+
+[node name="SM_Container4_70_2026598683" parent="Overview_1566005933" unique_id=2145416644 instance=ExtResource("38")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 93.869995, 0.42000008, -23.810001)
+
+[node name="SM_MetalPipe_Cage2_176_2027936211" parent="Overview_1566005933" unique_id=1721983448 instance=ExtResource("90")]
+transform = Transform3D(4.23193e-06, 0, 1, 0, 1, 0, -1, 0, 4.23193e-06, 94.70996, 0.42000008, -17.98)
+
+[node name="SM_Container5_71_2041212054" parent="Overview_1566005933" unique_id=85797146 instance=ExtResource("37")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 98.98999, 0.42000008, -23.810001)
+
+[node name="SM_Ground_SideCap12_51_2058654725" parent="Overview_1566005933" unique_id=270178828 instance=ExtResource("7")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 124.97998, 0.42000008, -6.46)
+
+[node name="SM_Missile_Pallet_151_2061211122" parent="Overview_1566005933" unique_id=1414912198 instance=ExtResource("79")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 104.45996, 0.42000008, -21.34)
+
+[node name="SM_Pallet_3_Stack3_165_2078622171" parent="Overview_1566005933" unique_id=1750187675 instance=ExtResource("44")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 87.70996, 0.42000008, -14.780001)
+
+[node name="SM_Road_39_2117660736" parent="Overview_1566005933" unique_id=50151220 instance=ExtResource("31")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 26.51001, -0.4, 131.83)
+
+[node name="SM_Gate_Signboard_174_2140821937" parent="Overview_1566005933" unique_id=505875828 instance=ExtResource("1")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 85.89996, 1.46, -17.95)
+
+[node name="SM_Ground_SideCap2_20_2142261366" parent="Overview_1566005933" unique_id=154859101 instance=ExtResource("7")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 53.22998, 0.42000008, -6.46)
+
+[node name="Sky_and_Fog_Global_Volume_2_1311962530" type="Node3D" parent="." unique_id=1848034700]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -24.175177, 4.2034435, 95.68999)
+
+[node name="Terrain_1667413348" type="Node3D" parent="." unique_id=287185877]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, -13.24, 597)

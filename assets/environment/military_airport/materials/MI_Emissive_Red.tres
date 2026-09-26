@@ -1,0 +1,6 @@
+[gd_resource type="StandardMaterial3D" load_steps=3 format=3]
+
+
+[resource]
+resource_name = "MI_Emissive_Red"
+roughness = 0.83

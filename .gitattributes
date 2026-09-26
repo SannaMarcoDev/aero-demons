@@ -17,4 +17,7 @@ terrain/**/baked_*.tres filter=lfs diff=lfs merge=lfs -text
 assets/environment/airport/*.glb filter=lfs diff=lfs merge=lfs -text
 assets/environment/airport/library/*.glb filter=lfs diff=lfs merge=lfs -text
 assets/environment/small_hangar/*.glb filter=lfs diff=lfs merge=lfs -text
+# Converted MilitaryAirport package (models and optimized source textures)
+assets/environment/military_airport/**/*.glb filter=lfs diff=lfs merge=lfs -text
+assets/environment/military_airport/**/*.png filter=lfs diff=lfs merge=lfs -text
 

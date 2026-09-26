@@ -1,0 +1,68 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://assets/environment/military_airport/airport_camera.gd" id="camera"]
+
+[sub_resource type="ProceduralSkyMaterial" id="SkyMat"]
+sky_top_color = Color(0.22, 0.39, 0.6, 1)
+sky_horizon_color = Color(0.7, 0.75, 0.78, 1)
+
+[sub_resource type="Sky" id="Sky"]
+sky_material = SubResource("SkyMat")
+
+[sub_resource type="Environment" id="Env"]
+background_mode = 2
+sky = SubResource("Sky")
+ambient_light_source = 3
+ambient_light_color = Color(0.7, 0.77, 0.87, 1)
+ambient_light_energy = 0.52
+tonemap_mode = 3
+
+[sub_resource type="StandardMaterial3D" id="GroundMat"]
+albedo_color = Color(0.25, 0.32, 0.22, 1)
+roughness = 1.0
+
+[sub_resource type="BoxMesh" id="GroundMesh"]
+size = Vector3(2500, 0.1, 1900)
+material = SubResource("GroundMat")
+
+[sub_resource type="BoxShape3D" id="GroundShape"]
+size = Vector3(2500, 0.1, 1900)
+
+[node name="OutdoorsScene" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Env")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-55, -30, 0)
+light_energy = 1.1
+shadow_enabled = true
+
+[node name="Ground" type="StaticBody3D" parent="."]
+position = Vector3(-100, -13.55, -100)
+
+[node name="Mesh" type="MeshInstance3D" parent="Ground"]
+mesh = SubResource("GroundMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="Ground"]
+shape = SubResource("GroundShape")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+position = Vector3(90, 75, 130)
+rotation_degrees = Vector3(-25, 35, 0)
+fov = 68.0
+far = 4000.0
+current = true
+script = ExtResource("camera")
+move_speed = 30.0
+
+[node name="Main_Camera_1823688467" type="Node3D" parent="."]
+position = Vector3(0, 1, 10)
+
+[node name="Sky_and_Fog_Volume_432432461" type="Node3D" parent="."]
+
+[node name="StaticLightingSky_2013410475" type="Node3D" parent="."]
+
+[node name="Sun_157207114" type="Node3D" parent="."]
+position = Vector3(0, 3, -0)
+quaternion = Quaternion(-0.38268343, -0, 0, 0.92387956)

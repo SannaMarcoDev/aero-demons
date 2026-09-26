@@ -1,0 +1,1047 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://assets/environment/military_airport/airport_camera.gd" id="camera"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Crate_1.tscn" id="SM_Crate_1"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Crate_2.tscn" id="SM_Crate_2"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Crate_3.tscn" id="SM_Crate_3"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Crate_Stack_01.tscn" id="SM_Crate_Stack_01"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Crate_Stack_02.tscn" id="SM_Crate_Stack_02"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Crate_Stack_03.tscn" id="SM_Crate_Stack_03"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Crate_Stack_04.tscn" id="SM_Crate_Stack_04"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Crate_Stack_05.tscn" id="SM_Crate_Stack_05"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Barrel_1_Gasoline.tscn" id="SM_Barrel_1_Gasoline"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Barrel_2.tscn" id="SM_Barrel_2"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Barrel_Stack_1.tscn" id="SM_Barrel_Stack_1"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Barrel_Stack_2.tscn" id="SM_Barrel_Stack_2"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Barrel_Stack_3.tscn" id="SM_Barrel_Stack_3"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Pallet_1.tscn" id="SM_Pallet_1"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Pallet_2.tscn" id="SM_Pallet_2"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Pallet_3_Stack.tscn" id="SM_Pallet_3_Stack"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Pallet_4_Stack.tscn" id="SM_Pallet_4_Stack"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Container.tscn" id="SM_Container"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Container_2.tscn" id="SM_Container_2"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_FuelTank.tscn" id="SM_FuelTank"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_DrainPipe_1.tscn" id="SM_DrainPipe_1"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_DrainPipe_2_Stack.tscn" id="SM_DrainPipe_2_Stack"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_MetalPipe_Cage.tscn" id="SM_MetalPipe_Cage"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_FuelPipe_1.tscn" id="SM_FuelPipe_1"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_FuelPipe_2.tscn" id="SM_FuelPipe_2"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_FuelPipe_3.tscn" id="SM_FuelPipe_3"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_FuelPipe_4.tscn" id="SM_FuelPipe_4"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Missile_1.tscn" id="SM_Missile_1"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Missile_2.tscn" id="SM_Missile_2"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Missile_Pallet_1.tscn" id="SM_Missile_Pallet_1"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Missile_Pallet_2.tscn" id="SM_Missile_Pallet_2"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Missile_Pallet_3.tscn" id="SM_Missile_Pallet_3"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Missile_Pallet_4.tscn" id="SM_Missile_Pallet_4"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Fence_1.tscn" id="SM_Fence_1"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Fence_2.tscn" id="SM_Fence_2"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Fence_3_Pole.tscn" id="SM_Fence_3_Pole"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Fence_4.tscn" id="SM_Fence_4"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Fence_5_Gate.tscn" id="SM_Fence_5_Gate"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Fence_6.tscn" id="SM_Fence_6"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Fence_7.tscn" id="SM_Fence_7"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Fence_8.tscn" id="SM_Fence_8"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Cone_1.tscn" id="SM_Cone_1"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Cone_2_Bollard.tscn" id="SM_Cone_2_Bollard"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Carpark_Block.tscn" id="SM_Carpark_Block"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Roadblock_1.tscn" id="SM_Roadblock_1"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Roadblock_2.tscn" id="SM_Roadblock_2"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_TrafficBarrier_1.tscn" id="SM_TrafficBarrier_1"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_TrafficBarrier_2.tscn" id="SM_TrafficBarrier_2"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Sign_1_GateClosed.tscn" id="SM_Sign_1_GateClosed"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Sign_2_NoPasses.tscn" id="SM_Sign_2_NoPasses"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Sign_3_SpeedLimit.tscn" id="SM_Sign_3_SpeedLimit"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Sign_4_Stop.tscn" id="SM_Sign_4_Stop"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Sign_5_Switch.tscn" id="SM_Sign_5_Switch"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Sign_6_Stop.tscn" id="SM_Sign_6_Stop"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_GateBarrier_1.tscn" id="SM_GateBarrier_1"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_GateBarrier_2_Bar.tscn" id="SM_GateBarrier_2_Bar"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Gate_Signboard.tscn" id="SM_Gate_Signboard"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Post_1.tscn" id="SM_Post_1"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Post_2_Camera.tscn" id="SM_Post_2_Camera"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_SecurityCamera.tscn" id="SM_SecurityCamera"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_FloodLight_1.tscn" id="SM_FloodLight_1"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_FloodLight_2.tscn" id="SM_FloodLight_2"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_FloodLight_3.tscn" id="SM_FloodLight_3"]
+[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_FloodLight_4.tscn" id="SM_FloodLight_4"]
+
+[sub_resource type="ProceduralSkyMaterial" id="SkyMat"]
+sky_top_color = Color(0.22, 0.39, 0.6, 1)
+sky_horizon_color = Color(0.7, 0.75, 0.78, 1)
+
+[sub_resource type="Sky" id="Sky"]
+sky_material = SubResource("SkyMat")
+
+[sub_resource type="Environment" id="Env"]
+background_mode = 2
+sky = SubResource("Sky")
+ambient_light_source = 3
+ambient_light_color = Color(0.7, 0.77, 0.87, 1)
+ambient_light_energy = 0.65
+tonemap_mode = 3
+
+[sub_resource type="StandardMaterial3D" id="GroundMat"]
+albedo_color = Color(0.22, 0.27, 0.29, 1)
+roughness = 1.0
+
+[sub_resource type="PlaneMesh" id="GroundMesh"]
+material = SubResource("GroundMat")
+size = Vector2(200, 140)
+
+[node name="PropsShowcase" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Env")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-55, -30, 0)
+light_energy = 1.1
+shadow_enabled = true
+directional_shadow_max_distance = 1200.0
+
+[node name="Backdrop" type="MeshInstance3D" parent="."]
+position = Vector3(0, -0.05, 5)
+mesh = SubResource("GroundMesh")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+position = Vector3(0, 125, 90)
+rotation_degrees = Vector3(-55, 0, 0)
+fov = 68.0
+far = 2500.0
+current = true
+script = ExtResource("camera")
+move_speed = 12.0
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Help" type="Label" parent="HUD"]
+offset_left = 20.0
+offset_top = 16.0
+mouse_filter = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 18
+text = "MILITARY AIRPORT / PROPS DECORATIVI
+64 prefab separati - scala originale - nomi sotto ogni oggetto
+Click: mouse look | WASD: volo | Q/E: quota | Shift: veloce | Esc: rilascia / esci"
+
+
+[node name="Casse" type="Node3D" parent="."]
+
+[node name="Titolo" type="Label3D" parent="Casse"]
+position = Vector3(-62.0000, 0.1, -57.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.013
+font_size = 64
+outline_size = 8
+modulate = Color(0.45, 0.85, 1, 1)
+text = "01 / CASSE"
+
+[node name="SM_Crate_1" parent="Casse" instance=ExtResource("SM_Crate_1")]
+position = Vector3(-79.997562, 0.050000, -45.612828)
+
+[node name="Nome1" type="Label3D" parent="Casse"]
+position = Vector3(-79.6398, 0.1, -41.9922)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Crate_1"
+
+[node name="SM_Crate_2" parent="Casse" instance=ExtResource("SM_Crate_2")]
+position = Vector3(-75.976450, 0.050000, -45.750000)
+
+[node name="Nome2" type="Label3D" parent="Casse"]
+position = Vector3(-75.6398, 0.1, -42.2137)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Crate_2"
+
+[node name="SM_Crate_3" parent="Casse" instance=ExtResource("SM_Crate_3")]
+position = Vector3(-71.989804, 0.050000, -45.350000)
+
+[node name="Nome3" type="Label3D" parent="Casse"]
+position = Vector3(-71.6398, 0.1, -42.6500)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Crate_3"
+
+[node name="SM_Crate_Stack_01" parent="Casse" instance=ExtResource("SM_Crate_Stack_01")]
+position = Vector3(-68.128724, 0.050000, -47.120755)
+
+[node name="Nome4" type="Label3D" parent="Casse"]
+position = Vector3(-66.7200, 0.1, -40.8550)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Crate_Stack_01"
+
+[node name="SM_Crate_Stack_02" parent="Casse" instance=ExtResource("SM_Crate_Stack_02")]
+position = Vector3(-62.178577, 0.050001, -46.061517)
+
+[node name="Nome5" type="Label3D" parent="Casse"]
+position = Vector3(-61.1202, 0.1, -41.9374)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Crate_Stack_02"
+
+[node name="SM_Crate_Stack_03" parent="Casse" instance=ExtResource("SM_Crate_Stack_03")]
+position = Vector3(-56.556805, 0.050001, -45.800000)
+
+[node name="Nome6" type="Label3D" parent="Casse"]
+position = Vector3(-55.7602, 0.1, -42.2000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Crate_Stack_03"
+
+[node name="SM_Crate_Stack_04" parent="Casse" instance=ExtResource("SM_Crate_Stack_04")]
+position = Vector3(-51.200196, 0.050001, -45.803267)
+
+[node name="Nome7" type="Label3D" parent="Casse"]
+position = Vector3(-50.4002, 0.1, -42.1967)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Crate_Stack_04"
+
+[node name="SM_Crate_Stack_05" parent="Casse" instance=ExtResource("SM_Crate_Stack_05")]
+position = Vector3(-46.116006, 0.050000, -47.272034)
+
+[node name="Nome8" type="Label3D" parent="Casse"]
+position = Vector3(-45.0402, 0.1, -40.6952)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Crate_Stack_05"
+
+[node name="Barili" type="Node3D" parent="."]
+
+[node name="Titolo" type="Label3D" parent="Barili"]
+position = Vector3(0.0000, 0.1, -57.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.013
+font_size = 64
+outline_size = 8
+modulate = Color(0.45, 0.85, 1, 1)
+text = "02 / BARILI"
+
+[node name="SM_Barrel_1_Gasoline" parent="Barili" instance=ExtResource("SM_Barrel_1_Gasoline")]
+position = Vector3(-10.208612, 0.050000, -45.000000)
+
+[node name="Nome1" type="Label3D" parent="Barili"]
+position = Vector3(-10.2086, 0.1, -42.6520)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Barrel_1_Gasoline"
+
+[node name="SM_Barrel_2" parent="Barili" instance=ExtResource("SM_Barrel_2")]
+position = Vector3(-5.168612, 0.050000, -45.000000)
+
+[node name="Nome2" type="Label3D" parent="Barili"]
+position = Vector3(-5.1686, 0.1, -42.6520)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Barrel_2"
+
+[node name="SM_Barrel_Stack_1" parent="Barili" instance=ExtResource("SM_Barrel_Stack_1")]
+position = Vector3(-1.208612, 0.050000, -45.720000)
+
+[node name="Nome3" type="Label3D" parent="Barili"]
+position = Vector3(-0.4886, 0.1, -42.2800)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Barrel_Stack_1"
+
+[node name="SM_Barrel_Stack_2" parent="Barili" instance=ExtResource("SM_Barrel_Stack_2")]
+position = Vector3(4.151388, 0.050000, -45.720000)
+
+[node name="Nome4" type="Label3D" parent="Barili"]
+position = Vector3(4.8714, 0.1, -42.2800)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Barrel_Stack_2"
+
+[node name="SM_Barrel_Stack_3" parent="Barili" instance=ExtResource("SM_Barrel_Stack_3")]
+position = Vector3(10.632635, 0.050000, -47.074417)
+
+[node name="Nome5" type="Label3D" parent="Barili"]
+position = Vector3(10.4000, 0.1, -40.5790)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Barrel_Stack_3"
+
+[node name="Pallet" type="Node3D" parent="."]
+
+[node name="Titolo" type="Label3D" parent="Pallet"]
+position = Vector3(62.0000, 0.1, -57.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.013
+font_size = 64
+outline_size = 8
+modulate = Color(0.45, 0.85, 1, 1)
+text = "03 / PALLET"
+
+[node name="SM_Pallet_1" parent="Pallet" instance=ExtResource("SM_Pallet_1")]
+position = Vector3(53.704535, 0.050000, -45.800000)
+
+[node name="Nome1" type="Label3D" parent="Pallet"]
+position = Vector3(54.5045, 0.1, -42.2000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Pallet_1"
+
+[node name="SM_Pallet_2" parent="Pallet" instance=ExtResource("SM_Pallet_2")]
+position = Vector3(58.304535, 0.050000, -45.650372)
+
+[node name="Nome2" type="Label3D" parent="Pallet"]
+position = Vector3(58.9045, 0.1, -42.3496)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Pallet_2"
+
+[node name="SM_Pallet_3_Stack" parent="Pallet" instance=ExtResource("SM_Pallet_3_Stack")]
+position = Vector3(62.780761, 0.050000, -46.166358)
+
+[node name="Nome3" type="Label3D" parent="Pallet"]
+position = Vector3(63.7200, 0.1, -41.5990)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Pallet_3_Stack"
+
+[node name="SM_Pallet_4_Stack" parent="Pallet" instance=ExtResource("SM_Pallet_4_Stack")]
+position = Vector3(68.316972, 0.050001, -45.803953)
+
+[node name="Nome4" type="Label3D" parent="Pallet"]
+position = Vector3(69.1155, 0.1, -42.1904)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Pallet_4_Stack"
+
+[node name="Deposito" type="Node3D" parent="."]
+
+[node name="Titolo" type="Label3D" parent="Deposito"]
+position = Vector3(-62.0000, 0.1, -27.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.013
+font_size = 64
+outline_size = 8
+modulate = Color(0.45, 0.85, 1, 1)
+text = "04 / CONTAINER E SERBATOIO"
+
+[node name="SM_Container" parent="Deposito" instance=ExtResource("SM_Container")]
+position = Vector3(-75.238591, 0.050002, -16.432291)
+
+[node name="Nome1" type="Label3D" parent="Deposito"]
+position = Vector3(-71.5242, 0.1, -11.5600)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Container"
+
+[node name="SM_Container_2" parent="Deposito" instance=ExtResource("SM_Container_2")]
+position = Vector3(-64.798590, 0.050002, -16.432291)
+
+[node name="Nome2" type="Label3D" parent="Deposito"]
+position = Vector3(-61.0842, 0.1, -11.5600)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Container_2"
+
+[node name="SM_FuelTank" parent="Deposito" instance=ExtResource("SM_FuelTank")]
+position = Vector3(-53.670920, 0.050001, -16.147797)
+
+[node name="Nome3" type="Label3D" parent="Deposito"]
+position = Vector3(-51.5600, 0.1, -11.6400)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "FuelTank"
+
+[node name="Tubi" type="Node3D" parent="."]
+
+[node name="Titolo" type="Label3D" parent="Tubi"]
+position = Vector3(0.0000, 0.1, -27.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.013
+font_size = 64
+outline_size = 8
+modulate = Color(0.45, 0.85, 1, 1)
+text = "05 / TUBI E GABBIA"
+
+[node name="SM_DrainPipe_1" parent="Tubi" instance=ExtResource("SM_DrainPipe_1")]
+position = Vector3(-20.375392, 0.250001, -15.000000)
+
+[node name="Nome1" type="Label3D" parent="Tubi"]
+position = Vector3(-14.3754, 0.1, -12.8000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "DrainPipe_1"
+
+[node name="SM_DrainPipe_2_Stack" parent="Tubi" instance=ExtResource("SM_DrainPipe_2_Stack")]
+position = Vector3(-4.266278, 0.050000, -17.500521)
+
+[node name="Nome2" type="Label3D" parent="Tubi"]
+position = Vector3(0.9390, 0.1, -10.4395)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "DrainPipe_2_Stack"
+
+[node name="SM_MetalPipe_Cage" parent="Tubi" instance=ExtResource("SM_MetalPipe_Cage")]
+position = Vector3(10.314348, 0.050000, -17.500521)
+
+[node name="Nome3" type="Label3D" parent="Tubi"]
+position = Vector3(15.3143, 0.1, -10.4395)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "MetalPipe_Cage"
+
+[node name="Carburante" type="Node3D" parent="."]
+
+[node name="Titolo" type="Label3D" parent="Carburante"]
+position = Vector3(62.0000, 0.1, -27.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.013
+font_size = 64
+outline_size = 8
+modulate = Color(0.45, 0.85, 1, 1)
+text = "06 / CONDOTTE CARBURANTE"
+
+[node name="SM_FuelPipe_1" parent="Carburante" instance=ExtResource("SM_FuelPipe_1")]
+position = Vector3(55.533165, 1.750043, -17.036436)
+
+[node name="Nome1" type="Label3D" parent="Carburante"]
+position = Vector3(49.5046, 0.1, -10.8986)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "FuelPipe_1"
+
+[node name="SM_FuelPipe_2" parent="Carburante" instance=ExtResource("SM_FuelPipe_2")]
+position = Vector3(58.690049, 1.750052, -14.999117)
+
+[node name="Nome2" type="Label3D" parent="Carburante"]
+position = Vector3(62.3452, 0.1, -12.7000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "FuelPipe_2"
+
+[node name="SM_FuelPipe_3" parent="Carburante" instance=ExtResource("SM_FuelPipe_3")]
+position = Vector3(69.000415, 0.779281, -7.847504)
+
+[node name="Nome3" type="Label3D" parent="Carburante"]
+position = Vector3(71.2392, 0.1, -5.5486)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "FuelPipe_3"
+
+[node name="SM_FuelPipe_4" parent="Carburante" instance=ExtResource("SM_FuelPipe_4")]
+position = Vector3(76.543053, 1.750046, -8.971400)
+
+[node name="Nome4" type="Label3D" parent="Carburante"]
+position = Vector3(78.5795, 0.1, -6.8145)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "FuelPipe_4"
+
+[node name="Munizioni" type="Node3D" parent="."]
+
+[node name="Titolo" type="Label3D" parent="Munizioni"]
+position = Vector3(-62.0000, 0.1, 3.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.013
+font_size = 64
+outline_size = 8
+modulate = Color(0.45, 0.85, 1, 1)
+text = "07 / MUNIZIONI"
+
+[node name="SM_Missile_1" parent="Munizioni" instance=ExtResource("SM_Missile_1")]
+position = Vector3(-76.485966, 0.050000, 15.000000)
+
+[node name="Nome1" type="Label3D" parent="Munizioni"]
+position = Vector3(-76.0800, 0.1, 17.2500)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Missile_1"
+
+[node name="SM_Missile_2" parent="Munizioni" instance=ExtResource("SM_Missile_2")]
+position = Vector3(-72.403036, 0.050000, 15.000000)
+
+[node name="Nome2" type="Label3D" parent="Munizioni"]
+position = Vector3(-71.5800, 0.1, 17.1600)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Missile_2"
+
+[node name="SM_Missile_Pallet_1" parent="Munizioni" instance=ExtResource("SM_Missile_Pallet_1")]
+position = Vector3(-66.853194, 0.050000, 14.349628)
+
+[node name="Nome3" type="Label3D" parent="Munizioni"]
+position = Vector3(-66.2600, 0.1, 17.6504)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Missile_Pallet_1"
+
+[node name="SM_Missile_Pallet_2" parent="Munizioni" instance=ExtResource("SM_Missile_Pallet_2")]
+position = Vector3(-61.078095, 0.050000, 14.349628)
+
+[node name="Nome4" type="Label3D" parent="Munizioni"]
+position = Vector3(-60.4200, 0.1, 17.6504)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Missile_Pallet_2"
+
+[node name="SM_Missile_Pallet_3" parent="Munizioni" instance=ExtResource("SM_Missile_Pallet_3")]
+position = Vector3(-53.957733, 0.050000, 15.650372)
+
+[node name="Nome5" type="Label3D" parent="Munizioni"]
+position = Vector3(-54.5800, 0.1, 17.6504)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Missile_Pallet_3"
+
+[node name="SM_Missile_Pallet_4" parent="Munizioni" instance=ExtResource("SM_Missile_Pallet_4")]
+position = Vector3(-48.531187, 0.050000, 15.650372)
+
+[node name="Nome6" type="Label3D" parent="Munizioni"]
+position = Vector3(-48.7400, 0.1, 17.6504)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Missile_Pallet_4"
+
+[node name="Recinzioni" type="Node3D" parent="."]
+
+[node name="Titolo" type="Label3D" parent="Recinzioni"]
+position = Vector3(0.0000, 0.1, 3.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.013
+font_size = 64
+outline_size = 8
+modulate = Color(0.45, 0.85, 1, 1)
+text = "08 / RECINZIONI"
+
+[node name="SM_Fence_1" parent="Recinzioni" instance=ExtResource("SM_Fence_1")]
+position = Vector3(-19.044899, 0.050000, 14.999999)
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="Nome1" type="Label3D" parent="Recinzioni"]
+position = Vector3(-20.3849, 0.1, 17.0600)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Fence_1"
+
+[node name="SM_Fence_2" parent="Recinzioni" instance=ExtResource("SM_Fence_2")]
+position = Vector3(-13.294684, 0.050000, 15.000000)
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="Nome2" type="Label3D" parent="Recinzioni"]
+position = Vector3(-14.6099, 0.1, 17.0600)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Fence_2"
+
+[node name="SM_Fence_3_Pole" parent="Recinzioni" instance=ExtResource("SM_Fence_3_Pole")]
+position = Vector3(-9.292580, 0.050000, 15.000000)
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="Nome3" type="Label3D" parent="Recinzioni"]
+position = Vector3(-9.2949, 0.1, 17.0960)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Fence_3_Pole"
+
+[node name="SM_Fence_4" parent="Recinzioni" instance=ExtResource("SM_Fence_4")]
+position = Vector3(-5.115876, 0.050000, 15.000002)
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="Nome4" type="Label3D" parent="Recinzioni"]
+position = Vector3(-4.1501, 0.1, 17.0960)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Fence_4"
+
+[node name="SM_Fence_5_Gate" parent="Recinzioni" instance=ExtResource("SM_Fence_5_Gate")]
+position = Vector3(0.142144, 0.050000, 15.000004)
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="Nome5" type="Label3D" parent="Recinzioni"]
+position = Vector3(1.9063, 0.1, 17.0857)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Fence_5_Gate"
+
+[node name="SM_Fence_6" parent="Recinzioni" instance=ExtResource("SM_Fence_6")]
+position = Vector3(6.839320, 0.050000, 15.000000)
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="Nome6" type="Label3D" parent="Recinzioni"]
+position = Vector3(8.5079, 0.1, 17.0857)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Fence_6"
+
+[node name="SM_Fence_7" parent="Recinzioni" instance=ExtResource("SM_Fence_7")]
+position = Vector3(13.338961, 0.050000, 14.999998)
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="Nome7" type="Label3D" parent="Recinzioni"]
+position = Vector3(14.1229, 0.1, 17.0857)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Fence_7"
+
+[node name="SM_Fence_8" parent="Recinzioni" instance=ExtResource("SM_Fence_8")]
+position = Vector3(18.069141, 0.588265, 15.000002)
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="Nome8" type="Label3D" parent="Recinzioni"]
+position = Vector3(19.8864, 0.1, 17.0857)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Fence_8"
+
+[node name="Barriere" type="Node3D" parent="."]
+
+[node name="Titolo" type="Label3D" parent="Barriere"]
+position = Vector3(62.0000, 0.1, 3.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.013
+font_size = 64
+outline_size = 8
+modulate = Color(0.45, 0.85, 1, 1)
+text = "09 / BARRIERE E DISSUASORI"
+
+[node name="SM_Cone_1" parent="Barriere" instance=ExtResource("SM_Cone_1")]
+position = Vector3(44.672219, 0.050000, 15.000000)
+
+[node name="Nome1" type="Label3D" parent="Barriere"]
+position = Vector3(44.6722, 0.1, 17.2700)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Cone_1"
+
+[node name="SM_Cone_2_Bollard" parent="Barriere" instance=ExtResource("SM_Cone_2_Bollard")]
+position = Vector3(49.352219, 0.050000, 15.000000)
+
+[node name="Nome2" type="Label3D" parent="Barriere"]
+position = Vector3(49.3522, 0.1, 17.1200)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Cone_2_Bollard"
+
+[node name="SM_Carpark_Block" parent="Barriere" instance=ExtResource("SM_Carpark_Block")]
+position = Vector3(53.532218, 0.050000, 15.000000)
+
+[node name="Nome3" type="Label3D" parent="Barriere"]
+position = Vector3(54.7322, 0.1, 17.1000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Carpark_Block"
+
+[node name="SM_Roadblock_1" parent="Barriere" instance=ExtResource("SM_Roadblock_1")]
+position = Vector3(58.994110, 0.050000, 15.292000)
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="Nome4" type="Label3D" parent="Barriere"]
+position = Vector3(60.4861, 0.1, 17.3000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Roadblock_1"
+
+[node name="SM_Roadblock_2" parent="Barriere" instance=ExtResource("SM_Roadblock_2")]
+position = Vector3(65.101891, 0.050000, 15.292001)
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="Nome5" type="Label3D" parent="Barriere"]
+position = Vector3(66.5939, 0.1, 17.3000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Roadblock_2"
+
+[node name="SM_TrafficBarrier_1" parent="Barriere" instance=ExtResource("SM_TrafficBarrier_1")]
+position = Vector3(72.160160, 0.052339, 14.521237)
+
+[node name="Nome6" type="Label3D" parent="Barriere"]
+position = Vector3(72.5678, 0.1, 17.5429)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "TrafficBarrier_1"
+
+[node name="SM_TrafficBarrier_2" parent="Barriere" instance=ExtResource("SM_TrafficBarrier_2")]
+position = Vector3(77.987211, 0.050000, 13.186829)
+
+[node name="Nome7" type="Label3D" parent="Barriere"]
+position = Vector3(78.4078, 0.1, 18.9008)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "TrafficBarrier_2"
+
+[node name="Segnaletica" type="Node3D" parent="."]
+
+[node name="Titolo" type="Label3D" parent="Segnaletica"]
+position = Vector3(-62.0000, 0.1, 33.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.013
+font_size = 64
+outline_size = 8
+modulate = Color(0.45, 0.85, 1, 1)
+text = "10 / SEGNALETICA"
+
+[node name="SM_Sign_1_GateClosed" parent="Segnaletica" instance=ExtResource("SM_Sign_1_GateClosed")]
+position = Vector3(-75.040000, 0.850000, 44.994998)
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="Nome1" type="Label3D" parent="Segnaletica"]
+position = Vector3(-75.0400, 0.1, 47.0050)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Sign_1_GateClosed"
+
+[node name="SM_Sign_2_NoPasses" parent="Segnaletica" instance=ExtResource("SM_Sign_2_NoPasses")]
+position = Vector3(-69.200000, 1.250000, 44.994998)
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="Nome2" type="Label3D" parent="Segnaletica"]
+position = Vector3(-69.2000, 0.1, 47.0050)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Sign_2_NoPasses"
+
+[node name="SM_Sign_3_SpeedLimit" parent="Segnaletica" instance=ExtResource("SM_Sign_3_SpeedLimit")]
+position = Vector3(-63.360000, 0.050000, 45.000000)
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="Nome3" type="Label3D" parent="Segnaletica"]
+position = Vector3(-63.3600, 0.1, 47.0576)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Sign_3_SpeedLimit"
+
+[node name="SM_Sign_4_Stop" parent="Segnaletica" instance=ExtResource("SM_Sign_4_Stop")]
+position = Vector3(-58.000000, 0.050000, 45.000000)
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="Nome4" type="Label3D" parent="Segnaletica"]
+position = Vector3(-58.0000, 0.1, 47.0576)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Sign_4_Stop"
+
+[node name="SM_Sign_5_Switch" parent="Segnaletica" instance=ExtResource("SM_Sign_5_Switch")]
+position = Vector3(-53.120000, 0.766615, 44.995680)
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="Nome5" type="Label3D" parent="Segnaletica"]
+position = Vector3(-53.1200, 0.1, 47.0043)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Sign_5_Switch"
+
+[node name="SM_Sign_6_Stop" parent="Segnaletica" instance=ExtResource("SM_Sign_6_Stop")]
+position = Vector3(-48.240000, 0.050000, 45.000000)
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="Nome6" type="Label3D" parent="Segnaletica"]
+position = Vector3(-48.2400, 0.1, 47.0576)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Sign_6_Stop"
+
+[node name="Accessi" type="Node3D" parent="."]
+
+[node name="Titolo" type="Label3D" parent="Accessi"]
+position = Vector3(0.0000, 0.1, 33.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.013
+font_size = 64
+outline_size = 8
+modulate = Color(0.45, 0.85, 1, 1)
+text = "11 / ACCESSI E SORVEGLIANZA"
+
+[node name="SM_GateBarrier_1" parent="Accessi" instance=ExtResource("SM_GateBarrier_1")]
+position = Vector3(-14.841886, 0.050000, 45.000008)
+
+[node name="Nome1" type="Label3D" parent="Accessi"]
+position = Vector3(-14.8419, 0.1, 47.2500)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "GateBarrier_1"
+
+[node name="SM_GateBarrier_2_Bar" parent="Accessi" instance=ExtResource("SM_GateBarrier_2_Bar")]
+position = Vector3(-5.901891, 0.116000, 45.021992)
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="Nome2" type="Label3D" parent="Accessi"]
+position = Vector3(-8.2819, 0.1, 47.0312)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "GateBarrier_2_Bar"
+
+[node name="SM_Gate_Signboard" parent="Accessi" instance=ExtResource("SM_Gate_Signboard")]
+position = Vector3(0.999992, 0.050001, 45.459926)
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="Nome3" type="Label3D" parent="Accessi"]
+position = Vector3(-0.6800, 0.1, 47.5001)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Gate_Signboard"
+
+[node name="SM_Post_1" parent="Accessi" instance=ExtResource("SM_Post_1")]
+position = Vector3(4.921889, 0.050000, 45.000000)
+
+[node name="Nome4" type="Label3D" parent="Accessi"]
+position = Vector3(4.9219, 0.1, 47.1000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Post_1"
+
+[node name="SM_Post_2_Camera" parent="Accessi" instance=ExtResource("SM_Post_2_Camera")]
+position = Vector3(9.785141, 0.050000, 44.998287)
+
+[node name="Nome5" type="Label3D" parent="Accessi"]
+position = Vector3(9.4819, 0.1, 47.1527)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "Post_2_Camera"
+
+[node name="SM_SecurityCamera" parent="Accessi" instance=ExtResource("SM_SecurityCamera")]
+position = Vector3(15.062641, 0.190057, 44.998287)
+
+[node name="Nome6" type="Label3D" parent="Accessi"]
+position = Vector3(14.7219, 0.1, 47.1527)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "SecurityCamera"
+
+[node name="Luci" type="Node3D" parent="."]
+
+[node name="Titolo" type="Label3D" parent="Luci"]
+position = Vector3(62.0000, 0.1, 33.0000)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.013
+font_size = 64
+outline_size = 8
+modulate = Color(0.45, 0.85, 1, 1)
+text = "12 / ILLUMINAZIONE"
+
+[node name="SM_FloodLight_1" parent="Luci" instance=ExtResource("SM_FloodLight_1")]
+position = Vector3(54.711915, 0.050000, 45.000000)
+
+[node name="Nome1" type="Label3D" parent="Luci"]
+position = Vector3(54.6800, 0.1, 47.5104)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "FloodLight_1"
+
+[node name="SM_FloodLight_2" parent="Luci" instance=ExtResource("SM_FloodLight_2")]
+position = Vector3(59.560000, 0.050000, 45.000000)
+
+[node name="Nome2" type="Label3D" parent="Luci"]
+position = Vector3(59.5600, 0.1, 47.8651)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "FloodLight_2"
+
+[node name="SM_FloodLight_3" parent="Luci" instance=ExtResource("SM_FloodLight_3")]
+position = Vector3(64.440001, 0.050000, 45.000000)
+
+[node name="Nome3" type="Label3D" parent="Luci"]
+position = Vector3(64.4400, 0.1, 47.8651)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "FloodLight_3"
+
+[node name="SM_FloodLight_4" parent="Luci" instance=ExtResource("SM_FloodLight_4")]
+position = Vector3(69.276352, 0.050000, 45.000002)
+
+[node name="Nome4" type="Label3D" parent="Luci"]
+position = Vector3(69.3200, 0.1, 47.2500)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.01
+font_size = 48
+outline_size = 8
+modulate = Color(0.9, 0.94, 0.96, 1)
+text = "FloodLight_4"
