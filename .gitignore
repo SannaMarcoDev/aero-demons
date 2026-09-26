@@ -14,6 +14,7 @@
 ~*
 subagent-artifacts/
 nul
+/LOG
 
 # Redundant local terrain variants (active data lives in terrain/garda_final_wc_uniform_250km/)
 terrain/garda_final_wc/

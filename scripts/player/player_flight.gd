@@ -91,7 +91,7 @@ var _ground_contact_seen := false
 @export var damage_full_ratio := 0.15
 
 @export_category("Scale")
-## Player N26 uses 2.0 to restore metres from the catalog's half-size rig; AI keeps 0.5.
+## Player and AI scenes use 2.0 to restore metres from their half-size model rigs.
 @export_range(0.1, 4.0, 0.05) var airframe_scale := 0.5
 
 @export_category("Camera")
@@ -143,6 +143,7 @@ var _engine_audio: AudioStreamPlayer3D
 var _accelerating_audio: AudioStreamPlayer3D
 
 var _afterburners: Afterburner
+var _surface_controls: SaabControls
 @onready var _targeting: TargetLock = get_node_or_null("TargetLock")
 @onready var _weapons: WeaponController = get_node_or_null("WeaponController")
 @onready var _hitbox: Area3D = get_node_or_null("Hitbox") as Area3D
@@ -177,6 +178,7 @@ func _ready() -> void:
 
 func update_aircraft_references() -> void:
 	_afterburners = find_child("Afterburners", true, false) as Afterburner
+	_surface_controls = get_node_or_null("AircraftModel") as SaabControls
 	_damage_emitters = find_children("*", "DamageFire", true, false)
 	_update_damage_effects()
 
@@ -213,6 +215,8 @@ func _physics_process(delta: float) -> void:
 	_update_gear(delta)
 	_update_spin_dash()
 	_apply_flight(delta)
+	if _surface_controls != null:
+		_surface_controls.set_controls(pitch_input, roll_input, yaw_input, delta)
 	_apply_triggers()
 
 
@@ -327,7 +331,7 @@ func _setup_ground_body() -> void:
 	shape.size = Vector3(12, 4.5, 16)
 	var collider := CollisionShape3D.new()
 	collider.shape = shape
-	collider.position.y = -1.35 # Bottom -3.6: catalog offset -2.4 plus original menu wheel -1.2.
+	collider.position.y = -1.85 # Bottom -4.1: Viggen offset -2.4 plus wheel bottom -1.7.
 	_ground_body.add_child(collider)
 
 
@@ -694,6 +698,8 @@ func reset_flight(start_transform: Transform3D) -> void:
 	yaw_input = 0.0
 	roll_input = 0.0
 	_angular_velocity = Vector3.ZERO
+	if _surface_controls != null:
+		_surface_controls.reset_controls()
 	_accelerate_held = false
 	_last_accelerate_tap = -1000.0
 	_spin_dash_elapsed = 0.0

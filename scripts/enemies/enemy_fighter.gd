@@ -93,6 +93,18 @@ var _wreck_next_explosion := 0.0
 
 
 func _ready() -> void:
+	if faction_group == "allies":
+		var old_model := $AircraftModel as Node3D
+		var replacement := preload("res://assets/aircraft/su27/su27.glb").instantiate() as Node3D
+		replacement.name = "AircraftModel"
+		replacement.transform = old_model.transform
+		remove_child(old_model)
+		old_model.queue_free()
+		add_child(replacement)
+		$Afterburners/Left.position = Vector3(-0.9, 0.3, 4.9)
+		$Afterburners/Right.position = Vector3(0.9, 0.3, 4.9)
+		$WingDamage/Left.position.x = -3.3
+		$WingDamage/Right.position.x = 3.3
 	super()
 	add_to_group("combat_ai")
 	if faction_group != "targets":

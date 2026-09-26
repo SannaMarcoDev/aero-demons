@@ -1,0 +1,59 @@
+[gd_scene format=3 uid="uid://cq0m5ji6q8thg"]
+
+[ext_resource type="PackedScene" uid="uid://cix3nk1ljpu10" path="res://assets/aircraft/saab_ja37/saab_ja37.glb" id="1_model"]
+[ext_resource type="Script" uid="uid://cf6to0ge1naqu" path="res://scripts/vfx/afterburner.gd" id="2_afterburner"]
+[ext_resource type="PackedScene" path="res://scenes/vfx/jet_exhaust.tscn" id="3_exhaust"]
+[ext_resource type="PackedScene" uid="uid://biquwm5xmc1t8" path="res://scenes/vfx/damage_fire.tscn" id="4_damage"]
+[ext_resource type="Script" uid="uid://b4cvhs6152blw" path="res://scripts/aircraft/saab_controls.gd" id="5_controls"]
+
+[node name="SaabJA37" type="Node3D" unique_id=1799905848]
+script = ExtResource("5_controls")
+
+[node name="Model" parent="." unique_id=1676060452 instance=ExtResource("1_model")]
+
+[node name="AileronLPivot" type="Node3D" parent="."]
+position = Vector3(-4.3, -0.5, 5.86)
+
+[node name="AileronRPivot" type="Node3D" parent="."]
+position = Vector3(4.3, -0.5, 5.86)
+
+[node name="ElevatorLPivot" type="Node3D" parent="."]
+position = Vector3(-2, 0.13, -0.8)
+
+[node name="ElevatorRPivot" type="Node3D" parent="."]
+position = Vector3(2, 0.13, -0.8)
+
+[node name="FlapLPivot" type="Node3D" parent="."]
+position = Vector3(-2.1, -0.5, 5.85)
+
+[node name="FlapRPivot" type="Node3D" parent="."]
+position = Vector3(2.1, -0.5, 5.85)
+
+[node name="RudderPivot" type="Node3D" parent="."]
+position = Vector3(0, 2.1, 5.78)
+
+[node name="Afterburners" type="Node3D" parent="." unique_id=1782313227]
+script = ExtResource("2_afterburner")
+
+[node name="Exhaust" parent="Afterburners" unique_id=207037342 instance=ExtResource("3_exhaust")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06154628, 4.5848117)
+throttle = 1.0
+nozzle_radius = 0.36
+plume_length = 4.7
+heat_haze_length = 8.4
+heat_distortion = 20.3
+turbulence = 0.7
+brightness = 3.5
+flow_speed = 3.0
+afterburner_start = 0.6
+
+[node name="WingDamage" type="Node3D" parent="." unique_id=965960312]
+visible = false
+
+[node name="Left" parent="WingDamage" unique_id=874473252 instance=ExtResource("4_damage")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.2, 0.3, 1)
+movement_randomness = 0.0
+
+[node name="Right" parent="WingDamage" unique_id=999118391 instance=ExtResource("4_damage")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.2, 0.3, 1)
+movement_randomness = 0.0

@@ -1,41 +1,18 @@
 [gd_scene format=3 uid="uid://dgqm8ooyeb3c6"]
 
 [ext_resource type="Script" uid="uid://dwyo1ef6ssc5s" path="res://scripts/player/player_flight.gd" id="1_player_flight"]
-[ext_resource type="PackedScene" uid="uid://g7muyld2hduh" path="res://scenes/aircraft/fa_n26.tscn" id="2_aircraft"]
+[ext_resource type="PackedScene" uid="uid://cq0m5ji6q8thg" path="res://scenes/aircraft/saab_ja37.tscn" id="2_aircraft"]
 [ext_resource type="Script" uid="uid://qggjjy3iivfe" path="res://scripts/combat/targeting.gd" id="3_targeting"]
 [ext_resource type="Script" uid="uid://dp2rcd7rlieo6" path="res://scripts/weapons/weapon_controller.gd" id="4_weapons"]
-[ext_resource type="Script" uid="uid://cf6to0ge1naqu" path="res://scripts/vfx/afterburner.gd" id="5_afterburner"]
-[ext_resource type="PackedScene" uid="uid://biquwm5xmc1t8" path="res://scenes/vfx/damage_fire.tscn" id="7_damage"]
 [ext_resource type="Script" uid="uid://dsa2yuuiidhki" path="res://scripts/combat/aircraft_hitbox.gd" id="8_hitbox"]
 [ext_resource type="Script" uid="uid://bog5ubwi3cc2q" path="res://scripts/camera/follow_camera.gd" id="9_camera"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_light_left"]
-shading_mode = 0
-albedo_color = Color(3, 0.18, 0.12, 1)
-disable_receive_shadows = true
-
-[sub_resource type="SphereMesh" id="SphereMesh_light_left"]
-material = SubResource("StandardMaterial3D_light_left")
-radius = 0.11
-height = 0.22
-radial_segments = 8
-rings = 4
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_light_right"]
-shading_mode = 0
-albedo_color = Color(0.16, 3, 0.5, 1)
-disable_receive_shadows = true
-
-[sub_resource type="SphereMesh" id="SphereMesh_light_right"]
-material = SubResource("StandardMaterial3D_light_right")
-radius = 0.11
-height = 0.22
-radial_segments = 8
-rings = 4
-
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_qek5x"]
 radius = 0.76
-height = 9.635
+height = 8.2
+
+[sub_resource type="BoxShape3D" id="WingShape"]
+size = Vector3(5.3, 0.4, 1.5)
 
 [node name="Player" type="Node3D" unique_id=1474501909]
 physics_interpolation_mode = 1
@@ -53,7 +30,6 @@ camera_fov = 74.5
 camera_height = 6.0
 camera_depth = 22.4
 camera_pitch = -0.10000000000000142
-camera_acceleration_shift = 2.0
 
 [node name="FlightCamera" type="Camera3D" parent="." unique_id=338715369]
 physics_interpolation_mode = 1
@@ -67,16 +43,6 @@ script = ExtResource("9_camera")
 [node name="AircraftModel" parent="." unique_id=1192140363 instance=ExtResource("2_aircraft")]
 transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, -1.2, 0.56)
 
-[node name="NavLightLeft" type="MeshInstance3D" parent="." unique_id=1101389108]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.38, -1, 1.8)
-cast_shadow = 0
-mesh = SubResource("SphereMesh_light_left")
-
-[node name="NavLightRight" type="MeshInstance3D" parent="." unique_id=1294040186]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.38, -1, 1.8)
-cast_shadow = 0
-mesh = SubResource("SphereMesh_light_right")
-
 [node name="Hitbox" type="Area3D" parent="." unique_id=1140277431]
 collision_layer = 8
 collision_mask = 0
@@ -85,6 +51,10 @@ script = ExtResource("8_hitbox")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Hitbox" unique_id=1140277432]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, -0.7763716, 0.18731451)
 shape = SubResource("CapsuleShape3D_qek5x")
+
+[node name="Wings" type="CollisionShape3D" parent="Hitbox" unique_id=936946299]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.2, 0)
+shape = SubResource("WingShape")
 
 [node name="TargetLock" type="Node" parent="." unique_id=680068749]
 script = ExtResource("3_targeting")

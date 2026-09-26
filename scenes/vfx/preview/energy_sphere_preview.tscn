@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" path="res://scenes/vfx/energy_sphere.tscn" id="1_sphere"]
 [ext_resource type="Script" path="res://scenes/vfx/preview/energy_sphere_preview.gd" id="2_camera"]
-[ext_resource type="PackedScene" path="res://scenes/aircraft/fa_n26.tscn" id="3_aircraft"]
+[ext_resource type="PackedScene" path="res://scenes/aircraft/saab_ja37.tscn" id="3_aircraft"]
 
 [sub_resource type="ProceduralSkyMaterial" id="Sky_material"]
 sky_top_color = Color(0.022, 0.036, 0.065, 1)

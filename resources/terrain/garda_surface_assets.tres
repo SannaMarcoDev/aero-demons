@@ -1,7 +1,7 @@
 [gd_resource type="Terrain3DAssets" format=3 uid="uid://bv8qqr6sv6kwf"]
 
-[ext_resource type="Texture2D" path="res://textures/terrain/garda/aerial_rocks_02_albedo_packed.png" id="1_alb0"]
-[ext_resource type="Texture2D" path="res://textures/terrain/garda/aerial_rocks_02_normal_packed.png" id="2_nrm0"]
+[ext_resource type="Texture2D" uid="uid://bhfkenjrdvcn0" path="res://textures/terrain/garda/aerial_rocks_02_albedo_packed.png" id="1_alb0"]
+[ext_resource type="Texture2D" uid="uid://bstectlp78y03" path="res://textures/terrain/garda/aerial_rocks_02_normal_packed.png" id="2_nrm0"]
 [ext_resource type="Texture2D" uid="uid://in365pmsuiux" path="res://textures/terrain/rocky_terrain_02_albedo_packed.png" id="3_alb1"]
 [ext_resource type="Texture2D" uid="uid://dfxupoao4hu48" path="res://textures/terrain/rocky_terrain_02_normal_packed.png" id="4_nrm1"]
 [ext_resource type="Texture2D" uid="uid://dkvyxohkdaamq" path="res://textures/terrain/leafy_grass_albedo_packed.png" id="5_alb2"]
@@ -16,7 +16,6 @@
 [ext_resource type="Texture2D" uid="uid://dpda70aadxr1w" path="res://textures/terrain/rocks_ground_03_normal_packed.png" id="14_nrm6"]
 [ext_resource type="PackedScene" uid="uid://dgw3flpoxfmlg" path="res://assets/environment/garda_forest/garda_broadleaf.glb" id="15_tree"]
 [ext_resource type="Material" uid="uid://ctvnixvl85mww" path="res://resources/terrain/garda_tree_material.tres" id="16_tree_material"]
-
 [ext_resource type="PackedScene" path="res://assets/environment/garda_forest/garda_fir.tscn" id="17_fir"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yq1fy"]

@@ -162,7 +162,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.5, 0.65, 0.8, 1)
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 10
-text = "F/A–N26  •  PRONTO AL DECOLLO"
+text = "SAAB JA 37  •  PRONTO AL DECOLLO"
 
 [node name="Spacer" type="Control" parent="MarginContainer/MainLayout/HeaderBar"]
 layout_mode = 2
@@ -439,4 +439,4 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.35, 0.5, 0.65, 1)
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 10
-text = "BAY 26   /   N26   /   STANDBY"
+text = "BAY 26   /   VIGGEN   /   STANDBY"

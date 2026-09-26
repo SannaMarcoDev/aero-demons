@@ -1,7 +1,7 @@
 extends Node3D
-## Isolated look-development scene: procedural nozzle fixtures and the actual N26 player rig.
+## Isolated look-development scene: procedural nozzle fixtures and the current player rig.
 const EXHAUST = preload("res://scenes/vfx/jet_exhaust.tscn")
-const VIEWS = ["Rear", "Side", "Rear quarter", "Close", "Gameplay", "Twin engines", "N26 chase", "N26 side"]
+const VIEWS = ["Rear", "Side", "Rear quarter", "Close", "Gameplay", "Twin engines", "Viggen chase", "Viggen side"]
 const PLAYER = preload("res://scenes/player/player.tscn")
 var aircraft: Node3D
 var engine: Node3D
