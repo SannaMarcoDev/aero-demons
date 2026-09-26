@@ -178,7 +178,10 @@ func _in_lock_zone(candidate) -> bool:
 
 
 func _uses_screen_lock() -> bool:
-	return not camera_path.is_empty()
+	if camera_path.is_empty():
+		return false
+	var camera := _lock_camera()
+	return camera == null or not (camera.has_method("uses_nose_lock") and camera.call("uses_nose_lock"))
 
 
 func _lock_camera() -> Camera3D:

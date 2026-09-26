@@ -11,53 +11,47 @@ script = ExtResource("5_controls")
 
 [node name="Model" parent="." unique_id=1676060452 instance=ExtResource("1_model")]
 
-[node name="Canopy_001" parent="Model" index="2"]
-transform = Transform3D(1, 0, 0, 0, 0.76604444, 0.6427876, 0, -0.6427876, 0.76604444, 0, 2.1740162, -0.02693968)
+[node name="AileronLPivot" type="Node3D" parent="." unique_id=926065007]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.3, -0.5, 5.86)
 
-[node name="Glass_1_001" parent="Model" index="17"]
-transform = Transform3D(1, 0, 0, 0, 0.76604444, 0.6427876, 0, -0.6427876, 0.76604444, 0, 2.1740162, -0.02693968)
+[node name="AileronRPivot" type="Node3D" parent="." unique_id=2024978683]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.3, -0.5, 5.86)
 
-[node name="AileronLPivot" type="Node3D" parent="."]
-position = Vector3(-4.3, -0.5, 5.86)
+[node name="ElevatorLPivot" type="Node3D" parent="." unique_id=1509697572]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0.13, -0.8)
 
-[node name="AileronRPivot" type="Node3D" parent="."]
-position = Vector3(4.3, -0.5, 5.86)
+[node name="ElevatorRPivot" type="Node3D" parent="." unique_id=2074502915]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.13, -0.8)
 
-[node name="ElevatorLPivot" type="Node3D" parent="."]
-position = Vector3(-2, 0.13, -0.8)
+[node name="FlapLPivot" type="Node3D" parent="." unique_id=713222845]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.1, -0.5, 5.85)
 
-[node name="ElevatorRPivot" type="Node3D" parent="."]
-position = Vector3(2, 0.13, -0.8)
+[node name="FlapRPivot" type="Node3D" parent="." unique_id=1485252721]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.1, -0.5, 5.85)
 
-[node name="FlapLPivot" type="Node3D" parent="."]
-position = Vector3(-2.1, -0.5, 5.85)
+[node name="RudderPivot" type="Node3D" parent="." unique_id=2074698773]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1, 5.78)
 
-[node name="FlapRPivot" type="Node3D" parent="."]
-position = Vector3(2.1, -0.5, 5.85)
+[node name="NoseGearPivot" type="Node3D" parent="." unique_id=274482942]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.37, -3.83)
 
-[node name="RudderPivot" type="Node3D" parent="."]
-position = Vector3(0, 2.1, 5.78)
+[node name="NoseDoorRPivot" type="Node3D" parent="." unique_id=1384650552]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, -0.77, -4.4)
 
-[node name="NoseGearPivot" type="Node3D" parent="."]
-position = Vector3(0, -0.37, -3.83)
+[node name="NoseDoorLPivot" type="Node3D" parent="." unique_id=1263378586]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, -0.77, -4.4)
 
-[node name="NoseDoorRPivot" type="Node3D" parent="."]
-position = Vector3(0.3, -0.77, -4.4)
+[node name="MainGearLPivot" type="Node3D" parent="." unique_id=1446621023]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.11, -0.4, 2.28)
 
-[node name="NoseDoorLPivot" type="Node3D" parent="."]
-position = Vector3(-0.3, -0.77, -4.4)
+[node name="MainGearRPivot" type="Node3D" parent="." unique_id=1334629018]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.11, -0.4, 2.28)
 
-[node name="MainGearLPivot" type="Node3D" parent="."]
-position = Vector3(-2.11, -0.4, 2.28)
+[node name="InnerDoorLPivot" type="Node3D" parent="." unique_id=311114889]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.58, -0.76, 2.13)
 
-[node name="MainGearRPivot" type="Node3D" parent="."]
-position = Vector3(2.11, -0.4, 2.28)
-
-[node name="InnerDoorLPivot" type="Node3D" parent="."]
-position = Vector3(-0.58, -0.76, 2.13)
-
-[node name="InnerDoorRPivot" type="Node3D" parent="."]
-position = Vector3(0.58, -0.76, 2.13)
+[node name="InnerDoorRPivot" type="Node3D" parent="." unique_id=313879616]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.58, -0.76, 2.13)
 
 [node name="Afterburners" type="Node3D" parent="." unique_id=1782313227]
 script = ExtResource("2_afterburner")

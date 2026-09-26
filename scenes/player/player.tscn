@@ -26,10 +26,10 @@ control_curve = 1.5
 control_rise_time = 0.05
 control_release_time = 0.05
 airframe_scale = 2.0
-camera_fov = 74.5
-camera_height = 6.0
-camera_depth = 22.4
-camera_pitch = -0.10000000000000142
+camera_fov = 67.0
+camera_height = 1.1999999999999993
+camera_depth = 19.1
+camera_pitch = 7.0
 
 [node name="FlightCamera" type="Camera3D" parent="." unique_id=338715369]
 physics_interpolation_mode = 1
@@ -39,6 +39,7 @@ fov = 74.5
 near = 1.0
 far = 100000.0
 script = ExtResource("9_camera")
+cockpit_y = -1.5
 
 [node name="AircraftModel" parent="." unique_id=1192140363 instance=ExtResource("2_aircraft")]
 transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, -1.2, 0.56)

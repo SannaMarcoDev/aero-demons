@@ -2,6 +2,7 @@ extends Camera3D
 
 const LOOK_SPEED_DEG := 80.0
 const LOOK_PITCH_LIMIT_DEG := 80.0
+enum View {CHASE, COCKPIT, NOSE}
 const LOOK_RETURN_RESPONSE := 6.0
 const TRACK_PITCH_LIMIT_DEG := 80.0
 @export_category("Camera tuning")
@@ -19,6 +20,21 @@ const SPEED_FOV_RESPONSE := 3.0
 @export_range(0.0, 20.0, 0.5) var max_speed_fov := 4.0
 @export_range(-20.0, 0.0, 0.5) var min_speed_fov := -2.0
 
+@export_group("Cockpit")
+@export_range(-2.0, 2.0, 0.05, "prefer_slider") var cockpit_x := 0.0
+@export_range(-3.0, 3.0, 0.05, "prefer_slider") var cockpit_y := -0.95
+@export_range(-6.0, 2.0, 0.05, "prefer_slider") var cockpit_z := -2.6
+@export_range(-20.0, 20.0, 0.5, "prefer_slider") var cockpit_fov_offset := 0.0
+@export_range(0.0, 180.0, 1.0, "prefer_slider") var cockpit_yaw_limit_deg := 120.0
+@export_range(0.0, 90.0, 1.0, "prefer_slider") var cockpit_pitch_limit_deg := 70.0
+
+@export_group("Nose")
+@export_range(-3.0, 3.0, 0.05, "prefer_slider") var nose_x := 0.0
+@export_range(-3.0, 3.0, 0.05, "prefer_slider") var nose_y := 0.0
+@export_range(-20.0, -8.0, 0.05, "prefer_slider") var nose_z := -9.0
+@export_range(-20.0, 20.0, 0.5, "prefer_slider") var nose_fov_offset := 0.0
+
+var view_mode := View.CHASE
 var _follow_transform := Transform3D.IDENTITY
 var _last_target_position := Vector3.ZERO
 var _look_input := Vector2.ZERO
@@ -39,13 +55,32 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	_update_dynamic_camera(delta)
-	fov = target.camera_fov + target.spin_dash_camera_fov_offset() + _speed_fov_offset
-	var target_position := target.camera_position()
-	_follow_transform.origin += target_position - _last_target_position
-	_last_target_position = target_position
-	var follow_weight := 1.0 - exp(-follow_response * delta)
-	_follow_transform = _follow_transform.interpolate_with(_chase_transform(), follow_weight)
+	if Input.is_action_just_pressed("cycle_camera"):
+		view_mode = (view_mode + 1) % View.size()
+		_look_angles = Vector2.ZERO
+		_look_input = Vector2.ZERO
+		_look_returning = false
+		_track_weight = 0.0
+		_cycle_hold_time = 0.0
+		near = 0.05 if view_mode == View.COCKPIT else 1.0
+		if view_mode == View.CHASE:
+			snap_to_target()
+	if view_mode == View.NOSE:
+		fov = target.camera_fov + nose_fov_offset
+		global_transform = target.global_transform * Transform3D(Basis.IDENTITY, Vector3(nose_x, nose_y, nose_z))
+		return
+
+	if view_mode == View.CHASE:
+		_update_dynamic_camera(delta)
+		fov = target.camera_fov + target.spin_dash_camera_fov_offset() + _speed_fov_offset
+		var target_position := target.camera_position()
+		_follow_transform.origin += target_position - _last_target_position
+		_last_target_position = target_position
+		var follow_weight := 1.0 - exp(-follow_response * delta)
+		_follow_transform = _follow_transform.interpolate_with(_chase_transform(), follow_weight)
+	else:
+		fov = target.camera_fov + cockpit_fov_offset
+
 	var look_input := Input.get_vector("look_left", "look_right", "look_up", "look_down") * SettingsManager.controls_sensitivity
 	if SettingsManager.controls_invert_y:
 		look_input.y = -look_input.y
@@ -61,10 +96,17 @@ func _physics_process(delta: float) -> void:
 			_look_returning = false
 	elif target.grounded or not Input.is_action_pressed("cycle_target"):
 		_look_angles += _look_input * deg_to_rad(LOOK_SPEED_DEG) * delta
-		_look_angles.x = wrapf(_look_angles.x, -PI, PI)
-		_look_angles.y = clampf(_look_angles.y, deg_to_rad(-LOOK_PITCH_LIMIT_DEG), deg_to_rad(LOOK_PITCH_LIMIT_DEG))
+		if view_mode == View.COCKPIT:
+			_look_angles.x = clampf(_look_angles.x,
+				deg_to_rad(-cockpit_yaw_limit_deg), deg_to_rad(cockpit_yaw_limit_deg))
+			_look_angles.y = clampf(_look_angles.y,
+				deg_to_rad(-cockpit_pitch_limit_deg), deg_to_rad(cockpit_pitch_limit_deg))
+		else:
+			_look_angles.x = wrapf(_look_angles.x, -PI, PI)
+			_look_angles.y = clampf(_look_angles.y, deg_to_rad(-LOOK_PITCH_LIMIT_DEG), deg_to_rad(LOOK_PITCH_LIMIT_DEG))
 
-	var normal_transform := _dynamic_transform(_orbit_transform(_follow_transform, _look_angles))
+	var normal_transform := _dynamic_transform(_orbit_transform(_follow_transform, _look_angles)) \
+		if view_mode == View.CHASE else _cockpit_transform(_look_angles)
 
 	# Hold cycle_target (>0.30s) to center current target — only camera moves, no aircraft input.
 	if _targeting == null and target != null:
@@ -79,12 +121,18 @@ func _physics_process(delta: float) -> void:
 	if _track_weight < 0.001:
 		_track_weight = 0.0
 		global_transform = normal_transform
-	elif _track_weight > 0.999:
-		_track_weight = 1.0
-		global_transform = _tracking_transform(_follow_transform)
 	else:
-		var tracking_transform := _tracking_transform(_follow_transform)
-		global_transform = normal_transform.interpolate_with(tracking_transform, _track_weight)
+		var tracking_transform := _tracking_transform(_follow_transform) \
+			if view_mode == View.CHASE else _cockpit_tracking_transform()
+		if _track_weight > 0.999:
+			_track_weight = 1.0
+			global_transform = tracking_transform
+		else:
+			global_transform = normal_transform.interpolate_with(tracking_transform, _track_weight)
+
+
+func uses_nose_lock() -> bool:
+	return view_mode != View.CHASE
 
 
 func snap_to_target() -> void:
@@ -118,7 +166,7 @@ func _chase_transform() -> Transform3D:
 		target.camera_depth + acceleration_shift + target.spin_dash_camera_depth_offset(),
 	)
 	return _target_anchor() * Transform3D(
-		Basis.from_euler(Vector3(deg_to_rad(minf(target.camera_pitch, -3.0) if target.grounded else target.camera_pitch), 0.0, 0.0)),
+		Basis.from_euler(Vector3(deg_to_rad(target.camera_pitch), 0.0, 0.0)),
 		camera_offset,
 	)
 
@@ -175,6 +223,28 @@ func _orbit_transform(camera_transform: Transform3D, angles: Vector2) -> Transfo
 	var pivot := Vector3(0.0, ORBIT_PIVOT_HEIGHT, 0.0)
 	var orbit_transform := Transform3D(orbit_rotation, pivot - orbit_rotation * pivot)
 	return _target_anchor() * orbit_transform * local_camera
+
+
+func _cockpit_transform(angles: Vector2) -> Transform3D:
+	return target.global_transform * Transform3D(
+		Basis.from_euler(Vector3(angles.y, angles.x, 0.0)), Vector3(cockpit_x, cockpit_y, cockpit_z),
+	)
+
+
+func _cockpit_tracking_transform() -> Transform3D:
+	var base := _cockpit_transform(Vector2.ZERO)
+	var t := _targeting.target as Node3D if _targeting != null else null
+	if t == null or not is_instance_valid(t):
+		return base
+	var direction := t.global_position - base.origin
+	if direction.length_squared() < 0.001:
+		return base
+	var local := target.global_basis.inverse() * direction
+	var yaw := clampf(-atan2(local.x, -local.z),
+		deg_to_rad(-cockpit_yaw_limit_deg), deg_to_rad(cockpit_yaw_limit_deg))
+	var pitch := clampf(atan2(local.y, Vector2(local.x, local.z).length()),
+		deg_to_rad(-cockpit_pitch_limit_deg), deg_to_rad(cockpit_pitch_limit_deg))
+	return _cockpit_transform(Vector2(yaw, pitch))
 
 
 func _has_tracking_target() -> bool:

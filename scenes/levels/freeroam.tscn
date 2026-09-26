@@ -12,10 +12,6 @@
 [node name="Player" parent="." unique_id=1784232784 instance=ExtResource("2_player")]
 transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -36793.398, 239.572, 463.334)
 start_on_ground = true
-camera_fov = 70.0
-camera_height = 3.2
-camera_depth = 10.0
-camera_pitch = 7.0
 
 [node name="CombatHUD" parent="." unique_id=1819556815 instance=ExtResource("7_hud")]
 player_path = NodePath("../Player")

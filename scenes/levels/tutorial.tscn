@@ -17,10 +17,6 @@
 transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -36793.398, 239.572, 463.334)
 start_on_ground = true
 invulnerable = true
-camera_fov = 70.0
-camera_height = 3.2
-camera_depth = 10.0
-camera_pitch = 7.0
 
 [node name="Wingman1" parent="." unique_id=1943898831 instance=ExtResource("6_enemy")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -300, 8050, -150)
