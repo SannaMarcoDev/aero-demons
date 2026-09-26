@@ -47,8 +47,10 @@ func reset_controls() -> void:
 
 func _apply_pose() -> void:
 	var pitch_deflection := _pitch * pitch_angle
-	for pivot in _elevators + _flaps:
+	for pivot in _flaps:
 		pivot.rotation_degrees.x = pitch_deflection
-	_ailerons[0].rotation_degrees.x = clampf(pitch_deflection + _roll * roll_angle, -elevon_limit, elevon_limit)
-	_ailerons[1].rotation_degrees.x = clampf(pitch_deflection - _roll * roll_angle, -elevon_limit, elevon_limit)
+	for i in 2:
+		var deflection := clampf(pitch_deflection + (1.0 if i == 0 else -1.0) * _roll * roll_angle, -elevon_limit, elevon_limit)
+		_elevators[i].rotation_degrees.x = deflection
+		_ailerons[i].rotation_degrees.x = deflection
 	_rudder.rotation_degrees.y = -_yaw * yaw_angle

@@ -23,29 +23,38 @@ height = 1.35
 
 [node name="DisplayLandingGear" type="Node3D"]
 
-[node name="NoseStrut" type="MeshInstance3D" parent="."]
-position = Vector3(0, -0.12, -6)
+[node name="NosePivot" type="Node3D" parent="."]
+position = Vector3(0, 0.55, -6)
+
+[node name="NoseStrut" type="MeshInstance3D" parent="NosePivot"]
+position = Vector3(0, -0.67, 0)
 mesh = SubResource("Strut")
 
-[node name="NoseWheel" type="MeshInstance3D" parent="."]
-position = Vector3(0, -1.2, -6)
+[node name="NoseWheel" type="MeshInstance3D" parent="NosePivot"]
+position = Vector3(0, -1.75, 0)
 rotation_degrees = Vector3(0, 0, 90)
 mesh = SubResource("Wheel")
 
-[node name="LeftStrut" type="MeshInstance3D" parent="."]
-position = Vector3(-2.3, -0.12, 2)
+[node name="LeftPivot" type="Node3D" parent="."]
+position = Vector3(-2.3, 0.55, 2)
+
+[node name="LeftStrut" type="MeshInstance3D" parent="LeftPivot"]
+position = Vector3(0, -0.67, 0)
 mesh = SubResource("Strut")
 
-[node name="LeftWheel" type="MeshInstance3D" parent="."]
-position = Vector3(-2.3, -1.2, 2)
+[node name="LeftWheel" type="MeshInstance3D" parent="LeftPivot"]
+position = Vector3(0, -1.75, 0)
 rotation_degrees = Vector3(0, 0, 90)
 mesh = SubResource("Wheel")
 
-[node name="RightStrut" type="MeshInstance3D" parent="."]
-position = Vector3(2.3, -0.12, 2)
+[node name="RightPivot" type="Node3D" parent="."]
+position = Vector3(2.3, 0.55, 2)
+
+[node name="RightStrut" type="MeshInstance3D" parent="RightPivot"]
+position = Vector3(0, -0.67, 0)
 mesh = SubResource("Strut")
 
-[node name="RightWheel" type="MeshInstance3D" parent="."]
-position = Vector3(2.3, -1.2, 2)
+[node name="RightWheel" type="MeshInstance3D" parent="RightPivot"]
+position = Vector3(0, -1.75, 0)
 rotation_degrees = Vector3(0, 0, 90)
 mesh = SubResource("Wheel")

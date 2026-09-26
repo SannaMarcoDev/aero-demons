@@ -11,6 +11,12 @@ script = ExtResource("5_controls")
 
 [node name="Model" parent="." unique_id=1676060452 instance=ExtResource("1_model")]
 
+[node name="Canopy_001" parent="Model" index="2"]
+transform = Transform3D(1, 0, 0, 0, 0.76604444, 0.6427876, 0, -0.6427876, 0.76604444, 0, 2.1740162, -0.02693968)
+
+[node name="Glass_1_001" parent="Model" index="8"]
+transform = Transform3D(1, 0, 0, 0, 0.76604444, 0.6427876, 0, -0.6427876, 0.76604444, 0, 2.1740162, -0.02693968)
+
 [node name="AileronLPivot" type="Node3D" parent="."]
 position = Vector3(-4.3, -0.5, 5.86)
 

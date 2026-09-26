@@ -314,7 +314,10 @@ func _update_gear(delta: float) -> void:
 	gear_extension = move_toward(gear_extension, 1.0 if gear_down else 0.0, delta / maxf(gear_travel_time, 0.01))
 	if _gear != null:
 		_gear.visible = gear_extension > 0.0
-		_gear.position.y = (1.0 - gear_extension) * 1.6
+		var fold := 1.0 - gear_extension
+		(_gear.get_node("NosePivot") as Node3D).rotation_degrees.x = -90.0 * fold
+		(_gear.get_node("LeftPivot") as Node3D).rotation_degrees.z = 90.0 * fold
+		(_gear.get_node("RightPivot") as Node3D).rotation_degrees.z = -90.0 * fold
 
 
 func _setup_ground_body() -> void:
