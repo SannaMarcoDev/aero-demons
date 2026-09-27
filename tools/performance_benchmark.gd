@@ -67,6 +67,9 @@ func benchmark() -> void:
 		quit(1)
 		return
 	scene = load("res://scenes/levels/tutorial.tscn" if combat else "res://scenes/levels/freeroam.tscn").instantiate()
+	if combat:
+		# Skip the parked intro before _ready schedules it; use the real combat reveal below.
+		scene.get_node("Player").start_on_ground = false
 	root.add_child(scene)
 	current_scene = scene
 	player = scene.get_node("Player")
@@ -139,28 +142,14 @@ func benchmark() -> void:
 					player.reset_flight(player.global_transform)
 					reset_weather(driver, clouds)
 				var firing_timers: Array[Timer] = []
+				var sample_loc: Dictionary = loc.duplicate()
 				if combat:
-					seed(20260211)
+					if not await prepare_combat():
+						quit(1)
+						return
+					# The reveal advances the formation: measure from its actual handoff pose.
+					sample_loc.pos = player.global_position
 					var mission = scene.get_node("CombatHUD/MissionController")
-					mission.radio.stop()
-					mission.hud.tutorial_panel.hide()
-					paused = false
-					mission.phase = mission.Phase.COMBAT
-					mission.encounter_index = 2
-					for enemy in mission.active_enemies:
-						if is_instance_valid(enemy): enemy.queue_free()
-					mission.active_enemies.clear()
-					await process_frame
-					mission._spawn_encounter()
-					assert(mission.active_enemies.size() == 8)
-					mission.director.allow_player_attacks = true
-					mission.director.set_physics_process(true)
-					mission.targeting.auto_acquire = true
-					mission.weapons.firing_enabled = true
-					for i in 2:
-						var wing = scene.get_node("Wingman%d" % (i + 1))
-						wing.global_position = player.global_position + Vector3(-150 + i * 300, 20, 100)
-						wing.get_node("WeaponController").firing_enabled = true
 					for weapon in ["fire_gun", "fire_missile"]:
 						var timer := Timer.new()
 						timer.wait_time = 0.1 if weapon == "fire_gun" else 2.0
@@ -168,13 +157,15 @@ func benchmark() -> void:
 						scene.add_child(timer)
 						timer.start()
 						firing_timers.append(timer)
-				await measure(loc, {"phase": "combat" if combat else ("gameplay" if gameplay else "performance"), "round": round_index + 1, "preset": preset_name, "variant": variant_id, "ablation": variant}, 2.0 if quick else 3.5, 12.0 if combat else (3.0 if quick else 6.0))
+				await measure(sample_loc, {"phase": "combat" if combat else ("gameplay" if gameplay else "performance"), "round": round_index + 1, "preset": preset_name, "variant": variant_id, "ablation": variant}, 2.0 if quick else 3.5, 12.0 if combat else (3.0 if quick else 6.0))
 				for timer in firing_timers: timer.queue_free()
 				if combat:
+					results.back()["enemies_at_start"] = 4
+					results.back()["combat_start_position"] = str(sample_loc.pos)
 					results.back()["enemies_remaining"] = scene.get_node("CombatHUD/MissionController").active_enemies.size()
 				results.back()["effective"] = effective_parameters(clouds, driver)
 				if gameplay:
-					if paused or not player.is_alive() or player.global_position.distance_to(loc.pos) < 100.0:
+					if paused or not player.is_alive() or player.global_position.distance_to(sample_loc.pos) < 100.0:
 						push_error("Invalid gameplay sample: destroyed, paused or stationary aircraft")
 						quit(1)
 						return
@@ -240,6 +231,46 @@ func benchmark() -> void:
 	await create_timer(0.1).timeout
 	print("PERFORMANCE BENCHMARK PASS: ", ProjectSettings.globalize_path(output_dir))
 	quit()
+
+func prepare_combat() -> bool:
+	var mission = scene.get_node("CombatHUD/MissionController")
+	var cinematic = mission.cinematic
+	paused = false
+	mission.radio.stop()
+	mission.hud.tutorial_panel.hide()
+	mission.director.allow_player_attacks = false
+	mission.director.set_physics_process(false)
+	for aircraft in mission.active_enemies + cinematic.escorts:
+		if is_instance_valid(aircraft): aircraft.queue_free()
+	mission.active_enemies.clear()
+	cinematic.escorts.clear()
+	cinematic.interceptors.clear()
+	if is_instance_valid(cinematic._sphere): cinematic._sphere.queue_free()
+	cinematic._sphere = null
+	cinematic._convoy_age = 0.0
+	for projectile in get_nodes_in_group("mission_projectiles"): projectile.queue_free()
+	await process_frame
+	seed(20260211)
+	mission.terminal = false
+	mission._half_call_pending = false
+	mission._begin_flight()
+	mission.radio.stop()
+	# Only shorten untimed dialogue; production spawn, reveal and weapon handoff stay shared.
+	mission.radio.minimum_line_seconds = 0.01
+	mission.radio.seconds_per_character = 0.0001
+	mission.phase = mission.Phase.REVEAL
+	await mission._reveal()
+	mission.hud.tutorial_panel.hide()
+	paused = false
+	mission.phase = mission.Phase.GUN_READING
+	mission._on_tutorial_confirmed()
+	mission.radio.stop()
+	player.invulnerable = true # Keep neutral-flight measurements alive, as in the old harness.
+	player.controls_enabled = false
+	if mission.active_enemies.size() != 4 or mission.director.pilots.size() != 6:
+		push_error("Combat benchmark requires the current four interceptors and two wingmen")
+		return false
+	return true
 
 func effective_parameters(clouds, driver) -> Dictionary:
 	var applied := {}

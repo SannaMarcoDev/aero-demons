@@ -1,5 +1,9 @@
 # Native 1080p / 5 ms budget: integrated cloud presets
 
+> The current `--combat` harness follows the production reveal: four interceptors,
+> two active wingmen and six non-combat escorts. The historical eight-enemy results
+> below are **not directly comparable** to this workload. Reveal/dialogue setup is untimed.
+>
 > These measurements predate the expanded forest and landscape revision.
 > They do **not** certify its performance. See [landscape measurements](landscape-lookdev.md)
 > and the newer [airport-city measurements and remaining frame spikes](../assets/environment/airport/source/CITY_DELIVERY.md#prestazioni).
