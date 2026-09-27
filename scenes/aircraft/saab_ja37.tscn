@@ -11,6 +11,12 @@ script = ExtResource("5_controls")
 
 [node name="Model" parent="." unique_id=1676060452 instance=ExtResource("1_model")]
 
+[node name="Canopy_001" parent="Model" index="2"]
+transform = Transform3D(1, 0, 0, 0, 0.76604444, 0.64278764, 0, -0.64278764, 0.76604444, 0, 2.1623185, -0.05907906)
+
+[node name="Glass_1_001" parent="Model" index="17"]
+transform = Transform3D(1, 0, 0, 0, 0.76604444, 0.64278764, 0, -0.64278764, 0.76604444, 0, 2.1623185, -0.05907906)
+
 [node name="AileronLPivot" type="Node3D" parent="." unique_id=926065007]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.3, -0.5, 5.86)
 
@@ -78,3 +84,5 @@ movement_randomness = 0.0
 [node name="Right" parent="WingDamage" unique_id=999118391 instance=ExtResource("4_damage")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.2, 0.3, 1)
 movement_randomness = 0.0
+
+[editable path="Model"]
