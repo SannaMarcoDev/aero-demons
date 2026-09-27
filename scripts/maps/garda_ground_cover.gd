@@ -9,12 +9,15 @@ var pending: Array[Vector2i] = []
 var center := Vector2i(2147483647, 2147483647)
 var mesh: ArrayMesh
 var largest_tile_ms := 0.0
+var _retired: Array[Node3D] = []
 @onready var terrain: Terrain3D = get_parent().get_node("GardaTerrain")
 
 func _ready() -> void:
 	mesh = make_mesh()
 
 func _process(_delta: float) -> void:
+	# Spread GPU buffer destruction across frames, as the forest streamer does.
+	if not _retired.is_empty(): _retired.pop_back().queue_free()
 	var camera := get_viewport().get_camera_3d()
 	if camera == null: return
 	var camera_position := camera.global_position
@@ -27,7 +30,8 @@ func _process(_delta: float) -> void:
 		pending.clear()
 		for key: Vector2i in tiles.keys():
 			if absi(key.x - center.x) > RADIUS or absi(key.y - center.y) > RADIUS:
-				tiles[key].queue_free()
+				tiles[key].hide()
+				_retired.append(tiles[key])
 				tiles.erase(key)
 		for z in range(-RADIUS, RADIUS + 1):
 			for x in range(-RADIUS, RADIUS + 1):
@@ -39,18 +43,24 @@ func _process(_delta: float) -> void:
 		_build_tile(pending.pop_front())
 		largest_tile_ms = maxf(largest_tile_ms, (Time.get_ticks_usec() - start) / 1000.0)
 
+func suitable_position(point: Vector3, check_development: bool = true) -> bool:
+	return point.is_finite() and point.y > 197.0 and point.y < 1900.0 \
+		and (not check_development or not Development.contains(point))
+
 func suitable(point: Vector3, normal: Vector3) -> bool:
-	return point.is_finite() and normal.is_finite() and point.y > 197.0 and point.y < 1900.0 \
-		and normal.y > 0.90 and not Development.contains(point)
+	return suitable_position(point) and normal.is_finite() and normal.y > 0.90
 
 func make_transforms(key: Vector2i) -> Array[Transform3D]:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(key) + 7319
+	var check_development := Development.intersects(Rect2(Vector2(key) * TILE, Vector2.ONE * TILE))
 	var transforms: Array[Transform3D] = []
 	for i in CANDIDATES:
 		var point := Vector3((key.x + rng.randf()) * TILE, 0, (key.y + rng.randf()) * TILE)
 		point.y = terrain.data.get_height(point)
-		if not suitable(point, terrain.data.get_normal(point)): continue
+		if not suitable_position(point, check_development): continue
+		var normal := terrain.data.get_normal(point)
+		if not normal.is_finite() or normal.y <= 0.90: continue
 		# Coherent sparse/dense clumps, not a uniform carpet.
 		var density := 0.62 + 0.25 * sin(point.x * 0.057) * sin(point.z * 0.071)
 		if rng.randf() > density: continue

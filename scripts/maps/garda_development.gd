@@ -11,3 +11,6 @@ static func contains(point: Vector3) -> bool:
 		return false
 	var pixel := Vector2i(((Vector2(point.x, point.z) - ORIGIN - MINIMUM) / PIXEL_METRES).floor())
 	return Rect2i(Vector2i.ZERO, MASK.get_size()).has_point(pixel) and MASK.get_pixelv(pixel).r > 0.5
+
+static func intersects(area: Rect2) -> bool:
+	return Rect2(ORIGIN + MINIMUM, Vector2(MASK.get_size()) * PIXEL_METRES).grow(PIXEL_METRES).intersects(area)

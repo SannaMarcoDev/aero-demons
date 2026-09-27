@@ -17,8 +17,8 @@ func _run() -> void:
 	map.get_node("GroundCover").process_mode = Node.PROCESS_MODE_DISABLED
 	var camera := Camera3D.new()
 	root.add_child(camera)
-	camera.make_current()
 	root.add_child(map)
+	camera.make_current() # The map may contain its own authored current camera.
 	forest.set_process(false)
 	var terrain: Terrain3D = map.get_node("GardaTerrain")
 	terrain.set_camera(camera)

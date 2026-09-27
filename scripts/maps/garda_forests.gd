@@ -22,6 +22,7 @@ var build_msec := 0.0
 var largest_tile_msec := 0.0
 var cover_image: Image
 var cover_texture: ImageTexture
+var landcover: Landcover
 var noise := FastNoiseLite.new()
 var _started := 0
 @onready var terrain: Terrain3D = get_parent().get_node("GardaTerrain")
@@ -30,8 +31,9 @@ func _ready() -> void:
 	noise.seed = seed_value
 	noise.frequency = 0.0025
 	noise.fractal_octaves = 3
-	cover_image = Landcover.IMAGE
-	cover_texture = ImageTexture.create_from_image(cover_image)
+	landcover = Landcover.new()
+	cover_image = landcover.cpu_image
+	cover_texture = landcover.gpu_texture
 	terrain.material.set_shader_param("forest_cover", cover_texture)
 	var water := get_parent().get_node_or_null("Water") as MeshInstance3D
 	if water != null:
@@ -82,18 +84,22 @@ func make_tile(key: Vector2i) -> Dictionary:
 	var species := PackedInt32Array()
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_value + key.x * 73856093 + key.y * 19349663
+	var check_development := Development.intersects(Rect2(Vector2(key) * TILE, Vector2.ONE * TILE))
 	var steps := ceili(TILE / spacing)
 	# A tile is just a streaming boundary, never a density boundary. No ellipse or global cap.
 	for z in steps:
 		for x in steps:
 			var point := (Vector2(key) + (Vector2(x, z) + Vector2(rng.randf_range(0.1, 0.9), rng.randf_range(0.1, 0.9))) / steps) * TILE
-			var cover := Landcover.sample(Vector3(point.x, 0, point.y))
-			var density := smoothstep(0.12, 0.72, cover.r) * (0.80 + 0.20 * smoothstep(-0.4, 0.3, noise.get_noise_2d(point.x, point.y)))
+			var cover := landcover.sample(Vector3(point.x, 0, point.y))
+			var density := smoothstep(0.12, 0.72, cover.r)
+			if density > 0.0:
+				density *= 0.80 + 0.20 * smoothstep(-0.4, 0.3, noise.get_noise_2d(point.x, point.y))
 			if rng.randf() > density: continue
 			var position := Vector3(point.x, 0, point.y)
 			position.y = terrain.data.get_height(position)
+			if not suitable_position(position, check_development): continue
 			var normal := terrain.data.get_normal(position)
-			if not suitable(position, normal) or normal.y < MIN_NORMAL_Y + 0.001: continue
+			if not suitable_normal(normal, MIN_NORMAL_Y + 0.001): continue
 			var scale_value := rng.randf_range(0.65, 1.5)
 			var width := scale_value * rng.randf_range(0.72, 1.25)
 			var basis := Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3(width, scale_value, width))
@@ -129,18 +135,25 @@ func _add_batch(tile: Node3D, mesh_id: int, transforms: Array[Transform3D], colo
 	var asset := terrain.assets.get_mesh_asset(mesh_id)
 	var batch: MultiMesh
 	var bounds: AABB
+	var buffer := PackedFloat32Array()
 	for lod in 3:
 		batch = MultiMesh.new()
 		batch.transform_format = MultiMesh.TRANSFORM_3D
 		batch.use_colors = true
 		batch.mesh = asset.get_mesh(lod)
 		batch.instance_count = transforms.size()
-		for i in transforms.size():
-			var transform := transforms[i]
-			transform.origin -= tile.position
-			batch.set_instance_transform(i, transform)
-			batch.set_instance_color(i, colors[i])
-		if lod == 0: bounds = batch.get_aabb()
+		if buffer.size() == transforms.size() * 16:
+			batch.buffer = buffer
+		else:
+			# Populate LOD0, or every LOD when the renderer exposes no raw buffer.
+			for i in transforms.size():
+				var transform := transforms[i]
+				transform.origin -= tile.position
+				batch.set_instance_transform(i, transform)
+				batch.set_instance_color(i, colors[i])
+		if lod == 0:
+			bounds = batch.get_aabb()
+			buffer = batch.buffer
 		batch.custom_aabb = bounds # All LODs switch at the same distance.
 		var node := MultiMeshInstance3D.new()
 		node.name = "Trees_M%d_L%d" % [mesh_id, lod]
@@ -164,8 +177,13 @@ func _add_batch(tile: Node3D, mesh_id: int, transforms: Array[Transform3D], colo
 	shadow.visibility_range_end = 650.0
 	tile.add_child(shadow)
 
-func suitable(position: Vector3, normal: Vector3) -> bool:
-	return position.is_finite() and normal.is_finite() \
+func suitable_position(position: Vector3, check_development: bool = true) -> bool:
+	return position.is_finite() \
 		and position.y >= MIN_HEIGHT and position.y <= MAX_HEIGHT \
-		and normal.y >= MIN_NORMAL_Y \
-		and not Development.contains(position)
+		and (not check_development or not Development.contains(position))
+
+func suitable_normal(normal: Vector3, minimum_y: float = MIN_NORMAL_Y) -> bool:
+	return normal.is_finite() and normal.y >= minimum_y
+
+func suitable(position: Vector3, normal: Vector3) -> bool:
+	return suitable_position(position) and suitable_normal(normal)
