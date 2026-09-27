@@ -21,7 +21,10 @@ const MINIGUN_SOUND: AudioStream = preload("res://assets/audio/sfx/weapons/minig
 @export var firing_enabled := true
 ## Physics layers the projectiles may hit: the enemy hitbox layer for the player, and back.
 @export_flags_3d_physics var target_layers := 4
-@export var gun_muzzle := Vector3(0.0, -0.3, -5.0)
+var gun_muzzle := Vector3(0.0, -0.3, -5.0):
+	get:
+		var nozzle := get_node_or_null("../AircraftModel/GunNozzle") as Node3D
+		return to_local(nozzle.global_position) if nozzle != null else gun_muzzle
 @export var missile_pylons: Array[Vector3] = [Vector3(-3.2, -0.6, 0.5), Vector3(3.2, -0.6, 0.5)]
 
 @export_category("Cannon")
@@ -235,6 +238,7 @@ func fire_gun() -> void:
 	bullet.add_to_group("mission_projectiles")
 	bullet.call("launch", muzzle_transform, direction, _inherited_velocity())
 	if _muzzle_flash != null:
+		_muzzle_flash.global_position = muzzle_transform.origin
 		_muzzle_flash.call("_reset_particles")
 		var flash_animation := _muzzle_flash.get_node("AnimationPlayer") as AnimationPlayer
 		flash_animation.play(&"main")

@@ -11,11 +11,14 @@ script = ExtResource("5_controls")
 
 [node name="Model" parent="." unique_id=1676060452 instance=ExtResource("1_model")]
 
-[node name="Canopy_001" parent="Model" index="2"]
+[node name="Canopy_001" parent="Model" index="2" unique_id=1874290195]
 transform = Transform3D(1, 0, 0, 0, 0.76604444, 0.64278764, 0, -0.64278764, 0.76604444, 0, 2.1623185, -0.05907906)
 
-[node name="Glass_1_001" parent="Model" index="17"]
+[node name="Glass_1_001" parent="Model" index="17" unique_id=2061248281]
 transform = Transform3D(1, 0, 0, 0, 0.76604444, 0.64278764, 0, -0.64278764, 0.76604444, 0, 2.1623185, -0.05907906)
+
+[node name="GunNozzle" type="Marker3D" parent="." unique_id=1093663717]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0062161386, -0.77382314, -6.0950236)
 
 [node name="AileronLPivot" type="Node3D" parent="." unique_id=926065007]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.3, -0.5, 5.86)

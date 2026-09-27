@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://77kpjg3t4f0w"]
 
 [ext_resource type="Script" uid="uid://c13xlvj5fgxft" path="res://scripts/enemies/enemy_fighter.gd" id="1_ai"]
-[ext_resource type="PackedScene" path="res://assets/aircraft/mig29/mig29.glb" id="2_model"]
+[ext_resource type="PackedScene" uid="uid://dho2eyfdasiaw" path="res://assets/aircraft/mig29/mig29.glb" id="2_model"]
 [ext_resource type="Script" uid="uid://qggjjy3iivfe" path="res://scripts/combat/targeting.gd" id="3_targeting"]
 [ext_resource type="Script" uid="uid://dp2rcd7rlieo6" path="res://scripts/weapons/weapon_controller.gd" id="4_weapons"]
 [ext_resource type="Script" uid="uid://cf6to0ge1naqu" path="res://scripts/vfx/afterburner.gd" id="5_afterburner"]
@@ -28,33 +28,39 @@ physics_interpolation_mode = 1
 script = ExtResource("1_ai")
 max_speed = 240.0
 min_altitude = 300.0
-airframe_scale = 2.0
 faction_group = "targets"
 label = "FIGHTER"
+airframe_scale = 2.0
 
 [node name="AircraftModel" parent="." unique_id=1162364310 instance=ExtResource("2_model")]
 transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, -1.2, 0.56)
 
+[node name="GunNozzle" type="Marker3D" parent="AircraftModel" unique_id=1410185723]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, -11.12)
+
 [node name="Afterburners" type="Node3D" parent="." unique_id=1917658513]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.36808777)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.6283292, -0.73807764)
 script = ExtResource("5_afterburner")
 
 [node name="Left" parent="Afterburners" unique_id=712453563 instance=ExtResource("6_exhaust")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 0.3, 4.1)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.43430066, 0.30000007, 4.1)
 throttle = 1.0
+nozzle_radius = 0.2
 
 [node name="Right" parent="Afterburners" unique_id=1083571616 instance=ExtResource("6_exhaust")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0.3, 4.1)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.43962765, 0.30000007, 4.1)
 throttle = 1.0
+nozzle_radius = 0.2
 
 [node name="WingDamage" type="Node3D" parent="." unique_id=1657752654]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.36624074, -1.1669384, 0.8636049)
 
 [node name="Left" parent="WingDamage" unique_id=1360447377 instance=ExtResource("7_damage")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.7, 0, 1.0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.4894253, 0, 1)
 movement_randomness = 0.0
 
 [node name="Right" parent="WingDamage" unique_id=269784681 instance=ExtResource("7_damage")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.7, 0, 1.0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.7, 0, 1)
 movement_randomness = 0.0
 
 [node name="Hitbox" type="Area3D" parent="." unique_id=1633394161]
