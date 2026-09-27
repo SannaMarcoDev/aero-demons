@@ -15,6 +15,7 @@ enum Policy { ENEMY, COVER, SUPPORT }
 @export var reposition_distance := 850.0
 @export var duel_speed := 140.0
 @export var formation_spacing := 250.0
+@export var formation_forward := 0.0
 
 @export_category("Tactics")
 @export var attack_range := 1800.0
@@ -95,7 +96,7 @@ var _wreck_next_explosion := 0.0
 func _ready() -> void:
 	if faction_group == "allies":
 		var old_model := $AircraftModel as Node3D
-		var replacement := preload("res://assets/aircraft/su27/su27.glb").instantiate() as Node3D
+		var replacement := preload("res://scenes/aircraft/su27.tscn").instantiate() as Node3D
 		replacement.name = "AircraftModel"
 		replacement.transform = old_model.transform
 		remove_child(old_model)
@@ -318,11 +319,9 @@ func _fly_maneuver() -> void:
 			and is_instance_valid(director) and CombatDirector.alive(director.player):
 		var leader: PlayerFlight = director.player
 		var side := -1.0 if policy == Policy.COVER else 1.0
-		var slot := leader.global_position + leader.global_basis.x * side * formation_spacing
-		# Follow a moving slot, not a stationary waypoint: match the leader once alongside.
-		var formation_velocity := leader.velocity() + (slot - global_position) * 0.5
-		point = global_position + formation_velocity * 3.0
-		desired_speed = clampf(formation_velocity.length(), min_speed, max_speed)
+		var slot := leader.global_position + leader.global_basis.x * side * formation_spacing - leader.global_basis.z * formation_forward
+		_steer_formation(leader, slot)
+		return
 	elif _outside_leash():
 		point = director.player.global_position - director.player.global_basis.z * 500.0
 		desired_speed = max_speed
@@ -490,6 +489,9 @@ func _apply_safety() -> void:
 	for aircraft in get_tree().get_nodes_in_group("combat_ai") + get_tree().get_nodes_in_group("player"):
 		if aircraft == self or not CombatDirector.alive(aircraft):
 			continue
+		if faction_group == "allies" and assignment_target == null:
+			if (is_instance_valid(director) and aircraft == director.player) or aircraft.get("faction_group") == "allies":
+				continue
 		var offset: Vector3 = aircraft.global_position - global_position
 		var relative: Vector3 = aircraft.velocity() - velocity()
 		var time := clampf(-offset.dot(relative) / maxf(relative.length_squared(), 0.001), 0.0, safety_lookahead)
@@ -504,6 +506,37 @@ func debug_text() -> String:
 	return "%s | ROLE: %s | TARGET: %s\nSTATE: %s | STATE_TIME: %.1f | LAST_TRANSITION: %s | FIRE_BLOCK: %s" % [
 		name, role, assignment_target.name if CombatDirector.alive(assignment_target) else "NONE",
 		State.keys()[state], _state_time, last_transition, fire_block]
+
+
+func _steer_formation(leader: PlayerFlight, slot: Vector3) -> void:
+	# Lead the moving slot so we don't lag behind
+	var to_slot := slot - global_position
+	var dist := to_slot.length()
+	var target_point := slot + leader.velocity() * 1.2
+	var target_dir := (target_point - global_position).normalized()
+	var local_dir := global_basis.inverse() * target_dir
+
+	# Aggressive catch-up: full throttle / max_speed when far, match leader when close
+	var distance_ahead := to_slot.dot(-leader.global_basis.z)
+	var speed_boost := clampf(distance_ahead * 1.8, -30.0, 80.0)
+	var desired_speed := clampf(leader.speed + speed_boost, min_speed, max_speed)
+	if dist > 150.0:
+		desired_speed = max_speed
+	throttle_input = clampf((desired_speed - speed) / 10.0, 0.0, 1.0)
+	brake_input = clampf((speed - desired_speed) / 10.0, 0.0, 1.0)
+
+	# Direct pitch tracking: local_dir.y < 0 means target is below us -> pitch down
+	pitch_input = clampf(-local_dir.y * 3.0, -1.0, 1.0)
+
+	# Yaw/Rudder assistance for fine lateral tracking
+	yaw_input = clampf(local_dir.x * 2.0, -0.8, 0.8)
+
+	# Coordinated roll: bank into turns and align with leader's wings when close
+	var desired_bank := clampf(local_dir.x * 0.7, -0.6, 0.6)
+	var up_ref := leader.global_basis.y if dist < 250.0 else Vector3.UP
+	var up_local := global_basis.inverse() * up_ref
+	var current_bank := atan2(-up_local.x, up_local.y)
+	roll_input = clampf((desired_bank - current_bank) * 2.5, -1.0, 1.0)
 
 
 func _steer_toward(point: Vector3) -> void:

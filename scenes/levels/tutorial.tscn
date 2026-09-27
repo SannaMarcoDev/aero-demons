@@ -22,7 +22,7 @@ invulnerable = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36642.043, 239.55763, 650.5814)
 
 [node name="Wingman1" parent="." unique_id=1943898831 instance=ExtResource("6_enemy")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -300, 8050, -150)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36700, 350, 660)
 policy = 1
 burst_interval = 5.5
 aim_accuracy = 0.7
@@ -31,7 +31,7 @@ faction_group = "allies"
 label = "DEMON 2 · UBRIS"
 
 [node name="Wingman2" parent="." unique_id=79740025 instance=ExtResource("6_enemy")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, 7950, -250)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36600, 350, 660)
 policy = 2
 burst_interval = 5.5
 aim_accuracy = 0.7

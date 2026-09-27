@@ -1,12 +1,17 @@
 extends Node3D
 ## Tutorial combat reveal. Tweens and flight motion pause with the scene.
 const SPHERE = preload("res://scenes/vfx/energy_sphere.tscn")
+signal intro_skipped
+
 var active := false
+var intro_was_skipped := false
 var shot := ""
 var escorts: Array[EnemyFighter] = []
 var interceptors: Array[EnemyFighter] = []
 var _camera: Camera3D
 var _black: ColorRect
+var _skip_label: Label
+var _destination: Marker3D
 var _radio: RadioDialogue
 var _dialogue: DialogueResource
 var _sphere: Node3D
@@ -17,6 +22,9 @@ var _airborne := false
 var _breaking := false
 var _tracking := false
 var _shake_time := 0.0
+var _shake_intensity := 0.0
+var _shake_tween: Tween
+var _fade_tween: Tween
 var _convoy_age := 0.0
 var _hidden_overlays: Array[CanvasLayer] = []
 var _intro_tween: Tween
@@ -43,12 +51,25 @@ func _ready() -> void:
 	overlay.add_child(_black)
 	_black.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_black.hide()
+	_skip_label = Label.new()
+	_skip_label.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
+	_skip_label.offset_left = -340
+	_skip_label.offset_top = -60
+	_skip_label.offset_right = -30
+	_skip_label.offset_bottom = -25
+	_skip_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_skip_label.add_theme_font_size_override("font_size", 14)
+	_skip_label.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0, 0.7))
+	overlay.add_child(_skip_label)
+	_skip_label.hide()
 
 
 func _begin(radio: RadioDialogue, dialogue: DialogueResource) -> void:
 	active = true
 	_radio = radio
 	_dialogue = dialogue
+	_shake_intensity = 0.0
+	_shake_time = 0.0
 	player.controls_enabled = false
 	player.clear_player_controls()
 	player.set_physics_process(false)
@@ -67,7 +88,13 @@ func _end() -> void:
 	active = false
 	_airborne = false
 	_tracking = false
+	_shake_intensity = 0.0
+	_shake_time = 0.0
+	if _shake_tween != null and _shake_tween.is_valid():
+		_shake_tween.kill()
 	_black.hide()
+	if _skip_label != null:
+		_skip_label.hide()
 	var chase := player.get_node("FlightCamera")
 	chase.snap_to_target()
 	chase.make_current()
@@ -83,18 +110,28 @@ func _end() -> void:
 
 func _fade(alpha: float, seconds := 0.65) -> void:
 	_black.show()
-	await create_tween().tween_property(_black, "modulate:a", alpha, seconds).finished
+	_fade_tween = create_tween()
+	await _fade_tween.tween_property(_black, "modulate:a", alpha, seconds).finished
 
 
 func play_intro(destination: Marker3D, radio: RadioDialogue, dialogue: DialogueResource) -> void:
+	_destination = destination
+	intro_was_skipped = false
 	_begin(radio, dialogue)
 	shot = "hangar"
 	$"Camera3D-1".make_current()
 	_black.modulate.a = 0.0
 	_intro_skip_held = 0.0
+	_skip_label.show()
+	_update_skip_ui()
 	_intro_tween = create_tween()
-	await _intro_tween.tween_property(player, "global_position", player.global_position - player.global_basis.z * 12.0, 5.0).finished
+	_intro_tween.tween_property(player, "global_position", player.global_position - player.global_basis.z * 12.0, 5.0)
+	await _intro_tween.finished
+	if intro_was_skipped:
+		return
 	await _fade(1.0, 0.4)
+	if intro_was_skipped:
+		return
 	player.global_transform = destination.global_transform
 	player._ground_body.velocity = Vector3.ZERO
 	player.reset_physics_interpolation()
@@ -103,7 +140,39 @@ func play_intro(destination: Marker3D, radio: RadioDialogue, dialogue: DialogueR
 	chase.snap_to_target()
 	chase.make_current()
 	await _fade(0.0, 0.4)
+	if intro_was_skipped:
+		return
 	hud.set_cinematic(false)
+
+
+func skip_intro() -> void:
+	if intro_was_skipped or not active or (shot != "hangar" and shot != "runway"):
+		return
+	intro_was_skipped = true
+	if _intro_tween != null and _intro_tween.is_valid():
+		_intro_tween.custom_step(999.0)
+	if _fade_tween != null and _fade_tween.is_valid():
+		_fade_tween.custom_step(999.0)
+	if _radio != null and _radio.playing:
+		_radio.stop()
+		_radio.finished.emit()
+	if _destination != null:
+		player.global_transform = _destination.global_transform
+		if player._ground_body != null:
+			player._ground_body.velocity = Vector3.ZERO
+		player.speed = 0.0
+		player.reset_physics_interpolation()
+	_black.hide()
+	_black.modulate.a = 0.0
+	var chase: Camera3D = player.get_node_or_null("FlightCamera")
+	if chase != null:
+		chase.snap_to_target()
+		chase.make_current()
+		chase.set_physics_process(true)
+	shot = "runway"
+	_skip_label.hide()
+	_end()
+	intro_skipped.emit()
 
 
 func finish_intro() -> void:
@@ -150,6 +219,12 @@ func play_reveal(radio: RadioDialogue, dialogue: DialogueResource, enemy_scene: 
 	_camera.fov = 65.0
 	await _fade(0.0)
 	_radio.play(_dialogue, "sphere")
+	_shake_intensity = 1.0
+	if _shake_tween != null and _shake_tween.is_valid():
+		_shake_tween.kill()
+	_shake_tween = create_tween()
+	_shake_tween.tween_interval(0.5)
+	_shake_tween.tween_property(self, "_shake_intensity", 0.0, 0.8).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	var zoom := create_tween()
 	zoom.tween_property(_camera, "fov", 28.0, 0.65).set_trans(Tween.TRANS_CUBIC)
 	zoom.tween_interval(0.2)
@@ -244,16 +319,39 @@ func _physics_process(delta: float) -> void:
 		_sphere.queue_free()
 
 
+func _is_skip_held() -> bool:
+	if Input.is_action_pressed("ui_accept"):
+		return true
+	for id in Input.get_connected_joypads():
+		if Input.is_joy_button_pressed(id, JOY_BUTTON_A):
+			return true
+	return false
+
+
+func _update_skip_ui() -> void:
+	if _skip_label == null or not _skip_label.visible:
+		return
+	var btn := "[A]" if not Input.get_connected_joypads().is_empty() else "[SPAZIO]"
+	if _intro_skip_held > 0.0:
+		var pct := int(clampf(_intro_skip_held / 1.0, 0.0, 1.0) * 100)
+		_skip_label.text = "SALTO... %d%%" % pct
+		_skip_label.modulate.a = 1.0
+	else:
+		_skip_label.text = "TIENI %s PER SALTARE" % btn
+		_skip_label.modulate.a = 0.4
+
+
 func _process(delta: float) -> void:
-	if active and (shot == "hangar" or shot == "runway" and _radio.playing):
-		_intro_skip_held = _intro_skip_held + delta if Input.is_action_pressed("ui_accept") else 0.0
-		if _intro_skip_held >= 2.0:
+	if active and (shot == "hangar" or shot == "runway"):
+		if _is_skip_held():
+			_intro_skip_held += delta
+			_update_skip_ui()
+			if _intro_skip_held >= 1.0:
+				_intro_skip_held = 0.0
+				skip_intro()
+		elif _intro_skip_held > 0.0:
 			_intro_skip_held = 0.0
-			if _radio.playing:
-				_radio.stop()
-				_radio.finished.emit()
-			if shot == "hangar" and _intro_tween.is_running():
-				_intro_tween.set_speed_scale(100.0)
+			_update_skip_ui()
 	if active and shot == "combat_handoff":
 		player.get_node("FlightCamera").snap_to_target()
 		_camera.global_transform = player.get_node("FlightCamera").global_transform
@@ -269,7 +367,9 @@ func _process(delta: float) -> void:
 		focus /= interceptors.size()
 	var desired := Transform3D(Basis.IDENTITY, _camera.global_position).looking_at(focus).basis
 	_camera.global_basis = _camera.global_basis.slerp(desired, 1.0 - exp(-delta * 7.0))
-	# Bounded angular shake scales with zoom, keeping the subject readable.
-	var shake := deg_to_rad(_camera.fov * 0.004)
-	_camera.rotate_object_local(Vector3.RIGHT, sin(_shake_time * 17.0) * shake)
-	_camera.rotate_object_local(Vector3.UP, sin(_shake_time * 23.0) * shake)
+	if _shake_intensity > 0.0:
+		_shake_time += delta
+		# Bounded angular shake scales with zoom, keeping the subject readable.
+		var shake := deg_to_rad(_camera.fov * 0.004) * _shake_intensity
+		_camera.rotate_object_local(Vector3.RIGHT, sin(_shake_time * 17.0) * shake)
+		_camera.rotate_object_local(Vector3.UP, sin(_shake_time * 23.0) * shake)

@@ -67,13 +67,21 @@ func _start() -> void:
 		cinematic.set_script(preload("res://scripts/maps/hangar_arrival.gd"))
 		hud.get_parent().add_child(cinematic)
 	if player.start_on_ground:
+		cinematic.intro_skipped.connect(func():
+			if phase == Phase.OPENING or phase == Phase.TAKEOFF:
+				if hud.tutorial_panel.visible:
+					hud.tutorial_panel.hide()
+					get_tree().paused = false
+				player.controls_enabled = true
+				player.set_physics_process(true)
+		)
 		radio.play(dialogue, "intro")
 		if runway_spot != null:
 			await cinematic.play_intro(runway_spot, radio, dialogue)
 		if radio.playing:
 			await radio.finished
 		phase = Phase.TAKEOFF
-		if runway_spot != null:
+		if runway_spot != null and not cinematic.intro_was_skipped:
 			hud.tutorial_panel.open("DECOLLO", "Accelera con [{accelerate}] fino alla velocità di rotazione. Poi alza dolcemente il muso con [{pitch_up}] per decollare.\n\nConferma per prendere i comandi.")
 		else:
 			player.controls_enabled = true
@@ -127,11 +135,23 @@ func _begin_flight() -> void:
 	# Pitch was necessary for departure; roll and rudder remain explicit exercises.
 	if player.start_on_ground:
 		movement_practice.x = 1.0
+	director.player = player
+	var forward := -player.global_basis.z
+	var right := player.global_basis.x
 	for i in wings.size():
+		var wing := wings[i]
 		var side := -1.0 if i == 0 else 1.0
-		wings[i].global_transform = player.global_transform * Transform3D(Basis.IDENTITY, Vector3(side * 220.0, 90.0, 320.0))
-		wings[i].reset_physics_interpolation()
-		wings[i].show()
+		wing.director = director
+		wing.formation_spacing = 40.0
+		wing.formation_forward = 30.0
+		wing.invulnerable = true
+		wing.get_node("WeaponController").firing_enabled = false
+		wing.global_position = player.global_position - forward * 50.0 + right * (side * 40.0) + Vector3.UP * 8.0
+		wing.global_basis = player.global_basis
+		wing.speed = player.speed * 1.25
+		wing.reset_physics_interpolation()
+		wing.show()
+		wing.set_physics_process(true)
 	_wings_joined = true
 	radio.play(dialogue, "collaudo")
 
@@ -141,12 +161,6 @@ func _physics_process(delta: float) -> void:
 		return
 	if _wings_joined and phase != Phase.COMBAT:
 		_formation_time += delta
-		for i in wings.size():
-			var side := -1.0 if i == 0 else 1.0
-			var blend := smoothstep(0.0, 1.0, minf(_formation_time / 7.0, 1.0))
-			var offset := Vector3(side * 220.0, 90.0, 320.0).lerp(Vector3(side * 28.0, 2.0, -28.0), blend)
-			wings[i].global_transform = player.global_transform * Transform3D(Basis.IDENTITY, offset)
-			wings[i].speed = player.speed
 	match phase:
 		Phase.TAKEOFF:
 			if not player.grounded and player.global_position.y > runway.global_position.y + 8.0:
@@ -189,6 +203,12 @@ func _reveal() -> void:
 	await cinematic.play_reveal(radio, dialogue, enemy_scene)
 	if terminal:
 		return
+	for i in wings.size():
+		var side := -1.0 if i == 0 else 1.0
+		wings[i].global_position = player.global_position + player.global_basis.x * (side * wings[i].formation_spacing) - player.global_basis.z * wings[i].formation_forward
+		wings[i].global_basis = player.global_basis
+		wings[i].speed = player.speed
+		wings[i].reset_physics_interpolation()
 	active_enemies = cinematic.release_interceptors(spawn_root)
 	remaining = active_enemies.size()
 	for enemy in active_enemies:
