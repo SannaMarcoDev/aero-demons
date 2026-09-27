@@ -23,6 +23,7 @@ var _movement_armed := false
 @onready var radio: RadioDialogue = get_node_or_null("../HudText/RadioDialogue")
 @onready var runway: Marker3D = get_node_or_null("../../TaxiRunway")
 @onready var takeoff: Marker3D = get_node_or_null("../../TaxiTakeoff")
+@onready var runway_spot: Marker3D = get_node_or_null("../../Player2")
 @onready var director: CombatDirector = get_node("../../CombatDirector")
 @onready var spawn_root: Node3D = get_node("../../SpawnedEnemies")
 @onready var targeting: TargetLock = player.get_node("TargetLock")
@@ -38,6 +39,8 @@ func _ready() -> void:
 		hud.get_node("HudText").add_child(radio)
 	process_mode = Node.PROCESS_MODE_PAUSABLE
 	player.controls_enabled = false
+	if player.start_on_ground and runway_spot != null:
+		player.set_physics_process(false)
 	player.invulnerable = true
 	weapons.firing_enabled = false
 	targeting.auto_acquire = false
@@ -65,9 +68,15 @@ func _start() -> void:
 		hud.get_parent().add_child(cinematic)
 	if player.start_on_ground:
 		radio.play(dialogue, "intro")
-		await radio.finished
+		if runway_spot != null:
+			await cinematic.play_intro(runway_spot, radio, dialogue)
+		if radio.playing:
+			await radio.finished
 		phase = Phase.TAKEOFF
-		player.controls_enabled = true
+		if runway_spot != null:
+			hud.tutorial_panel.open("DECOLLO", "Accelera con [{accelerate}] fino alla velocità di rotazione. Poi alza dolcemente il muso con [{pitch_up}] per decollare.\n\nConferma per prendere i comandi.")
+		else:
+			player.controls_enabled = true
 	else:
 		player.controls_enabled = true
 		_begin_flight()
@@ -193,6 +202,9 @@ func _on_tutorial_confirmed() -> void:
 	if terminal:
 		return
 	match phase:
+		Phase.TAKEOFF:
+			if runway_spot != null:
+				cinematic.finish_intro()
 		Phase.TARGET_READING:
 			phase = Phase.MISSILE_READING
 			hud.tutorial_panel.open("ARMI · MISSILI", "Lancia con [{fire_missile}] dopo l'aggancio.\nCambia armamento con [{switch_missile}]; il tipo attivo è indicato nell'HUD.\n\nMTSM aggancia più contatti validi a schermo. Gli altri missili richiedono un aggancio sul bersaglio selezionato.")

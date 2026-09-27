@@ -42,7 +42,7 @@ script = ExtResource("9_camera")
 cockpit_y = -1.5
 
 [node name="AircraftModel" parent="." unique_id=1192140363 instance=ExtResource("2_aircraft")]
-transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, -1.2, 0.56)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.4, 1.12)
 
 [node name="Hitbox" type="Area3D" parent="." unique_id=1140277431]
 collision_layer = 8

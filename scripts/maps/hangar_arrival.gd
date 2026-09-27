@@ -19,6 +19,8 @@ var _tracking := false
 var _shake_time := 0.0
 var _convoy_age := 0.0
 var _hidden_overlays: Array[CanvasLayer] = []
+var _intro_tween: Tween
+var _intro_skip_held := 0.0
 
 @onready var player: PlayerFlight = get_node("../Player")
 @onready var hud: CombatHUD = get_node("../CombatHUD")
@@ -82,6 +84,30 @@ func _end() -> void:
 func _fade(alpha: float, seconds := 0.65) -> void:
 	_black.show()
 	await create_tween().tween_property(_black, "modulate:a", alpha, seconds).finished
+
+
+func play_intro(destination: Marker3D, radio: RadioDialogue, dialogue: DialogueResource) -> void:
+	_begin(radio, dialogue)
+	shot = "hangar"
+	$"Camera3D-1".make_current()
+	_black.modulate.a = 0.0
+	_intro_skip_held = 0.0
+	_intro_tween = create_tween()
+	await _intro_tween.tween_property(player, "global_position", player.global_position - player.global_basis.z * 12.0, 5.0).finished
+	await _fade(1.0, 0.4)
+	player.global_transform = destination.global_transform
+	player._ground_body.velocity = Vector3.ZERO
+	player.reset_physics_interpolation()
+	shot = "runway"
+	var chase: Camera3D = player.get_node("FlightCamera")
+	chase.snap_to_target()
+	chase.make_current()
+	await _fade(0.0, 0.4)
+	hud.set_cinematic(false)
+
+
+func finish_intro() -> void:
+	_end()
 
 
 func play_reveal(radio: RadioDialogue, dialogue: DialogueResource, enemy_scene: PackedScene) -> void:
@@ -219,6 +245,15 @@ func _physics_process(delta: float) -> void:
 
 
 func _process(delta: float) -> void:
+	if active and (shot == "hangar" or shot == "runway" and _radio.playing):
+		_intro_skip_held = _intro_skip_held + delta if Input.is_action_pressed("ui_accept") else 0.0
+		if _intro_skip_held >= 2.0:
+			_intro_skip_held = 0.0
+			if _radio.playing:
+				_radio.stop()
+				_radio.finished.emit()
+			if shot == "hangar" and _intro_tween.is_running():
+				_intro_tween.set_speed_scale(100.0)
 	if active and shot == "combat_handoff":
 		player.get_node("FlightCamera").snap_to_target()
 		_camera.global_transform = player.get_node("FlightCamera").global_transform
