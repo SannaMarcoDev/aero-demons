@@ -8,5 +8,5 @@ func _ready() -> void:
 	Settings.apply_settings(Settings.fixed_settings())
 
 
-func _on_scene_changed(_scene: Node) -> void:
+func _on_scene_changed() -> void:
 	Settings.apply_settings(Settings.fixed_settings())
