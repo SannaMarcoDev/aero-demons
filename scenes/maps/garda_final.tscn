@@ -298,7 +298,7 @@ visible = false
 [node name="Collision" parent="Airport/Ground" index="0"]
 disabled = true
 
-[node name="Camera3D" parent="Airport" index="4"]
+[node name="Camera3D" parent="Airport" index="3"]
 visible = false
 current = false
 script = null

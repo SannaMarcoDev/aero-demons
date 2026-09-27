@@ -25,7 +25,6 @@
 [ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Runway_2_Threshold.tscn" id="23"]
 [ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Road_2.tscn" id="24"]
 [ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Road_Connection_01.tscn" id="25"]
-[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Cone_1.tscn" id="26"]
 [ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Fence_7.tscn" id="27"]
 [ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_SecurityCamera.tscn" id="28"]
 [ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_FuelPipe_3.tscn" id="29"]
@@ -52,7 +51,6 @@
 [ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Missile_Pallet_2.tscn" id="50"]
 [ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Ground_2.tscn" id="51"]
 [ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Fence_4.tscn" id="52"]
-[ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Cone_2_Bollard.tscn" id="53"]
 [ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Roadblock_2.tscn" id="54"]
 [ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Hangar.tscn" id="55"]
 [ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Gate_Island.tscn" id="56"]
@@ -93,7 +91,6 @@
 [ext_resource type="Texture2D" uid="uid://cldw3bprx80ml" path="res://assets/environment/military_airport/textures/Decals/T_TurnDecal_1_BC.png" id="decal_1"]
 [ext_resource type="Texture2D" uid="uid://bqrvmuool5ttu" path="res://assets/environment/military_airport/textures/Decals/T_TurnDecal_2_BC.png" id="decal_2"]
 [ext_resource type="Texture2D" uid="uid://xshrt3fah3tg" path="res://assets/environment/military_airport/textures/Decals/T_TurnDecal_3_BC.png" id="decal_3"]
-[ext_resource type="PackedScene" path="res://assets/environment/military_airport/foliage/AirbaseDemoMap.scn" id="foliage"]
 
 [sub_resource type="ProceduralSkyMaterial" id="SkyMat"]
 sky_top_color = Color(0.22, 0.39, 0.6, 1)
@@ -128,102 +125,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -89, -13.55, -390)
 
 [node name="Collision" type="CollisionShape3D" parent="Ground" unique_id=1274042295]
 shape = SubResource("GroundShape")
-
-[node name="Foliage" parent="." unique_id=929747631 instance=ExtResource("foliage")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -789, -13.5, 610)
-
-[node name="ElmTree_6_3" parent="Foliage" index="11"]
-visible = false
-
-[node name="ElmTree_6_4" parent="Foliage" index="12"]
-visible = false
-
-[node name="ElmTree_6_5" parent="Foliage" index="13"]
-visible = false
-
-[node name="ElmTree_5_5" parent="Foliage" index="14"]
-visible = false
-
-[node name="ElmTree_6_6" parent="Foliage" index="15"]
-visible = false
-
-[node name="ElmTree_2_5" parent="Foliage" index="16"]
-visible = false
-
-[node name="ElmTree_1_5" parent="Foliage" index="17"]
-visible = false
-
-[node name="ElmTree_1_4" parent="Foliage" index="18"]
-visible = false
-
-[node name="ElmTree_1_3" parent="Foliage" index="19"]
-visible = false
-
-[node name="ElmTree_1_2" parent="Foliage" index="20"]
-visible = false
-
-[node name="ElmTree_7_6" parent="Foliage" index="21"]
-visible = false
-
-[node name="ElmTree_7_5" parent="Foliage" index="22"]
-visible = false
-
-[node name="ElmTree_7_4" parent="Foliage" index="23"]
-visible = false
-
-[node name="ElmTree_7_3" parent="Foliage" index="24"]
-visible = false
-
-[node name="ElmTree_6_2" parent="Foliage" index="25"]
-visible = false
-
-[node name="ElmTree_7_2" parent="Foliage" index="26"]
-visible = false
-
-[node name="ElmTree_5_2" parent="Foliage" index="27"]
-visible = false
-
-[node name="ElmTree_4_2" parent="Foliage" index="28"]
-visible = false
-
-[node name="ElmTree_3_2" parent="Foliage" index="29"]
-visible = false
-
-[node name="ElmTree_2_2" parent="Foliage" index="30"]
-visible = false
-
-[node name="ElmTree_0_3" parent="Foliage" index="31"]
-visible = false
-
-[node name="ElmTree_0_2" parent="Foliage" index="32"]
-visible = false
-
-[node name="ElmTree_0_4" parent="Foliage" index="33"]
-visible = false
-
-[node name="ElmTree_0_5" parent="Foliage" index="34"]
-visible = false
-
-[node name="ElmTree_1_6" parent="Foliage" index="35"]
-visible = false
-
-[node name="ElmTree_0_6" parent="Foliage" index="36"]
-visible = false
-
-[node name="ElmTree_2_6" parent="Foliage" index="37"]
-visible = false
-
-[node name="ElmTree_3_6" parent="Foliage" index="38"]
-visible = false
-
-[node name="ElmTree_4_6" parent="Foliage" index="39"]
-visible = false
-
-[node name="ElmTree_5_6" parent="Foliage" index="40"]
-visible = false
-
-[node name="ElmTree_5_4" parent="Foliage" index="41"]
-visible = false
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=339772347]
 transform = Transform3D(1, 0, 0, 0, 0.7431448, 0.6691306, 0, -0.6691306, 0.7431448, -95, 360, 460)
@@ -628,60 +529,6 @@ transform = Transform3D(1.4142136e-06, 0, -1, 0, 1, 0, 1, 0, 1.4142136e-06, -183
 [node name="SM_Fence_5_Gate4_1030972774" parent="Meshes_2083832207" unique_id=908130683 instance=ExtResource("79")]
 transform = Transform3D(0.8660233, 0, 0.5000037, 0, 1, 0, -0.5000037, 0, 0.8660233, -185.50975, 0.27999878, -100.84149)
 
-[node name="SM_Cone_2_1030972790" parent="Meshes_2083832207" unique_id=1752067605 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -203.24976, 0.27999878, -108.611496)
-
-[node name="SM_Cone_2_Bollard10_1030972806" parent="Meshes_2083832207" unique_id=276912407 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -188.91975, 0.27999878, -103.01149)
-
-[node name="SM_Cone_2_Bollard11_1030972822" parent="Meshes_2083832207" unique_id=1028855348 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -188.91975, 0.27999878, -105.01149)
-
-[node name="SM_Cone_2_Bollard12_1030972838" parent="Meshes_2083832207" unique_id=1656767376 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -188.91975, 0.27999878, -107.01149)
-
-[node name="SM_Cone_2_Bollard13_1030972854" parent="Meshes_2083832207" unique_id=1297256859 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -188.91975, 0.27999878, -109.01149)
-
-[node name="SM_Cone_2_Bollard14_1030972870" parent="Meshes_2083832207" unique_id=829916437 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -188.91975, 0.27999878, -111.01149)
-
-[node name="SM_Cone_2_Bollard15_1030972886" parent="Meshes_2083832207" unique_id=1583683039 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -188.91975, 0.27999878, -113.01149)
-
-[node name="SM_Cone_2_Bollard16_1030972902" parent="Meshes_2083832207" unique_id=2018622550 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -188.91975, 0.27999878, -115.01149)
-
-[node name="SM_Cone_2_Bollard17_1030972918" parent="Meshes_2083832207" unique_id=2030364927 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -188.91975, 0.27999878, -117.01149)
-
-[node name="SM_Cone_4_1030972934" parent="Meshes_2083832207" unique_id=291315702 instance=ExtResource("26")]
-transform = Transform3D(0.4226198, 0, 0.9063071, 0, 1, 0, -0.9063071, 0, 0.4226198, -203.24976, 0.24999905, -113.51149)
-
-[node name="SM_Cone_5_1030972950" parent="Meshes_2083832207" unique_id=112236084 instance=ExtResource("26")]
-transform = Transform3D(0.3420208, 0, 0.9396924, 0, 1, 0, -0.9396924, 0, 0.3420208, -209.68976, 0.2499981, -131.93149)
-
-[node name="SM_Cone_6_1030972966" parent="Meshes_2083832207" unique_id=1697332508 instance=ExtResource("26")]
-transform = Transform3D(0.9961946, 0, -0.08715699, 0, 1, 0, 0.08715699, 0, 0.9961946, -208.51974, 0.24999905, -125.431496)
-
-[node name="SM_Cone_7_1030972982" parent="Meshes_2083832207" unique_id=60540951 instance=ExtResource("26")]
-transform = Transform3D(-0.1736498, 0, 0.9848075, 0, 1, 0, -0.9848075, 0, -0.1736498, -208.99976, 0.2499981, -129.04149)
-
-[node name="SM_Cone_8_1030972998" parent="Meshes_2083832207" unique_id=1770918318 instance=ExtResource("26")]
-transform = Transform3D(-0.25882038, 0, 0.96592546, 0, 1, 0, -0.96592546, 0, -0.25882038, -210.05975, 0.2499981, -134.6915)
-
-[node name="SM_Cone_9_1030973014" parent="Meshes_2083832207" unique_id=441980839 instance=ExtResource("26")]
-transform = Transform3D(-0.49999955, 0, -0.8660257, 0, 1, 0, 0.8660257, 0, -0.49999955, -210.12976, 0.2499981, -137.9215)
-
-[node name="SM_Cone_10_1030973030" parent="Meshes_2083832207" unique_id=1406967840 instance=ExtResource("26")]
-transform = Transform3D(0.25882038, 0, -0.96592546, 0, 1, 0, 0.96592546, 0, 0.25882038, -210.05975, 0.2499981, -140.85149)
-
-[node name="SM_Cone_14_1030973046" parent="Meshes_2083832207" unique_id=981567553 instance=ExtResource("26")]
-transform = Transform3D(-0.3420208, 0, 0.9396924, 0, 1, 0, -0.9396924, 0, -0.3420208, -196.93976, 0.25999832, -116.45149)
-
-[node name="SM_Cone_15_1030973062" parent="Meshes_2083832207" unique_id=275216023 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -200.91975, 0.25999832, -115.571495)
-
 [node name="SM_Sign_1_GateClosed_9_1030973078" parent="Meshes_2083832207" unique_id=1440347687 instance=ExtResource("78")]
 transform = Transform3D(1.4142136e-06, 0, -1, 0, 1, 0, 1, 0, 1.4142136e-06, -196.21976, 2.6399984, -100.81149)
 
@@ -1003,9 +850,6 @@ transform = Transform3D(-1.8463979e-06, 0, 1, 0, 1, 0, -0.6400003, 0, -2.8849954
 [node name="SM_Hangar_Building_8_1030974838" parent="Meshes_2083832207" unique_id=1175668497 instance=ExtResource("35")]
 transform = Transform3D(0.9396928, 0, -0.34201974, 0, 1, 0, 0.34201974, 0, 0.9396928, -173.35706, -0.32000065, -41.978123)
 
-[node name="SM_Cone_2_Bollard18_15_1030974854" parent="Meshes_2083832207" unique_id=608442731 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -188.91975, 0.27999878, -119.01149)
-
 [node name="SM_Ground_10_1030974870" parent="Meshes_2083832207" unique_id=1791257181 instance=ExtResource("47")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -150.81976, 0.25, -0.491495)
 
@@ -1083,9 +927,6 @@ transform = Transform3D(-4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, -4.2426404e-06, -1
 
 [node name="SM_Roadblock_2_1030975310" parent="Meshes_2083832207" unique_id=624713012 instance=ExtResource("33")]
 transform = Transform3D(-4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, -4.2426404e-06, -199.04974, 0.1599989, -82.67149)
-
-[node name="SM_Cone_2_Bollard23_1030975326" parent="Meshes_2083832207" unique_id=390162411 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -193.16975, 0.27999973, -68.12149)
 
 [node name="SM_Fence_58_1030975342" parent="Meshes_2083832207" unique_id=555975300 instance=ExtResource("61")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -195.39975, 0.2699995, -77.95149)
@@ -1390,15 +1231,6 @@ transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -245.3
 [node name="SM_TrafficBarrier_423_1030977198" parent="Meshes_2083832207" unique_id=596653043 instance=ExtResource("31")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -240.45975, 0.3399992, -42.201496)
 
-[node name="SM_Cone_2_Bollard27_438_1030977214" parent="Meshes_2083832207" unique_id=1138571340 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -207.25975, 0.27999973, -69.27149)
-
-[node name="SM_Cone_2_Bollard28_441_1030977230" parent="Meshes_2083832207" unique_id=104058440 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -208.68976, 0.27999973, -66.931496)
-
-[node name="SM_Cone_2_Bollard29_444_1030977246" parent="Meshes_2083832207" unique_id=1153618933 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -210.42975, 0.27999973, -64.501495)
-
 [node name="SM_Watchtower6_1030977334" parent="Meshes_2083832207" unique_id=1091712488 instance=ExtResource("75")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -432.82977, -0.6899996, 26.5487)
 
@@ -1408,32 +1240,8 @@ transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -183.2
 [node name="SM_Sign_3_SpeedLimit5_1030977366" parent="Meshes_2083832207" unique_id=500290360 instance=ExtResource("15")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -194.63976, 0.2699995, -78.40149)
 
-[node name="SM_Cone_2_Bollard30_1030977382" parent="Meshes_2083832207" unique_id=308882541 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -193.66975, 0.27999973, -49.831497)
-
 [node name="SM_Fence_40_1030977398" parent="Meshes_2083832207" unique_id=1002608210 instance=ExtResource("81")]
 transform = Transform3D(-4.2426404e-06, 0, 1, 0, 1, 0, -1, 0, -4.2426404e-06, -183.21976, 0.27999878, -100.84149)
-
-[node name="SM_Cone_2_Bollard22_1030977414" parent="Meshes_2083832207" unique_id=1815844300 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -188.91975, 0.27999878, -99.01149)
-
-[node name="SM_Cone_2_Bollard31_1030977430" parent="Meshes_2083832207" unique_id=1749564504 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -188.91975, 0.27999878, -101.01149)
-
-[node name="SM_Cone_2_Bollard32_1030977446" parent="Meshes_2083832207" unique_id=1846197322 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -188.91975, 0.27999878, -95.01149)
-
-[node name="SM_Cone_2_Bollard33_1030977462" parent="Meshes_2083832207" unique_id=774488913 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -188.91975, 0.27999878, -97.01149)
-
-[node name="SM_Cone_2_Bollard34_1030977478" parent="Meshes_2083832207" unique_id=761542486 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -188.91975, 0.27999878, -91.01149)
-
-[node name="SM_Cone_2_Bollard35_1030977494" parent="Meshes_2083832207" unique_id=1385935098 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -188.91975, 0.27999878, -93.01149)
-
-[node name="SM_Cone_2_Bollard37_1030977510" parent="Meshes_2083832207" unique_id=2070497883 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -188.91975, 0.27999878, -89.01149)
 
 [node name="SM_Barrel_Stack_4_1030977526" parent="Meshes_2083832207" unique_id=1064985829 instance=ExtResource("76")]
 transform = Transform3D(0.4226198, 0, 0.9063071, 0, 1, 0, -0.9063071, 0, 0.4226198, -175.25336, 0.25, -23.87614)
@@ -1503,12 +1311,6 @@ transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -178.4
 
 [node name="SM_Barrel_Stack_80_1030977878" parent="Meshes_2083832207" unique_id=1458933651 instance=ExtResource("38")]
 transform = Transform3D(-0.500002, 0, 0.86602426, 0, 1, 0, -0.86602426, 0, -0.500002, -180.57976, 0.23999977, -41.451496)
-
-[node name="SM_Cone_83_1030977894" parent="Meshes_2083832207" unique_id=272755283 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -182.42975, 0.23999977, -29.781494)
-
-[node name="SM_Cone_11_1030977910" parent="Meshes_2083832207" unique_id=917311564 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -182.42975, 0.23999977, -22.111494)
 
 [node name="SM_Pallet_4_Combined2_87_1030977926" parent="Meshes_2083832207" unique_id=479605609 instance=ExtResource("49")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -181.86975, 0.25, -36.371494)
@@ -1596,18 +1398,6 @@ transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -150.2
 
 [node name="SM_Barrel_Stack_173_1030978374" parent="Meshes_2083832207" unique_id=1665903773 instance=ExtResource("38")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -150.28975, 1.46, -27.421494)
-
-[node name="SM_Cone_176_1030978390" parent="Meshes_2083832207" unique_id=150219865 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -149.55975, 0.27999973, -40.041496)
-
-[node name="SM_Cone_17_1030978406" parent="Meshes_2083832207" unique_id=739212917 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -149.76974, 0.27999973, -37.441498)
-
-[node name="SM_Cone_19_1030978422" parent="Meshes_2083832207" unique_id=736586110 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -150.04976, 0.27999973, -34.861496)
-
-[node name="SM_Cone_20_1030978438" parent="Meshes_2083832207" unique_id=1957238706 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -150.04976, 0.27999973, -47.861496)
 
 [node name="SM_Fence_52_1030978454" parent="Meshes_2083832207" unique_id=617746245 instance=ExtResource("52")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -151.00972, 0.25, -15.361495)
@@ -1698,9 +1488,6 @@ transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -183.9
 
 [node name="SM_Roadblock_10_1030978918" parent="Meshes_2083832207" unique_id=796871294 instance=ExtResource("33")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -182.69377, 0.23999977, -26.2813)
-
-[node name="SM_Cone_21_1030978934" parent="Meshes_2083832207" unique_id=819563729 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -182.42975, 0.23999977, -27.761494)
 
 [node name="SM_Fence_59_1030978950" parent="Meshes_2083832207" unique_id=1753352532 instance=ExtResource("27")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -0.850162, -195.36476, 0.2699995, -48.91562)
@@ -1806,12 +1593,6 @@ transform = Transform3D(-0.7071058, 0, 0.7071078, 0, 1, 0, -0.7071078, 0, -0.707
 
 [node name="SM_FloodLight_43_1030979494" parent="Meshes_2083832207" unique_id=1804434425 instance=ExtResource("69")]
 transform = Transform3D(0.7071032, 0, 0.7071104, 0, 1, 0, -0.7071104, 0, 0.7071032, -182.24979, 0.030000687, 23.508495)
-
-[node name="SM_Cone_22_1030979510" parent="Meshes_2083832207" unique_id=1978815709 instance=ExtResource("26")]
-transform = Transform3D(0.16823849, -0.74856687, 0.64136064, -0.9756626, -0.21927735, 3.6652546e-07, 0.1406356, -0.6257517, -0.7672395, -149.02975, 0.53999996, -41.501495)
-
-[node name="SM_Cone_23_1030979526" parent="Meshes_2083832207" unique_id=1498141143 instance=ExtResource("26")]
-transform = Transform3D(-0.078715906, 0.3502226, 0.93335307, -0.9756596, -0.21929055, 6.184256e-07, 0.20467572, -0.9106348, 0.35895967, -182.12976, 0.5, -12.221496)
 
 [node name="SM_Fence_307_1030979542" parent="Meshes_2083832207" unique_id=42558066 instance=ExtResource("61")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -261.90976, 0.25, -11.241495)
@@ -1954,33 +1735,6 @@ transform = Transform3D(-0.81915295, 0, 0.57357514, 0, 1, 0, -0.57357514, 0, -0.
 [node name="SM_Sign_2_NoPasses3_1030980278" parent="Meshes_2083832207" unique_id=1194576558 instance=ExtResource("77")]
 transform = Transform3D(1.4142136e-06, 0, -1, 0, 1, 0, 1, 0, 1.4142136e-06, -274.08975, 2.9099998, -42.241497)
 
-[node name="SM_Cone_2_Bollard_433_1030980294" parent="Meshes_2083832207" unique_id=1580401226 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -259.81976, 0.27999973, -50.841496)
-
-[node name="SM_Cone_2_Bollard2_1030980310" parent="Meshes_2083832207" unique_id=1399034424 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -262.81976, 0.27999973, -50.841496)
-
-[node name="SM_Cone_2_Bollard3_1030980326" parent="Meshes_2083832207" unique_id=107534145 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -265.81976, 0.27999973, -50.841496)
-
-[node name="SM_Cone_2_Bollard4_1030980342" parent="Meshes_2083832207" unique_id=946460468 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -268.81976, 0.27999973, -50.841496)
-
-[node name="SM_Cone_2_Bollard5_1030980358" parent="Meshes_2083832207" unique_id=1603483946 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -271.81976, 0.27999973, -50.841496)
-
-[node name="SM_Cone_2_Bollard6_1030980374" parent="Meshes_2083832207" unique_id=208202745 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -276.01978, 0.27999973, -50.841496)
-
-[node name="SM_Cone_2_Bollard7_1030980390" parent="Meshes_2083832207" unique_id=1966255994 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -279.01978, 0.27999973, -50.841496)
-
-[node name="SM_Cone_2_Bollard8_1030980406" parent="Meshes_2083832207" unique_id=144254905 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -282.01978, 0.27999973, -50.841496)
-
-[node name="SM_Cone_2_Bollard9_1030980422" parent="Meshes_2083832207" unique_id=262487134 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -285.01978, 0.27999973, -50.841496)
-
 [node name="SM_DrainPipe_459_1030980438" parent="Meshes_2083832207" unique_id=78605815 instance=ExtResource("34")]
 transform = Transform3D(0.9961946, 0, 0.08715699, 0, 1, 0, -0.08715699, 0, 0.9961946, -284.37976, 0.4499998, -12.141495)
 
@@ -2083,9 +1837,6 @@ transform = Transform3D(-0.08715697, 0, 0.9961946, 0, 1, 0, -0.9961946, 0, -0.08
 [node name="SM_Pallet_3_Combined6_102_1030981206" parent="Meshes_2083832207" unique_id=1194524081 instance=ExtResource("32")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -295.45975, 0.34000015, -27.231495)
 
-[node name="SM_Cone_26_1030981254" parent="Meshes_2083832207" unique_id=747884165 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -296.39975, 0.34000015, -17.851494)
-
 [node name="SM_Barrel_Stack_110_1030981270" parent="Meshes_2083832207" unique_id=164072577 instance=ExtResource("76")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -310.93976, 0.3399992, -36.861496)
 
@@ -2112,84 +1863,6 @@ transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -73.79975, 0.28999996, -48.
 
 [node name="SM_SpeedBump10_1030981478" parent="Meshes_2083832207" unique_id=2142663433 instance=ExtResource("6")]
 transform = Transform3D(1.4142136e-06, 0, -1, 0, 1, 0, 1, 0, 1.4142136e-06, -44.819756, 0.27999973, -30.161493)
-
-[node name="SM_Cone_2_Bollard36_143_1030981494" parent="Meshes_2083832207" unique_id=654169017 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -146.04976, 0.27999973, -59.441498)
-
-[node name="SM_Cone_2_Bollard38_1030981510" parent="Meshes_2083832207" unique_id=2057891779 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -143.04976, 0.27999973, -59.441498)
-
-[node name="SM_Cone_2_Bollard39_1030981526" parent="Meshes_2083832207" unique_id=202343387 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -140.04976, 0.27999973, -59.441498)
-
-[node name="SM_Cone_2_Bollard40_1030981542" parent="Meshes_2083832207" unique_id=2054702101 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -137.04976, 0.27999973, -59.441498)
-
-[node name="SM_Cone_2_Bollard41_1030981558" parent="Meshes_2083832207" unique_id=551811644 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -134.04976, 0.27999973, -59.441498)
-
-[node name="SM_Cone_2_Bollard42_1030981574" parent="Meshes_2083832207" unique_id=226033106 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -131.04976, 0.27999973, -59.441498)
-
-[node name="SM_Cone_2_Bollard43_1030981590" parent="Meshes_2083832207" unique_id=822284740 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -128.04976, 0.27999973, -59.441498)
-
-[node name="SM_Cone_2_Bollard44_1030981606" parent="Meshes_2083832207" unique_id=1279104374 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -125.04976, 0.27999973, -59.441498)
-
-[node name="SM_Cone_2_Bollard45_1030981622" parent="Meshes_2083832207" unique_id=30043740 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -122.04976, 0.27999973, -59.441498)
-
-[node name="SM_Cone_2_Bollard46_1030981638" parent="Meshes_2083832207" unique_id=1669609204 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -146.04976, 0.27999973, -49.941498)
-
-[node name="SM_Cone_2_Bollard47_1030981654" parent="Meshes_2083832207" unique_id=652226512 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -143.04976, 0.27999973, -49.941498)
-
-[node name="SM_Cone_2_Bollard48_1030981670" parent="Meshes_2083832207" unique_id=1277842962 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -140.04976, 0.27999973, -49.941498)
-
-[node name="SM_Cone_2_Bollard56_1030981686" parent="Meshes_2083832207" unique_id=1508556127 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -116.04975, 0.27999973, -49.941498)
-
-[node name="SM_Cone_2_Bollard57_1030981702" parent="Meshes_2083832207" unique_id=2034673930 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -113.04975, 0.27999973, -49.941498)
-
-[node name="SM_Cone_2_Bollard58_1030981718" parent="Meshes_2083832207" unique_id=1599251000 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -110.04975, 0.27999973, -49.941498)
-
-[node name="SM_Cone_2_Bollard59_1030981734" parent="Meshes_2083832207" unique_id=18138271 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -107.04975, 0.27999973, -49.941498)
-
-[node name="SM_Cone_2_Bollard60_1030981750" parent="Meshes_2083832207" unique_id=1094298216 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -104.04975, 0.27999973, -49.941498)
-
-[node name="SM_Cone_2_Bollard61_1030981766" parent="Meshes_2083832207" unique_id=836267983 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -101.04975, 0.27999973, -49.941498)
-
-[node name="SM_Cone_2_Bollard62_1030981782" parent="Meshes_2083832207" unique_id=1857525130 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -98.04975, 0.27999973, -49.941498)
-
-[node name="SM_Cone_2_Bollard63_1030981798" parent="Meshes_2083832207" unique_id=946317757 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -95.04975, 0.27999973, -49.941498)
-
-[node name="SM_Cone_2_Bollard64_1030981814" parent="Meshes_2083832207" unique_id=217210115 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -193.66975, 0.27999973, -52.831497)
-
-[node name="SM_Cone_2_Bollard65_1030981830" parent="Meshes_2083832207" unique_id=724529601 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -193.66975, 0.27999973, -55.831497)
-
-[node name="SM_Cone_2_Bollard24_182_1030981846" parent="Meshes_2083832207" unique_id=7622856 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -193.16975, 0.27999878, -71.12149)
-
-[node name="SM_Cone_2_Bollard25_184_1030981862" parent="Meshes_2083832207" unique_id=2111228692 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -193.16975, 0.27999878, -74.12149)
-
-[node name="SM_Cone_2_Bollard26_186_1030981878" parent="Meshes_2083832207" unique_id=450861776 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -193.16975, 0.27999878, -77.12149)
-
-[node name="SM_Cone_2_Bollard66_188_1030981894" parent="Meshes_2083832207" unique_id=1511815978 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -193.16975, 0.27999878, -80.12149)
 
 [node name="SM_Roadblock_191_1030981910" parent="Meshes_2083832207" unique_id=120366336 instance=ExtResource("54")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -220.70975, -0.12000084, -100.55149)
@@ -2443,30 +2116,6 @@ transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -293.8
 [node name="SM_Crate_Stack_347_1030983238" parent="Meshes_2083832207" unique_id=759483125 instance=ExtResource("37")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -298.80975, 0.2699995, -83.08149)
 
-[node name="SM_Cone_350_1030983254" parent="Meshes_2083832207" unique_id=375548924 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -293.10974, 0.2699995, -72.861496)
-
-[node name="SM_Cone_28_1030983270" parent="Meshes_2083832207" unique_id=2096452138 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -293.10974, 0.3399992, -72.861496)
-
-[node name="SM_Cone_29_1030983286" parent="Meshes_2083832207" unique_id=1697165623 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -293.10974, 0.4099989, -72.861496)
-
-[node name="SM_Cone_30_1030983302" parent="Meshes_2083832207" unique_id=2025403974 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -293.29974, 0.2699995, -71.98149)
-
-[node name="SM_Cone_31_1030983318" parent="Meshes_2083832207" unique_id=979533350 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -293.29974, 0.3399992, -71.98149)
-
-[node name="SM_Cone_32_1030983334" parent="Meshes_2083832207" unique_id=480419158 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -293.29974, 0.4099989, -71.98149)
-
-[node name="SM_Cone_33_1030983350" parent="Meshes_2083832207" unique_id=108008406 instance=ExtResource("26")]
-transform = Transform3D(0.13789837, -0.61352056, 0.7775452, -0.9756589, -0.21929371, 7.391219e-07, 0.17051032, -0.758619, -0.62882704, -294.18976, 0.5299988, -71.111496)
-
-[node name="SM_Cone_34_1030983366" parent="Meshes_2083832207" unique_id=470541466 instance=ExtResource("26")]
-transform = Transform3D(0.18188341, -0.80920297, -0.5586672, -0.9756581, -0.21929711, -2.685707e-07, -0.122513875, 0.5450682, -0.82939196, -294.51978, 0.5299988, -73.09149)
-
 [node name="SM_Container13_361_1030983382" parent="Meshes_2083832207" unique_id=663653532 instance=ExtResource("48")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -304.45975, 0.2699995, -64.95149)
 
@@ -2505,45 +2154,6 @@ transform = Transform3D(-0.9396921, 0, -0.34202158, 0, 1, 0, 0.34202158, 0, -0.9
 
 [node name="SM_TrafficBarrier_390_1030983574" parent="Meshes_2083832207" unique_id=1377981031 instance=ExtResource("31")]
 transform = Transform3D(0.5000005, 0, -0.8660251, 0, 1, 0, 0.8660251, 0, 0.5000005, -299.06976, 0.2699995, -66.84149)
-
-[node name="SM_Cone_2_Bollard19_393_1030983590" parent="Meshes_2083832207" unique_id=784697889 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -317.51978, 0.27999973, -60.181496)
-
-[node name="SM_Cone_2_Bollard20_1030983606" parent="Meshes_2083832207" unique_id=1374302268 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -314.51978, 0.27999973, -60.181496)
-
-[node name="SM_Cone_2_Bollard21_1030983622" parent="Meshes_2083832207" unique_id=461414798 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -308.56976, 0.27999973, -60.181496)
-
-[node name="SM_Cone_2_Bollard67_1030983638" parent="Meshes_2083832207" unique_id=1460061925 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -305.56976, 0.27999973, -60.181496)
-
-[node name="SM_Cone_2_Bollard68_1030983654" parent="Meshes_2083832207" unique_id=871960897 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -329.61975, 0.27999973, -60.181496)
-
-[node name="SM_Cone_2_Bollard69_1030983670" parent="Meshes_2083832207" unique_id=1403916370 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -326.61975, 0.27999973, -60.181496)
-
-[node name="SM_Cone_2_Bollard70_1030983686" parent="Meshes_2083832207" unique_id=1094329655 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -335.61975, 0.27999973, -60.181496)
-
-[node name="SM_Cone_2_Bollard71_1030983702" parent="Meshes_2083832207" unique_id=1514544305 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -332.61975, 0.27999973, -60.181496)
-
-[node name="SM_Cone_2_Bollard72_1030983718" parent="Meshes_2083832207" unique_id=1906743255 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -338.61975, 0.27999973, -60.181496)
-
-[node name="SM_Cone_2_Bollard73_1030983734" parent="Meshes_2083832207" unique_id=1444201963 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -302.56976, 0.27999973, -60.181496)
-
-[node name="SM_Cone_408_1030983750" parent="Meshes_2083832207" unique_id=1014226960 instance=ExtResource("26")]
-transform = Transform3D(-0.1736498, 0, 0.9848075, 0, 1, 0, -0.9848075, 0, -0.1736498, -304.86975, 0.27999973, -50.781498)
-
-[node name="SM_Cone_36_1030983766" parent="Meshes_2083832207" unique_id=1828601057 instance=ExtResource("26")]
-transform = Transform3D(-0.96592593, 0, 0.25881866, 0, 1, 0, -0.25881866, 0, -0.96592593, -300.60974, 0.27999973, -50.681496)
-
-[node name="SM_Cone_37_1030983782" parent="Meshes_2083832207" unique_id=968414079 instance=ExtResource("26")]
-transform = Transform3D(0.4226198, 0, -0.9063071, 0, 1, 0, 0.9063071, 0, 0.4226198, -295.33975, 0.27999973, -50.841496)
 
 [node name="SM_Crate_Stack_413_1030983798" parent="Meshes_2083832207" unique_id=1744576731 instance=ExtResource("39")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -318.70975, 0.2699995, -63.861496)
@@ -2857,9 +2467,6 @@ transform = Transform3D(1.4142136e-06, 0, -1, 0, 1, 0, 1, 0, 1.4142136e-06, -29.
 [node name="SM_Roadblock_601_1030985462" parent="Meshes_2083832207" unique_id=2057506246 instance=ExtResource("54")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -44.379753, 0.25, 20.738506)
 
-[node name="SM_Cone_2_Bollard74_604_1030985478" parent="Meshes_2083832207" unique_id=1306301038 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -44.049755, 0.26000023, -5.3314953)
-
 [node name="SM_FloodLight_607_1030985494" parent="Meshes_2083832207" unique_id=1924318744 instance=ExtResource("74")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -42.889755, 3.4899998, 3.348505)
 
@@ -2871,12 +2478,6 @@ transform = Transform3D(0.70710754, 0, 0.707106, 0, 1, 0, -0.707106, 0, 0.707107
 
 [node name="SM_FloodLight_4_Single6_1030985542" parent="Meshes_2083832207" unique_id=610429121 instance=ExtResource("18")]
 transform = Transform3D(0.7071058, 0, -0.7071078, 0, 1, 0, 0.7071078, 0, 0.7071058, -45.159756, 3.4899998, 1.178505)
-
-[node name="SM_Cone_620_1030985558" parent="Meshes_2083832207" unique_id=135276572 instance=ExtResource("26")]
-transform = Transform3D(0.3420208, 0, 0.9396924, 0, 1, 0, -0.9396924, 0, 0.3420208, -39.219753, 0.25, 5.7685046)
-
-[node name="SM_Cone_39_1030985574" parent="Meshes_2083832207" unique_id=1687895934 instance=ExtResource("26")]
-transform = Transform3D(-0.9961948, 0, 0.08715499, 0, 1, 0, -0.08715499, 0, -0.9961948, -37.059753, 0.25, 5.5385046)
 
 [node name="SM_Roadblock_88_1030985590" parent="Meshes_2083832207" unique_id=1403236546 instance=ExtResource("33")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -41.469753, 0.26000023, -3.881495)
@@ -2979,15 +2580,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1.06997, -322.12976, 0.32999992,
 
 [node name="SM_Ground_SideCap43_692_1030986118" parent="Meshes_2083832207" unique_id=614369102 instance=ExtResource("12")]
 transform = Transform3D(1.4142136e-06, 0, 1.0699692, 0, 1, 0, -1, 0, 1.5131649e-06, -314.22974, 0.3199997, -9.3414955)
-
-[node name="SM_Cone_2_Bollard49_1030986134" parent="Meshes_2083832207" unique_id=487624892 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -212.31976, 0.27999973, -62.271496)
-
-[node name="SM_Cone_2_Bollard50_1030986150" parent="Meshes_2083832207" unique_id=1104698844 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -214.01974, 0.27999973, -60.391495)
-
-[node name="SM_Cone_2_Bollard51_701_1030986166" parent="Meshes_2083832207" unique_id=597620259 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -206.11975, 0.27999878, -71.55149)
 
 [node name="SM_TrafficBarrier_42_1030986182" parent="Meshes_2083832207" unique_id=238825032 instance=ExtResource("31")]
 transform = Transform3D(-0.6427881, 0, 0.766044, 0, 1, 0, -0.766044, 0, -0.6427881, -209.32976, 0.24999905, -114.69149)
@@ -5176,12 +4768,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, -1, -44.839752, 3.0200005, 1.918
 [node name="SM_SecurityCamera13_1030997830" parent="Meshes_2083832207" unique_id=540086919 instance=ExtResource("28")]
 transform = Transform3D(2.220446e-16, 0, -1, 0, 1, 0, 1, 0, 2.220446e-16, -41.069756, 3.0200005, 1.538505)
 
-[node name="SM_Cone_2_Bollard52_1567_1030997846" parent="Meshes_2083832207" unique_id=2139399022 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -46.279755, 0.27999973, 3.638505)
-
-[node name="SM_Cone_2_Bollard53_1030997862" parent="Meshes_2083832207" unique_id=1040449097 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -46.279755, 0.27999973, 6.638505)
-
 [node name="SM_FloodLight_4_Single9_1030997878" parent="Meshes_2083832207" unique_id=2140116240 instance=ExtResource("18")]
 transform = Transform3D(-0.70710886, 0, -0.7071047, 0, 1, 0, 0.7071047, 0, -0.70710886, -40.459755, 3.4899998, 1.178505)
 
@@ -5199,27 +4785,6 @@ transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -322.2
 
 [node name="SM_FloodLight_84_1030997958" parent="Meshes_2083832207" unique_id=1588626551 instance=ExtResource("40")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -75.12975, 0.0899992, -61.151497)
-
-[node name="SM_Cone_2_Bollard54_1030997974" parent="Meshes_2083832207" unique_id=2088104784 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -46.279755, 0.27999973, -10.361495)
-
-[node name="SM_Cone_2_Bollard55_1030997990" parent="Meshes_2083832207" unique_id=1095149310 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -46.279755, 0.27999973, -7.361495)
-
-[node name="SM_Cone_2_Bollard75_1030998006" parent="Meshes_2083832207" unique_id=316306157 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -46.279755, 0.27999973, -16.361494)
-
-[node name="SM_Cone_2_Bollard76_1030998022" parent="Meshes_2083832207" unique_id=342095912 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -46.279755, 0.27999973, -13.361495)
-
-[node name="SM_Cone_2_Bollard77_1030998038" parent="Meshes_2083832207" unique_id=918856018 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -46.279755, 0.27999973, -22.361494)
-
-[node name="SM_Cone_2_Bollard78_1030998054" parent="Meshes_2083832207" unique_id=1034754371 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -46.279755, 0.27999973, -19.361494)
-
-[node name="SM_Cone_2_Bollard79_1030998070" parent="Meshes_2083832207" unique_id=1035443076 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -46.279755, 0.2800007, 9.638505)
 
 [node name="SM_Barrel_Stack_1586_1030998086" parent="Meshes_2083832207" unique_id=1438969530 instance=ExtResource("76")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -135.07976, -2.7199993, -11.601495)
@@ -5262,63 +4827,6 @@ transform = Transform3D(1.4142136e-06, 0, -1, 0, 1, 0, 1, 0, 1.4142136e-06, -126
 
 [node name="SM_FloodLight_85_1030998294" parent="Meshes_2083832207" unique_id=1625364555 instance=ExtResource("40")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -53.469753, -0.21000099, -100.38149)
-
-[node name="SM_Cone_2_Bollard80_1030998310" parent="Meshes_2083832207" unique_id=1158082238 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -208.11975, 0.27999878, -91.01149)
-
-[node name="SM_Cone_2_Bollard81_1030998326" parent="Meshes_2083832207" unique_id=2039586 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -208.11975, 0.27999878, -89.01149)
-
-[node name="SM_Cone_2_Bollard82_1030998342" parent="Meshes_2083832207" unique_id=1924394289 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -208.11975, 0.27999878, -95.01149)
-
-[node name="SM_Cone_2_Bollard83_1030998358" parent="Meshes_2083832207" unique_id=1836408748 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -208.11975, 0.27999878, -93.01149)
-
-[node name="SM_Cone_2_Bollard84_1030998374" parent="Meshes_2083832207" unique_id=1377824733 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -208.11975, 0.27999878, -99.01149)
-
-[node name="SM_Cone_2_Bollard85_1030998390" parent="Meshes_2083832207" unique_id=1226435804 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -208.11975, 0.27999878, -97.01149)
-
-[node name="SM_Cone_2_Bollard86_1030998406" parent="Meshes_2083832207" unique_id=350503679 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -208.11975, 0.27999878, -104.01149)
-
-[node name="SM_Cone_2_Bollard87_1030998422" parent="Meshes_2083832207" unique_id=1666493664 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -208.11975, 0.27999878, -102.01149)
-
-[node name="SM_Cone_2_Bollard88_1030998438" parent="Meshes_2083832207" unique_id=1807511818 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -208.11975, 0.27999878, -111.01149)
-
-[node name="SM_Cone_2_Bollard89_1030998454" parent="Meshes_2083832207" unique_id=2144352906 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -208.11975, 0.27999878, -109.01149)
-
-[node name="SM_Cone_2_Bollard90_1030998470" parent="Meshes_2083832207" unique_id=574647099 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -208.11975, 0.27999878, -115.01149)
-
-[node name="SM_Cone_2_Bollard91_1030998486" parent="Meshes_2083832207" unique_id=111471222 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -208.11975, 0.27999878, -113.01149)
-
-[node name="SM_Cone_2_Bollard92_1030998502" parent="Meshes_2083832207" unique_id=716209265 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -208.11975, 0.27999878, -119.01149)
-
-[node name="SM_Cone_2_Bollard93_1030998518" parent="Meshes_2083832207" unique_id=1163532431 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -208.11975, 0.27999878, -117.01149)
-
-[node name="SM_Cone_2_Bollard94_1030998534" parent="Meshes_2083832207" unique_id=466408803 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -208.11975, 0.27999878, -121.01149)
-
-[node name="SM_Cone_2_Bollard95_1030998550" parent="Meshes_2083832207" unique_id=1514866321 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -208.11975, 0.27999878, -87.01149)
-
-[node name="SM_Cone_2_Bollard96_1030998566" parent="Meshes_2083832207" unique_id=1880825018 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -208.11975, 0.27999878, -85.01149)
-
-[node name="SM_Cone_2_Bollard97_1030998582" parent="Meshes_2083832207" unique_id=548682724 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -46.279755, 0.2800007, 12.638505)
-
-[node name="SM_Cone_2_Bollard98_1030998598" parent="Meshes_2083832207" unique_id=1380491751 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -46.279755, 0.2800007, 15.638505)
 
 [node name="SM_FloodLight_86_1030998614" parent="Meshes_2083832207" unique_id=457587749 instance=ExtResource("40")]
 transform = Transform3D(-0.70710886, 0, -0.7071047, 0, 1, 0, 0.7071047, 0, -0.70710886, -340.42975, 0.09999943, -27.051495)
@@ -5512,30 +5020,6 @@ transform = Transform3D(-0.011812719, 0, -0.9999302, 0, 1, 0, 0.9999302, 0, -0.0
 [node name="SM_Crate_Stack_44_1030999622" parent="Meshes_2083832207" unique_id=1585365419 instance=ExtResource("37")]
 transform = Transform3D(-0.9999302, 0, 0.011815788, 0, 1, 0, -0.011815788, 0, -0.9999302, -103.75412, 0.27000046, 20.90403)
 
-[node name="SM_Cone_40_1030999638" parent="Meshes_2083832207" unique_id=610126176 instance=ExtResource("26")]
-transform = Transform3D(-0.011812719, 0, -0.9999302, 0, 1, 0, 0.9999302, 0, -0.011812719, -109.33303, 0.27000046, 10.617425)
-
-[node name="SM_Cone_41_1030999654" parent="Meshes_2083832207" unique_id=1843340671 instance=ExtResource("26")]
-transform = Transform3D(-0.011812719, 0, -0.9999302, 0, 1, 0, 0.9999302, 0, -0.011812719, -109.33303, 0.34000015, 10.617425)
-
-[node name="SM_Cone_42_1030999670" parent="Meshes_2083832207" unique_id=543907212 instance=ExtResource("26")]
-transform = Transform3D(-0.011812719, 0, -0.9999302, 0, 1, 0, 0.9999302, 0, -0.011812719, -109.33303, 0.40999985, 10.617425)
-
-[node name="SM_Cone_43_1030999686" parent="Meshes_2083832207" unique_id=1496863508 instance=ExtResource("26")]
-transform = Transform3D(-0.011812719, 0, -0.9999302, 0, 1, 0, 0.9999302, 0, -0.011812719, -109.13265, 0.27000046, 9.739729)
-
-[node name="SM_Cone_44_1030999702" parent="Meshes_2083832207" unique_id=1473733736 instance=ExtResource("26")]
-transform = Transform3D(-0.011812719, 0, -0.9999302, 0, 1, 0, 0.9999302, 0, -0.011812719, -109.13265, 0.34000015, 9.739729)
-
-[node name="SM_Cone_45_1030999718" parent="Meshes_2083832207" unique_id=974107414 instance=ExtResource("26")]
-transform = Transform3D(-0.011812719, 0, -0.9999302, 0, 1, 0, 0.9999302, 0, -0.011812719, -109.13265, 0.40999985, 9.739729)
-
-[node name="SM_Cone_46_1030999734" parent="Meshes_2083832207" unique_id=144378834 instance=ExtResource("26")]
-transform = Transform3D(-0.13587707, 0.60451365, -0.7849208, -0.9756576, -0.21929954, -7.934342e-08, -0.17213282, 0.7658139, 0.6195961, -108.23244, 0.5300007, 8.880305)
-
-[node name="SM_Cone_47_1030999750" parent="Meshes_2083832207" unique_id=183557146 instance=ExtResource("26")]
-transform = Transform3D(-0.18332131, 0.8155817, 0.548835, -0.9756569, -0.21930248, 6.8862e-07, 0.12036143, -0.53547454, 0.8359307, -107.92585, 0.5300007, 10.864055)
-
 [node name="SM_Container15_1030999766" parent="Meshes_2083832207" unique_id=920670523 instance=ExtResource("48")]
 transform = Transform3D(-0.011812719, 0, -0.9999302, 0, 1, 0, 0.9999302, 0, -0.011812719, -97.8904, 0.27000046, 2.842021)
 
@@ -5674,12 +5158,6 @@ transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -107.451706, 0.24999905, -6
 [node name="SM_Barrel_Stack_49_1031000486" parent="Meshes_2083832207" unique_id=1781442958 instance=ExtResource("38")]
 transform = Transform3D(-0.8660233, 0, -0.5000037, 0, 1, 0, 0.5000037, 0, -0.8660233, -103.8417, 0.23999977, -63.659935)
 
-[node name="SM_Cone_3_1031000502" parent="Meshes_2083832207" unique_id=1785672009 instance=ExtResource("26")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -92.1717, 0.23999977, -61.809944)
-
-[node name="SM_Cone_12_1031000518" parent="Meshes_2083832207" unique_id=1090474163 instance=ExtResource("26")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -84.50169, 0.24999905, -61.80995)
-
 [node name="SM_Pallet_3_Combined15_1031000534" parent="Meshes_2083832207" unique_id=1079477107 instance=ExtResource("32")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -98.7417, 0.24999905, -62.669933)
 
@@ -5757,18 +5235,6 @@ transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -90.06173, 0.24999905, -91.
 
 [node name="SM_Barrel_Stack_54_1031000934" parent="Meshes_2083832207" unique_id=642723611 instance=ExtResource("38")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -90.06172, 1.4299994, -91.58995)
-
-[node name="SM_Cone_48_1031000950" parent="Meshes_2083832207" unique_id=1885915909 instance=ExtResource("26")]
-transform = Transform3D(-0.4999981, 0, 0.8660265, 0, 1, 0, -0.8660265, 0, -0.4999981, -111.70612, 0.2489481, -66.18677)
-
-[node name="SM_Cone_49_1031000966" parent="Meshes_2083832207" unique_id=1110018393 instance=ExtResource("26")]
-transform = Transform3D(-0.4999981, 0, 0.8660265, 0, 1, 0, -0.8660265, 0, -0.4999981, -110.26565, 0.2489481, -66.37179)
-
-[node name="SM_Cone_50_1031000982" parent="Meshes_2083832207" unique_id=86032975 instance=ExtResource("26")]
-transform = Transform3D(-0.4999981, 0, 0.8660265, 0, 1, 0, -0.8660265, 0, -0.4999981, -109.45861, 0.2489481, -65.91397)
-
-[node name="SM_Cone_51_1031000998" parent="Meshes_2083832207" unique_id=668872870 instance=ExtResource("26")]
-transform = Transform3D(-0.4999981, 0, 0.8660265, 0, 1, 0, -0.8660265, 0, -0.4999981, -110.144745, 0.2489481, -65.40236)
 
 [node name="SM_Fence_189_1031001014" parent="Meshes_2083832207" unique_id=572195870 instance=ExtResource("52")]
 transform = Transform3D(2.8849954e-06, 0, -1, 0, 1, 0, 1, 0, 2.8849954e-06, -77.751724, 0.24999905, -93.22999)
@@ -5860,20 +5326,11 @@ transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -69.0517, 0.27999973, -60.3
 [node name="SM_Roadblock_770_1031001478" parent="Meshes_2083832207" unique_id=345294400 instance=ExtResource("33")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -88.6715, 0.23999977, -61.54593)
 
-[node name="SM_Cone_52_1031001494" parent="Meshes_2083832207" unique_id=712904766 instance=ExtResource("26")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -90.1517, 0.24999905, -61.809944)
-
 [node name="SM_Fence_196_1031001510" parent="Meshes_2083832207" unique_id=1514294655 instance=ExtResource("54")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -110.20172, 0.23999882, -90.38992)
 
 [node name="SM_Ground_SideCap55_1031001526" parent="Meshes_2083832207" unique_id=1477281247 instance=ExtResource("12")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -63.551727, 0.24999905, -93.38997)
-
-[node name="SM_Cone_53_1031001542" parent="Meshes_2083832207" unique_id=179170821 instance=ExtResource("26")]
-transform = Transform3D(0.21601854, -0.96115315, 0.17181568, -0.9756621, -0.21927936, 3.4875677e-07, 0.037675295, -0.16763411, -0.9851291, -108.80317, 0.5089483, -64.39868)
-
-[node name="SM_Cone_54_1031001558" parent="Meshes_2083832207" unique_id=863579381 instance=ExtResource("26")]
-transform = Transform3D(0.20467639, -0.91063464, 0.35895982, -0.9756595, -0.21929099, 1.4120454e-06, 0.07871536, -0.35022286, -0.933353, -74.611694, 0.5199995, -62.109955)
 
 [node name="SM_Fence_197_1031001574" parent="Meshes_2083832207" unique_id=748580684 instance=ExtResource("61")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -63.511726, 0.23999882, -93.22999)
@@ -6096,15 +5553,6 @@ transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -73.8417, 1.1699991, -66.12
 
 [node name="SM_Pallet_3_Combined17_1031002742" parent="Meshes_2083832207" unique_id=2034057519 instance=ExtResource("32")]
 transform = Transform3D(0.031097623, 0, 0.99951637, 0, 1, 0, -0.99951637, 0, 0.031097623, -68.4517, 0.23999882, -69.45996)
-
-[node name="SM_Cone_243_1031002758" parent="Meshes_2083832207" unique_id=2012062332 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -69.499756, 0.23999882, -69.97149)
-
-[node name="SM_Cone_55_1031002774" parent="Meshes_2083832207" unique_id=256890746 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -70.32976, 0.22999954, -70.37149)
-
-[node name="SM_Cone_56_1031002790" parent="Meshes_2083832207" unique_id=1372183713 instance=ExtResource("26")]
-transform = Transform3D(-0.4414703, 0, 0.89727587, 0, 1, 0, -0.89727587, 0, -0.4414703, -70.69975, 0.22999954, -69.611496)
 
 [node name="SM_Fence_261_1031002806" parent="Meshes_2083832207" unique_id=1702236174 instance=ExtResource("61")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -102.79974, 0.23999882, -86.15149)
@@ -6337,47 +5785,20 @@ transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -365.8
 [node name="SM_Carpark_Block_387_1031004028" parent="Meshes_2083832207" unique_id=1182174050 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -287.23975, 0.2699995, -66.391495)
 
-[node name="SM_Cone_2_Bollard99_390_1031004044" parent="Meshes_2083832207" unique_id=1317392663 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -282.16974, 0.2699995, -66.02149)
-
 [node name="SM_Carpark_Block2_1031004060" parent="Meshes_2083832207" unique_id=588555239 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -287.23975, 0.2699995, -69.56149)
-
-[node name="SM_Cone_2_Bollard100_396_1031004076" parent="Meshes_2083832207" unique_id=1846561277 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -282.16974, 0.2699995, -69.19149)
 
 [node name="SM_Carpark_Block3_1031004092" parent="Meshes_2083832207" unique_id=2121778269 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -287.23975, 0.2699995, -72.74149)
 
-[node name="SM_Cone_2_Bollard103_1031004108" parent="Meshes_2083832207" unique_id=1442978719 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -282.16974, 0.2699995, -72.37149)
-
 [node name="SM_Carpark_Block4_1031004124" parent="Meshes_2083832207" unique_id=930875857 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -287.23975, 0.2699995, -76.001495)
-
-[node name="SM_Cone_2_Bollard105_1031004140" parent="Meshes_2083832207" unique_id=218432575 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -282.16974, 0.2699995, -75.63149)
 
 [node name="SM_Carpark_Block5_1031004156" parent="Meshes_2083832207" unique_id=416842307 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -287.23975, 0.2699995, -79.111496)
 
-[node name="SM_Cone_2_Bollard107_1031004172" parent="Meshes_2083832207" unique_id=1803745392 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -282.16974, 0.2699995, -78.74149)
-
 [node name="SM_Carpark_Block6_1031004188" parent="Meshes_2083832207" unique_id=67332219 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -287.23975, 0.2699995, -82.30149)
-
-[node name="SM_Cone_2_Bollard109_1031004204" parent="Meshes_2083832207" unique_id=662550458 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -282.16974, 0.2699995, -81.931496)
-
-[node name="SM_Cone_2_Bollard111_1031004220" parent="Meshes_2083832207" unique_id=1641845142 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -282.16974, 0.2699995, -85.141495)
-
-[node name="SM_Cone_413_1031004236" parent="Meshes_2083832207" unique_id=52071821 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -282.03973, 0.2699995, -83.59149)
-
-[node name="SM_Cone_58_1031004252" parent="Meshes_2083832207" unique_id=868487327 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -282.03973, 0.2699995, -77.26149)
 
 [node name="SM_MetalPipe_Cage_420_1031004268" parent="Meshes_2083832207" unique_id=774326982 instance=ExtResource("68")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -0.727575, -270.95975, 0.25, -29.201494)
@@ -6393,33 +5814,6 @@ transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -261.1
 
 [node name="SM_FuelPipe_14_1031004332" parent="Meshes_2083832207" unique_id=57658265 instance=ExtResource("8")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -262.41974, 0.94000053, -27.021494)
-
-[node name="SM_Cone_439_1031004348" parent="Meshes_2083832207" unique_id=2053570412 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -264.13977, 0.25, -41.531498)
-
-[node name="SM_Cone_60_1031004364" parent="Meshes_2083832207" unique_id=510515776 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -265.89975, 0.25, -41.531498)
-
-[node name="SM_Cone_61_1031004380" parent="Meshes_2083832207" unique_id=1427598678 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -267.68976, 0.25, -41.531498)
-
-[node name="SM_Cone_62_1031004396" parent="Meshes_2083832207" unique_id=111053879 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -269.63977, 0.25, -41.531498)
-
-[node name="SM_Cone_63_1031004412" parent="Meshes_2083832207" unique_id=1169585097 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -271.44977, 0.25, -41.531498)
-
-[node name="SM_Cone_64_1031004428" parent="Meshes_2083832207" unique_id=960311998 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -273.13977, 0.25, -41.531498)
-
-[node name="SM_Cone_65_1031004444" parent="Meshes_2083832207" unique_id=1730894122 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -274.90976, 0.25, -41.531498)
-
-[node name="SM_Cone_66_1031004460" parent="Meshes_2083832207" unique_id=672235343 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -276.91974, 0.25, -41.531498)
-
-[node name="SM_Cone_67_1031004476" parent="Meshes_2083832207" unique_id=1295929843 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -278.60974, 0.25, -41.531498)
 
 [node name="SM_Barrel_Stack_450_1031004492" parent="Meshes_2083832207" unique_id=351139727 instance=ExtResource("76")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -275.31976, 0.25, -34.441498)
@@ -6442,167 +5836,62 @@ transform = Transform3D(-0.07082912, -0.57212347, -0.8171034, 8.537943e-07, -0.8
 [node name="SM_Carpark_Block7_1031004590" parent="Meshes_2083832207" unique_id=1447553453 instance=ExtResource("62")]
 transform = Transform3D(-2.8849954e-06, 0, -1, 0, 1, 0, 1, 0, -2.8849954e-06, -265.85974, 0.2699995, -84.791504)
 
-[node name="SM_Cone_2_Bollard101_500_1031004608" parent="Meshes_2083832207" unique_id=934820424 instance=ExtResource("53")]
-transform = Transform3D(-2.8849954e-06, 0, -1, 0, 1, 0, 1, 0, -2.8849954e-06, -270.9297, 0.2699995, -85.16153)
-
 [node name="SM_Carpark_Block8_1031004624" parent="Meshes_2083832207" unique_id=1208219983 instance=ExtResource("62")]
 transform = Transform3D(-2.8849954e-06, 0, -1, 0, 1, 0, 1, 0, -2.8849954e-06, -265.85974, 0.2699995, -81.621475)
-
-[node name="SM_Cone_2_Bollard102_501_1031004640" parent="Meshes_2083832207" unique_id=984852829 instance=ExtResource("53")]
-transform = Transform3D(-2.8849954e-06, 0, -1, 0, 1, 0, 1, 0, -2.8849954e-06, -270.92975, 0.2699995, -81.9915)
 
 [node name="SM_Carpark_Block9_1031004656" parent="Meshes_2083832207" unique_id=1350322102 instance=ExtResource("62")]
 transform = Transform3D(-2.8849954e-06, 0, -1, 0, 1, 0, 1, 0, -2.8849954e-06, -265.85974, 0.2699995, -78.441475)
 
-[node name="SM_Cone_2_Bollard104_502_1031004672" parent="Meshes_2083832207" unique_id=207841362 instance=ExtResource("53")]
-transform = Transform3D(-2.8849954e-06, 0, -1, 0, 1, 0, 1, 0, -2.8849954e-06, -270.92975, 0.2699995, -78.81149)
-
 [node name="SM_Carpark_Block10_1031004688" parent="Meshes_2083832207" unique_id=1428356895 instance=ExtResource("62")]
 transform = Transform3D(-2.8849954e-06, 0, -1, 0, 1, 0, 1, 0, -2.8849954e-06, -265.85977, 0.2699995, -75.181496)
-
-[node name="SM_Cone_2_Bollard106_503_1031004704" parent="Meshes_2083832207" unique_id=2038962337 instance=ExtResource("53")]
-transform = Transform3D(-2.8849954e-06, 0, -1, 0, 1, 0, 1, 0, -2.8849954e-06, -270.92975, 0.2699995, -75.55151)
 
 [node name="SM_Carpark_Block11_1031004720" parent="Meshes_2083832207" unique_id=889188768 instance=ExtResource("62")]
 transform = Transform3D(-2.8849954e-06, 0, -1, 0, 1, 0, 1, 0, -2.8849954e-06, -265.85977, 0.2699995, -72.071495)
 
-[node name="SM_Cone_2_Bollard108_504_1031004736" parent="Meshes_2083832207" unique_id=173944422 instance=ExtResource("53")]
-transform = Transform3D(-2.8849954e-06, 0, -1, 0, 1, 0, 1, 0, -2.8849954e-06, -270.92978, 0.2699995, -72.441505)
-
 [node name="SM_Carpark_Block12_1031004752" parent="Meshes_2083832207" unique_id=712774537 instance=ExtResource("62")]
 transform = Transform3D(-2.8849954e-06, 0, -1, 0, 1, 0, 1, 0, -2.8849954e-06, -265.85977, 0.2699995, -68.881454)
-
-[node name="SM_Cone_2_Bollard110_505_1031004768" parent="Meshes_2083832207" unique_id=1692158916 instance=ExtResource("53")]
-transform = Transform3D(-2.8849954e-06, 0, -1, 0, 1, 0, 1, 0, -2.8849954e-06, -270.92975, 0.2699995, -69.25149)
-
-[node name="SM_Cone_2_Bollard112_506_1031004784" parent="Meshes_2083832207" unique_id=1567505613 instance=ExtResource("53")]
-transform = Transform3D(-2.8849954e-06, 0, -1, 0, 1, 0, 1, 0, -2.8849954e-06, -270.9298, 0.2699995, -66.041504)
-
-[node name="SM_Cone_68_1031004800" parent="Meshes_2083832207" unique_id=91906496 instance=ExtResource("26")]
-transform = Transform3D(-2.8849954e-06, 0, -1, 0, 1, 0, 1, 0, -2.8849954e-06, -271.0598, 0.2699995, -67.59148)
-
-[node name="SM_Cone_69_1031004816" parent="Meshes_2083832207" unique_id=2033883616 instance=ExtResource("26")]
-transform = Transform3D(-2.8849954e-06, 0, -1, 0, 1, 0, 1, 0, -2.8849954e-06, -271.05975, 0.2699995, -73.9215)
 
 [node name="SM_Carpark_Block13_1031004832" parent="Meshes_2083832207" unique_id=1300395820 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -264.93976, 0.2699995, -66.461494)
 
-[node name="SM_Cone_2_Bollard113_1031004850" parent="Meshes_2083832207" unique_id=2030759340 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -259.86975, 0.2699995, -66.09149)
-
 [node name="SM_Carpark_Block14_1031004866" parent="Meshes_2083832207" unique_id=346764160 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -264.93976, 0.2699995, -69.63149)
-
-[node name="SM_Cone_2_Bollard114_1031004882" parent="Meshes_2083832207" unique_id=419025301 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -259.86975, 0.2699995, -69.26149)
 
 [node name="SM_Carpark_Block15_1031004898" parent="Meshes_2083832207" unique_id=139814690 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -264.93976, 0.2699995, -72.81149)
 
-[node name="SM_Cone_2_Bollard115_1031004914" parent="Meshes_2083832207" unique_id=1571924154 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -259.86975, 0.2699995, -72.44149)
-
 [node name="SM_Carpark_Block16_1031004930" parent="Meshes_2083832207" unique_id=2081684807 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -264.93976, 0.2699995, -76.071495)
-
-[node name="SM_Cone_2_Bollard116_1031004946" parent="Meshes_2083832207" unique_id=580224216 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -259.86975, 0.2699995, -75.70149)
 
 [node name="SM_Carpark_Block17_1031004962" parent="Meshes_2083832207" unique_id=1095349598 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -264.93976, 0.2699995, -79.181496)
 
-[node name="SM_Cone_2_Bollard117_1031004978" parent="Meshes_2083832207" unique_id=1232502278 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -259.86975, 0.2699995, -78.81149)
-
 [node name="SM_Carpark_Block18_1031004994" parent="Meshes_2083832207" unique_id=724572469 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -264.93976, 0.2699995, -82.37149)
-
-[node name="SM_Cone_2_Bollard118_1031005010" parent="Meshes_2083832207" unique_id=1977838302 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -259.86975, 0.2699995, -82.001495)
-
-[node name="SM_Cone_2_Bollard119_1031005026" parent="Meshes_2083832207" unique_id=951353764 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -259.86975, 0.2699995, -85.211494)
-
-[node name="SM_Cone_70_1031005042" parent="Meshes_2083832207" unique_id=910865912 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -259.73975, 0.2699995, -83.66149)
-
-[node name="SM_Cone_71_1031005058" parent="Meshes_2083832207" unique_id=423768151 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -259.73975, 0.2699995, -77.33149)
 
 [node name="SM_Carpark_Block19_1031005074" parent="Meshes_2083832207" unique_id=1007822739 instance=ExtResource("62")]
 transform = Transform3D(-2.8849954e-06, 0, -1, 0, 1, 0, 1, 0, -2.8849954e-06, -243.55974, 0.2699995, -84.8615)
 
-[node name="SM_Cone_2_Bollard120_1031005092" parent="Meshes_2083832207" unique_id=235547443 instance=ExtResource("53")]
-transform = Transform3D(-2.8849954e-06, 0, -1, 0, 1, 0, 1, 0, -2.8849954e-06, -248.6297, 0.2699995, -85.23153)
-
 [node name="SM_Carpark_Block20_1031005108" parent="Meshes_2083832207" unique_id=534494019 instance=ExtResource("62")]
 transform = Transform3D(-2.8849954e-06, 0, -1, 0, 1, 0, 1, 0, -2.8849954e-06, -243.55975, 0.2699995, -81.691475)
-
-[node name="SM_Cone_2_Bollard121_1031005124" parent="Meshes_2083832207" unique_id=81984947 instance=ExtResource("53")]
-transform = Transform3D(-2.8849954e-06, 0, -1, 0, 1, 0, 1, 0, -2.8849954e-06, -248.62973, 0.2699995, -82.0615)
 
 [node name="SM_Carpark_Block21_1031005140" parent="Meshes_2083832207" unique_id=1588181885 instance=ExtResource("62")]
 transform = Transform3D(-2.8849954e-06, 0, -1, 0, 1, 0, 1, 0, -2.8849954e-06, -243.55974, 0.2699995, -78.511475)
 
-[node name="SM_Cone_2_Bollard122_1031005156" parent="Meshes_2083832207" unique_id=1183570336 instance=ExtResource("53")]
-transform = Transform3D(-2.8849954e-06, 0, -1, 0, 1, 0, 1, 0, -2.8849954e-06, -248.62973, 0.2699995, -78.88149)
-
 [node name="SM_Carpark_Block22_1031005172" parent="Meshes_2083832207" unique_id=1400257342 instance=ExtResource("62")]
 transform = Transform3D(-2.8849954e-06, 0, -1, 0, 1, 0, 1, 0, -2.8849954e-06, -243.55977, 0.2699995, -75.251495)
-
-[node name="SM_Cone_2_Bollard123_1031005188" parent="Meshes_2083832207" unique_id=1635879654 instance=ExtResource("53")]
-transform = Transform3D(-2.8849954e-06, 0, -1, 0, 1, 0, 1, 0, -2.8849954e-06, -248.62976, 0.2699995, -75.62151)
 
 [node name="SM_Carpark_Block23_1031005204" parent="Meshes_2083832207" unique_id=1686707659 instance=ExtResource("62")]
 transform = Transform3D(-2.8849954e-06, 0, -1, 0, 1, 0, 1, 0, -2.8849954e-06, -243.55977, 0.2699995, -72.141495)
 
-[node name="SM_Cone_2_Bollard124_1031005220" parent="Meshes_2083832207" unique_id=1141661565 instance=ExtResource("53")]
-transform = Transform3D(-2.8849954e-06, 0, -1, 0, 1, 0, 1, 0, -2.8849954e-06, -248.62978, 0.2699995, -72.511505)
-
 [node name="SM_Carpark_Block24_1031005236" parent="Meshes_2083832207" unique_id=1481766627 instance=ExtResource("62")]
 transform = Transform3D(-2.8849954e-06, 0, -1, 0, 1, 0, 1, 0, -2.8849954e-06, -243.55977, 0.2699995, -68.951454)
-
-[node name="SM_Cone_2_Bollard125_1031005252" parent="Meshes_2083832207" unique_id=1530955610 instance=ExtResource("53")]
-transform = Transform3D(-2.8849954e-06, 0, -1, 0, 1, 0, 1, 0, -2.8849954e-06, -248.62976, 0.2699995, -69.32149)
-
-[node name="SM_Cone_2_Bollard126_1031005268" parent="Meshes_2083832207" unique_id=164993623 instance=ExtResource("53")]
-transform = Transform3D(-2.8849954e-06, 0, -1, 0, 1, 0, 1, 0, -2.8849954e-06, -248.6298, 0.2699995, -66.1115)
-
-[node name="SM_Cone_72_1031005284" parent="Meshes_2083832207" unique_id=15329341 instance=ExtResource("26")]
-transform = Transform3D(-2.8849954e-06, 0, -1, 0, 1, 0, 1, 0, -2.8849954e-06, -248.75981, 0.2699995, -67.661476)
-
-[node name="SM_Cone_73_1031005300" parent="Meshes_2083832207" unique_id=232267598 instance=ExtResource("26")]
-transform = Transform3D(-2.8849954e-06, 0, -1, 0, 1, 0, 1, 0, -2.8849954e-06, -248.75974, 0.2699995, -73.9915)
 
 [node name="SM_SpeedBump14_539_1031005316" parent="Meshes_2083832207" unique_id=1873935405 instance=ExtResource("6")]
 transform = Transform3D(2.220446e-16, 0, 0.84974843, 0, 1, 0, -1, 0, 1.8868206e-16, -259.15976, 0.2699995, -61.941498)
 
 [node name="SM_SpeedBump15_1031005332" parent="Meshes_2083832207" unique_id=1927570586 instance=ExtResource("6")]
 transform = Transform3D(2.220446e-16, 0, 0.84974843, 0, 1, 0, -1, 0, 1.8868206e-16, -281.28973, 0.2699995, -61.941498)
-
-[node name="SM_Cone_2_Bollard127_543_1031005348" parent="Meshes_2083832207" unique_id=1910531388 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -270.39975, 0.25999928, -61.681496)
-
-[node name="SM_Cone_2_Bollard128_1031005364" parent="Meshes_2083832207" unique_id=63703818 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -268.69977, 0.25999928, -61.681496)
-
-[node name="SM_Cone_2_Bollard129_1031005380" parent="Meshes_2083832207" unique_id=1520651287 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -267.29974, 0.25999928, -61.681496)
-
-[node name="SM_Cone_2_Bollard130_1031005396" parent="Meshes_2083832207" unique_id=1806678131 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -265.85974, 0.25999928, -61.681496)
-
-[node name="SM_Cone_2_Bollard131_1031005412" parent="Meshes_2083832207" unique_id=1001698736 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -264.30975, 0.25999928, -61.681496)
-
-[node name="SM_Cone_2_Bollard132_1031005428" parent="Meshes_2083832207" unique_id=768833491 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -262.83975, 0.25999928, -61.681496)
-
-[node name="SM_Cone_2_Bollard133_1031005444" parent="Meshes_2083832207" unique_id=1651442087 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -261.26978, 0.25999928, -61.681496)
-
-[node name="SM_Cone_2_Bollard134_1031005460" parent="Meshes_2083832207" unique_id=219518566 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -259.79974, 0.25999928, -61.681496)
 
 [node name="SM_Roadblock_559_1031005476" parent="Meshes_2083832207" unique_id=2144034759 instance=ExtResource("33")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -244.40976, 0.2699995, -86.16149)
@@ -6661,308 +5950,143 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.71937, -46.749756, 0.27999973,
 [node name="SM_Carpark_Block25_803_1031005764" parent="Meshes_2083832207" unique_id=1805513389 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -41.899754, 0.26000023, -5.1214952)
 
-[node name="SM_Cone_2_Bollard135_806_1031005780" parent="Meshes_2083832207" unique_id=130976534 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -37.359753, 0.26000023, -4.761495)
-
 [node name="SM_Carpark_Block26_1031005796" parent="Meshes_2083832207" unique_id=81420216 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -41.899754, 0.26000023, -8.331495)
-
-[node name="SM_Cone_2_Bollard136_1031005812" parent="Meshes_2083832207" unique_id=1631846822 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -37.359753, 0.26000023, -7.971495)
 
 [node name="SM_Carpark_Block27_1031005828" parent="Meshes_2083832207" unique_id=1800166154 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -41.899754, 0.26000023, -11.451495)
 
-[node name="SM_Cone_2_Bollard137_1031005844" parent="Meshes_2083832207" unique_id=948724220 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -37.359753, 0.26000023, -11.0914955)
-
 [node name="SM_Carpark_Block28_1031005860" parent="Meshes_2083832207" unique_id=1621494310 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -41.899754, 0.26000023, -14.691495)
-
-[node name="SM_Cone_2_Bollard138_1031005876" parent="Meshes_2083832207" unique_id=865319758 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -37.359753, 0.26000023, -14.331495)
 
 [node name="SM_Carpark_Block29_1031005892" parent="Meshes_2083832207" unique_id=1656421581 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -41.899754, 0.26000023, -17.881495)
 
-[node name="SM_Cone_2_Bollard139_1031005908" parent="Meshes_2083832207" unique_id=1566751689 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -37.359753, 0.26000023, -17.521494)
-
 [node name="SM_Carpark_Block30_1031005924" parent="Meshes_2083832207" unique_id=1370734484 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -41.899754, 0.26000023, -21.051495)
-
-[node name="SM_Cone_2_Bollard140_1031005940" parent="Meshes_2083832207" unique_id=1936147204 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -37.359753, 0.26000023, -20.691494)
-
-[node name="SM_Cone_2_Bollard141_1031005956" parent="Meshes_2083832207" unique_id=54892702 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -37.359753, 0.26000023, -23.891495)
 
 [node name="SM_Carpark_Block31_1031005974" parent="Meshes_2083832207" unique_id=1094627476 instance=ExtResource("62")]
 transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -22.339798, 0.26000023, -23.531506)
 
-[node name="SM_Cone_2_Bollard142_1031005992" parent="Meshes_2083832207" unique_id=880811053 instance=ExtResource("53")]
-transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -26.879791, 0.26000023, -23.891495)
-
 [node name="SM_Carpark_Block32_1031006008" parent="Meshes_2083832207" unique_id=1481131153 instance=ExtResource("62")]
 transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -22.339783, 0.26000023, -20.321505)
-
-[node name="SM_Cone_2_Bollard143_1031006024" parent="Meshes_2083832207" unique_id=332232924 instance=ExtResource("53")]
-transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -26.879784, 0.26000023, -20.681492)
 
 [node name="SM_Carpark_Block33_1031006040" parent="Meshes_2083832207" unique_id=2032421822 instance=ExtResource("62")]
 transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -22.339767, 0.26000023, -17.201506)
 
-[node name="SM_Cone_2_Bollard144_1031006056" parent="Meshes_2083832207" unique_id=1018555421 instance=ExtResource("53")]
-transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -26.879768, 0.26000023, -17.561487)
-
 [node name="SM_Carpark_Block34_1031006072" parent="Meshes_2083832207" unique_id=1006118006 instance=ExtResource("62")]
 transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -22.339752, 0.26000023, -13.9615)
-
-[node name="SM_Cone_2_Bollard145_1031006088" parent="Meshes_2083832207" unique_id=609895022 instance=ExtResource("53")]
-transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -26.87976, 0.26000023, -14.321487)
 
 [node name="SM_Carpark_Block35_1031006104" parent="Meshes_2083832207" unique_id=2020691869 instance=ExtResource("62")]
 transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -22.339745, 0.26000023, -10.771498)
 
-[node name="SM_Cone_2_Bollard146_1031006120" parent="Meshes_2083832207" unique_id=637017572 instance=ExtResource("53")]
-transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -26.87973, 0.26000023, -11.131485)
-
 [node name="SM_Carpark_Block36_1031006136" parent="Meshes_2083832207" unique_id=1174652594 instance=ExtResource("62")]
 transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -22.339722, 0.26000023, -7.60151)
-
-[node name="SM_Cone_2_Bollard147_1031006152" parent="Meshes_2083832207" unique_id=1203014300 instance=ExtResource("53")]
-transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -26.87973, 0.26000023, -7.96148)
-
-[node name="SM_Cone_2_Bollard148_1031006168" parent="Meshes_2083832207" unique_id=1516235778 instance=ExtResource("53")]
-transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -26.8797, 0.26000023, -4.761478)
 
 [node name="SM_Carpark_Block37_1031006184" parent="Meshes_2083832207" unique_id=1209788644 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -21.549751, 0.26000023, -5.2314954)
 
-[node name="SM_Cone_2_Bollard149_1031006202" parent="Meshes_2083832207" unique_id=246389389 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -17.00975, 0.26000023, -4.8714952)
-
 [node name="SM_Carpark_Block38_1031006218" parent="Meshes_2083832207" unique_id=926733603 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -21.549751, 0.26000023, -8.441495)
-
-[node name="SM_Cone_2_Bollard150_1031006234" parent="Meshes_2083832207" unique_id=604756793 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -17.00975, 0.26000023, -8.081495)
 
 [node name="SM_Carpark_Block39_1031006250" parent="Meshes_2083832207" unique_id=1566249534 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -21.549751, 0.26000023, -11.561495)
 
-[node name="SM_Cone_2_Bollard151_1031006266" parent="Meshes_2083832207" unique_id=286747237 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -17.00975, 0.26000023, -11.201495)
-
 [node name="SM_Carpark_Block40_1031006282" parent="Meshes_2083832207" unique_id=2081361920 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -21.549751, 0.26000023, -14.801496)
-
-[node name="SM_Cone_2_Bollard152_1031006298" parent="Meshes_2083832207" unique_id=1178229288 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -17.00975, 0.26000023, -14.441495)
 
 [node name="SM_Carpark_Block41_1031006314" parent="Meshes_2083832207" unique_id=1795503550 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -21.549751, 0.26000023, -17.991495)
 
-[node name="SM_Cone_2_Bollard153_1031006330" parent="Meshes_2083832207" unique_id=443207230 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -17.00975, 0.26000023, -17.631495)
-
 [node name="SM_Carpark_Block42_1031006346" parent="Meshes_2083832207" unique_id=1385267466 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -21.549751, 0.26000023, -21.161493)
-
-[node name="SM_Cone_2_Bollard154_1031006362" parent="Meshes_2083832207" unique_id=740115569 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -17.00975, 0.26000023, -20.801495)
-
-[node name="SM_Cone_2_Bollard155_1031006378" parent="Meshes_2083832207" unique_id=1218400916 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -17.00975, 0.26000023, -24.001493)
 
 [node name="SM_Carpark_Block43_1031006394" parent="Meshes_2083832207" unique_id=1409291387 instance=ExtResource("62")]
 transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -1.9897919, 0.26000023, -23.641506)
 
-[node name="SM_Cone_2_Bollard156_1031006412" parent="Meshes_2083832207" unique_id=1841381295 instance=ExtResource("53")]
-transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -6.529793, 0.26000023, -24.001493)
-
 [node name="SM_Carpark_Block44_1031006428" parent="Meshes_2083832207" unique_id=1969182694 instance=ExtResource("62")]
 transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -1.9897842, 0.26000023, -20.431503)
-
-[node name="SM_Cone_2_Bollard157_1031006444" parent="Meshes_2083832207" unique_id=587734329 instance=ExtResource("53")]
-transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -6.529785, 0.26000023, -20.791492)
 
 [node name="SM_Carpark_Block45_1031006460" parent="Meshes_2083832207" unique_id=536663117 instance=ExtResource("62")]
 transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -1.9897766, 0.26000023, -17.311506)
 
-[node name="SM_Cone_2_Bollard158_1031006476" parent="Meshes_2083832207" unique_id=313174485 instance=ExtResource("53")]
-transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -6.52977, 0.26000023, -17.671488)
-
 [node name="SM_Carpark_Block46_1031006492" parent="Meshes_2083832207" unique_id=1563928422 instance=ExtResource("62")]
 transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -1.9897537, 0.26000023, -14.0715)
-
-[node name="SM_Cone_2_Bollard159_1031006508" parent="Meshes_2083832207" unique_id=1931262021 instance=ExtResource("53")]
-transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -6.5297546, 0.26000023, -14.431488)
 
 [node name="SM_Carpark_Block47_1031006524" parent="Meshes_2083832207" unique_id=215492202 instance=ExtResource("62")]
 transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -1.9897461, 0.26000023, -10.881497)
 
-[node name="SM_Cone_2_Bollard160_1031006540" parent="Meshes_2083832207" unique_id=1014809070 instance=ExtResource("53")]
-transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -6.5297318, 0.26000023, -11.241486)
-
 [node name="SM_Carpark_Block48_1031006556" parent="Meshes_2083832207" unique_id=1629642561 instance=ExtResource("62")]
 transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -1.9897232, 0.26000023, -7.71151)
-
-[node name="SM_Cone_2_Bollard161_1031006572" parent="Meshes_2083832207" unique_id=1312799822 instance=ExtResource("53")]
-transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -6.5297318, 0.26000023, -8.071481)
-
-[node name="SM_Cone_2_Bollard162_1031006588" parent="Meshes_2083832207" unique_id=254610563 instance=ExtResource("53")]
-transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -6.5296936, 0.26000023, -4.871478)
 
 [node name="SM_Carpark_Block49_1031006604" parent="Meshes_2083832207" unique_id=18615171 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -42.179752, 0.26000023, 22.878506)
 
-[node name="SM_Cone_2_Bollard163_1031006620" parent="Meshes_2083832207" unique_id=2138676167 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -37.639755, 0.26000023, 23.238506)
-
 [node name="SM_Carpark_Block50_1031006636" parent="Meshes_2083832207" unique_id=1709273074 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -42.179752, 0.26000023, 19.668507)
-
-[node name="SM_Cone_2_Bollard164_1031006652" parent="Meshes_2083832207" unique_id=1282466030 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -37.639755, 0.26000023, 20.028505)
 
 [node name="SM_Carpark_Block51_1031006668" parent="Meshes_2083832207" unique_id=968463459 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -42.179752, 0.26000023, 16.548506)
 
-[node name="SM_Cone_2_Bollard165_1031006684" parent="Meshes_2083832207" unique_id=1960332224 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -37.639755, 0.26000023, 16.908506)
-
 [node name="SM_Carpark_Block52_1031006700" parent="Meshes_2083832207" unique_id=1407506337 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -42.179752, 0.26000023, 13.308505)
-
-[node name="SM_Cone_2_Bollard166_1031006716" parent="Meshes_2083832207" unique_id=598915924 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -37.639755, 0.26000023, 13.668505)
 
 [node name="SM_Carpark_Block53_1031006732" parent="Meshes_2083832207" unique_id=960022656 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -42.179752, 0.26000023, 10.118505)
 
-[node name="SM_Cone_2_Bollard167_1031006748" parent="Meshes_2083832207" unique_id=1042259364 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -37.639755, 0.26000023, 10.478505)
-
-[node name="SM_Cone_2_Bollard168_1031006764" parent="Meshes_2083832207" unique_id=1059664171 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -37.639755, 0.26000023, 7.308505)
-
 [node name="SM_Carpark_Block55_1031006780" parent="Meshes_2083832207" unique_id=925442285 instance=ExtResource("62")]
 transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -22.619797, 0.26000023, 4.468493)
-
-[node name="SM_Cone_2_Bollard170_1031006798" parent="Meshes_2083832207" unique_id=1565841273 instance=ExtResource("53")]
-transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -27.159794, 0.26000023, 4.108505)
 
 [node name="SM_Carpark_Block56_1031006814" parent="Meshes_2083832207" unique_id=127122835 instance=ExtResource("62")]
 transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -22.619781, 0.26000023, 7.678495)
 
-[node name="SM_Cone_2_Bollard171_1031006830" parent="Meshes_2083832207" unique_id=798683747 instance=ExtResource("53")]
-transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -27.159782, 0.26000023, 7.3185067)
-
 [node name="SM_Carpark_Block57_1031006846" parent="Meshes_2083832207" unique_id=14302652 instance=ExtResource("62")]
 transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -22.619766, 0.26000023, 10.798492)
-
-[node name="SM_Cone_2_Bollard172_1031006862" parent="Meshes_2083832207" unique_id=795219455 instance=ExtResource("53")]
-transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -27.159767, 0.26000023, 10.438512)
 
 [node name="SM_Carpark_Block58_1031006878" parent="Meshes_2083832207" unique_id=328052519 instance=ExtResource("62")]
 transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -22.619751, 0.26000023, 14.0385)
 
-[node name="SM_Cone_2_Bollard173_1031006894" parent="Meshes_2083832207" unique_id=1661174745 instance=ExtResource("53")]
-transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -27.15976, 0.26000023, 13.678513)
-
 [node name="SM_Carpark_Block59_1031006910" parent="Meshes_2083832207" unique_id=1472767336 instance=ExtResource("62")]
 transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -22.619743, 0.26000023, 17.228504)
-
-[node name="SM_Cone_2_Bollard174_1031006926" parent="Meshes_2083832207" unique_id=962952509 instance=ExtResource("53")]
-transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -27.159729, 0.26000023, 16.868515)
 
 [node name="SM_Carpark_Block60_1031006942" parent="Meshes_2083832207" unique_id=120150120 instance=ExtResource("62")]
 transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -22.619728, 0.26000023, 20.39849)
 
-[node name="SM_Cone_2_Bollard175_1031006958" parent="Meshes_2083832207" unique_id=857077841 instance=ExtResource("53")]
-transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -27.159729, 0.26000023, 20.03852)
-
-[node name="SM_Cone_2_Bollard176_1031006974" parent="Meshes_2083832207" unique_id=1708614792 instance=ExtResource("53")]
-transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -27.159698, 0.26000023, 23.238523)
-
 [node name="SM_Carpark_Block61_1031006990" parent="Meshes_2083832207" unique_id=1720229725 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -21.829758, 0.26000023, 22.768505)
-
-[node name="SM_Cone_2_Bollard177_1031007008" parent="Meshes_2083832207" unique_id=1426526345 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -17.289757, 0.26000023, 23.128506)
 
 [node name="SM_Carpark_Block62_1031007024" parent="Meshes_2083832207" unique_id=1622395924 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -21.829758, 0.26000023, 19.558506)
 
-[node name="SM_Cone_2_Bollard178_1031007040" parent="Meshes_2083832207" unique_id=1741675242 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -17.289757, 0.26000023, 19.918507)
-
 [node name="SM_Carpark_Block63_1031007056" parent="Meshes_2083832207" unique_id=1540698651 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -21.829758, 0.26000023, 16.438505)
-
-[node name="SM_Cone_2_Bollard179_1031007072" parent="Meshes_2083832207" unique_id=1540216586 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -17.289757, 0.26000023, 16.798506)
 
 [node name="SM_Carpark_Block64_1031007088" parent="Meshes_2083832207" unique_id=1863808041 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -21.829758, 0.26000023, 13.198504)
 
-[node name="SM_Cone_2_Bollard180_1031007104" parent="Meshes_2083832207" unique_id=1768051072 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -17.289757, 0.26000023, 13.558505)
-
 [node name="SM_Carpark_Block65_1031007120" parent="Meshes_2083832207" unique_id=1943876055 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -21.829758, 0.26000023, 10.008505)
-
-[node name="SM_Cone_2_Bollard181_1031007136" parent="Meshes_2083832207" unique_id=890845496 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -17.289757, 0.26000023, 10.368505)
 
 [node name="SM_Carpark_Block66_1031007152" parent="Meshes_2083832207" unique_id=853547562 instance=ExtResource("62")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -21.829758, 0.26000023, 6.838505)
 
-[node name="SM_Cone_2_Bollard182_1031007168" parent="Meshes_2083832207" unique_id=640211324 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -17.289757, 0.26000023, 7.198505)
-
-[node name="SM_Cone_2_Bollard183_1031007184" parent="Meshes_2083832207" unique_id=272771139 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -17.289757, 0.26000023, 3.9985049)
-
 [node name="SM_Carpark_Block67_1031007200" parent="Meshes_2083832207" unique_id=1790942129 instance=ExtResource("62")]
 transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -2.2697906, 0.26000023, 4.358493)
-
-[node name="SM_Cone_2_Bollard184_1031007218" parent="Meshes_2083832207" unique_id=560065429 instance=ExtResource("53")]
-transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -6.8097916, 0.26000023, 3.9985049)
 
 [node name="SM_Carpark_Block68_1031007234" parent="Meshes_2083832207" unique_id=833708308 instance=ExtResource("62")]
 transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -2.269783, 0.26000023, 7.568495)
 
-[node name="SM_Cone_2_Bollard185_1031007250" parent="Meshes_2083832207" unique_id=2071189615 instance=ExtResource("53")]
-transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -6.809784, 0.26000023, 7.208507)
-
 [node name="SM_Carpark_Block69_1031007266" parent="Meshes_2083832207" unique_id=17781903 instance=ExtResource("62")]
 transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -2.2697754, 0.26000023, 10.688493)
-
-[node name="SM_Cone_2_Bollard186_1031007282" parent="Meshes_2083832207" unique_id=502802072 instance=ExtResource("53")]
-transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -6.8097763, 0.26000023, 10.328512)
 
 [node name="SM_Carpark_Block70_1031007298" parent="Meshes_2083832207" unique_id=1902429670 instance=ExtResource("62")]
 transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -2.2697525, 0.26000023, 13.9285)
 
-[node name="SM_Cone_2_Bollard187_1031007314" parent="Meshes_2083832207" unique_id=1217894270 instance=ExtResource("53")]
-transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -6.8097534, 0.26000023, 13.568512)
-
 [node name="SM_Carpark_Block71_1031007330" parent="Meshes_2083832207" unique_id=675049725 instance=ExtResource("62")]
 transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -2.2697449, 0.26000023, 17.118504)
 
-[node name="SM_Cone_2_Bollard188_1031007346" parent="Meshes_2083832207" unique_id=589668337 instance=ExtResource("53")]
-transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -6.809738, 0.26000023, 16.758516)
-
 [node name="SM_Carpark_Block72_1031007362" parent="Meshes_2083832207" unique_id=1096922401 instance=ExtResource("62")]
 transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -2.269722, 0.26000023, 20.28849)
-
-[node name="SM_Cone_2_Bollard189_1031007378" parent="Meshes_2083832207" unique_id=1215540152 instance=ExtResource("53")]
-transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -6.809738, 0.26000023, 19.92852)
-
-[node name="SM_Cone_2_Bollard190_1031007394" parent="Meshes_2083832207" unique_id=1113431711 instance=ExtResource("53")]
-transform = Transform3D(4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, 4.2426404e-06, -6.8096924, 0.26000023, 23.128523)
 
 [node name="SM_Fence_917_1031007410" parent="Meshes_2083832207" unique_id=1129963913 instance=ExtResource("52")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -356.75977, 0.25999928, -43.061497)
@@ -7032,27 +6156,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -395.34955, 0.26000023, 3.958
 
 [node name="SM_Fence_289_1031007762" parent="Meshes_2083832207" unique_id=1012389188 instance=ExtResource("61")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -395.34955, 0.26000023, 0.418752)
-
-[node name="SM_Cone_2_Bollard169_949_1031007778" parent="Meshes_2083832207" unique_id=462934646 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -384.11975, 0.27999973, -50.191498)
-
-[node name="SM_Cone_2_Bollard191_1031007794" parent="Meshes_2083832207" unique_id=1763050272 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -389.13977, 0.27999973, -48.551495)
-
-[node name="SM_Cone_2_Bollard192_1031007810" parent="Meshes_2083832207" unique_id=704719208 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -386.82977, 0.27999973, -49.621494)
-
-[node name="SM_Cone_2_Bollard193_954_1031007826" parent="Meshes_2083832207" unique_id=1700826909 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -373.45978, 0.27999973, -50.871494)
-
-[node name="SM_Cone_2_Bollard194_1031007842" parent="Meshes_2083832207" unique_id=931099694 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -369.49976, 0.27999973, -50.871494)
-
-[node name="SM_Cone_2_Bollard195_1031007858" parent="Meshes_2083832207" unique_id=1276585395 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -365.41974, 0.27999973, -50.871494)
-
-[node name="SM_Cone_2_Bollard196_1031007874" parent="Meshes_2083832207" unique_id=842232306 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -361.74976, 0.27999973, -50.871494)
 
 [node name="SM_Fence_965_1031007890" parent="Meshes_2083832207" unique_id=1532665267 instance=ExtResource("61")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -345.13977, 0.25999928, -43.061497)
@@ -7135,21 +6238,6 @@ transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -395.35956, 0.26000023, 10.
 [node name="SM_Fence_1036_1031008306" parent="Meshes_2083832207" unique_id=1101632872 instance=ExtResource("61")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -395.35962, 0.26000023, 24.968294)
 
-[node name="SM_Cone_2_Bollard197_1031008322" parent="Meshes_2083832207" unique_id=1765249466 instance=ExtResource("53")]
-transform = Transform3D(-0.599912, 0, 0.800066, 0, 1, 0, -0.800066, 0, -0.599912, -397.48358, 0.27999973, -42.04333)
-
-[node name="SM_Cone_2_Bollard198_1031008338" parent="Meshes_2083832207" unique_id=306074584 instance=ExtResource("53")]
-transform = Transform3D(-0.599912, 0, 0.800066, 0, 1, 0, -0.800066, 0, -0.599912, -400.516, 0.27999973, -37.719646)
-
-[node name="SM_Cone_2_Bollard199_1031008354" parent="Meshes_2083832207" unique_id=344655211 instance=ExtResource("53")]
-transform = Transform3D(-0.599912, 0, 0.800066, 0, 1, 0, -0.800066, 0, -0.599912, -399.30975, 0.27999973, -39.961494)
-
-[node name="SM_Cone_2_Bollard200_1031008370" parent="Meshes_2083832207" unique_id=747833129 instance=ExtResource("53")]
-transform = Transform3D(-0.599912, 0, 0.800066, 0, 1, 0, -0.800066, 0, -0.599912, -401.66602, 0.27999973, -35.269646)
-
-[node name="SM_Cone_2_Bollard201_1031008386" parent="Meshes_2083832207" unique_id=1005023675 instance=ExtResource("53")]
-transform = Transform3D(-0.599912, 0, 0.800066, 0, 1, 0, -0.800066, 0, -0.599912, -395.84357, 0.27999973, -44.053333)
-
 [node name="SM_Crate_Stack_1044_1031008402" parent="Meshes_2083832207" unique_id=78463206 instance=ExtResource("37")]
 transform = Transform3D(0.7183252, 0, -0.6957075, 0, 1, 0, 0.6957075, 0, 0.7183252, -392.76978, 0.25999928, -34.861496)
 
@@ -7161,15 +6249,6 @@ transform = Transform3D(0.6828175, 0, 0.730589, 0, 1, 0, -0.730589, 0, 0.6828175
 
 [node name="SM_Pallet_4_Stack2_1054_1031008450" parent="Meshes_2083832207" unique_id=548201055 instance=ExtResource("49")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -391.24976, 0.25999928, -34.071495)
-
-[node name="SM_Cone_2_Bollard202_1057_1031008466" parent="Meshes_2083832207" unique_id=550804803 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -403.42975, 0.27999973, -22.881495)
-
-[node name="SM_Cone_2_Bollard203_1031008482" parent="Meshes_2083832207" unique_id=1274585578 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -403.42975, 0.27999973, -18.871494)
-
-[node name="SM_Cone_2_Bollard204_1031008498" parent="Meshes_2083832207" unique_id=1929143050 instance=ExtResource("53")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -403.42975, 0.27999973, -15.611495)
 
 [node name="SM_Missile_Pallet_1065_1031008514" parent="Meshes_2083832207" unique_id=1974593615 instance=ExtResource("10")]
 transform = Transform3D(0.70710444, 0, -0.7071091, 0, 1, 0, 0.7071091, 0, 0.70710444, -384.47272, 0.25999928, -41.98514)
@@ -7209,24 +6288,6 @@ transform = Transform3D(-4.2426404e-06, 0, -1, 0, 1, 0, 1, 0, -4.2426404e-06, -3
 
 [node name="SM_Sign_6_Stop9_1087_1031008706" parent="Meshes_2083832207" unique_id=1622801211 instance=ExtResource("13")]
 transform = Transform3D(-2.8849954e-06, 0, -1, 0, 1, 0, 1, 0, -2.8849954e-06, -355.77972, 0.25999928, -43.061497)
-
-[node name="SM_Cone_1090_1031008722" parent="Meshes_2083832207" unique_id=450768660 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -340.68976, 0.25999928, -43.001495)
-
-[node name="SM_Cone_75_1031008738" parent="Meshes_2083832207" unique_id=557910578 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -340.68976, 0.25999928, -39.321495)
-
-[node name="SM_Cone_76_1031008754" parent="Meshes_2083832207" unique_id=2019651780 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -340.68976, 0.25999928, -35.941498)
-
-[node name="SM_Cone_77_1031008770" parent="Meshes_2083832207" unique_id=2067730606 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -340.68976, 0.25999928, -32.441498)
-
-[node name="SM_Cone_78_1031008786" parent="Meshes_2083832207" unique_id=968637286 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -340.68976, 0.25999928, -28.941494)
-
-[node name="SM_Cone_79_1031008802" parent="Meshes_2083832207" unique_id=1194375349 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -340.68976, 0.26000023, -25.361494)
 
 [node name="SM_Pallet_3_Combined18_1031008818" parent="Meshes_2083832207" unique_id=1328085964 instance=ExtResource("49")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -179.45975, 0.23999977, -5.2514954)
@@ -7296,27 +6357,6 @@ transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -119.0
 
 [node name="SM_Barrel_Stack_62_1031009170" parent="Meshes_2083832207" unique_id=236209679 instance=ExtResource("16")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -119.01975, 0.25999928, -81.531494)
-
-[node name="SM_Cone_74_1031009186" parent="Meshes_2083832207" unique_id=720240855 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -114.639755, 0.25999928, -71.891495)
-
-[node name="SM_Cone_82_1031009202" parent="Meshes_2083832207" unique_id=1854445174 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -114.639755, 0.25999928, -75.861496)
-
-[node name="SM_Cone_85_1031009218" parent="Meshes_2083832207" unique_id=1698756387 instance=ExtResource("26")]
-transform = Transform3D(0.5188832, -0.8323284, -0.19490938, -3.3708508e-07, -0.22800568, 0.9736598, -0.85484517, -0.50521564, -0.1183086, -114.639755, 0.5099993, -77.851494)
-
-[node name="SM_Cone_84_1031009234" parent="Meshes_2083832207" unique_id=357321083 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -114.639755, 0.25999928, -79.97149)
-
-[node name="SM_Cone_88_1031009250" parent="Meshes_2083832207" unique_id=1166535361 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -114.639755, 0.25999928, -82.111496)
-
-[node name="SM_Cone_86_1031009266" parent="Meshes_2083832207" unique_id=1930859231 instance=ExtResource("26")]
-transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -114.639755, 0.25999928, -84.211494)
-
-[node name="SM_Cone_87_1031009282" parent="Meshes_2083832207" unique_id=716464859 instance=ExtResource("26")]
-transform = Transform3D(-0.5720253, -0.7986065, -0.18712202, -1.0847668e-06, -0.22813119, 0.9736304, -0.82023597, 0.55694145, 0.13049595, -114.639755, 0.5099993, -73.94149)
 
 [node name="SM_FuelTank9_96_1031009298" parent="Meshes_2083832207" unique_id=1234369313 instance=ExtResource("82")]
 transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -126.12975, 1.2599993, -90.24149)
