@@ -86,7 +86,7 @@
 [ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Road_Asphalt_Corner_02_81.tscn" id="86"]
 [ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Road_Asphalt_Corner_3.tscn" id="87"]
 [ext_resource type="PackedScene" path="res://assets/environment/military_airport/prefabs/SM_Road_Asphalt_Connection_03_41.tscn" id="88"]
-[ext_resource type="PackedScene" uid="uid://daigoyoju1v11" path="res://assets/aircraft/su27/su27.glb" id="94_0umjs"]
+[ext_resource type="PackedScene" uid="uid://dbu6ob6o2vpte" path="res://scenes/aircraft/su27.tscn" id="94_0umjs"]
 [ext_resource type="Script" uid="uid://bndntls4cn4a1" path="res://scripts/camera/free_fly_camera.gd" id="camera"]
 [ext_resource type="Texture2D" uid="uid://cldw3bprx80ml" path="res://assets/environment/military_airport/textures/Decals/T_TurnDecal_1_BC.png" id="decal_1"]
 [ext_resource type="Texture2D" uid="uid://bqrvmuool5ttu" path="res://assets/environment/military_airport/textures/Decals/T_TurnDecal_2_BC.png" id="decal_2"]
@@ -6794,10 +6794,10 @@ transform = Transform3D(2.220446e-16, 0, 1, 0, 1, 0, -1, 0, 2.220446e-16, -305.3
 transform = Transform3D(1.016, 0, 0, 0, 1, 0, 0, 0, 1, -293.71976, 0.32000065, 40.318314)
 
 [node name="su27" parent="Meshes_2083832207" unique_id=1478038819 instance=ExtResource("94_0umjs")]
-transform = Transform3D(-0.70710677, 0, -0.70710677, 0, 1, 0, 0.70710677, 0, -0.70710677, -378.5346, 0.26000023, 12.802003)
+transform = Transform3D(-0.70710677, 0, -0.70710677, 0, 1, 0, 0.70710677, 0, -0.70710677, -378.5346, 0.3735342, 12.802003)
 
 [node name="su28" parent="Meshes_2083832207" unique_id=1859087020 instance=ExtResource("94_0umjs")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -354.97565, 0.2600031, 6.2789793)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -354.97565, 0.3836298, 6.2789793)
 
 [node name="Sky_and_Fog_Global_Volume_1857160038" type="Node3D" parent="." unique_id=626932888]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -24.175177, 4.2034435, 95.68999)
@@ -6809,4 +6809,4 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -789, -13.5, 610)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -789, -13.5, -390)
 
 [node name="su27" parent="." unique_id=1665113824 instance=ExtResource("94_0umjs")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -152.12823, -13.500001, -10.452427)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -152.12823, -13.007232, -10.452427)

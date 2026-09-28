@@ -142,7 +142,7 @@ var _engine_audio: AudioStreamPlayer3D
 var _accelerating_audio: AudioStreamPlayer3D
 
 var _afterburners: Afterburner
-var _surface_controls: SaabControls
+var _surface_controls: Node3D
 @onready var _targeting: TargetLock = get_node_or_null("TargetLock")
 @onready var _weapons: WeaponController = get_node_or_null("WeaponController")
 @onready var _hitbox: Area3D = get_node_or_null("Hitbox") as Area3D
@@ -176,7 +176,7 @@ func _ready() -> void:
 
 func update_aircraft_references() -> void:
 	_afterburners = find_child("Afterburners", true, false) as Afterburner
-	_surface_controls = get_node_or_null("AircraftModel") as SaabControls
+	_surface_controls = get_node_or_null("AircraftModel") as Node3D
 	_damage_emitters = find_children("*", "DamageFire", true, false)
 	_update_damage_effects()
 
@@ -213,8 +213,8 @@ func _physics_process(delta: float) -> void:
 	_update_gear(delta)
 	_update_spin_dash()
 	_apply_flight(delta)
-	if _surface_controls != null:
-		_surface_controls.set_controls(pitch_input, roll_input, yaw_input, delta)
+	if _surface_controls != null and _surface_controls.has_method("set_controls"):
+		_surface_controls.call("set_controls", pitch_input, roll_input, yaw_input, delta)
 	_apply_triggers()
 
 
@@ -282,7 +282,7 @@ func _update_controls() -> void:
 
 
 func toggle_landing_gear() -> void:
-	if _surface_controls == null or grounded:
+	if _surface_controls == null or not _surface_controls.has_method("set_gear") or grounded:
 		return
 	gear_down = not gear_down
 
@@ -310,8 +310,8 @@ func _level_flight_inputs() -> void:
 
 func _update_gear(delta: float) -> void:
 	gear_extension = move_toward(gear_extension, 1.0 if gear_down else 0.0, delta / maxf(gear_travel_time, 0.01))
-	if _surface_controls != null:
-		_surface_controls.set_gear(gear_extension)
+	if _surface_controls != null and _surface_controls.has_method("set_gear"):
+		_surface_controls.call("set_gear", gear_extension)
 
 
 func _setup_ground_body() -> void:
@@ -695,8 +695,8 @@ func reset_flight(start_transform: Transform3D) -> void:
 	yaw_input = 0.0
 	roll_input = 0.0
 	_angular_velocity = Vector3.ZERO
-	if _surface_controls != null:
-		_surface_controls.reset_controls()
+	if _surface_controls != null and _surface_controls.has_method("reset_controls"):
+		_surface_controls.call("reset_controls")
 	_accelerate_held = false
 	_last_accelerate_tap = -1000.0
 	_spin_dash_elapsed = 0.0
