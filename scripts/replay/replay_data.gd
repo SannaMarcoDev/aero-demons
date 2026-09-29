@@ -8,6 +8,7 @@ const MAX_BYTES := 256 * 1024 * 1024
 const MAX_SECONDS := 7200.0
 const VIEWER := "res://scenes/replay/replay_viewer.tscn"
 const LEVELS := {
+	"res://scenes/levels/arena.tscn": "res://scenes/maps/garda_final.tscn",
 	"res://scenes/levels/freeroam.tscn": "res://scenes/maps/garda_final.tscn",
 	"res://scenes/levels/tutorial.tscn": "res://scenes/maps/garda_final.tscn",
 	"res://scenes/levels/freeroam_utah.tscn": "res://scenes/maps/utah_final.tscn",

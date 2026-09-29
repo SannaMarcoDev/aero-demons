@@ -1,0 +1,40 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/maps/garda_final.tscn" id="1_map"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://scenes/ui/combat_hud.tscn" id="3_hud"]
+[ext_resource type="Script" path="res://scripts/combat/combat_director.gd" id="4_director"]
+[ext_resource type="Script" path="res://scripts/combat/arena_controller.gd" id="5_arena"]
+
+[node name="Arena" type="Node3D"]
+
+[node name="GardaLake" parent="." instance=ExtResource("1_map")]
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+position = Vector3(-34000, 1800, -500)
+rotation_degrees = Vector3(0, -90, 0)
+start_on_ground = false
+
+[node name="SpawnedEnemies" type="Node3D" parent="."]
+
+[node name="CombatDirector" type="Node" parent="."]
+script = ExtResource("4_director")
+allow_player_attacks = false
+
+[node name="CombatHUD" parent="." instance=ExtResource("3_hud")]
+player_path = NodePath("../Player")
+camera_path = NodePath("../Player/FlightCamera")
+targeting_path = NodePath("../Player/TargetLock")
+weapons_path = NodePath("../Player/WeaponController")
+mission_controller_path = NodePath("ArenaController")
+mode_label = "ARENA"
+
+[node name="ArenaController" type="Node" parent="CombatHUD"]
+script = ExtResource("5_arena")
+
+[node name="RespawnTimer" type="Timer" parent="CombatHUD/ArenaController"]
+process_mode = 1
+wait_time = 2.0
+autostart = true
+
+[connection signal="timeout" from="CombatHUD/ArenaController/RespawnTimer" to="CombatHUD/ArenaController" method="_spawn_enemies"]

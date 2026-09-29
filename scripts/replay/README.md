@@ -1,7 +1,7 @@
 # Replay / Cinema
 
 Apri **REPLAY / CINEMA** dal menu principale, oppure **F7** durante un volo.
-Le quattro missioni Garda/Utah registrano automaticamente a 30 Hz, anche fuori
+Le missioni Garda/Utah, inclusa Arena, registrano automaticamente a 30 Hz, anche fuori
 inquadratura: aerei, missili, proiettili, esplosioni, flash, danni e suoni 3D.
 Il playback interpola i campioni: non riesegue fisica, AI, armi o danni.
 

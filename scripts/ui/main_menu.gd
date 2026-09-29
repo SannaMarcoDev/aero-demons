@@ -35,6 +35,18 @@ var _focused_mode: String = "storia"
 func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	_wire_signals()
+	# Copy the existing appearance, without its Free Flight signal connections.
+	var arena_button := free_flight_btn.duplicate(0) as Button
+	arena_button.name = "ArenaButton"
+	arena_button.text = "[03]   ARENA"
+	arena_button.tooltip_text = "Garda · Due bersagli non offensivi, con rimpiazzo automatico"
+	root_menu.add_child(arena_button)
+	root_menu.move_child(arena_button, benchmark_btn.get_index())
+	arena_button.pressed.connect(func(): _select_storia_map(Session.ARENA))
+	arena_button.focus_entered.connect(func(): _set_dossier("arena"))
+	arena_button.mouse_entered.connect(func(): _set_dossier("arena"))
+	benchmark_btn.text = "[04]   BENCHMARK"
+	quit_btn.text = "[05]   QUIT"
 	var replay_button := Button.new()
 	replay_button.name = "ReplayButton"
 	replay_button.text = "REPLAY / CINEMA"
@@ -236,6 +248,15 @@ func _set_dossier(mode_key: String) -> void:
 			dossier_subtitle.text = "SETTORE: GARDA // NESSUN NEMICO RILEVATO"
 			dossier_desc.text = "Entra subito in volo sopra il Garda con l'armamento già selezionato. Nessun nemico, nessuna ondata e nessun timer di missione.\n\nProva i comandi di volo oppure esplora liberamente lo scenario. High-G e spin dash non sono disponibili nella build interna. I confini di volo rimangono attivi."
 			dossier_telemetry.text = "SETTORE: GARDA  •  MODALITA': ESPLORAZIONE  •  PARTENZA IN VOLO"
+
+		"arena":
+			dossier_tag.text = "// COMBAT TRAINING"
+			threat_badge.text = "THREAT: ZERO"
+			threat_badge.modulate = Color(0.2, 0.95, 0.4)
+			dossier_title.text = "ARENA"
+			dossier_subtitle.text = "GARDA // DUE BERSAGLI NON OFFENSIVI"
+			dossier_desc.text = "Scegli l'armamento e parti già in volo. Due caccia manovrano senza attaccare; ogni abbattimento libera un posto per un nuovo bersaglio. Nessuna ondata finale."
+			dossier_telemetry.text = "BERSAGLI: 2  •  RIMPIAZZO AUTOMATICO  •  PARTENZA IN VOLO"
 
 		"benchmark":
 			dossier_tag.text = "// PERFORMANCE CALIBRATION"
