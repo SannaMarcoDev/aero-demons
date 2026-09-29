@@ -92,7 +92,7 @@ func _ready() -> void:
 		print("REPLAY_EXPORT_STARTED ", file_path)
 
 func _run_self_check() -> void:
-	assert(Engine.max_fps == 60)
+	assert(Engine.max_fps == 30)
 	var sample := Data.self_check()
 	for track in sample.actors:
 		var proxy := Actor.new()
@@ -487,12 +487,6 @@ func _finish_export() -> void:
 			node.stop()
 			node.stream = null
 	await RenderingServer.frame_post_draw
-	# The cloud addon owns raw GPU handles; retire them while its device is alive.
-	for environment in _world.find_children("*", "WorldEnvironment", true, false):
-		environment.compositor = null
-	for path in [SettingsManager.CLOUDS_RESOURCE_PATH, SettingsManager.GARDA_CLOUDS_RESOURCE_PATH]:
-		if ResourceLoader.has_cached(path):
-			RenderingServer.call_on_render_thread(load(path).clear_compute)
 	print("REPLAY_EXPORT_COMPLETE samples=", _export_frame)
 	get_tree().quit()
 

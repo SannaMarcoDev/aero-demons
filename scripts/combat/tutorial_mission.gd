@@ -6,7 +6,7 @@ signal flight_training_completed
 enum Phase { OPENING, TAKEOFF, CLIMB, GEAR, FLIGHT, REVEAL,
 	TARGET_READING, MISSILE_READING, GUN_READING, COMBAT }
 const PRACTICE_SECONDS := 0.35
-const Bindings = preload("res://scripts/ui/controller_bindings.gd")
+const Bindings = preload("res://scripts/input/controller_bindings.gd")
 
 @export var safety_height := 120.0
 @export var dialogue: DialogueResource

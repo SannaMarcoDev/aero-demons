@@ -5,7 +5,7 @@
 - `main_airport_layout.blend`: sorgente Blender 5.2, scena `AERO_DEMONS_LAYOUT_V2` (metri; Z verso l'alto).
 - `../../main_airport_layout.glb`: infrastrutture e 23 edifici ancora in blockout. Non contiene copie statiche dei piccoli hangar.
 - `res://scenes/maps/main_airport_layout.tscn`: aeroporto completo in Godot; istanzia il GLB e tre copie di `res://scenes/maps/small_hangar.tscn`, con porte animate e collisioni indipendenti.
-- `res://scenes/preview/main_airport_layout_preview.tscn`: anteprima navigabile; WASD/mouse, Q/E quota, Shift velocità, Esc.
+- `res://tools/preview/airports/main_airport_layout_preview.tscn`: anteprima navigabile; WASD/mouse, Q/E quota, Shift velocità, Esc.
 - `11_n26_hangars_row.png`, `12_n26_hangar_entry_open.png`: render finali della fila e di un portale aperto.
 
 Non sostituisce `airport.blend`, gli asset della città o la mappa esistente. Il sorgente del piccolo hangar (`../../../small_hangar/source/small_hangar.blend`) e il suo GLB restano a scala nativa: la scala 2× è applicata **alle tre istanze dell'aeroporto** in Godot; il sorgente Blender richiede un nuovo export per allinearsi.
@@ -27,6 +27,6 @@ Portale aperto: **23,2 m** di larghezza, circa **9,76 m** di altezza; l'N26 impo
 1. `uv run --with shapely==2.1.2 --with pillow python assets/environment/airport/source/layout_v2/build_geometry.py` genera `geometry.json` e le tre texture base.
 2. In una scena Blender nuova, eseguire `author_blender.py` come `__main__`, quindi `place_small_hangars.py`. Quest'ultimo importa la collection dall'asset esistente e crea `asset_placements.json`; rifiuta istanze duplicate.
 3. Rigenerare `build_geometry.py` **dopo** i piazzamenti (per ritagliare l'apron sulla loro impronta), richiamare `author_blender.refresh_surfaces()` e poi eseguire `deliver_blender.py` nella scena aperta. Non rigenerare sopra ritocchi Blender non riportati negli script.
-4. Eseguire uno scan completo del filesystem Godot dopo l'export. Per verificare l'import già esistente: `node tools/run_godot_check.cjs 35 /tmp/airport-check.log /percorso/a/godot --headless --path . --script tests/main_airport_layout_check.gd`.
+4. Eseguire uno scan completo del filesystem Godot dopo l'export. Per verificare l'import già esistente: `node tools/run_godot_check.cjs 35 /tmp/airport-check.log /percorso/a/godot --headless --path . --script tests/maps/main_airport_layout_check.gd`.
 
 Ultimo controllo effettuato: `AIRPORT_PLAN_CHECK_OK`, `AIRPORT_BLENDER_CHECK_OK`, controllo Godot preesistente PASS/exit 0 (1476 campioni continuità pavimentazione); preview lanciata con MCP `autosave=false`, stato live e log game/editor senza errori, poi fermata. Caratteristiche visive valutate sui due render finali. Atterraggi, rullaggio N26 reale, allineamento alla quota del terreno Garda, traffico AI e prestazioni di una missione completa non sono stati collaudati.

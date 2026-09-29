@@ -2,7 +2,7 @@ extends PanelContainer
 ## Reusable reading pause. CombatHUD arbitrates input with pause/options/disconnect UI.
 signal confirmed
 
-const Bindings = preload("res://scripts/ui/controller_bindings.gd")
+const Bindings = preload("res://scripts/input/controller_bindings.gd")
 var hud: CombatHUD
 var _title: Label
 var _body: Label

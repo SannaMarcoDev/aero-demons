@@ -1,8 +1,8 @@
 extends Node3D
 ## Player-facing, repeatable 1080p Ultra Garda benchmark. Never saves user settings.
-const Session = preload("res://scripts/ui/game_session.gd")
-const Settings = preload("res://scripts/ui/settings_manager.gd")
-const Sampler = preload("res://tools/benchmark_sampler.gd")
+const Session = preload("res://scripts/core/game_session.gd")
+const Settings = preload("res://scripts/core/settings_manager.gd")
+const Sampler = preload("res://scripts/performance/benchmark_sampler.gd")
 
 @onready var progress_label: Label = $Overlay/Progress
 @onready var result_panel: CenterContainer = $Overlay/ResultPanel
@@ -38,11 +38,8 @@ func _run() -> void:
 	var player: Node3D = _level.get_node("Player")
 	var camera: Camera3D = player.get_node("FlightCamera")
 	var forest: Node = _level.get_node("GardaLake/Forests")
-	var driver: Node = _level.get_node("GardaLake/SunshineCloudsDriverGD")
 	player.set_physics_process(false)
 	_level.get_node("GardaLake/TutorialBoundaryController").set_physics_process(false)
-	driver.set_process(false)
-	driver.retrieve_texture_data()
 	_level.get_node("GardaLake/Sky3D/SkyDome").process_method = 2
 	_level.get_node("CombatHUD").set_process_unhandled_input(false) # No pause during capture.
 	var settings := _saved_settings.duplicate(true)
@@ -50,7 +47,7 @@ func _run() -> void:
 	settings.merge({"quality_preset": Settings.QUALITY_ULTRA, "resolution": "1920x1080",
 		"window_mode": Settings.WINDOW_MODE_WINDOWED, "vsync": false, "fps_limit": 0,
 		"render_scale": 1.0, "upscaler": Settings.UPSCALER_OFF, "aa_mode": Settings.AA_TAA,
-		"clouds_coverage": 0.834, "tonemap": Settings.TONEMAP_ACES, "exposure": 1.0}, true)
+		"tonemap": Settings.TONEMAP_ACES, "exposure": 1.0}, true)
 	Settings.apply_settings(settings)
 	var viewport := get_tree().root
 	viewport.size = Vector2i(1920, 1080)

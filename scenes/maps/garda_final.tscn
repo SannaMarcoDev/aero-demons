@@ -9,11 +9,9 @@
 [ext_resource type="Texture2D" uid="uid://c1vwcdcdvb74a" path="res://addons/sky_3d/assets/thirdparty/textures/milkyway/Milkyway.jpg" id="12_milkyway"]
 [ext_resource type="Texture2D" uid="uid://cecwdqjol0ckd" path="res://addons/sky_3d/assets/textures/noiseClouds.png" id="13_clouds"]
 [ext_resource type="Texture2D" uid="uid://2r8ylu6rg5dp" path="res://addons/sky_3d/assets/thirdparty/textures/moon/MoonMap.png" id="15_moon"]
-[ext_resource type="PackedScene" uid="uid://b7uwjoh1k5yfl" path="res://scenes/maps/garda_airport_demo.tscn" id="16_8bik1"]
+[ext_resource type="PackedScene" uid="uid://b7uwjoh1k5yfl" path="res://scenes/maps/garda_airport.tscn" id="16_8bik1"]
 [ext_resource type="Texture2D" uid="uid://djpfuyxkryegn" path="res://addons/sky_3d/assets/textures/noise.jpg" id="16_noise"]
 [ext_resource type="Texture2D" uid="uid://bm7dot7t7u1q4" path="res://addons/sky_3d/assets/thirdparty/textures/milkyway/StarField.jpg" id="17_stars"]
-[ext_resource type="CompositorEffect" uid="uid://c207k528um13c" path="res://resources/environments/garda_clouds.tres" id="21_sunshine"]
-[ext_resource type="Script" uid="uid://djusduuxf0voj" path="res://addons/SunshineClouds2/SunshineCloudsDriver.gd" id="22_clouds_driver"]
 [ext_resource type="Script" uid="uid://bke3xwkhruy37" path="res://scripts/maps/tutorial_boundary_controller.gd" id="23_boundary"]
 [ext_resource type="Material" uid="uid://30yhc4wq6lxr" path="res://resources/materials/garda_water.tres" id="24_water"]
 [ext_resource type="Script" uid="uid://dcp1kek7gt3ik" path="res://scripts/maps/garda_forests.gd" id="25_forests"]
@@ -154,9 +152,6 @@ tonemap_white = 6.0
 
 [sub_resource type="CameraAttributesPractical" id="CameraAttributes_sky3d"]
 
-[sub_resource type="Compositor" id="Compositor_clouds"]
-compositor_effects = Array[CompositorEffect]([ExtResource("21_sunshine")])
-
 [sub_resource type="PlaneMesh" id="PlaneMesh_garda_water"]
 material = ExtResource("24_water")
 size = Vector2(1000000, 1000000)
@@ -175,7 +170,6 @@ metadata/_edit_lock_ = true
 [node name="Sky3D" type="WorldEnvironment" parent="." unique_id=424323690]
 environment = SubResource("Environment_sky3d")
 camera_attributes = SubResource("CameraAttributes_sky3d")
-compositor = SubResource("Compositor_clouds")
 script = ExtResource("8_sky3d")
 fog_enabled = false
 editor_time_enabled = false
@@ -257,19 +251,6 @@ month = 7
 latitude = 0.7967428035354114
 longitude = 0.18675022996339324
 utc = 2.0
-
-[node name="SunshineCloudsDriverGD" type="Node" parent="." unique_id=63502817 node_paths=PackedStringArray("tracked_directional_lights")]
-script = ExtResource("22_clouds_driver")
-update_continuously = true
-clouds_resource = ExtResource("21_sunshine")
-tracked_directional_lights = [NodePath("../Sky3D/SunLight")]
-tracked_directional_light_shadow_steps = Array[int]([16])
-directional_light_power_multiplier = 0.7
-wind_direction = Vector3(1.4, 0, 0.55)
-extra_large_structures_wind_speed = 90.0
-large_structures_wind_speed = 65.0
-medium_structures_wind_speed = 30.0
-small_structures_wind_speed = 10.0
 
 [node name="TutorialBoundaryController" type="Node3D" parent="." unique_id=1748372949]
 script = ExtResource("23_boundary")

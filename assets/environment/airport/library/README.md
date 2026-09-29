@@ -1,6 +1,6 @@
 # Biblioteca aeroportuale — dieci edifici e strutture speciali
 
-Aprire **`res://scenes/preview/airport_asset_library.tscn`** e premere **F6**.
+Aprire **`res://tools/preview/airports/airport_asset_library.tscn`** e premere **F6**.
 La scena di esposizione è indipendente: aprirla non modifica la città, l'aeroporto o il terreno.
 
 - **← / →:** scorrono tutti i 13 elementi (dieci edifici, due strutture, incrocio), con ritorno circolare alla panoramica.
@@ -53,8 +53,8 @@ La selezione limita gli export GLB; scena sorgente e metriche vengono ricostruit
 Dopo l'export eseguire la scansione filesystem/reimport in Godot e verificare i `source_md5` della cache.
 
 ```text
-node tools/run_godot_check.cjs 45 subagent-artifacts/catalog-expansion/check.log GODOT --headless --path . --script res://tests/airport_asset_library_check.gd
-node tools/run_godot_check.cjs 110 subagent-artifacts/catalog-expansion/capture.log GODOT --path . --script res://tests/airport_asset_library_check.gd -- --capture
+node tools/run_godot_check.cjs 45 subagent-artifacts/catalog-expansion/check.log GODOT --headless --path . --script res://tests/maps/airport_asset_library_check.gd
+node tools/run_godot_check.cjs 110 subagent-artifacts/catalog-expansion/capture.log GODOT --path . --script res://tests/maps/airport_asset_library_check.gd -- --capture
 ```
 
 Passati entrambi: dodici import distinti, conteggi, dimensioni, normali finite, geometria delle strade e rigenerazione spline, quattordici preset, navigazione oltre il nono elemento e ritorno circolare.

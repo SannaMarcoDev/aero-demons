@@ -1,7 +1,7 @@
 """Approved catalog -> editable Godot city; run with Blender MCP/runpy.
 Reads airport.blend without changing it. Exports ONLY retained infrastructure,
 three original standard buildings and two dish variants. No Blender roads.
-Then run tools/prepare_airport_city.gd to author the Godot scene and road graph.
+Then run tools/airports/prepare_airport_city.gd to author the Godot scene and road graph.
 """
 import bpy
 import bmesh

@@ -3,7 +3,7 @@ class_name WeaponController
 
 const GunSolver = preload("res://scripts/weapons/gun_solution.gd")
 const Catalog = preload("res://scripts/weapons/missile_catalog.gd")
-const Session = preload("res://scripts/ui/game_session.gd")
+const Session = preload("res://scripts/core/game_session.gd")
 
 signal gun_fired()
 signal hit_confirmed()

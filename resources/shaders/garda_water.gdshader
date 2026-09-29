@@ -1,5 +1,4 @@
-// Deep, cold water for the flight map. Opaque on purpose: SunshineClouds
-// composites before transparency and must see the water's depth, not its bed.
+// Deep, cold, opaque water for the flight map.
 shader_type spatial;
 render_mode depth_draw_opaque, cull_back, diffuse_burley, specular_schlick_ggx;
 

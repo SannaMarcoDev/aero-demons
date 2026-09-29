@@ -107,7 +107,7 @@ func _freeze(node: Node) -> void:
 				node.set_draw_pass_mesh(index, mesh)
 	if node is GeometryInstance3D and node.material_override is ShaderMaterial:
 		node.material_override = _clock_material(node.material_override)
-	if Data.script_path(node) == "res://scenes/vfx/jet_exhaust.gd":
+	if Data.script_path(node) == "res://scripts/vfx/jet_exhaust.gd":
 		exhausts.append(node)
 	for child in node.get_children():
 		_freeze(child)

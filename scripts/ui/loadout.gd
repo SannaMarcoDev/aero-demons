@@ -1,8 +1,8 @@
 extends CanvasLayer
 
 const Catalog = preload("res://scripts/weapons/missile_catalog.gd")
-const Session = preload("res://scripts/ui/game_session.gd")
-const Bindings = preload("res://scripts/ui/controller_bindings.gd")
+const Session = preload("res://scripts/core/game_session.gd")
+const Bindings = preload("res://scripts/input/controller_bindings.gd")
 const AircraftCatalog = preload("res://scripts/aircraft/aircraft_catalog.gd")
 
 @onready var slot1_btn: Button = $Main/LeftPanel/VBox/SlotRow/Slot1Button

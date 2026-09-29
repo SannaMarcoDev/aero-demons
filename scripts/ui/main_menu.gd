@@ -1,7 +1,7 @@
 extends CanvasLayer
 
-const Session = preload("res://scripts/ui/game_session.gd")
-const Bindings = preload("res://scripts/ui/controller_bindings.gd")
+const Session = preload("res://scripts/core/game_session.gd")
+const Bindings = preload("res://scripts/input/controller_bindings.gd")
 
 # Root Menu Buttons
 @onready var root_menu: VBoxContainer = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/RootMenu
