@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cdhunaakd40iy"
-path="res://.godot/imported/T_DryPlants_N.png-5f13baa15f18e217999abebccc494c61.ctex"
+path.s3tc="res://.godot/imported/T_DryPlants_N.png-5f13baa15f18e217999abebccc494c61.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/environment/military_airport/textures/Foliage/Grass/T_DryPlants_N.png"
-dest_files=["res://.godot/imported/T_DryPlants_N.png-5f13baa15f18e217999abebccc494c61.ctex"]
+dest_files=["res://.godot/imported/T_DryPlants_N.png-5f13baa15f18e217999abebccc494c61.s3tc.ctex"]
 
 [params]
 

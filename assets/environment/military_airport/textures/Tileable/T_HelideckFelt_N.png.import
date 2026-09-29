@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dqoyi6ptxdpww"
-path="res://.godot/imported/T_HelideckFelt_N.png-fec998a7b9902b9a6ac8ca45bab8f633.ctex"
+path.s3tc="res://.godot/imported/T_HelideckFelt_N.png-fec998a7b9902b9a6ac8ca45bab8f633.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/environment/military_airport/textures/Tileable/T_HelideckFelt_N.png"
-dest_files=["res://.godot/imported/T_HelideckFelt_N.png-fec998a7b9902b9a6ac8ca45bab8f633.ctex"]
+dest_files=["res://.godot/imported/T_HelideckFelt_N.png-fec998a7b9902b9a6ac8ca45bab8f633.s3tc.ctex"]
 
 [params]
 

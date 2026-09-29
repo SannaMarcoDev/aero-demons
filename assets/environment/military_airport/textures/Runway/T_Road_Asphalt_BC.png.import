@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c8ghxmaehpymi"
-path="res://.godot/imported/T_Road_Asphalt_BC.png-f6b86f44e2dcd6eeda3761a158516a50.ctex"
+path.s3tc="res://.godot/imported/T_Road_Asphalt_BC.png-f6b86f44e2dcd6eeda3761a158516a50.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/environment/military_airport/textures/Runway/T_Road_Asphalt_BC.png"
-dest_files=["res://.godot/imported/T_Road_Asphalt_BC.png-f6b86f44e2dcd6eeda3761a158516a50.ctex"]
+dest_files=["res://.godot/imported/T_Road_Asphalt_BC.png-f6b86f44e2dcd6eeda3761a158516a50.s3tc.ctex"]
 
 [params]
 

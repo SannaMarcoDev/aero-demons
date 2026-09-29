@@ -16,6 +16,7 @@
 [ext_resource type="Material" uid="uid://30yhc4wq6lxr" path="res://resources/materials/garda_water.tres" id="24_water"]
 [ext_resource type="Script" uid="uid://dcp1kek7gt3ik" path="res://scripts/maps/garda_forests.gd" id="25_forests"]
 [ext_resource type="Script" uid="uid://dcn2geieg0s6j" path="res://scripts/maps/garda_ground_cover.gd" id="26_ground_cover"]
+[ext_resource type="Script" path="res://addons/clouds/cloud_layer_3d.gd" id="27_cloud_layer"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_surface"]
 seed = 7319
@@ -251,6 +252,12 @@ month = 7
 latitude = 0.7967428035354114
 longitude = 0.18675022996339324
 utc = 2.0
+
+[node name="CloudLayer3D" type="Node3D" parent="." node_paths=PackedStringArray("world_environment", "sun")]
+script = ExtResource("27_cloud_layer")
+world_environment = NodePath("../Sky3D")
+sun = NodePath("../Sky3D/SunLight")
+shadows_enabled = false
 
 [node name="TutorialBoundaryController" type="Node3D" parent="." unique_id=1748372949]
 script = ExtResource("23_boundary")

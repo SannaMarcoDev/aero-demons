@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bkvhvimcdjr0t"
-path="res://.godot/imported/T_Props_3_BC.png-003729a50dff070c33bc6d98592eb19b.ctex"
+path.s3tc="res://.godot/imported/T_Props_3_BC.png-003729a50dff070c33bc6d98592eb19b.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/environment/military_airport/textures/Props/T_Props_3_BC.png"
-dest_files=["res://.godot/imported/T_Props_3_BC.png-003729a50dff070c33bc6d98592eb19b.ctex"]
+dest_files=["res://.godot/imported/T_Props_3_BC.png-003729a50dff070c33bc6d98592eb19b.s3tc.ctex"]
 
 [params]
 

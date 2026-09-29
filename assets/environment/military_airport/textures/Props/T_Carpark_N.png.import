@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://do1i3sqjdfstl"
-path="res://.godot/imported/T_Carpark_N.png-970a775b18d8dfc23ee773191e6f852d.ctex"
+path.s3tc="res://.godot/imported/T_Carpark_N.png-970a775b18d8dfc23ee773191e6f852d.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/environment/military_airport/textures/Props/T_Carpark_N.png"
-dest_files=["res://.godot/imported/T_Carpark_N.png-970a775b18d8dfc23ee773191e6f852d.ctex"]
+dest_files=["res://.godot/imported/T_Carpark_N.png-970a775b18d8dfc23ee773191e6f852d.s3tc.ctex"]
 
 [params]
 

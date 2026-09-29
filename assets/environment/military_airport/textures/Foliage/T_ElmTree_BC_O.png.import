@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dfpywav060bq5"
-path="res://.godot/imported/T_ElmTree_BC_O.png-69b520b28038baf295838ce0f404ac7d.ctex"
+path.s3tc="res://.godot/imported/T_ElmTree_BC_O.png-69b520b28038baf295838ce0f404ac7d.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/environment/military_airport/textures/Foliage/T_ElmTree_BC_O.png"
-dest_files=["res://.godot/imported/T_ElmTree_BC_O.png-69b520b28038baf295838ce0f404ac7d.ctex"]
+dest_files=["res://.godot/imported/T_ElmTree_BC_O.png-69b520b28038baf295838ce0f404ac7d.s3tc.ctex"]
 
 [params]
 

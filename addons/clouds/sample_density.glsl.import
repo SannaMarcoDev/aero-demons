@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://h8xb7uf1quw1"
+path="res://.godot/imported/sample_density.glsl-8ef98e9d20d5f393b7f3eab715f4bfa6.res"
+
+[deps]
+
+source_file="res://addons/clouds/sample_density.glsl"
+dest_files=["res://.godot/imported/sample_density.glsl-8ef98e9d20d5f393b7f3eab715f4bfa6.res"]
+
+[params]
+

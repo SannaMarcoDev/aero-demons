@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bvgtke78pgs03"
-path="res://.godot/imported/T_Oak_1_L_N.png-25e6f42b5164e6bdf23f6f6c1a09c0db.ctex"
+path.s3tc="res://.godot/imported/T_Oak_1_L_N.png-25e6f42b5164e6bdf23f6f6c1a09c0db.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/environment/military_airport/textures/Foliage/Tree/T_Oak_1_L_N.png"
-dest_files=["res://.godot/imported/T_Oak_1_L_N.png-25e6f42b5164e6bdf23f6f6c1a09c0db.ctex"]
+dest_files=["res://.godot/imported/T_Oak_1_L_N.png-25e6f42b5164e6bdf23f6f6c1a09c0db.s3tc.ctex"]
 
 [params]
 

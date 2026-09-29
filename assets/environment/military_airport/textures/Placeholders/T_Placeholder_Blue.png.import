@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://sqfunbaxajhg"
-path="res://.godot/imported/T_Placeholder_Blue.png-e0e3474f5ac9edf17d204c2ed08390f4.ctex"
+path.s3tc="res://.godot/imported/T_Placeholder_Blue.png-e0e3474f5ac9edf17d204c2ed08390f4.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/environment/military_airport/textures/Placeholders/T_Placeholder_Blue.png"
-dest_files=["res://.godot/imported/T_Placeholder_Blue.png-e0e3474f5ac9edf17d204c2ed08390f4.ctex"]
+dest_files=["res://.godot/imported/T_Placeholder_Blue.png-e0e3474f5ac9edf17d204c2ed08390f4.s3tc.ctex"]
 
 [params]
 
