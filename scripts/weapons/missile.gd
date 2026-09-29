@@ -38,20 +38,20 @@ var _payload_spread_degrees := 0.0
 var _payload_straight_time := 0.0
 var _payload_phase := 0.0
 var _smoke_intensity := 1.0
-var _flame_budget := 0.0
+# Retained for replay recordings; drives the local plume's ignition brightness.
 var _flame_emission_scale := 1.0
 var _smoke_core_budget := 0.0
 var _smoke_trail_budget := 0.0
 
-# --- Idea B/C/D/F: visibilità ---
+# Short ignition boost, then a steady nozzle plume.
 var _boost_remaining := 0.0
 var _phase := 0.0
 var _light_scale := 1.0
 var _vis_scale := 1.0
-const BOOST_DURATION := 0.42
-const BASE_LIGHT_ENERGY := 6.0
-const BASE_LIGHT_RANGE := 18.0
-var _flame: GPUParticles3D = null
+const BOOST_DURATION := 0.22
+const BASE_LIGHT_ENERGY := 2.0
+const BASE_LIGHT_RANGE := 7.0
+var _flame: MeshInstance3D = null
 var _smoke_core: GPUParticles3D = null
 var _smoke_trail: GPUParticles3D = null
 var _engine_light: OmniLight3D = null
@@ -139,7 +139,6 @@ func _physics_process(delta: float) -> void:
 	_distance_traveled += velocity.length() * delta
 	_orient_to_velocity()
 	var trail_to := _flame_origin()
-	_flame_budget = _emit_particle_segment(_flame, trail_from, trail_to, delta, _flame_budget, _flame_emission_scale)
 	_emit_smoke_segment(trail_from, trail_to, delta)
 
 	if not _payload_enabled and _check_target_proximity():
@@ -193,10 +192,13 @@ func _emit_smoke_segment(from: Vector3, to: Vector3, delta: float) -> void:
 	_smoke_trail_budget = _emit_particle_segment(_smoke_trail, from, to, delta, _smoke_trail_budget, _smoke_intensity)
 
 
-func _emit_particle_segment(emitter: GPUParticles3D, from: Vector3, to: Vector3, delta: float, budget: float, density: float) -> float:
-	if emitter == null or density <= 0.0 or delta <= 0.0:
+func _emit_particle_segment(emitter: GPUParticles3D, from: Vector3, to: Vector3, delta: float, budget: float, intensity: float) -> float:
+	if emitter == null or intensity <= 0.0 or delta <= 0.0:
 		return budget
-	var rate := float(emitter.amount) / emitter.lifetime * density
+	# Less smoke means fainter smoke, not widely separated dots along the flight path.
+	var material := emitter.draw_pass_1.material as ShaderMaterial
+	material.set_shader_parameter("intensity", intensity)
+	var rate := float(emitter.amount) / emitter.lifetime
 	var generated := rate * delta
 	var count := floori(budget + generated)
 	for index in count:
@@ -308,7 +310,7 @@ func _lose_tracking() -> void:
 	if _engine_light != null:
 		_engine_light.light_energy = 0.0
 	if _flame != null:
-		_flame.emitting = false
+		_flame.visible = false
 	if _smoke_core != null:
 		_smoke_core.emitting = false
 	if _smoke_trail != null:
@@ -395,7 +397,7 @@ func _on_thruster_finished() -> void:
 
 func _cache_nodes() -> void:
 	if _flame == null:
-		_flame = get_node_or_null("Flame") as GPUParticles3D
+		_flame = get_node_or_null("Flame") as MeshInstance3D
 	if _smoke_core == null:
 		_smoke_core = get_node_or_null("SmokeCore") as GPUParticles3D
 	if _smoke_trail == null:
@@ -410,8 +412,8 @@ func _trigger_boost() -> void:
 	if _engine_light != null:
 		_engine_light.light_energy = BASE_LIGHT_ENERGY * _light_scale * 2.4
 		_engine_light.omni_range = BASE_LIGHT_RANGE * (0.85 + 0.3 * _vis_scale) * 1.35
-	_flame_budget = 0.0
 	_flame_emission_scale = 1.9
+	_update_flame()
 	_smoke_core_budget = 0.0
 	_smoke_trail_budget = 0.0
 
@@ -424,7 +426,7 @@ func _update_visuals(delta: float) -> void:
 		return
 	_phase += delta
 	var flick := 0.5 * sin(_phase * 19.0) + 0.5 * sin(_phase * 7.3 + 1.7)
-	var flick_factor := 1.0 - 0.18 * (0.5 - 0.5 * flick)
+	var flick_factor := 1.0 - 0.08 * (0.5 - 0.5 * flick)
 	if _boost_remaining > 0.0:
 		_boost_remaining = maxf(_boost_remaining - delta, 0.0)
 		var t := _boost_remaining / BOOST_DURATION
@@ -434,7 +436,17 @@ func _update_visuals(delta: float) -> void:
 		_flame_emission_scale = 1.0 + t * 0.9
 	else:
 		_engine_light.light_energy = BASE_LIGHT_ENERGY * _light_scale * flick_factor
+		_engine_light.omni_range = BASE_LIGHT_RANGE * (0.85 + 0.3 * _vis_scale)
 		_flame_emission_scale = 1.0
+	_update_flame()
+
+
+func _update_flame() -> void:
+	if _flame == null:
+		return
+	_flame.visible = not _ballistic
+	var material := _flame.material_override as ShaderMaterial
+	material.set_shader_parameter("emission_energy", 12.0 * (1.0 + 0.3 * (_flame_emission_scale - 1.0)))
 
 
 func _apply_visual() -> void:
@@ -498,24 +510,36 @@ func _apply_visual() -> void:
 		_engine_light.light_energy = BASE_LIGHT_ENERGY * _light_scale
 		_engine_light.omni_range = BASE_LIGHT_RANGE * (0.85 + 0.3 * _vis_scale)
 
-	# --- scala particelle proporzionale alla taglia ---
-	var payload_visual_scale := 1.0
+	# Body is 2.6 m long before scaling. Keep every emitter at its aft tip.
+	for nozzle in [_flame, _smoke_core, _smoke_trail, _engine_light]:
+		if nozzle != null:
+			nozzle.position.z = 1.3 * _vis_scale
 	if _flame != null:
-		var pm := _flame.process_material as ParticleProcessMaterial
-		if pm != null:
-			pm = pm.duplicate() as ParticleProcessMaterial
-			var f := (0.9 + 0.22 * _vis_scale) * payload_visual_scale
-			pm.scale_min *= f
-			pm.scale_max *= f
-			_flame.process_material = pm
+		# Existing bounded volume: a continuous jet from every angle, without fire sprites.
+		var material := _flame.material_override.duplicate() as ShaderMaterial
+		var plume := {
+			"plume_length": 4.35 * _vis_scale, "nozzle_radius": 0.31 * _vis_scale,
+			"spread": 0.55, "radial_falloff": 2.4, "radial_shape": 3.0,
+			"axial_falloff": 0.8, "emission_energy": 12.0, "absorption": 2.0,
+			"turbulence_amount": 0.25, "turbulence_scale": 2.0, "turbulence_detail": 2.7,
+			"turbulence_floor": 0.2, "turbulence_contrast": 2.0, "turbulence_stretch": 0.3,
+			"core_heat": 1.2, "core_focus": 0.65, "cooling": 0.55, "shock_strength": 0.0,
+		}
+		for parameter in plume:
+			material.set_shader_parameter(parameter, plume[parameter])
+		_flame.material_override = material
 	for emitter in [_smoke_core, _smoke_trail]:
 		if emitter == null:
 			continue
+		# Twelve split missiles keep a short, faint trail at the same spatial density.
+		if missile_id == "MTSM":
+			emitter.amount = maxi(roundi(emitter.amount * 0.3), 1)
+			emitter.lifetime *= 0.3
 		var pmat := emitter.process_material as ParticleProcessMaterial
 		if pmat == null:
 			continue
 		pmat = pmat.duplicate() as ParticleProcessMaterial
-		var f2 := (0.85 + 0.3 * _vis_scale) * payload_visual_scale * 0.72
+		var f2 := (0.85 + 0.3 * _vis_scale) * 0.72
 		pmat.scale_min *= f2
 		pmat.scale_max *= f2
 		if missile_id == "BAHM":
@@ -546,12 +570,14 @@ func _apply_visual() -> void:
 					smat.set_shader_parameter("soot_tint", Color(0.74, 0.75, 0.78, 1))
 					smat.set_shader_parameter("aged_tint", Color(0.96, 0.97, 1.0, 1))
 				smat.set_shader_parameter("edge_start", 0.0)
-				smat.set_shader_parameter("edge_falloff", 0.8)
-				smat.set_shader_parameter("erosion", 0.5)
-				smat.set_shader_parameter("erosion_young", 0.25)
-				smat.set_shader_parameter("noise_contrast", 1.5)
-				smat.set_shader_parameter("opacity", 0.7)
-				# ponytail: same particle count keeps the narrower trail equally dense
+				smat.set_shader_parameter("edge_falloff", 1.2)
+				smat.set_shader_parameter("erosion", 0.7)
+				smat.set_shader_parameter("erosion_young", 0.2)
+				smat.set_shader_parameter("noise_contrast", 1.7)
+				smat.set_shader_parameter("churn_speed", 0.18)
+				smat.set_shader_parameter("structure", 0.25)
+				smat.set_shader_parameter("shade_variation", 0.15)
+				smat.set_shader_parameter("opacity", 0.4)
 				quad.material = smat
 			emitter.draw_pass_1 = quad
 
