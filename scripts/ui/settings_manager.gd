@@ -135,6 +135,7 @@ static func default_settings() -> Dictionary:
 static func fixed_settings() -> Dictionary:
 	var settings := default_settings()
 	settings.merge(QUALITY_PRESETS[QUALITY_ULTRA], true)
+	settings["fps_limit"] = 60
 	settings["aa_mode"] = AA_TAA
 	settings["fsr_sharpness"] = 1.0
 	return settings
@@ -419,6 +420,9 @@ static func _apply_clouds(root: Viewport, settings: Dictionary) -> void:
 	var quality := clampi(int(settings.get("clouds_quality", CLOUDS_ULTRA)), 0, CLOUDS_COUNT - 1)
 	var coverage := clampf(float(settings.get("clouds_coverage", 0.834)), 0.0, 1.0)
 	for path in [CLOUDS_RESOURCE_PATH, GARDA_CLOUDS_RESOURCE_PATH]:
+		# Only configure loaded scenery; unused cloud resources allocate GPU handles too.
+		if not ResourceLoader.has_cached(path):
+			continue
 		var clouds: SunshineCloudsGD = ResourceLoader.load(path)
 		if clouds == null:
 			continue
