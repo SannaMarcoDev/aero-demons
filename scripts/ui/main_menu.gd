@@ -35,6 +35,22 @@ var _focused_mode: String = "storia"
 func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	_wire_signals()
+	var replay_button := Button.new()
+	replay_button.name = "ReplayButton"
+	replay_button.text = "REPLAY / CINEMA"
+	replay_button.custom_minimum_size = free_flight_btn.custom_minimum_size
+	root_menu.add_child(replay_button)
+	root_menu.move_child(replay_button, benchmark_btn.get_index())
+	replay_button.pressed.connect(func():
+		if _transitioning:
+			return
+		get_node("/root/ReplayRecorder").selected_path = ""
+		Session.change_scene(get_tree(), "res://scenes/replay/replay_viewer.tscn"))
+	# Keep keyboard/controller navigation in the same order as the visible buttons.
+	var buttons := root_menu.get_children()
+	for index in buttons.size():
+		buttons[index].focus_neighbor_top = buttons[posmod(index - 1, buttons.size())].get_path()
+		buttons[index].focus_neighbor_bottom = buttons[(index + 1) % buttons.size()].get_path()
 	var returning_section: String = Session.menu_section
 	if returning_section == "sorties":
 		hangar_camera.set_view(1.0)

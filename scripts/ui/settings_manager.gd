@@ -342,9 +342,11 @@ static func apply_settings(settings: Dictionary) -> void:
 	if tree != null and tree.root != null:
 		_apply_rendering(tree.root, settings)
 		_apply_scene_quality(tree.root, settings)
-	_apply_window(settings)
+	# Movie Maker owns the output resolution and must not wait for display refresh.
+	if not OS.has_feature("movie"):
+		_apply_window(settings)
 
-	var vsync: bool = bool(settings.get("vsync", true))
+	var vsync: bool = bool(settings.get("vsync", true)) and not OS.has_feature("movie")
 	if vsync:
 		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_ENABLED)
 	else:
