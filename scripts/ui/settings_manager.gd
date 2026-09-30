@@ -134,6 +134,10 @@ static func default_settings() -> Dictionary:
 
 static func fixed_settings() -> Dictionary:
 	var settings := default_settings()
+	# Keep the user's window size/mode when reapplying the fixed graphics preset.
+	settings.erase("fullscreen")
+	settings.erase("window_mode")
+	settings.erase("resolution")
 	settings.merge(QUALITY_PRESETS[QUALITY_ULTRA], true)
 	settings["fps_limit"] = 60
 	settings["aa_mode"] = AA_TAA
@@ -386,6 +390,8 @@ static func _apply_rendering(root: Viewport, settings: Dictionary) -> void:
 
 
 static func _apply_window(settings: Dictionary) -> void:
+	if not settings.has("window_mode") and not settings.has("resolution"):
+		return
 	var desired := int(settings.get("window_mode", WINDOW_MODE_WINDOWED))
 	var want_borderless := desired == WINDOW_MODE_BORDERLESS
 	if DisplayServer.window_get_flag(DisplayServer.WINDOW_FLAG_BORDERLESS) != want_borderless:
