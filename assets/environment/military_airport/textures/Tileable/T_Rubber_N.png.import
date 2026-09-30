@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ts04ws4q6lja"
-path="res://.godot/imported/T_Rubber_N.png-d021f75f2fc4199cad570dd11f275137.ctex"
+path.s3tc="res://.godot/imported/T_Rubber_N.png-d021f75f2fc4199cad570dd11f275137.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/environment/military_airport/textures/Tileable/T_Rubber_N.png"
-dest_files=["res://.godot/imported/T_Rubber_N.png-d021f75f2fc4199cad570dd11f275137.ctex"]
+dest_files=["res://.godot/imported/T_Rubber_N.png-d021f75f2fc4199cad570dd11f275137.s3tc.ctex"]
 
 [params]
 

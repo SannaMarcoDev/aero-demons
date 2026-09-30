@@ -63,4 +63,4 @@ Le ricette `build_airport.py`, `finish_airport.py`, `prepare_delivery.py` docume
 
 Controllo da eseguire dalla radice repository, con una deadline esterna:
 
-`Godot_v4.7.1-stable_win64.exe --headless --path . --script tests/airport_asset_check.gd`
+`Godot_v4.7.1-stable_win64.exe --headless --path . --script tests/maps/airport_asset_check.gd`

@@ -1,0 +1,16 @@
+// Shared by the view raymarch and the sunlight/sky bake. The baked shape
+// contains the actual overlapping billows; noise only loosens their edges.
+vec3 field_uv(vec3 pos) {
+	return vec3(pos.x / p.deck.w + 0.5,
+		(pos.y - p.deck.x) / (p.deck.y - p.deck.x), pos.z / p.deck.w + 0.5);
+}
+float shape_distance(vec3 pos) {
+	return textureLod(shape_tex, field_uv(pos), 0.0).r;
+}
+float density_at(vec3 pos, float distance_to_shape) {
+	if (pos.y <= p.deck.x || pos.y >= p.deck.y || distance_to_shape >= 310.0) return 0.0;
+	vec4 n = textureLod(noise_tex, pos / 5000.0, 0.0);
+	float edge = (n.g - 0.65) * 260.0 + (n.b - 0.5) * 200.0 + (n.a - 0.5) * 90.0;
+	return smoothstep(-70.0, 180.0, -distance_to_shape + edge)
+		* p.misc.x * mix(0.65, 1.0, n.r);
+}

@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://c4i2n6w5qmymx"
+path="res://.godot/imported/bake_light.glsl-f0e18d2844a54b62bf0bbaac605a000c.res"
+
+[deps]
+
+source_file="res://addons/clouds/bake_light.glsl"
+dest_files=["res://.godot/imported/bake_light.glsl-f0e18d2844a54b62bf0bbaac605a000c.res"]
+
+[params]
+

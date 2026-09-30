@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bmn8ob3x8gvib"
-path="res://.godot/imported/T_Fence_N.png-95da353a7d488afe97ef4cf1b324dd12.ctex"
+path.s3tc="res://.godot/imported/T_Fence_N.png-95da353a7d488afe97ef4cf1b324dd12.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/environment/military_airport/textures/Tileable/T_Fence_N.png"
-dest_files=["res://.godot/imported/T_Fence_N.png-95da353a7d488afe97ef4cf1b324dd12.ctex"]
+dest_files=["res://.godot/imported/T_Fence_N.png-95da353a7d488afe97ef4cf1b324dd12.s3tc.ctex"]
 
 [params]
 

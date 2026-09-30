@@ -1,7 +1,7 @@
 # Garda broadleaf — sorgenti e ricostruzione
 
 Mesh generata per Aero Demons in Blender 5.2 tramite Blender MCP e
-`tools/build_garda_tree.py`; nessuna mesh di albero di terzi riutilizzata.
+`tools/vegetation/build_garda_tree.py`; nessuna mesh di albero di terzi riutilizzata.
 Un solo modello, tre LOD espliciti (3.640 / 598 / 6 triangoli), una superficie
 per LOD, normali personalizzate, UV e colori vertex `TreeTint`.
 Il LOD lontano comprende due proiezioni laterali e una vista dall'alto.
@@ -41,10 +41,10 @@ azzerato, otto passaggi MaxFilter 3×3 nei texel sotto alpha 128; infine gli RGB
 sotto alpha 128 nei riquadri del fogliame vengono riempiti con la media dei
 texel con alpha >224. L'alpha non cambia. Questo evita mip lontani neri.
 
-`tools/pack_garda_tree_atlas.py` conserva questa preparazione. La ricostruzione
+`tools/vegetation/pack_garda_tree_atlas.py` conserva questa preparazione. La ricostruzione
 con i tre bake finali è stata confrontata pixel per pixel con l'atlas consegnato:
 uguaglianza completa RGBA. Con sorgenti e bake presenti, ripetere il controllo
-senza sovrascrivere l'asset con `python tools/pack_garda_tree_atlas.py check`.
+senza sovrascrivere l'asset con `python tools/vegetation/pack_garda_tree_atlas.py check`.
 PNG ricompressi possono avere hash di file diversi.
 
 ## Ricostruzione
@@ -57,12 +57,12 @@ i comandi seguenti sovrascrivono gli output di authoring.
    `subagent-artifacts/garda-forest/tree-source/`, verificando gli SHA-256.
    Escludere gli artefatti dall'import Godot con un file `.gdignore` nella
    directory `subagent-artifacts/garda-forest/`.
-2. Dalla radice del progetto: `python tools/pack_garda_tree_atlas.py base`.
+2. Dalla radice del progetto: `python tools/vegetation/pack_garda_tree_atlas.py base`.
 3. Eseguire tramite Blender MCP (sostituire il percorso con quello del checkout):
 
    ```python
    import runpy
-   garda = runpy.run_path(r"C:/Users/sanna/Workspace/Godot/Progetti/aero-demons/tools/build_garda_tree.py")
+   garda = runpy.run_path(r"C:/Users/sanna/Workspace/Godot/Progetti/aero-demons/tools/vegetation/build_garda_tree.py")
    garda['build']()
    ```
 
@@ -70,13 +70,13 @@ i comandi seguenti sovrascrivono gli output di authoring.
    `garda['bake']('side')` e `garda['bake']('top')`.
    Ricaricare `garda` con `runpy.run_path(...)` in ogni chiamata MCP: le variabili
    Python non persistono necessariamente fra chiamate.
-4. Nel Python esterno: `python tools/pack_garda_tree_atlas.py pack`.
+4. Nel Python esterno: `python tools/vegetation/pack_garda_tree_atlas.py pack`.
 5. In Blender MCP: `garda['finish']()`. Esporta il GLB e salva una copia
    `subagent-artifacts/garda-forest/tree-source/garda_broadleaf_landscape.blend`.
    La scena Blender preesistente viene conservata; viene ricostruito solo lo
    studio nominato `Garda Broadleaf Studio`.
 6. Chiamare `garda['bake_normals'](view)` per `front`, `side`, `top`, poi
-   `python tools/pack_garda_tree_atlas.py normals`. I bake sono lineari (`Raw`),
+   `python tools/vegetation/pack_garda_tree_atlas.py normals`. I bake sono lineari (`Raw`),
    rimuovono l'inversione delle normali sulle backface e convertono Z-up Blender
    in Y-up Godot. `garda_broadleaf_normals.png` è **object-space**, non tangent-space:
    non attivare la conversione normal-map di Godot né `source_color` nello shader.
@@ -84,7 +84,7 @@ i comandi seguenti sovrascrivono gli output di authoring.
    LOD automatici disabilitati, atlas con mipmap e compressione VRAM ad alta qualità.
    Il solo comando MCP `reimport` ha lasciato cache obsolete durante le prove:
    verificare `source_md5` in `.godot/imported/*.md5` contro i file sorgenti.
-8. `python tools/pack_garda_tree_atlas.py check` ricostruisce entrambi gli atlas
+8. `python tools/vegetation/pack_garda_tree_atlas.py check` ricostruisce entrambi gli atlas
    in una directory temporanea e verifica l'uguaglianza pixel per pixel.
 
 Il GLB contiene l'atlas per essere trasportabile. Godot ne estrae automaticamente
@@ -122,8 +122,8 @@ Nessun acquisto e nessuna dipendenza aggiuntiva nel gioco.
 Ricostruzione dalla radice del progetto (sovrascrive gli asset della conifera):
 
 ```sh
-python3 tools/fetch_garda_fir.py
-node tools/run_godot_check.cjs 120 /tmp/fir-bake.log GODOT --path . --script res://tools/bake_garda_fir.gd
+python3 tools/vegetation/fetch_garda_fir.py
+node tools/run_godot_check.cjs 120 /tmp/fir-bake.log GODOT --path . --script res://tools/vegetation/bake_garda_fir.gd
 ```
 
 Il downloader richiede Pillow, verifica gli MD5 upstream e conserva il manifest
@@ -141,5 +141,5 @@ SHA-256 degli output:
 - `garda_fir_atlas.png`: `0c4f53acd8be11d2a9ccec68e15b0ca0f139213a7f893f95e34a898868f62fbf`
 - `garda_fir_normals.png`: `9f7d5d660433ead5c2886d073f0bbbc945a2b3a51d9f3f119cd924887debe37e`
 
-Prestazioni, esperimenti e limiti: [report corrente](../../../docs/landscape-lookdev.md).
-Il [report precedente](../../../docs/garda-forest-review.md) resta una baseline storica.
+Prestazioni, esperimenti e limiti: [report corrente](../../../docs/environment/landscape-lookdev.md).
+Il [report precedente](../../../docs/environment/garda-forest-review.md) resta una baseline storica.

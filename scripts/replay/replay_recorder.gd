@@ -137,7 +137,7 @@ func _collect_channels(root: Node, node: Node, channels: Array, bindings: Array)
 		if node is OmniLight3D:
 			properties.append("omni_range")
 	var script := Data.script_path(node)
-	if script == "res://scenes/vfx/jet_exhaust.gd":
+	if script == "res://scripts/vfx/jet_exhaust.gd":
 		properties.append_array(["_power", "_clock", "throttle"])
 	if script == "res://scripts/vfx/damage_fire.gd":
 		properties.append("intensity")

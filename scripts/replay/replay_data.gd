@@ -24,7 +24,7 @@ const SCENES := [
 const MODELS := ["res://scenes/aircraft/saab_ja37.tscn", "res://scenes/aircraft/su27.tscn", "res://assets/aircraft/mig29/mig29.glb"]
 const VISUAL_SCRIPTS := [
 	"res://scripts/aircraft/saab_controls.gd", "res://scripts/aircraft/su27_controls.gd",
-	"res://scripts/vfx/afterburner.gd", "res://scenes/vfx/jet_exhaust.gd",
+	"res://scripts/vfx/afterburner.gd", "res://scripts/vfx/jet_exhaust.gd",
 	"res://scripts/vfx/damage_fire.gd", "res://scripts/vfx/explosion_fx.gd",
 	"res://scripts/vfx/energy_sphere.gd", "res://scripts/weapons/missile.gd",
 	"res://assets/BinbunVFX/shared/script/vfx_controller.gd",

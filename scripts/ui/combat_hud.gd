@@ -1,7 +1,7 @@
 extends CanvasLayer
 class_name CombatHUD
 
-const Bindings = preload("res://scripts/ui/controller_bindings.gd")
+const Bindings = preload("res://scripts/input/controller_bindings.gd")
 
 const TAPE_Y := 286.0
 const TAPE_HALF_WIDTH := 290.0

@@ -5,7 +5,7 @@ Un solo modulo, realizzato in Blender tramite MCP, separato dall'aeroporto esist
 ## Aprire e usare
 
 - **Godot, pronto da duplicare:** `res://scenes/maps/small_hangar.tscn`.
-- **Anteprima F6:** `res://scenes/preview/small_hangar_preview.tscn`.
+- **Anteprima F6:** `res://tools/preview/airports/small_hangar_preview.tscn`.
   `O` apre/chiude; `1/2/3` esterno/interno/distanza; WASD + mouse, Q/E quota,
   Shift veloce, Esc libera il mouse/esce. La camera riusa `free_fly_camera.gd`.
 - **Blender:** `source/small_hangar.blend`, scena `SmallHangar`.
@@ -116,8 +116,8 @@ finale. Nessun benchmark con decine di hangar o integrazione nel terreno è dich
    cache. Il solo `update_file` MCP non ha aggiornato la cache nelle prove.
 4. Dalla radice (sostituire `GODOT` col binario):
    ```sh
-   node tools/run_godot_check.cjs 35 .pi/small_hangar/prepare.log GODOT --headless --path . --script res://tools/prepare_small_hangar.gd
-   node tools/run_godot_check.cjs 25 .pi/small_hangar/check.log GODOT --headless --path . --script res://tests/small_hangar_check.gd
+   node tools/run_godot_check.cjs 35 .pi/small_hangar/prepare.log GODOT --headless --path . --script res://tools/airports/prepare_small_hangar.gd
+   node tools/run_godot_check.cjs 25 .pi/small_hangar/check.log GODOT --headless --path . --script res://tests/maps/small_hangar_check.gd
    ```
    Non usare `--fixed-fps` per questo check: l'autoload audio del progetto può
    trattenere uno stream nel teardown accelerato. La variante ordinaria passa pulita.

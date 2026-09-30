@@ -4,8 +4,8 @@ signal confirmed
 signal back_requested
 
 const Catalog = preload("res://scripts/weapons/missile_catalog.gd")
-const Session = preload("res://scripts/ui/game_session.gd")
-const Bindings = preload("res://scripts/ui/controller_bindings.gd")
+const Session = preload("res://scripts/core/game_session.gd")
+const Bindings = preload("res://scripts/input/controller_bindings.gd")
 const PhotoCard = preload("res://scenes/ui/menu_photo_card.tscn")
 const PreviewScene = preload("res://scenes/ui/missile_preview.tscn")
 const DESIGN_SIZE := Vector2(1920, 1080)

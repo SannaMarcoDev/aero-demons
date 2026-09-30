@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ylf4jm1jfbdv"
-path="res://.godot/imported/T_MetalRope_BC.png-b911d37488bb4a4e38a213693431ec6d.ctex"
+path.s3tc="res://.godot/imported/T_MetalRope_BC.png-b911d37488bb4a4e38a213693431ec6d.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/environment/military_airport/textures/Tileable/T_MetalRope_BC.png"
-dest_files=["res://.godot/imported/T_MetalRope_BC.png-b911d37488bb4a4e38a213693431ec6d.ctex"]
+dest_files=["res://.godot/imported/T_MetalRope_BC.png-b911d37488bb4a4e38a213693431ec6d.s3tc.ctex"]
 
 [params]
 

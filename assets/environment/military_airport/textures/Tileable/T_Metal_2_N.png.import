@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cbsk0qokrg0lf"
-path="res://.godot/imported/T_Metal_2_N.png-932598034afce6a4722a2f8c979d9ac0.ctex"
+path.s3tc="res://.godot/imported/T_Metal_2_N.png-932598034afce6a4722a2f8c979d9ac0.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/environment/military_airport/textures/Tileable/T_Metal_2_N.png"
-dest_files=["res://.godot/imported/T_Metal_2_N.png-932598034afce6a4722a2f8c979d9ac0.ctex"]
+dest_files=["res://.godot/imported/T_Metal_2_N.png-932598034afce6a4722a2f8c979d9ac0.s3tc.ctex"]
 
 [params]
 

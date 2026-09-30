@@ -34,7 +34,7 @@ const WC_TO_GODOT := Basis(Vector3(0, 0, 1), Vector3(1, 0, 0), Vector3(0, 1, 0))
 const WC_MODEL_YAW_DEG: float = 0.0    # extra model-facing yaw about up. Blender needs +90 (its glTF import pre-rotates models); Godot keeps models Y-up, so none is needed.
 const WC_SCALE_CONST: float = 1000.0   # size_m ~= |scale| * WC_SCALE_CONST * ModelScale (10x obj * 100x point scale)
 const WC_POSITION_SCALE: float = 1024.0 # WC normalizes instance positions so 1.0 = this many meters (FIXED reference, not the terrain size; matches the Blender bridge's *1024)
-const WC_OVERRIDE_SHADER := "res://resources/terrain/terrain_wc_override.gdshader" # shared patched Terrain3D shader, built by tools/build_terrain_override.gd
+const WC_OVERRIDE_SHADER := "res://resources/terrain/terrain_wc_override.gdshader" # shared patched Terrain3D shader, built by tools/terrain/build_terrain_override.gd
 
 func _enter_tree():
 	# Signals are connected in _ready()

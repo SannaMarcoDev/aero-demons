@@ -1,6 +1,6 @@
 extends CanvasLayer
 
-const Session = preload("res://scripts/ui/game_session.gd")
+const Session = preload("res://scripts/core/game_session.gd")
 
 @onready var aircraft_selection = $AircraftSelection
 @onready var missile_selection = $MissileSelection

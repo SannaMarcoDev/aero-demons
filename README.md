@@ -2,37 +2,55 @@
 
 Progetto Godot **4.7**, renderer **Forward+**, fisica **Jolt**.
 Aprire `project.godot` e avviare con **F5** il [menu principale](scenes/ui/main_menu.tscn), oppure con **F6** la scena desiderata.
-Dal menu si scelgono dogfight sul Garda o volo libero, poi due tipi di missile prima del decollo. Entrambi i livelli usano `scenes/maps/garda_final.tscn`.
+Dal menu si scelgono missione, aereo e due tipi di missile prima del decollo. I livelli giocabili sono in `scenes/levels/`, le mappe Garda e Utah in `scenes/maps/`. Gioco e menu hanno un limite di **30 FPS**; i benchmark diagnostici possono disattivarlo.
 
 ## Mappa del progetto
 
 | Percorso | Contenuto |
 | --- | --- |
-| `scenes/maps/` | `garda_final.tscn` è l'unica mappa effettiva, condivisa da freeroam e tutorial, con terreno, cielo, nuvole e controllo dei confini. |
-| `scenes/player/`, `scenes/enemies/` | Scene degli aerei e del giocatore. |
-| `scenes/ui/`, `scenes/weapons/`, `scenes/vfx/` | HUD, proiettili, missili ed effetti. |
-| `scripts/` | Logica divisa per dominio: `audio`, `camera`, `combat`, `player`, `ui`, `vfx`, `weapons`. |
-| `resources/materials/` | Materiali condivisi. |
-| `resources/shaders/` | Shader del progetto, inclusi quelli VFX. |
-| `resources/environments/` | Configurazioni ambientali, come le nuvole della mappa tutorial. |
-| `assets/` | Modelli, aerei, audio, font e pacchetti VFX. |
-| `terrain/textures/` | Texture del terreno. |
-| `terrain/source/` | Heightmap master GeoTIFF, RAW per World Machine, anteprima e informazioni di origine/licenza. |
-| `wc_data/` | Dati Terrain3D e texture prodotti da World Creator Bridge. Sono dati del progetto, non cache. |
-| `addons/` | Plugin e dipendenze integrate. |
-| `demo/` | Scene dimostrative delle dipendenze, separate dal gioco. |
-| `tests/` | Controlli eseguibili, separati dagli script di gioco. |
+| `scenes/levels/` | Punti di ingresso giocabili: tutorial, freeroam, varianti Utah e arena. |
+| `scenes/maps/` | Mappe Garda/Utah e componenti riutilizzabili: aeroporti, città, hangar. `garda_airport.tscn` è parte della mappa di produzione, non una demo. |
+| `scenes/aircraft/`, `player/`, `enemies/`, `weapons/` | Aerei, attori e armi. |
+| `scenes/ui/`, `replay/`, `vfx/` | Interfaccia, viewer replay ed effetti del gioco. |
+| `scripts/core/` | Stato cross-scena, impostazioni e applicazione dei valori fissi. |
+| `scripts/input/`, `graphics/`, `performance/` | Binding controller, diagnostica grafica runtime e campionamento condiviso dei benchmark. |
+| `scripts/` | Altra logica nel rispettivo dominio: `aircraft`, `audio`, `camera`, `combat`, `enemies`, `maps`, `player`, `replay`, `ui`, `vfx`, `weapons`. |
+| `resources/` | Dialoghi, materiali, shader, configurazioni stradali e risorse Terrain3D. |
+| `assets/` | Modelli, audio, font, texture e pacchetti esterni; sorgenti/licenze restano accanto agli asset. |
+| `terrain/` | Dataset Terrain3D, manifest di importazione, heightmap sorgenti e texture originali. Non è una cache. |
+| `textures/terrain/` | Texture fotografiche già impacchettate per Terrain3D e relativa provenienza. |
+| `wc_data/` | Output e texture di World Creator Bridge; percorso richiesto dal plugin. |
+| `tools/` | Importazione, generazione, benchmark standalone, review e anteprime; vedi sotto. |
+| `tests/` | Check esistenti divisi per dominio: `combat`, `flight`, `graphics`, `input`, `maps`, `performance`, `ui`, `vfx`. I due check della vecchia UI non più eseguibili sono documentati in [legacy](tests/legacy/README.md). |
+| `docs/` | [Indice](docs/README.md): design, sviluppo, ambiente e funzionalità. |
+| `addons/`, `demo/` | Dipendenze e rispettive demo, mantenute nella struttura originale. |
 
 In radice rimangono la configurazione Godot/Git, questa guida, l'icona e `default_bus_layout.tres` (layout audio predefinito).
 
 ## Punti di ingresso utili
 
-- Menu e armamento: `scenes/ui/main_menu.tscn`, `loadout.tscn`; selezione cross-scena in `scripts/ui/game_session.gd`.
+- Menu e armamento: `scenes/ui/main_menu.tscn`, `loadout.tscn`; selezione cross-scena in `scripts/core/game_session.gd`.
 - Giocatore: `scenes/player/player.tscn` → `scripts/player/player_flight.gd`.
 - Armi: `scripts/weapons/weapon_controller.gd` e `missile_catalog.gd`.
 - Camera: `scripts/camera/follow_camera.gd` e `free_fly_camera.gd`.
 - Audio globale: `scripts/audio/audio_manager.gd`, registrato come autoload in `project.godot`.
-- Terreno attivo: `terrain/garda_final_wc_uniform_250km/` (250 × 250 km); origine e parametri in `import_manifest.json` nella stessa cartella. Gli export World Creator restano la fonte di verità.
+- Terreni attivi: `terrain/garda_final_wc_uniform_250km/` e `terrain/utah_final_wc_uniform_250km/` (250 × 250 km); origine e parametri nei rispettivi `import_manifest.json`. Gli export World Creator restano la fonte di verità.
+- Replay: `scenes/replay/replay_viewer.tscn`, logica in `scripts/replay/`; [guida](docs/features/replays.md).
+
+## Strumenti di sviluppo
+
+| Percorso | Uso |
+| --- | --- |
+| `tools/airports/` | Import e preparazione di aeroporti, città e hangar. |
+| `tools/terrain/` | Download, import World Creator, shader e regioni Terrain3D. |
+| `tools/vegetation/` | Costruzione alberi, atlas, bake e conversione foliage. |
+| `tools/benchmarks/` | Benchmark standalone e confronto immagini; il sampler usato anche dal gioco vive in `scripts/performance/`. |
+| `tools/review/` | Ispezione e catture di terreno, paesaggio e acqua. |
+| `tools/preview/airports/`, `tools/preview/vfx/` | Scene di anteprima F6 e relativi script, non livelli giocabili. |
+| `tools/fixtures/` | Materiali di riferimento per confronti ripetibili. |
+| `tools/run_godot_check.cjs` | Runner con deadline e cleanup del solo processo avviato. |
+
+Eseguire i comandi dalla radice del progetto. I tool di importazione/generazione possono scrivere asset: non avviarli come controlli di sola lettura. Le dipendenze Python/Blender e gli export sorgenti richiesti sono descritti nei singoli tool; la riorganizzazione non li installa né rigenera i dati.
 
 ## Menu e armamento
 
@@ -55,34 +73,36 @@ Dal menu scegliere Operazioni → Garda, oppure avviare `scenes/levels/tutorial.
 - **AI:** `EnemyFighter` resta condiviso tra nemici e gregari. **F7** mostra ruoli, bersagli, stati, permessi e regola degli attacchi al giocatore. **F6** mantiene il confronto dei filtri grafici. Terreno e freeroam non sono modificati.
 
 ```sh
-godot --headless --path . --script tests/tutorial_mission_check.gd --fixed-fps 60
-godot --path . --script tests/tutorial_mission_check.gd --fixed-fps 60 -- --capture
-godot --headless --path . --script tests/enemy_fighter_check.gd --fixed-fps 60
-godot --headless --path . --script tests/dogfight_simulation_check.gd --fixed-fps 60
+godot --headless --path . --script tests/combat/tutorial_mission_check.gd --fixed-fps 60
+godot --path . --script tests/combat/tutorial_mission_check.gd --fixed-fps 60 -- --capture
+godot --headless --path . --script tests/combat/enemy_fighter_check.gd --fixed-fps 60
+godot --headless --path . --script tests/combat/dogfight_simulation_check.gd --fixed-fps 60
 ```
 
-Il controllo tutorial verifica i tre incontri, trasformazioni, sincronizzazione radio/radar, divieto di fuoco sul giocatore, combattimento contro i gregari, immunità dei compagni a danni/incendi/collisioni, pausa e sconfitta. La variante grafica usa la mappa reale e salva sei schermate in `user://tutorial_mission_check/`. I test del dogfight ordinario usano `tests/dogfight_arena.tscn`, una scena fissa senza terreno né missione, con il giocatore a quota di combattimento. La simulazione tenta 60 secondi con 4, 6 e 1 nemici; il bilanciamento richiede comunque una prova giocata.
+Il controllo tutorial verifica i tre incontri, trasformazioni, sincronizzazione radio/radar, divieto di fuoco sul giocatore, combattimento contro i gregari, immunità dei compagni a danni/incendi/collisioni, pausa e sconfitta. La variante grafica usa la mappa reale e salva sei schermate in `user://tutorial_mission_check/`. I test del dogfight ordinario usano `tests/combat/dogfight_arena.tscn`, una scena fissa senza terreno né missione, con il giocatore a quota di combattimento. La simulazione tenta 60 secondi con 4, 6 e 1 nemici; il bilanciamento richiede comunque una prova giocata.
 
 ## Acqua e catture
 
-La mappa usa `resources/materials/garda_water.tres`: increspature conservate ma ferme, senza schiuma, terreno invariato. FXAA sostituisce FSR2 come antialiasing globale per evitare il tremolio dell'acqua. [Confronti visivi, comandi e limiti](docs/water-lookdev.md); `tools/water_capture.gd` offre nove viste A/B, viewer e passaggio diagnostico. `--still --view=low` verifica 32 fotogrammi consecutivi a camera ferma, senza salvare modifiche alla scena.
+La mappa usa `resources/materials/garda_water.tres`: increspature conservate ma ferme, senza schiuma, terreno invariato. FXAA sostituisce FSR2 come antialiasing globale per evitare il tremolio dell'acqua. [Confronti visivi, comandi e limiti](docs/environment/water-lookdev.md); `tools/review/water_capture.gd` offre nove viste A/B, viewer e passaggio diagnostico. `--still --view=low` verifica 32 fotogrammi consecutivi a camera ferma, senza salvare modifiche alla scena.
 
 ## Paesaggio Garda
 
 Boschi runtime, albero Blender a tre LOD, erba locale e atmosfera rivista:
-[confronti prima/dopo, esperimenti, prestazioni e limiti](docs/landscape-lookdev.md).
+[confronti prima/dopo, esperimenti, prestazioni e limiti](docs/environment/landscape-lookdev.md).
 Il nuovo paesaggio **non è certificato a 200 FPS costanti**; le misure storiche
 precedono l'ampliamento dei boschi. Terrain3D e impostazioni personali non vengono
 risalvati dai tool di confronto.
 
 ## Sfera energetica viola
 
-Scena pronta all'uso: `scenes/vfx/energy_sphere.tscn`, sfera 3D solida da 500 m con nucleo scuro, energia animata, archi e alone. Anteprima F6: `scenes/vfx/preview/energy_sphere_preview.tscn`. Parametri sull'Inspector del nodo radice; [uso, controlli e limiti](docs/energy-sphere.md). Nessuna mappa o missione modificata.
+Scena pronta all'uso: `scenes/vfx/energy_sphere.tscn`, sfera 3D solida da 500 m con nucleo scuro, energia animata, archi e alone. Anteprima F6: `tools/preview/vfx/energy_sphere_preview.tscn`. Parametri sull'Inspector del nodo radice; [uso, controlli e limiti](docs/features/energy-sphere.md). Nessuna mappa o missione modificata.
 
 ## Convenzioni
 
 - Usare `snake_case` per nuovi file e cartelle del progetto; mantenere i nomi originali dei pacchetti esterni.
-- Inserire scene e script nel rispettivo dominio esistente; aggiungere cartelle solo per contenuti reali.
+- Inserire scene, script e risorse nel rispettivo dominio esistente; anteprime in `tools/preview/`, controlli in `tests/<dominio>/`. Aggiungere cartelle solo per contenuti reali.
+- Il codice runtime non deve importare da `tools/` o `tests/`: gli helper condivisi appartengono a `scripts/`. Il preset di export `performance` avvia esplicitamente il benchmark standalone.
+- Conservare i percorsi delle scene registrate nei replay: livelli, attori e modelli sono parte del formato salvato. Un loro cambio richiede una migrazione dei replay.
 - Conservare insieme alle risorse i file `.uid` e `.import`, anche in Git. Per gli spostamenti preferire il pannello FileSystem di Godot e verificare anche i percorsi scritti nelle stringhe.
 - Non spostare `wc_data/` senza aggiornare World Creator Bridge: il plugin contiene percorsi fissi verso questa cartella.
 - Non riordinare internamente `addons/`, `demo/`, `assets/BinbunVFX/` e `assets/thrusters/`: mantenere la struttura distribuita facilita gli aggiornamenti.
@@ -90,18 +110,22 @@ Scena pronta all'uso: `scenes/vfx/energy_sphere.tscn`, sfera 3D solida da 500 m 
 
 ## Verifica
 
-Con l'eseguibile Godot disponibile come `godot`, dalla radice:
+Con Node e l'eseguibile Godot disponibile come `godot`, dalla radice:
 
 ```sh
-godot --headless --path . --script tests/afterburner_check.gd
-godot --headless --path . --script tests/menu_flow_check.gd
+node tests/performance/performance_runner_check.cjs
+node tools/run_godot_check.cjs 25 /tmp/aero-bindings.log godot --headless --path . res://tests/input/controller_bindings_check.tscn
 ```
 
-Il controllo menu copre opzioni, focus, cinque missili, due slot, entrambi i livelli reali, pausa, vittoria/sconfitta, riavvio e ritorno ai menu. Senza `--headless` salva nove schermate in `user://menu_port_check/`; non sovrascrive le impostazioni personali né i dati del terreno.
+Il runner richiede un marker `PASS:`, exit code 0 e nessun errore/leak. Gli altri check possono avere marker specifici: leggere lo script e verificare comunque completamento, uscita e log. Non lanciare più verifiche grafiche insieme.
 
-Per la verifica grafica usare Forward+; i controlli headless non validano la resa di terreno, cielo e nuvole.
+Il controllo storico `tests/ui/menu_flow_check.gd` copre opzioni, focus, cinque missili, due slot, entrambi i livelli reali, pausa, vittoria/sconfitta, riavvio e ritorno ai menu; usa un marker diverso da quello del runner. Senza `--headless` salva nove schermate in `user://menu_port_check/`; non sovrascrive le impostazioni personali né i dati del terreno.
 
-### Limiti della verifica
+Per la verifica grafica usare Forward+; i controlli headless non validano la resa di terreno, cielo ed effetti.
+
+### Limiti già documentati
+
+I risultati seguenti sono storici, non una certificazione automatica del checkout corrente.
 
 - `enemy_fighter_check.gd`, il controllo tutorial e quello menu passano. `dogfight_simulation_check.gd` continua a fallire su `Wingmen must actually engage`, anche con la scena di test separata: il limite d'ingaggio già documentato non è risolto da questa modifica.
 - Godot 4.7.1 segnala risorse audio ancora in uso alla chiusura; il giro grafico completo segnala anche RID di rendering non liberati. Il controllo tutorial segnala inoltre riferimenti alla risorsa dialogo trattenuti da Dialogue Manager 4.1. I controlli funzionali passano, ma questi warning di teardown rimangono.

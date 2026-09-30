@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b44pgp5q8jqct"
-path="res://.godot/imported/T_Pavement_N.png-d85e7466756c86e4e3b7675cef564173.ctex"
+path.s3tc="res://.godot/imported/T_Pavement_N.png-d85e7466756c86e4e3b7675cef564173.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/environment/military_airport/textures/Tileable/T_Pavement_N.png"
-dest_files=["res://.godot/imported/T_Pavement_N.png-d85e7466756c86e4e3b7675cef564173.ctex"]
+dest_files=["res://.godot/imported/T_Pavement_N.png-d85e7466756c86e4e3b7675cef564173.s3tc.ctex"]
 
 [params]
 

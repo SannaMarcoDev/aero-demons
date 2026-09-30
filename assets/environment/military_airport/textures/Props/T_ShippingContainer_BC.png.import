@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d1pwiutdrpqyr"
-path="res://.godot/imported/T_ShippingContainer_BC.png-9d2f3ce8e7e096c6f0b2f5be799ca283.ctex"
+path.s3tc="res://.godot/imported/T_ShippingContainer_BC.png-9d2f3ce8e7e096c6f0b2f5be799ca283.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/environment/military_airport/textures/Props/T_ShippingContainer_BC.png"
-dest_files=["res://.godot/imported/T_ShippingContainer_BC.png-9d2f3ce8e7e096c6f0b2f5be799ca283.ctex"]
+dest_files=["res://.godot/imported/T_ShippingContainer_BC.png-9d2f3ce8e7e096c6f0b2f5be799ca283.s3tc.ctex"]
 
 [params]
 
