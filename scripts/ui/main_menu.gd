@@ -2,147 +2,179 @@ extends CanvasLayer
 
 const Session = preload("res://scripts/ui/game_session.gd")
 const Bindings = preload("res://scripts/ui/controller_bindings.gd")
+const BOARD_SIZE := Vector2(1660, 680)
 
-# Root Menu Buttons
-@onready var root_menu: VBoxContainer = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/RootMenu
-@onready var storia_btn: Button = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/RootMenu/StoriaButton
-@onready var free_flight_btn: Button = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/RootMenu/FreeFlightButton
-@onready var benchmark_btn: Button = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/RootMenu/BenchmarkButton
-@onready var quit_btn: Button = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/RootMenu/QuitButton
-
-# Storia Submenu
-@onready var storia_menu: VBoxContainer = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/StoriaMenu
-@onready var alps_btn: Button = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/StoriaMenu/GardaButton
-@onready var storia_back_btn: Button = $MarginContainer/MainLayout/ContentArea/LeftPanel/MenuContainer/StoriaMenu/StoriaBackButton
-
-# Dossier / Intel Panel
-@onready var dossier_tag: Label = $MarginContainer/MainLayout/ContentArea/RightPanel/Margin/VBox/HeaderRow/DossierTag
-@onready var threat_badge: Label = $MarginContainer/MainLayout/ContentArea/RightPanel/Margin/VBox/HeaderRow/ThreatBadge
-@onready var dossier_title: Label = $MarginContainer/MainLayout/ContentArea/RightPanel/Margin/VBox/DossierTitle
-@onready var dossier_subtitle: Label = $MarginContainer/MainLayout/ContentArea/RightPanel/Margin/VBox/DossierSubtitle
-@onready var dossier_desc: Label = $MarginContainer/MainLayout/ContentArea/RightPanel/Margin/VBox/DossierDesc
-@onready var dossier_telemetry: Label = $MarginContainer/MainLayout/ContentArea/RightPanel/Margin/VBox/TelemetryFooter/TelemetryLabel
-@onready var section_header: Label = $MarginContainer/MainLayout/ContentArea/LeftPanel/SectionHeader
-
-@onready var hangar_camera = $AircraftViewportContainer/SubViewport/MenuAircraftStage/Camera3D
-@onready var menu_ui: Control = $MarginContainer
-@onready var vignette: ColorRect = $TacticalVignette
+@onready var screen: Control = $Screen
+@onready var menu_ui: Control = $Screen/Board
+@onready var root_menu: Control = $Screen/Board/RootMenu
+@onready var storia_menu: Control = $Screen/Board/StoriaMenu
+@onready var storia_btn: Button = $Screen/Board/RootMenu/StoriaButton
+@onready var free_flight_btn: Button = $Screen/Board/RootMenu/FreeFlightButton
+@onready var arena_btn: Button = $Screen/Board/RootMenu/ArenaButton
+@onready var options_btn: Button = $Screen/Board/RootMenu/OptionsButton
+@onready var replay_btn: Button = $Screen/Board/RootMenu/ReplayButton
+@onready var benchmark_btn: Button = $Screen/Board/RootMenu/BenchmarkButton
+@onready var quit_btn: Button = $Screen/Board/RootMenu/QuitButton
+@onready var alps_btn: Button = $Screen/Board/StoriaMenu/GardaButton
+@onready var storia_back_btn: Button = $Screen/Board/StoriaMenu/StoriaBackButton
+@onready var dialog: Control = $Screen/Dialog
+@onready var dialog_cancel: Button = $Screen/Dialog/Center/Panel/Margin/Column/Actions/Cancel
+@onready var dialog_confirm: Button = $Screen/Dialog/Center/Panel/Margin/Column/Actions/Confirm
 
 var _transitioning := false
-var _focused_mode: String = "storia"
+var _dialog_return_focus: Button
+var _board_origin := Vector2.ZERO
+var _layout_scale := 1.0
 
 
 func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-	_wire_signals()
-	# Copy the existing appearance, without its Free Flight signal connections.
-	var arena_button := free_flight_btn.duplicate(0) as Button
-	arena_button.name = "ArenaButton"
-	arena_button.text = "[03]   ARENA"
-	arena_button.tooltip_text = "Garda · Due bersagli non offensivi, con rimpiazzo automatico"
-	root_menu.add_child(arena_button)
-	root_menu.move_child(arena_button, benchmark_btn.get_index())
-	arena_button.pressed.connect(func(): _select_storia_map(Session.ARENA))
-	arena_button.focus_entered.connect(func(): _set_dossier("arena"))
-	arena_button.mouse_entered.connect(func(): _set_dossier("arena"))
-	benchmark_btn.text = "[04]   BENCHMARK"
-	quit_btn.text = "[05]   QUIT"
-	var replay_button := Button.new()
-	replay_button.name = "ReplayButton"
-	replay_button.text = "REPLAY / CINEMA"
-	replay_button.custom_minimum_size = free_flight_btn.custom_minimum_size
-	root_menu.add_child(replay_button)
-	root_menu.move_child(replay_button, benchmark_btn.get_index())
-	replay_button.pressed.connect(func():
-		if _transitioning:
-			return
-		get_node("/root/ReplayRecorder").selected_path = ""
-		Session.change_scene(get_tree(), "res://scenes/replay/replay_viewer.tscn"))
-	# Keep keyboard/controller navigation in the same order as the visible buttons.
-	var buttons := root_menu.get_children()
-	for index in buttons.size():
-		buttons[index].focus_neighbor_top = buttons[posmod(index - 1, buttons.size())].get_path()
-		buttons[index].focus_neighbor_bottom = buttons[(index + 1) % buttons.size()].get_path()
-	var returning_section: String = Session.menu_section
-	if returning_section == "sorties":
-		hangar_camera.set_view(1.0)
+	storia_btn.pressed.connect(_on_storia_pressed)
+	free_flight_btn.pressed.connect(_on_free_flight_pressed)
+	arena_btn.pressed.connect(_select_storia_map.bind(Session.ARENA))
+	options_btn.pressed.connect(func():
+		if not _transitioning:
+			_play_sfx()
+			_show_dialog("OPZIONI", "Opzioni non ancora disponibili."))
+	replay_btn.pressed.connect(_on_replay_pressed)
+	benchmark_btn.pressed.connect(_launch_scene.bind(Session.BENCHMARK))
+	quit_btn.pressed.connect(_on_quit_pressed)
+	alps_btn.pressed.connect(_select_storia_map.bind(Session.DOGFIGHT))
+	storia_back_btn.pressed.connect(_on_storia_back_pressed)
+	dialog_cancel.pressed.connect(_hide_dialog)
+	dialog_confirm.pressed.connect(func(): get_tree().quit())
+	for button: Button in _cards():
+		button.mouse_entered.connect(_focus_card.bind(button))
+	screen.resized.connect(_layout)
+	_layout()
+	_refresh_prompts()
+	if Session.menu_section == "sorties":
 		_show_storia_menu()
 	else:
+		var returning_free_flight := Session.menu_section == "free_flight"
 		_show_root_menu()
-	_refresh_prompts()
-	if not returning_section.is_empty():
-		_transitioning = true
-		menu_ui.modulate.a = 0.0
-		menu_ui.scale = Vector2(0.985, 0.985)
-		vignette.modulate.a = 0.0
-		if returning_section == "free_flight":
-			hangar_camera.set_view(1.0)
-			await hangar_camera.travel_to(false).finished
+		if returning_free_flight:
 			free_flight_btn.grab_focus()
-		await hangar_camera.fade_ui(menu_ui, true, vignette).finished
-		_transitioning = false
+	_transitioning = true
+	menu_ui.modulate.a = 0.0
+	await _fade_board(true).finished
+	_transitioning = false
+
+
+func _cards() -> Array[Button]:
+	return [storia_btn, arena_btn, free_flight_btn, replay_btn, options_btn,
+		benchmark_btn, quit_btn, alps_btn, storia_back_btn]
+
+
+func _layout() -> void:
+	var view := screen.size
+	_layout_scale = minf(view.x / 1920.0, view.y / 1080.0)
+	menu_ui.size = BOARD_SIZE
+	menu_ui.pivot_offset = BOARD_SIZE * 0.5
+	menu_ui.scale = Vector2.ONE * _layout_scale
+	_board_origin = view * 0.5 - BOARD_SIZE * 0.5 + Vector2(0, 34) * _layout_scale
+	menu_ui.position = _board_origin
+	$Screen/Chrome.scale = Vector2.ONE * _layout_scale
+	$Screen/Chrome.position = (view - Vector2(1920, 1080) * _layout_scale) * 0.5
+	$Screen/Background.position = Vector2(-80, -60)
+	$Screen/Background.size = view + Vector2(160, 120)
+
+
+func _process(delta: float) -> void:
+	var parallax_offset := Vector2.ZERO
+	var focus := get_viewport().gui_get_focus_owner()
+	if focus is Button and focus.get_parent() in [root_menu, storia_menu] and not dialog.visible:
+		parallax_offset = (
+			((focus.position + focus.size * 0.5) / BOARD_SIZE - Vector2(0.5, 0.5))
+			* Vector2(20, 12) * _layout_scale
+		)
+	var weight := 1.0 - exp(-delta * 7.0)
+	menu_ui.position = menu_ui.position.lerp(_board_origin - parallax_offset, weight)
+	$Screen/Background.position = $Screen/Background.position.lerp(
+		Vector2(-80, -60) + parallax_offset * 0.3, weight
+	)
+
+
+func _focus_card(button: Button) -> void:
+	if not _transitioning and not dialog.visible and not button.disabled:
+		button.grab_focus()
 
 
 func _refresh_prompts() -> void:
-	$MarginContainer/MainLayout/FooterBar/NavHints.text = Bindings.menu_hint()
-	_set_dossier(_focused_mode)
-
-
-func _wire_signals() -> void:
-	# Root menu button signals
-	storia_btn.pressed.connect(_on_storia_pressed)
-	storia_btn.focus_entered.connect(func(): _set_dossier("storia"))
-	storia_btn.mouse_entered.connect(func(): _set_dossier("storia"))
-
-	free_flight_btn.pressed.connect(_on_free_flight_pressed)
-	free_flight_btn.focus_entered.connect(func(): _set_dossier("free_flight"))
-	free_flight_btn.mouse_entered.connect(func(): _set_dossier("free_flight"))
-
-	benchmark_btn.pressed.connect(_on_benchmark_pressed)
-	benchmark_btn.focus_entered.connect(func(): _set_dossier("benchmark"))
-	benchmark_btn.mouse_entered.connect(func(): _set_dossier("benchmark"))
-
-	quit_btn.pressed.connect(_on_quit_pressed)
-	quit_btn.focus_entered.connect(func(): _set_dossier("quit"))
-	quit_btn.mouse_entered.connect(func(): _set_dossier("quit"))
-
-	# Storia submenu signals
-	alps_btn.pressed.connect(func(): _select_storia_map(Session.DOGFIGHT))
-	alps_btn.focus_entered.connect(func(): _set_dossier("map_alps"))
-	alps_btn.mouse_entered.connect(func(): _set_dossier("map_alps"))
-
-	storia_back_btn.pressed.connect(_on_storia_back_pressed)
-	storia_back_btn.focus_entered.connect(func(): _set_dossier("storia"))
+	$Screen/Chrome/NavHints.text = Bindings.menu_hint()
 
 
 func _show_root_menu() -> void:
 	Session.menu_section = ""
-	root_menu.visible = true
-	storia_menu.visible = false
-	section_header.text = "// OPERATIONAL DIRECTIVES"
+	root_menu.show()
+	storia_menu.hide()
+	$Screen/Chrome/Section.hide()
+	$Screen/Chrome/Status.hide()
 	storia_btn.grab_focus()
-	_set_dossier("storia")
-
-
-func _on_storia_pressed() -> void:
-	if _transitioning:
-		return
-	_transitioning = true
-	_play_sfx()
-	await hangar_camera.fade_ui(menu_ui, false, vignette).finished
-	await hangar_camera.travel_to(true).finished
-	_show_storia_menu()
-	await hangar_camera.fade_ui(menu_ui, true, vignette).finished
-	_transitioning = false
 
 
 func _show_storia_menu() -> void:
 	Session.menu_section = "sorties"
-	root_menu.visible = false
-	storia_menu.visible = true
-	section_header.text = "// SELECT SORTIE SECTOR"
+	root_menu.hide()
+	storia_menu.show()
+	$Screen/Chrome/Section.show()
+	$Screen/Chrome/Status.hide()
 	alps_btn.grab_focus()
-	_set_dossier("map_alps")
+
+
+func _fade_board(show_board: bool) -> Tween:
+	var tween := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_property(menu_ui, "modulate:a", 1.0 if show_board else 0.0, 0.22)
+	return tween
+
+
+func _on_storia_pressed() -> void:
+	await _switch_section(true)
+
+
+func _on_storia_back_pressed() -> void:
+	await _switch_section(false)
+
+
+func _switch_section(campaign: bool) -> void:
+	if _transitioning:
+		return
+	_transitioning = true
+	_play_sfx()
+	await _fade_board(false).finished
+	if campaign:
+		_show_storia_menu()
+	else:
+		_show_root_menu()
+	await _fade_board(true).finished
+	_transitioning = false
+
+
+func _select_storia_map(map_path: String) -> void:
+	if _transitioning:
+		return
+	Session.free_flight = false
+	Session.selected_map = map_path
+	await _launch_scene(Session.LOADOUT)
+
+
+func _on_replay_pressed() -> void:
+	if _transitioning:
+		return
+	get_node("/root/ReplayRecorder").selected_path = ""
+	await _launch_scene("res://scenes/replay/replay_viewer.tscn")
+
+
+func _launch_scene(path: String) -> void:
+	if _transitioning:
+		return
+	_transitioning = true
+	_play_sfx()
+	await _fade_board(false).finished
+	if Session.change_scene(get_tree(), path) != OK:
+		_show_error("Impossibile aprire la schermata. Riprova.")
+		await _fade_board(true).finished
+		_transitioning = false
 
 
 func _on_free_flight_pressed() -> void:
@@ -153,7 +185,7 @@ func _on_free_flight_pressed() -> void:
 	Session.free_flight = true
 	Session.menu_section = ""
 	Session.selected_map = Session.FREE_FLIGHT
-	free_flight_btn.text = "CARICAMENTO…"
+	free_flight_btn.set("title", "CARICAMENTO…")
 	free_flight_btn.disabled = true
 	await get_tree().process_frame
 	var path := Session.FREE_FLIGHT
@@ -165,125 +197,55 @@ func _on_free_flight_pressed() -> void:
 		await get_tree().process_frame
 	if error == OK and ResourceLoader.load_threaded_get_status(path) == ResourceLoader.THREAD_LOAD_LOADED:
 		var scene := ResourceLoader.load_threaded_get(path) as PackedScene
-		error = Session.change_scene(get_tree(), path, scene) if scene != null else ERR_FILE_CANT_OPEN
+		if scene != null:
+			await _fade_board(false).finished
+			error = Session.change_scene(get_tree(), path, scene)
+		else:
+			error = ERR_FILE_CANT_OPEN
 	elif error == OK:
 		error = ERR_FILE_CANT_OPEN
 	if error != OK:
-		free_flight_btn.text = "RIPROVA · FREE FLIGHT"
+		free_flight_btn.set("title", "FREE FLIGHT")
 		free_flight_btn.disabled = false
 		free_flight_btn.grab_focus()
-		dossier_desc.text = "Impossibile avviare il volo libero. Riprova."
+		_show_error("Impossibile avviare il volo libero. Riprova.")
+		await _fade_board(true).finished
 		_transitioning = false
 
 
-func _on_benchmark_pressed() -> void:
-	if _transitioning:
-		return
-	_transitioning = true
-	_play_sfx()
-	if Session.change_scene(get_tree(), Session.BENCHMARK) != OK:
-		dossier_desc.text = "Impossibile avviare il benchmark."
-		_transitioning = false
+func _show_error(message: String) -> void:
+	$Screen/Chrome/Status.text = message
+	$Screen/Chrome/Status.show()
 
 
 func _on_quit_pressed() -> void:
-	if _transitioning:
-		return
-	_play_sfx()
-	get_tree().quit()
+	if not _transitioning:
+		_play_sfx()
+		_show_dialog("VUOI USCIRE?", "La sessione di Aero Demons verrà chiusa.", true)
 
 
-func _on_storia_back_pressed() -> void:
-	if _transitioning:
-		return
-	_transitioning = true
-	_play_sfx()
-	await hangar_camera.fade_ui(menu_ui, false, vignette).finished
-	await hangar_camera.travel_to(false).finished
-	_show_root_menu()
-	await hangar_camera.fade_ui(menu_ui, true, vignette).finished
-	_transitioning = false
+func _show_dialog(title: String, message: String, confirm_quit := false) -> void:
+	_dialog_return_focus = get_viewport().gui_get_focus_owner() as Button
+	$Screen/Dialog/Center/Panel/Margin/Column/Title.text = title
+	$Screen/Dialog/Center/Panel/Margin/Column/Message.text = message
+	dialog_confirm.visible = confirm_quit
+	dialog_cancel.text = "ANNULLA" if confirm_quit else "INDIETRO"
+	dialog_cancel.focus_neighbor_left = dialog_confirm.get_path() if confirm_quit else dialog_cancel.get_path()
+	dialog_cancel.focus_neighbor_right = dialog_cancel.focus_neighbor_left
+	for button: Button in _cards():
+		button.disabled = true
+		button.focus_mode = Control.FOCUS_NONE
+	dialog.show()
+	dialog_cancel.grab_focus()
 
 
-func _select_storia_map(map_path: String) -> void:
-	if _transitioning:
-		return
-	_transitioning = true
-	_play_sfx()
-	await hangar_camera.fade_ui(menu_ui, false, vignette).finished
-	Session.free_flight = false
-	Session.selected_map = map_path
-	await _open_loadout()
-
-
-func _open_loadout() -> void:
-	if Session.change_scene(get_tree(), Session.LOADOUT) != OK:
-		dossier_desc.text = "Impossibile aprire la selezione aereo e armamento."
-		$MarginContainer/MainLayout/ContentArea/RightPanel.show()
-		await hangar_camera.fade_ui(menu_ui, true, vignette).finished
-		_transitioning = false
-
-
-func _set_dossier(mode_key: String) -> void:
-	_focused_mode = mode_key
-	var intel_panel: Control = $MarginContainer/MainLayout/ContentArea/RightPanel
-	intel_panel.visible = not root_menu.visible
-	intel_panel.size_flags_vertical = Control.SIZE_SHRINK_END
-
-	match mode_key:
-		"storia":
-			dossier_tag.text = "// OPERATION THEATER DEPLOYMENT"
-			threat_badge.text = "THREAT: HIGH"
-			threat_badge.modulate = Color(1.0, 0.4, 0.2)
-			dossier_title.text = "OPERAZIONI AEREE"
-			dossier_subtitle.text = "TUTORIAL SUL GARDA // PREPARA LA MISSIONE"
-			dossier_desc.text = "Configura i due slot missili del caccia predefinito. Il collaudo dell'aereo appena riparato parte dall'hangar dell'aeroporto, con due gregari invulnerabili.\n\nRulla, decolla e prova movimento e velocità durante il collaudo iniziale. Al punto di contatto trovi le spiegazioni di targeting e armi, poi affronti tre gruppi di caccia nemici: 2, poi 4, infine 8."
-			dossier_telemetry.text = "STATO: AUTORIZZATO  •  PAYLOAD: ARMATO  •  RADAR: ATTIVO  •  DATALINK: CONNESSO"
-
-		"free_flight":
-			dossier_tag.text = "// RECONNAISSANCE & FLIGHT CALIBRATION"
-			threat_badge.text = "THREAT: ZERO"
-			threat_badge.modulate = Color(0.2, 0.95, 0.4)
-			dossier_title.text = "VOLO LIBERO (FREE FLIGHT)"
-			dossier_subtitle.text = "SETTORE: GARDA // NESSUN NEMICO RILEVATO"
-			dossier_desc.text = "Entra subito in volo sopra il Garda con l'armamento già selezionato. Nessun nemico, nessuna ondata e nessun timer di missione.\n\nProva i comandi di volo oppure esplora liberamente lo scenario. High-G e spin dash non sono disponibili nella build interna. I confini di volo rimangono attivi."
-			dossier_telemetry.text = "SETTORE: GARDA  •  MODALITA': ESPLORAZIONE  •  PARTENZA IN VOLO"
-
-		"arena":
-			dossier_tag.text = "// COMBAT TRAINING"
-			threat_badge.text = "THREAT: ZERO"
-			threat_badge.modulate = Color(0.2, 0.95, 0.4)
-			dossier_title.text = "ARENA"
-			dossier_subtitle.text = "GARDA // DUE BERSAGLI NON OFFENSIVI"
-			dossier_desc.text = "Scegli l'armamento e parti già in volo. Due caccia manovrano senza attaccare; ogni abbattimento libera un posto per un nuovo bersaglio. Nessuna ondata finale."
-			dossier_telemetry.text = "BERSAGLI: 2  •  RIMPIAZZO AUTOMATICO  •  PARTENZA IN VOLO"
-
-		"benchmark":
-			dossier_tag.text = "// PERFORMANCE CALIBRATION"
-			threat_badge.text = "TEST: 1080P ULTRA"
-			threat_badge.modulate = Color(0.3, 0.85, 1.0)
-			dossier_title.text = "BENCHMARK GARDA"
-			dossier_subtitle.text = "TRE PASSAGGI AUTOMATICI // CONFRONTO TRA PC"
-			dossier_desc.text = "Cinque viste e un sorvolo del Garda, 1080p Ultra nativo, V-Sync disattivato. Circa 3–5 minuti, in base al caricamento dello scenario. Mostra score, FPS medi e 1% low; salva i dettagli in un JSON locale. Non misura una battaglia completa."
-			dossier_telemetry.text = "1000 PUNTI = 60 FPS  •  NON INTERROMPERE IL TEST"
-
-		"quit":
-			dossier_tag.text = "// TAC-OPS DISENGAGEMENT"
-			threat_badge.text = "TERMINATE"
-			threat_badge.modulate = Color(0.9, 0.25, 0.25)
-			dossier_title.text = "DISCONNESSIONE E USCITA"
-			dossier_subtitle.text = "INTERRUZIONE TELEMETRIA // CHIUSURA TERMINALE"
-			dossier_desc.text = "Chiude la sessione avionica del velivolo e termina l'esecuzione dell'ambiente simulato."
-			dossier_telemetry.text = "SISTEMA: STANDBY  •  PROTOCOLLO: SHUTDOWN SAFE"
-
-		"map_alps":
-			dossier_tag.text = "// THEATER INTEL: GARDA"
-			threat_badge.text = "THREAT: HIGH"
-			threat_badge.modulate = Color(1.0, 0.3, 0.2)
-			dossier_title.text = "SETTORE 01: GARDA"
-			dossier_subtitle.text = "COLLAUDO PROTETTO // DUE GREGARI"
-			dossier_desc.text = "Apri l'hangar, rulla verso la pista e decolla seguendo gli indicatori. Al punto di contatto, tre box spiegano targeting, missili e mitragliatrice mettendo in pausa il gioco.\n\nPoi affronta liberamente le ondate da 2, 4 e 8 caccia, senza esercizi obbligatori o altre interruzioni tutorial.\n[%s] Conferma · [%s] Pausa" % [Bindings.action_label("ui_accept"), Bindings.action_label("pause_menu")]
-			dossier_telemetry.text = "SETTORE: GARDA  •  MISSIONE: TUTORIAL  •  MISSILI: DUE SLOT"
+func _hide_dialog() -> void:
+	dialog.hide()
+	for button: Button in _cards():
+		button.disabled = false
+		button.focus_mode = Control.FOCUS_ALL
+	if is_instance_valid(_dialog_return_focus):
+		_dialog_return_focus.grab_focus()
 
 
 func _input(_event: InputEvent) -> void:
@@ -295,21 +257,19 @@ func _unhandled_input(event: InputEvent) -> void:
 	if _transitioning:
 		return
 	if event.is_action_pressed("ui_cancel"):
-		if storia_menu.visible:
+		get_viewport().set_input_as_handled()
+		if dialog.visible:
+			_hide_dialog()
+		elif storia_menu.visible:
 			_on_storia_back_pressed()
-			get_viewport().set_input_as_handled()
 		else:
-			# Back at the root selects Exit; only an explicit confirmation quits.
 			quit_btn.grab_focus()
-			get_viewport().set_input_as_handled()
 	elif get_viewport().gui_get_focus_owner() == null:
 		if event.is_action_pressed("ui_up") or event.is_action_pressed("ui_down") \
 				or event.is_action_pressed("ui_left") or event.is_action_pressed("ui_right") \
 				or event.is_action_pressed("ui_accept"):
-			if storia_menu.visible:
-				alps_btn.grab_focus()
-			else:
-				storia_btn.grab_focus()
+			var button := dialog_cancel if dialog.visible else (alps_btn if storia_menu.visible else storia_btn)
+			button.grab_focus()
 			get_viewport().set_input_as_handled()
 
 

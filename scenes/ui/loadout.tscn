@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://scripts/ui/loadout.gd" id="1_loadout"]
 [ext_resource type="FontFile" path="res://assets/fonts/Michroma-Regular.ttf" id="2_font"]
 [ext_resource type="PackedScene" path="res://scenes/ui/menu_aircraft_stage.tscn" id="3_hangar"]
+[ext_resource type="PackedScene" path="res://scenes/ui/aircraft_selection.tscn" id="4_aircraft_selection"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_hangar_panel"]
 bg_color = Color(0.025, 0.04, 0.065, 0.82)
@@ -139,18 +140,6 @@ theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 11
 theme_override_colors/font_color = Color(0.72, 0.78, 0.86, 1)
 text = "Scegli due tipi di missile prima del decollo"
-
-[node name="AircraftScroll" type="ScrollContainer" parent="Main/LeftPanel/VBox"]
-custom_minimum_size = Vector2(0, 180)
-layout_mode = 2
-size_flags_vertical = 3
-horizontal_scroll_mode = 0
-follow_focus = true
-
-[node name="AircraftList" type="VBoxContainer" parent="Main/LeftPanel/VBox/AircraftScroll"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 8
 
 [node name="SlotRow" type="HBoxContainer" parent="Main/LeftPanel/VBox"]
 layout_mode = 2
@@ -438,6 +427,8 @@ theme_override_font_sizes/font_size = 24
 text = "CARICAMENTO…"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="AircraftSelection" parent="." instance=ExtResource("4_aircraft_selection")]
 
 [connection signal="pressed" from="Main/LeftPanel/VBox/AvviaButton" to="." method="_on_avvia_pressed"]
 [connection signal="pressed" from="Main/LeftPanel/VBox/BackButton" to="." method="_on_back_pressed"]

@@ -1,0 +1,85 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/menu_photo_card.gd" id="1"]
+[ext_resource type="FontFile" path="res://assets/fonts/BarlowCondensed-Medium.ttf" id="2"]
+[ext_resource type="Shader" path="res://resources/shaders/menu_photo.gdshader" id="3"]
+
+[sub_resource type="ShaderMaterial" id="PhotoMaterial"]
+shader = ExtResource("3")
+
+[sub_resource type="StyleBoxFlat" id="Shadow"]
+bg_color = Color(0.015, 0.02, 0.025, 1)
+shadow_color = Color(0, 0, 0, 0.65)
+shadow_size = 14
+shadow_offset = Vector2(8, 12)
+
+[sub_resource type="StyleBoxEmpty" id="NoFocus"]
+
+[sub_resource type="StyleBoxFlat" id="Frame"]
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(1, 1, 1, 1)
+
+[node name="PhotoCard" type="Button"]
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 0)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 0)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 0)
+theme_override_colors/font_disabled_color = Color(1, 1, 1, 0)
+theme_override_fonts/font = ExtResource("2")
+theme_override_styles/normal = SubResource("Shadow")
+theme_override_styles/hover = SubResource("Shadow")
+theme_override_styles/pressed = SubResource("Shadow")
+theme_override_styles/disabled = SubResource("Shadow")
+theme_override_styles/focus = SubResource("NoFocus")
+script = ExtResource("1")
+
+[node name="Photo" type="TextureRect" parent="."]
+modulate = Color(0.68, 0.72, 0.76, 1)
+material = SubResource("PhotoMaterial")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Title" type="Label" parent="."]
+modulate = Color(1, 1, 1, 0.8)
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 26.0
+offset_top = -104.0
+offset_right = -26.0
+offset_bottom = -18.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.65)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 2
+theme_override_fonts/font = ExtResource("2")
+theme_override_font_sizes/font_size = 44
+vertical_alignment = 2
+
+[node name="Frame" type="Panel" parent="."]
+modulate = Color(1, 1, 1, 0.15)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("Frame")

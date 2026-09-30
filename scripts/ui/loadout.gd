@@ -23,11 +23,9 @@ const AircraftCatalog = preload("res://scripts/aircraft/aircraft_catalog.gd")
 @onready var _damage_value: Label = $Main/LeftPanel/VBox/StatsBox/DamageRow/DamageValue
 @onready var _ammo_value: Label = $Main/LeftPanel/VBox/StatsBox/AmmoRow/AmmoValue
 
-@onready var aircraft_scroll: ScrollContainer = $Main/LeftPanel/VBox/AircraftScroll
-@onready var aircraft_list: VBoxContainer = $Main/LeftPanel/VBox/AircraftScroll/AircraftList
+@onready var aircraft_selection = $AircraftSelection
 
 var _aircraft_step := true
-var _aircraft_buttons: Dictionary = {}
 var _preview_aircraft_id := ""
 var _group: ButtonGroup
 var _active_slot := 0
@@ -43,7 +41,7 @@ var _transitioning := true
 
 func _ready() -> void:
 	hangar_camera.set_view(1.0)
-	# The shared stage resource belongs to both menus; dim only this instance.
+	# The stage environment is shared; dim only this instance.
 	hangar_environment.environment = hangar_environment.environment.duplicate()
 	$Main.modulate.a = 0.0
 	$Main.scale = Vector2(0.985, 0.985)
@@ -52,7 +50,8 @@ func _ready() -> void:
 	_group = ButtonGroup.new()
 	map_label.text = Session.level_name()
 	$Main/LeftPanel/VBox/Hint.text = Bindings.menu_hint()
-	_build_aircraft_list()
+	aircraft_selection.confirmed.connect(_on_aircraft_continue)
+	aircraft_selection.back_requested.connect(_on_back_pressed)
 	if Session.selected_missiles.size() >= 2:
 		_selected_missiles = Session.selected_missiles.duplicate()
 	else:
@@ -100,30 +99,8 @@ func _ready() -> void:
 	_select_slot(0)
 	preview_camera.look_at(Vector3(0, -0.3, 0), Vector3.UP)
 	_set_aircraft_step(true)
-	await hangar_camera.fade_ui($Main, true, $Background).finished
+	await aircraft_selection.fade(true)
 	_transitioning = false
-
-func _build_aircraft_list() -> void:
-	var group := ButtonGroup.new()
-	for id: String in AircraftCatalog.ids():
-		var btn := Button.new()
-		btn.text = AircraftCatalog.get_def(id).label
-		btn.custom_minimum_size.y = 54
-		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		btn.toggle_mode = true
-		btn.button_group = group
-		btn.pressed.connect(_on_aircraft_pick.bind(id))
-		btn.focus_entered.connect(_preview_aircraft.bind(id))
-		btn.mouse_entered.connect(_preview_aircraft.bind(id))
-		aircraft_list.add_child(btn)
-		_aircraft_buttons[id] = btn
-
-func _on_aircraft_pick(id: String) -> void:
-	Session.selected_aircraft_id = id
-	id = Session.selected_aircraft_id
-	for key in _aircraft_buttons:
-		_aircraft_buttons[key].button_pressed = key == id
-	_preview_aircraft(id)
 
 func _show_aircraft_model(id: String) -> void:
 	if _preview_aircraft_id != id:
@@ -135,48 +112,33 @@ func _show_aircraft_model(id: String) -> void:
 		_preview_aircraft_id = id
 	$Main/RightPanel/VBox/RightTitle.text = AircraftCatalog.get_def(id).label
 
-func _preview_aircraft(id: String) -> void:
-	if not _aircraft_step:
-		return
-	_show_aircraft_model(id)
-	var definition := AircraftCatalog.get_def(id)
-	var status := "SELEZIONATO" if id == Session.selected_aircraft_id else "%s: seleziona" % Bindings.action_label("ui_accept")
-	detail_label.text = "[%s]\n%s\n\n%s\n\nAereo predefinito della build interna · Due slot missili configurabili al passo successivo." % [
-		status, definition.label, definition.description,
-	]
-
 func _set_aircraft_step(enabled: bool) -> void:
 	_aircraft_step = enabled
-	aircraft_scroll.visible = enabled
-	$Main/LeftPanel/VBox/SlotRow.visible = not enabled
-	missile_list.visible = not enabled
-	$Main/LeftPanel/VBox/StatsBox.visible = not enabled
-	$Main/LeftPanel/VBox/Title.text = "1 / 2 · AEREO PREDEFINITO" if enabled else "2 / 2 · ARMAMENTO"
-	$Main/LeftPanel/VBox/Info.text = "Un aereo disponibile · Configura le armi al passo successivo" if enabled else "Scegli due tipi di missile prima del decollo"
-	avvia_btn.text = "CONTINUA · ARMAMENTO" if enabled else ("DECOLLA" if Session.free_flight else "AVVIA MISSIONE")
-	back_btn.text = "INDIETRO" if enabled else "VEDI AEREO"
+	aircraft_selection.visible = enabled
+	aircraft_selection.set_process(enabled)
+	$Main.visible = not enabled
+	$Background.visible = not enabled
+	$HangarViewportContainer.visible = not enabled
 	if enabled:
-		_on_aircraft_pick(Session.selected_aircraft_id)
-		var buttons := aircraft_list.get_children()
-		for i in buttons.size():
-			var btn := buttons[i] as Button
-			btn.focus_neighbor_top = back_btn.get_path() if i == 0 else buttons[i - 1].get_path()
-			btn.focus_neighbor_bottom = avvia_btn.get_path() if i == buttons.size() - 1 else buttons[i + 1].get_path()
-			btn.focus_neighbor_left = btn.get_path()
-			btn.focus_neighbor_right = btn.get_path()
-		avvia_btn.focus_neighbor_top = buttons.back().get_path()
-		avvia_btn.focus_neighbor_bottom = back_btn.get_path()
-		back_btn.focus_neighbor_top = avvia_btn.get_path()
-		back_btn.focus_neighbor_bottom = buttons.front().get_path()
-		for btn: Button in [avvia_btn, back_btn]:
-			btn.focus_neighbor_left = btn.get_path()
-			btn.focus_neighbor_right = btn.get_path()
-		_aircraft_buttons[Session.selected_aircraft_id].grab_focus()
+		aircraft_selection.restore_selection()
 	else:
+		$Main/LeftPanel/VBox/Title.text = "2 / 2 · ARMAMENTO"
+		avvia_btn.text = "DECOLLA" if Session.free_flight else "AVVIA MISSIONE"
+		back_btn.text = "VEDI AEREO"
 		_show_aircraft_model(Session.selected_aircraft_id)
 		_setup_focus_navigation()
 		_select_slot(_active_slot)
 		slot1_btn.grab_focus()
+
+func _on_aircraft_continue() -> void:
+	if _launching or _transitioning:
+		return
+	_transitioning = true
+	await aircraft_selection.fade(false)
+	_set_aircraft_step(false)
+	$Main.modulate.a = 0.0
+	await hangar_camera.fade_ui($Main, true, $Background).finished
+	_transitioning = false
 
 func _setup_focus_navigation() -> void:
 	if _missile_button_list.is_empty():
@@ -318,7 +280,7 @@ func _on_avvia_pressed() -> void:
 	if _launching or _transitioning:
 		return
 	if _aircraft_step:
-		_set_aircraft_step(false)
+		_on_aircraft_continue()
 		return
 	_launching = true
 	Session.selected_missiles = _selected_missiles.duplicate()
@@ -362,16 +324,19 @@ func _darken_hangar() -> void:
 func _on_back_pressed() -> void:
 	if _launching or _transitioning:
 		return
+	_transitioning = true
 	if not _aircraft_step:
-		_set_aircraft_step(true)
-	else:
-		_transitioning = true
 		await hangar_camera.fade_ui($Main, false, $Background).finished
+		_set_aircraft_step(true)
+		await aircraft_selection.fade(true)
+		_transitioning = false
+	else:
+		await aircraft_selection.fade(false)
 		if Session.change_scene(get_tree(), Session.MAIN_MENU) != OK:
-			detail_label.text = "Impossibile aprire il menu. Riprova."
-			await hangar_camera.fade_ui($Main, true, $Background).finished
+			aircraft_selection.restore_selection()
+			aircraft_selection.get_node("Layout/Footer/Message").text = "Impossibile aprire il menu. Riprova."
+			await aircraft_selection.fade(true)
 			_transitioning = false
-			back_btn.grab_focus()
 
 func _input(_event: InputEvent) -> void:
 	if _transitioning or _launching:
@@ -388,7 +353,7 @@ func _unhandled_input(event: InputEvent) -> void:
 				or event.is_action_pressed("ui_left") or event.is_action_pressed("ui_right") \
 				or event.is_action_pressed("ui_accept"):
 			if _aircraft_step:
-				_aircraft_buttons[Session.selected_aircraft_id].grab_focus()
+				aircraft_selection.restore_selection()
 			else:
 				slot1_btn.grab_focus()
 			get_viewport().set_input_as_handled()
