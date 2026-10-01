@@ -49,8 +49,9 @@ Core heights: PAT LiDAR > Veneto > Lombardia, ramped over 100 m at the Trentino 
 300 m where the DTMs end; the outer 400 m of the core blend into the context. The PAT DTM download (`lidar` phase,
 ~6000 tiles) keeps 2 m block means per 500 m tile in `tools/tiles/riva/lidar/`.
 
-Buildings (`resources/terrain/riva_sample_buildings.res`, one mesh, ±5.12 km around Riva only): `node
-tools/terrain/fetch_riva_sample.cjs buildings` (after `photo`, roof colours come from `photo_core.jpg`),
-then the Godot build with `-- --buildings` (bases from the saved Terrain3D regions). Each OSM footprint is
+Buildings (`resources/terrain/riva_sample_buildings.scn`, the whole core in 2.048 km chunks drawn up to 12 km):
+`node tools/terrain/fetch_riva_sample.cjs buildings` (after `photo`, roof colours come from `photo_core.jpg`,
+`photo_wide.jpg` outside it; the DBM tiles under the footprints, ~16 GB in `tools/tiles/riva/lidar_dbm/`, are
+only needed for this step), then the Godot build with `-- --buildings` (bases from the saved Terrain3D regions). Each OSM footprint is
 extruded; near-rectangular ones (4-20 m span) become their rectangle with a gable roof. The roof is the DBM
 median inside the footprint, else OSM `height`/levels, else 7 m. Trees avoid `masks_b.r` (footprints).

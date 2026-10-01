@@ -19,8 +19,8 @@
 [ext_resource type="Shader" uid="uid://defbalsjhy5l1" path="res://resources/shaders/garda_water.gdshader" id="36_water_shader"]
 [ext_resource type="Texture2D" uid="uid://ban0efe0gbxeh" path="res://assets/BinbunWater/src/texture/wave/wave_03/wave_texture_03.tres" id="37_water_patches"]
 [ext_resource type="Script" uid="uid://lma00y4574p0" path="res://addons/clouds/cloud_layer_3d.gd" id="27_cloud_layer"]
-[ext_resource type="ArrayMesh" path="res://resources/terrain/riva_sample_buildings.res" id="42_buildings"]
-[ext_resource type="Shader" path="res://resources/terrain/riva_sample_buildings.gdshader" id="43_buildings_shader"]
+[ext_resource type="PackedScene" path="res://resources/terrain/riva_sample_buildings.scn" id="42_buildings"]
+[ext_resource type="Material" path="res://resources/terrain/riva_sample_buildings_material.tres" id="43_buildings_material"]
 [ext_resource type="Script" uid="uid://b208wjrs5p207" path="res://scripts/maps/garda_cloud_shadows.gd" id="28_cloud_shadows"]
 [ext_resource type="PackedScene" path="res://resources/terrain/riva_sample_context.scn" id="45_context"]
 [ext_resource type="Material" path="res://resources/terrain/riva_sample_context_material.tres" id="46_context_material"]
@@ -208,11 +208,6 @@ size = Vector2(29600, 51650)
 subdivide_width = 29
 subdivide_depth = 51
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_buildings"]
-render_priority = 0
-shader = ExtResource("43_buildings_shader")
-shader_parameter/photo = ExtResource("33_photo_core")
-
 [node name="RivaSample" type="Node3D" unique_id=1907416372]
 
 [node name="GardaTerrain" type="Terrain3D" parent="." unique_id=2125598487]
@@ -333,12 +328,9 @@ building_mask = ExtResource("31_masks_b")
 
 [node name="ContextTerrain" parent="." unique_id=1402557931 instance=ExtResource("45_context")]
 
-[node name="Buildings" type="MeshInstance3D" parent="." unique_id=1650381127]
-extra_cull_margin = 60.0
-mesh = ExtResource("42_buildings")
-material_override = SubResource("ShaderMaterial_buildings")
+[node name="Buildings" parent="." unique_id=1650381127 instance=ExtResource("42_buildings")]
 
 [node name="EarthCurvature" type="Node" parent="." unique_id=1873301447 node_paths=PackedStringArray("terrain")]
 script = ExtResource("47_curvature")
 terrain = NodePath("../GardaTerrain")
-materials = Array[ShaderMaterial]([ExtResource("46_context_material"), SubResource("ShaderMaterial_buildings"), SubResource("ShaderMaterial_water")])
+materials = Array[ShaderMaterial]([ExtResource("46_context_material"), ExtResource("43_buildings_material"), SubResource("ShaderMaterial_water")])

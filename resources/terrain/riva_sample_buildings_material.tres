@@ -1,0 +1,11 @@
+[gd_resource type="ShaderMaterial" format=3]
+
+[ext_resource type="Shader" path="res://resources/terrain/riva_sample_buildings.gdshader" id="1_shader"]
+[ext_resource type="Texture2D" path="res://textures/terrain/riva_sample/photo_core.jpg" id="2_photo"]
+[ext_resource type="Texture2D" path="res://textures/terrain/riva_sample/photo_wide.jpg" id="3_photo_wide"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_shader")
+shader_parameter/photo = ExtResource("2_photo")
+shader_parameter/photo_wide = ExtResource("3_photo_wide")

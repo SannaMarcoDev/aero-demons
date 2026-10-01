@@ -19,7 +19,10 @@ const CURVATURE_CULL_MARGIN := 1000.0
 const HIDDEN_DEPTH := 40.0 # The context mesh sinks under the Terrain3D core edge band.
 const CORE_TEXTURES := ["masks_a.png", "masks_b.png", "relief_core.png"]
 const CONTEXT_TEXTURES := ["context_cover.png", "photo_core.jpg", "photo_wide.jpg", "photo_context.jpg", "photo_far.jpg"]
-const BUILDINGS := "res://resources/terrain/riva_sample_buildings.res"
+const BUILDINGS_SCENE := "res://resources/terrain/riva_sample_buildings.scn"
+const BUILDINGS_MATERIAL := "res://resources/terrain/riva_sample_buildings_material.tres"
+const BUILDING_CHUNK := 2048.0 # one Terrain3D region: 20 x 20 chunks over the core
+const BUILDING_VISIBILITY := 12000.0 # a 10 m house is about a pixel at 1080p there
 const BUILDING_MIN_HEIGHT := 2.5 # lower DBM roofs: building missing in 2014, use OSM height or default
 const BUILDING_DEFAULT_HEIGHT := 7.0
 const BUILDING_MAX_HEIGHT := 60.0
@@ -98,10 +101,9 @@ func _save_buildings(core: Dictionary) -> void:
 		var image: Image = heights[location]
 		return image.get_pixel(clampi(roundi(p.x / spacing) - location.x * REGION_SIZE, 0, REGION_SIZE - 1),
 			clampi(roundi(p.y / spacing) - location.y * REGION_SIZE, 0, REGION_SIZE - 1)).r
-	# One surface, flat-shaded. COLOR: orthophoto roof colour (sRGB); UV: x = 1 on roofs, y = per-building seed;
-	# UV2: walls (base, eaves) heights, roofs the footprint centroid (x, z).
-	var st := SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	# One flat-shaded surface per chunk, by footprint centroid. COLOR: orthophoto roof colour (sRGB);
+	# UV: x = 1 on roofs, y = per-building seed; UV2: walls (base, eaves) heights, roofs the footprint centroid (x, z).
+	var tools := {}
 	var from_dbm := 0
 	var gabled := 0
 	for i in buildings.size():
@@ -127,6 +129,11 @@ func _save_buildings(core: Dictionary) -> void:
 		for p in ring:
 			centroid += p / ring.size()
 			base = minf(base, ground.call(p))
+		var chunk := Vector2i((centroid / BUILDING_CHUNK).floor())
+		if not tools.has(chunk):
+			tools[chunk] = SurfaceTool.new()
+			tools[chunk].begin(Mesh.PRIMITIVE_TRIANGLES)
+		var st: SurfaceTool = tools[chunk]
 		base -= BUILDING_SINK
 		var centre: float = ground.call(centroid)
 		var top: float = centre + (b.height if b.height > 0.0 else BUILDING_DEFAULT_HEIGHT)
@@ -182,11 +189,29 @@ func _save_buildings(core: Dictionary) -> void:
 					Vector3(ring[indices[k + 1]].x, eaves, ring[indices[k + 1]].y),
 					Vector3(ring[indices[k + 2]].x, eaves, ring[indices[k + 2]].y), Vector3.UP, colour, roof_uv, centroid)
 	util.free()
-	st.index()
-	var mesh := st.commit()
-	assert(ResourceSaver.save(mesh, BUILDINGS, ResourceSaver.FLAG_COMPRESS) == OK)
+	var root := Node3D.new()
+	root.name = "Buildings"
+	var material: Material = load(BUILDINGS_MATERIAL)
+	var vertices := 0
+	for chunk: Vector2i in tools:
+		var st: SurfaceTool = tools[chunk]
+		st.index()
+		var instance := MeshInstance3D.new()
+		instance.name = "Chunk_%d_%d" % [chunk.x, chunk.y]
+		instance.mesh = st.commit()
+		instance.material_override = material
+		instance.extra_cull_margin = 60.0 # Earth curvature drop at the visibility range: ~11 m
+		instance.visibility_range_end = BUILDING_VISIBILITY
+		instance.visibility_range_end_margin = 500.0
+		root.add_child(instance)
+		instance.owner = root
+		vertices += instance.mesh.surface_get_array_len(0)
+	var scene := PackedScene.new()
+	assert(scene.pack(root) == OK)
+	assert(ResourceSaver.save(scene, BUILDINGS_SCENE, ResourceSaver.FLAG_COMPRESS) == OK)
 	print("Buildings: ", buildings.size(), " (", gabled, " gabled), ", from_dbm, " with DBM roof height, ",
-		mesh.surface_get_array_len(0), " vertices")
+		root.get_child_count(), " chunks, ", vertices, " vertices")
+	root.free()
 
 ## Godot front faces wind clockwise seen from outside: (b - a) x (c - a) points against the normal.
 func _triangle(st: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, normal: Vector3, colour: Color, uv: Vector2, uv2: Vector2) -> void:

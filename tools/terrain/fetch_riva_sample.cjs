@@ -38,7 +38,6 @@ const COVER_STEP = 80, COVER_N = 2 * CTX_HALF / COVER_STEP + 1; // WorldCover ro
 // 25.6 m (Sentinel-2) over the whole context.
 const PHOTO_CORE_HALF = 5120, PHOTO_CORE_STEP = 1, PHOTO_WIDE_STEP = 2.5, PHOTO_CTX_HALF = 30720, PHOTO_CTX_STEP = 8;
 const PHOTO_FAR_STEP = 25.6;
-const BUILDINGS_HALF = 5120; // ponytail: buildings around Riva only, one mesh; chunk it before going wider
 const LAKE_LEVEL = 65.0, LAKE_MAX_DEPTH = 300.0;
 const EDGE_BLEND = 400.0;  // core -> context DEM over the outer band of the core
 const FINE_BLEND = 300.0;  // DTMs (PAT LiDAR, Veneto/Lombardia 5 m) -> Copernicus where they end
@@ -982,7 +981,7 @@ function osmBuildings() {
       const ring = g.map(world);
       const first = ring[0], last = ring.pop();
       if (Math.hypot(first[0] - last[0], first[1] - last[1]) > 0.01) continue;
-      if (ring.some(([x, z]) => Math.abs(x) > BUILDINGS_HALF - 2 || Math.abs(z) > BUILDINGS_HALF - 2)) continue;
+      if (ring.some(([x, z]) => Math.abs(x) > CORE_HALF - 2 || Math.abs(z) > CORE_HALF - 2)) continue;
       let area = 0;
       for (let i = 0; i < ring.length; i++) { const a = ring[i], b = ring[(i + 1) % ring.length]; area += a[0] * b[1] - b[0] * a[1]; }
       if (Math.abs(area) / 2 >= BUILDING_MIN_AREA) out.push({ ring, tags, area: Math.abs(area) / 2 });
@@ -1054,8 +1053,10 @@ async function buildBuildings(buildings) {
     const n0 = DBM_TILE / DBM_CELL, c = Math.floor((e % DBM_TILE) / DBM_CELL), r = n0 - 1 - Math.floor((n % DBM_TILE) / DBM_CELL);
     return grid[r * n0 + c];
   };
-  const n = Math.round(2 * PHOTO_CORE_HALF / PHOTO_CORE_STEP);
-  const { data: photo } = await sharp(path.join(OUT, 'photo_core.jpg'), { limitInputPixels: false }).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+  // Roof colours: the 1 m photo around Riva, the 2.5 m one over the rest of the core.
+  const load = async (file, half, step) => ({ half, step, n: Math.round(2 * half / step),
+    data: (await sharp(path.join(OUT, file), { limitInputPixels: false }).removeAlpha().raw().toBuffer()) });
+  const photos = [await load('photo_core.jpg', PHOTO_CORE_HALF, PHOTO_CORE_STEP), await load('photo_wide.jpg', CORE_HALF, PHOTO_WIDE_STEP)];
   const rowOf = b => Math.floor((CN - b.ring[0][1]) / DBM_TILE) * 1e6 + Math.floor((CE + b.ring[0][0]) / DBM_TILE);
   buildings.sort((a, b) => rowOf(a) - rowOf(b));
   const out = [];
@@ -1065,6 +1066,7 @@ async function buildBuildings(buildings) {
     const [x0, z0, x1, z1] = ringBounds(ring);
     const roofs = [], colour = [0, 0, 0];
     let samples = 0;
+    const { half, step, n, data: photo } = photos[Math.max(-x0, -z0, x1, z1) < PHOTO_CORE_HALF ? 0 : 1];
     // DBM cell centres (UTM multiples of 0.5 m + 0.25) inside the footprint.
     for (let e = Math.floor((CE + x0) / DBM_CELL) * DBM_CELL + DBM_CELL / 2; e < CE + x1; e += DBM_CELL)
       for (let nn = Math.floor((CN - z1) / DBM_CELL) * DBM_CELL + DBM_CELL / 2; nn < CN - z0; nn += DBM_CELL) {
@@ -1072,7 +1074,7 @@ async function buildBuildings(buildings) {
         if (!insideRing(ring, x, z)) continue;
         const h = dbmAt(e, nn);
         if (Number.isFinite(h)) roofs.push(h);
-        const p = (Math.min(n - 1, Math.floor((z + PHOTO_CORE_HALF) / PHOTO_CORE_STEP)) * n + Math.min(n - 1, Math.floor((x + PHOTO_CORE_HALF) / PHOTO_CORE_STEP))) * 3;
+        const p = (Math.min(n - 1, Math.floor((z + half) / step)) * n + Math.min(n - 1, Math.floor((x + half) / step))) * 3;
         colour[0] += photo[p]; colour[1] += photo[p + 1]; colour[2] += photo[p + 2]; samples++;
       }
     roofs.sort((a, b) => a - b);

@@ -1,4 +1,4 @@
-// Riva sample buildings: extruded OSM footprints, gabled when near-rectangular
+// Riva sample buildings (40 km core, chunked): extruded OSM footprints, gabled when near-rectangular
 // (tools/terrain/build_riva_sample.gd). Roofs (UV.x = 1) project the orthophoto from above, pulled toward
 // the footprint centroid (UV2) so OSM/photo offsets do not paint streets on them, and blended with the
 // footprint mean (COLOR, sRGB). Walls: plaster varied per building (UV.y seed) with procedural floors,
@@ -10,8 +10,11 @@ render_mode blend_mix,depth_draw_opaque,cull_back,diffuse_burley,specular_schlic
 
 uniform vec3 wall_color : source_color = vec3(0.62, 0.57, 0.50);
 uniform float wall_variation : hint_range(0.0, 0.5) = 0.2;
+// Roofs: the 1 m photo around Riva, the 2.5 m one over the rest of the core.
 uniform sampler2D photo : source_color, filter_linear_mipmap_anisotropic, repeat_disable;
 uniform vec4 photo_rect = vec4(-5120.0, -5120.0, 10240.0, 10240.0);
+uniform sampler2D photo_wide : source_color, filter_linear_mipmap_anisotropic, repeat_disable;
+uniform vec4 photo_wide_rect = vec4(-20480.0, -20480.0, 40960.0, 40960.0);
 // Photo sample = centroid + (point - centroid) * roof_inset; the footprint mean fills the rest.
 uniform float roof_inset : hint_range(0.5, 1.0) = 0.85;
 uniform float roof_photo : hint_range(0.0, 1.0) = 0.75;
@@ -50,9 +53,12 @@ void fragment() {
 	float glass = 0.0;
 	if (v_roof > 0.5) {
 		vec2 p = mix(v_extra, v_world.xz, roof_inset);
-		vec2 dx = dFdx(v_world.xz) * roof_inset / photo_rect.zw;
-		vec2 dy = dFdy(v_world.xz) * roof_inset / photo_rect.zw;
-		vec3 roof = textureGrad(photo, (p - photo_rect.xy) / photo_rect.zw, dx, dy).rgb;
+		vec2 dx = dFdx(v_world.xz) * roof_inset;
+		vec2 dy = dFdy(v_world.xz) * roof_inset;
+		vec2 q = abs(v_extra - photo_rect.xy - photo_rect.zw * 0.5) - photo_rect.zw * 0.5;
+		vec3 roof = max(q.x, q.y) < 0.0
+			? textureGrad(photo, (p - photo_rect.xy) / photo_rect.zw, dx / photo_rect.zw, dy / photo_rect.zw).rgb
+			: textureGrad(photo_wide, (p - photo_wide_rect.xy) / photo_wide_rect.zw, dx / photo_wide_rect.zw, dy / photo_wide_rect.zw).rgb;
 		roof = mix(pow(COLOR.rgb, vec3(2.2)), roof, roof_photo);
 		ALBEDO = max(mix(vec3(dot(roof, LUMINANCE)), roof, roof_saturation), 0.0) * roof_gain;
 	} else {
