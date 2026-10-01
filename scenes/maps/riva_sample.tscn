@@ -217,6 +217,7 @@ shader_parameter/cover = ExtResource("38_cover")
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_buildings"]
 render_priority = 0
 shader = ExtResource("43_buildings_shader")
+shader_parameter/photo = ExtResource("33_photo_core")
 
 [node name="RivaSample" type="Node3D" unique_id=1907416372]
 

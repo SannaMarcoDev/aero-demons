@@ -96,7 +96,8 @@ func _save_buildings(core: Dictionary) -> void:
 		var image: Image = heights[location]
 		return image.get_pixel(clampi(roundi(p.x / spacing) - location.x * REGION_SIZE, 0, REGION_SIZE - 1),
 			clampi(roundi(p.y / spacing) - location.y * REGION_SIZE, 0, REGION_SIZE - 1)).r
-	# One surface, flat-shaded. COLOR: orthophoto roof colour (sRGB); UV: x = 1 on roofs, y = per-building seed.
+	# One surface, flat-shaded. COLOR: orthophoto roof colour (sRGB); UV: x = 1 on roofs, y = per-building seed;
+	# UV2: walls (base, eaves) heights, roofs the footprint centroid (x, z).
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var from_dbm := 0
@@ -136,6 +137,7 @@ func _save_buildings(core: Dictionary) -> void:
 		var seed_value := fposmod(i * 0.618034, 1.0)
 		var wall_uv := Vector2(0.0, seed_value)
 		var roof_uv := Vector2(1.0, seed_value)
+		var heights_uv := Vector2(base, eaves)
 		var area := 0.0
 		for k in ring.size():
 			area += ring[k].cross(ring[(k + 1) % ring.size()])
@@ -150,8 +152,8 @@ func _save_buildings(core: Dictionary) -> void:
 			var a0 := Vector3(p0.x, base, p0.y)
 			var a1 := Vector3(p1.x, base, p1.y)
 			var up := Vector3.UP * (eaves - base)
-			_triangle(st, a0, a1, a1 + up, n, colour, wall_uv)
-			_triangle(st, a0, a1 + up, a0 + up, n, colour, wall_uv)
+			_triangle(st, a0, a1, a1 + up, n, colour, wall_uv, heights_uv)
+			_triangle(st, a0, a1 + up, a0 + up, n, colour, wall_uv, heights_uv)
 		if b.gable != null:
 			var ridge := Vector3.UP * (eaves + rise)
 			var r0: Vector3 = Vector3(b.gable[0], 0.0, b.gable[1]) + Vector3(axis.x, 0.0, axis.y) * b.gable[2] * 0.5
@@ -163,11 +165,11 @@ func _save_buildings(core: Dictionary) -> void:
 			for slope: Array in [[e[0], e[1], r1 + ridge, r0 + ridge], [e[3], e[2], r1 + ridge, r0 + ridge]]:
 				var n: Vector3 = (slope[1] - slope[0]).cross(slope[3] - slope[0]).normalized()
 				n *= signf(n.y)
-				_triangle(st, slope[0], slope[1], slope[2], n, colour, roof_uv)
-				_triangle(st, slope[0], slope[2], slope[3], n, colour, roof_uv)
+				_triangle(st, slope[0], slope[1], slope[2], n, colour, roof_uv, centroid)
+				_triangle(st, slope[0], slope[2], slope[3], n, colour, roof_uv, centroid)
 			var end := Vector3(axis.x, 0.0, axis.y)
-			_triangle(st, e[0], e[3], r0 + ridge, end, colour, wall_uv)
-			_triangle(st, e[1], e[2], r1 + ridge, -end, colour, wall_uv)
+			_triangle(st, e[0], e[3], r0 + ridge, end, colour, wall_uv, heights_uv)
+			_triangle(st, e[1], e[2], r1 + ridge, -end, colour, wall_uv, heights_uv)
 		else:
 			var indices := Geometry2D.triangulate_polygon(ring)
 			if indices.is_empty():
@@ -176,7 +178,7 @@ func _save_buildings(core: Dictionary) -> void:
 			for k in range(0, indices.size(), 3):
 				_triangle(st, Vector3(ring[indices[k]].x, eaves, ring[indices[k]].y),
 					Vector3(ring[indices[k + 1]].x, eaves, ring[indices[k + 1]].y),
-					Vector3(ring[indices[k + 2]].x, eaves, ring[indices[k + 2]].y), Vector3.UP, colour, roof_uv)
+					Vector3(ring[indices[k + 2]].x, eaves, ring[indices[k + 2]].y), Vector3.UP, colour, roof_uv, centroid)
 	util.free()
 	st.index()
 	var mesh := st.commit()
@@ -185,7 +187,7 @@ func _save_buildings(core: Dictionary) -> void:
 		mesh.surface_get_array_len(0), " vertices")
 
 ## Godot front faces wind clockwise seen from outside: (b - a) x (c - a) points against the normal.
-func _triangle(st: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, normal: Vector3, colour: Color, uv: Vector2) -> void:
+func _triangle(st: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, normal: Vector3, colour: Color, uv: Vector2, uv2: Vector2) -> void:
 	if (b - a).cross(c - a).dot(normal) > 0.0:
 		var swap := b
 		b = c
@@ -194,6 +196,7 @@ func _triangle(st: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, normal: Vect
 		st.set_normal(normal)
 		st.set_color(colour)
 		st.set_uv(uv)
+		st.set_uv2(uv2)
 		st.add_vertex(v)
 
 func _copy_textures(names: Array) -> void:
