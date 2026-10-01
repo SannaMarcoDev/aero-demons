@@ -1,22 +1,27 @@
 extends SceneTree
 ## Imports terrain/source/riva_sample (tools/terrain/fetch_riva_sample.cjs) into the project:
-## Terrain3D regions (2 m), land-use/tint textures and the low-resolution context mesh.
-## godot --headless --path . --script res://tools/terrain/build_riva_sample.gd
+## Terrain3D regions (2 m), land-use masks, albedo photos and the low-resolution context mesh.
+## godot --headless --path . --script res://tools/terrain/build_riva_sample.gd [-- --context]
+## --context: context mesh, cover and photos only (after `fetch_riva_sample.cjs context` and `photo`).
 const SOURCE := "res://terrain/source/riva_sample/"
 const REGIONS := "res://terrain/riva_sample/"
 const TEXTURES := "res://textures/terrain/riva_sample/"
 const CONTEXT_MESH := "res://resources/terrain/riva_sample_context.res"
 const REGION_SIZE := 512
 const CONTEXT_MESH_STRIDE := 2 # 60 m mesh cells over the 30 m context DEM.
-const HIDDEN_DEPTH := 40.0 # The context mesh sinks under the Terrain3D core.
+const HIDDEN_DEPTH := 40.0 # The context mesh sinks under the Terrain3D core edge band.
+const CORE_TEXTURES := ["masks_a.png", "masks_b.png"]
+const CONTEXT_TEXTURES := ["context_cover.png", "photo_core.jpg", "photo_context.jpg"]
 
 func _initialize() -> void:
 	_run.call_deferred()
 
 func _run() -> void:
 	var manifest: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(SOURCE + "manifest.json"))
-	_save_regions(manifest.core)
-	_copy_textures()
+	var context_only := OS.get_cmdline_user_args().has("--context")
+	if not context_only:
+		_save_regions(manifest.core)
+	_copy_textures(CONTEXT_TEXTURES if context_only else CORE_TEXTURES + CONTEXT_TEXTURES)
 	_save_context_mesh(manifest.context, manifest.core)
 	print("PASS: RIVA SAMPLE BUILD COMPLETE")
 	quit()
@@ -63,17 +68,19 @@ func _save_regions(core: Dictionary) -> void:
 	util.free()
 	print("Regions: ", count * count, " of ", REGION_SIZE, " vertices at ", spacing, " m")
 
-func _copy_textures() -> void:
+func _copy_textures(names: Array) -> void:
 	DirAccess.make_dir_recursive_absolute(TEXTURES)
-	for name: String in ["masks_a", "masks_b", "masks_c", "tint", "context_albedo_plain", "context_albedo_tint"]:
-		assert(DirAccess.copy_absolute(SOURCE + name + ".png", TEXTURES + name + ".png") == OK)
-		var import_file := TEXTURES + name + ".png.import"
+	for name: String in names:
+		assert(DirAccess.copy_absolute(SOURCE + name, TEXTURES + name) == OK)
+		var import_file := TEXTURES + name + ".import"
 		if FileAccess.file_exists(import_file):
 			continue
-		# Lossless with mipmaps; alpha is data, so no alpha-border fix. VRAM compression would smear the classes.
+		# Data: lossless with mipmaps; alpha is data, so no alpha-border fix. VRAM compression would
+		# smear the classes. Photos (jpg): VRAM compressed, 10240 px is ~70 MB instead of ~560.
 		var file := FileAccess.open(import_file, FileAccess.WRITE)
 		file.store_string("[remap]\n\nimporter=\"texture\"\ntype=\"CompressedTexture2D\"\n\n[params]\n\n"
-			+ "compress/mode=0\nmipmaps/generate=true\ndetect_3d/compress_to=0\nprocess/fix_alpha_border=false\nprocess/premult_alpha=false\n")
+			+ "compress/mode=%d\nmipmaps/generate=true\ndetect_3d/compress_to=0\nprocess/fix_alpha_border=false\nprocess/premult_alpha=false\n"
+			% (2 if name.ends_with(".jpg") else 0))
 	print("Textures copied to ", TEXTURES)
 
 func _save_context_mesh(context: Dictionary, core: Dictionary) -> void:
@@ -108,15 +115,19 @@ func _save_context_mesh(context: Dictionary, core: Dictionary) -> void:
 			normals[i] = Vector3(-dx, 2.0 * step, -dz).normalized()
 			uvs[i] = Vector2((sc + 0.5) / size, (sr + 0.5) / size)
 	var indices := PackedInt32Array()
-	indices.resize(cells * cells * 6)
-	var k := 0
 	for r in cells:
 		for c in cells:
+			# Hole under the core: 60 m triangles cannot stay below 2 m LiDAR cliffs (up to
+			# 156 m above). Only the edge band remains, its inner vertices sunk by HIDDEN_DEPTH.
+			var x0 := -half + c * CONTEXT_MESH_STRIDE * step
+			var z0 := -half + r * CONTEXT_MESH_STRIDE * step
+			var x1 := x0 + CONTEXT_MESH_STRIDE * step
+			var z1 := z0 + CONTEXT_MESH_STRIDE * step
+			if maxf(absf(x0), absf(x1)) < core_inner and maxf(absf(z0), absf(z1)) < core_inner:
+				continue
 			var a := r * n + c
 			# Clockwise seen from above: Godot front faces point up.
-			indices[k] = a; indices[k + 1] = a + 1; indices[k + 2] = a + n
-			indices[k + 3] = a + 1; indices[k + 4] = a + n + 1; indices[k + 5] = a + n
-			k += 6
+			indices.append_array([a, a + 1, a + n, a + 1, a + n + 1, a + n])
 	var arrays := []
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = vertices

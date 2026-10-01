@@ -22,3 +22,5 @@ assets/environment/small_hangar/*.glb filter=lfs diff=lfs merge=lfs -text
 assets/environment/military_airport/**/*.glb filter=lfs diff=lfs merge=lfs -text
 assets/environment/military_airport/**/*.png filter=lfs diff=lfs merge=lfs -text
 
+# Riva sample albedo photos (orthophoto mosaics)
+textures/terrain/riva_sample/*.jpg filter=lfs diff=lfs merge=lfs -text

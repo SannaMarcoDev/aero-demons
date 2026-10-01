@@ -1,5 +1,5 @@
-// Riva sample surface: Garda material system driven by real land use instead of noise.
-// Masks/tint: tools/terrain/fetch_riva_sample.cjs. Terrain3D 1.0.2 geometry/geomorph contract from
+// Riva sample surface: orthophoto albedo; the Garda material system adds relief normals and,
+// where the photo's 1 m texels magnify, luminance detail. Photo/masks: tools/terrain/fetch_riva_sample.cjs. Terrain3D 1.0.2 geometry/geomorph contract from
 // extras/shaders/minimum, shared with garda_surface.gdshader.
 // Copyright © 2023-2026 Cory Petkovsek, Roope Palmroos, and Contributors (MIT).
 // Material coordinates are world metres, never height/control/color-map texels.
@@ -40,20 +40,18 @@ uniform float snow_transition : hint_range(50.0, 1000.0) = 450.0;
 uniform float rock_start : hint_range(0.0, 1.0) = 0.20; // 1 - normal.y
 uniform float rock_end : hint_range(0.0, 1.0) = 0.55;
 uniform float normal_strength : hint_range(0.0, 2.0) = 0.8;
-uniform float macro_strength : hint_range(0.0, 1.0) = 0.6;
 uniform vec3 rock_tint : source_color = vec3(0.70, 0.68, 0.62); // pale Garda limestone
 
+// PAT orthophoto 2015, 1 m per texel over the core.
+uniform sampler2D photo : source_color, filter_linear_mipmap_anisotropic, repeat_disable;
+uniform vec4 photo_rect = vec4(-5120.0, -5120.0, 10240.0, 10240.0);
+uniform float photo_saturation : hint_range(0.0, 2.0) = 1.0;
+uniform float photo_gain : hint_range(0.0, 2.0) = 1.0;
+uniform float detail_strength : hint_range(0.0, 1.0) = 0.6;
 // Real land use, 4 m per texel (OpenStreetMap + ESA WorldCover).
 uniform sampler2D masks_a : hint_default_black, filter_linear_mipmap, repeat_disable; // forest, vineyard/orchard, field, urban
 uniform sampler2D masks_b : hint_default_black, filter_linear_mipmap, repeat_disable; // building, road, rock, water
-uniform sampler2D masks_c : hint_default_black, filter_nearest_mipmap, repeat_disable; // row angle, parcel seed, kind, scrub
 uniform vec4 mask_rect = vec4(-5120.0, -5120.0, 10240.0, 10240.0);
-// Sentinel-2 low-pass colour divided by its land-cover class mean: 0.5 = class mean.
-uniform sampler2D satellite_tint : hint_default_black, filter_linear_mipmap, repeat_disable;
-uniform sampler2D context_albedo : source_color, filter_linear_mipmap, repeat_disable;
-uniform vec4 context_rect = vec4(-30735.0, -30735.0, 61440.0, 61440.0);
-uniform float tint_strength : hint_range(0.0, 1.0) = 1.0;
-uniform float edge_fade : hint_range(0.0, 2000.0) = 350.0;
 uniform float lake_level = 65.0;
 
 varying float v_vertex_xz_dist;
@@ -173,8 +171,11 @@ Surface sample_scales(vec2 p, vec2 dx, vec2 dy, float id) {
 	return meso;
 }
 
+const vec3 LUMINANCE = vec3(0.2126, 0.7152, 0.0722);
+
+// detail: material luminance relative to its texture mean (the top mip), weighted like the normals.
 void add_surface(float id, float weight, vec3 n, vec3 dx, vec3 dy,
-		inout vec3 albedo, inout vec3 detail_normal, inout float roughness, inout float total) {
+		inout float detail, inout vec3 detail_normal, inout float roughness, inout float total) {
 	if (weight <= 0.001) { return; }
 	// Triplanar only where needed. Continuous weights prevent projection threshold seams.
 	vec3 planes = pow(abs(n), vec3(4.0));
@@ -204,34 +205,12 @@ void add_surface(float id, float weight, vec3 n, vec3 dx, vec3 dy,
 		perturbation += vec3(nm.x, -nm.y, 0.0) * planes.z;
 	}
 	float height_weight = weight * (0.3 + alb.a * alb.a);
-	// Moderate, material-specific palette; no low-resolution RGB multiplier.
-	vec3 tint = vec3(1.0);
-	if (id == 2.0 || id == 3.0) {
-		float luminance = dot(alb.rgb, vec3(0.2126, 0.7152, 0.0722));
-		alb.rgb = mix(vec3(luminance), alb.rgb, 0.45);
-	}
-	if (id == 2.0) { tint = vec3(0.67, 0.88, 0.52); }
-	if (id == 3.0) { tint = vec3(1.10, 1.03, 0.83); }
-	if (id == 0.0) { tint = rock_tint; }
-	albedo += alb.rgb * tint * height_weight;
+	float meso_id = (id == 2.0 || id == 3.0) ? 1.0 : id;
+	float mean = dot(textureLod(_texture_array_albedo, vec3(0.5, 0.5, meso_id), 14.0).rgb, LUMINANCE);
+	detail += dot(alb.rgb, LUMINANCE) / max(mean, 0.01) * height_weight;
 	detail_normal += perturbation * height_weight;
 	roughness += rough * height_weight;
 	total += height_weight;
-}
-
-float hash12(vec2 p) {
-	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
-}
-
-// Plant rows across a parcel: 1 on the canopy, 0 between rows. Rows narrower than a
-// pixel fade to their coverage instead of aliasing.
-float rows(vec2 p, float angle, float spacing, float coverage) {
-	vec2 across = vec2(-sin(angle), cos(angle));
-	float u = dot(p, across) / spacing;
-	float w = fwidth(u);
-	float s = abs(fract(u) - 0.5) * 2.0;
-	float canopy = 1.0 - smoothstep(coverage - w, coverage + w, s);
-	return mix(canopy, coverage, smoothstep(0.25, 0.7, w));
 }
 
 void fragment() {
@@ -247,104 +226,46 @@ void fragment() {
 	vec2 muv = (p - mask_rect.xy) / mask_rect.zw;
 	vec4 ma = texture(masks_a, muv);
 	vec4 mb = texture(masks_b, muv);
-	vec4 mc = texture(masks_c, muv);
-	// Break the 4 m texel edges with fine noise, not with a visible blur.
 	float edge_noise = (small - 0.5) * 0.3;
 
+	// Materials only shape the relief and the close-range grain; the photo carries the colour.
 	float slope = 1.0 - n.y;
 	float rock = smoothstep(rock_start, max(rock_start + 0.01, rock_end), slope + (medium - 0.5) * 0.13);
 	rock = max(rock, smoothstep(0.3, 0.7, mb.b + edge_noise) * smoothstep(0.02, 0.12, slope));
 	float snow = smoothstep(snow_line, snow_line + snow_transition,
 		v_vertex.y + (large - 0.5) * 420.0 + (small - 0.5) * 80.0 + n.z * 160.0);
 	snow *= 1.0 - smoothstep(0.18, 0.48, slope);
-	float dry = smoothstep(0.38, 0.66, large * 0.8 + medium * 0.15 + small * 0.05 + n.z * 0.15);
-	vec3 albedo = vec3(0.0);
+	float detail = 0.0;
 	vec3 perturbation = vec3(0.0);
 	float roughness = 0.0;
 	float total = 0.0;
-	add_surface(2.0, (1.0 - rock) * (1.0 - snow) * (1.0 - dry), n, dx, dy, albedo, perturbation, roughness, total);
-	add_surface(3.0, (1.0 - rock) * (1.0 - snow) * dry, n, dx, dy, albedo, perturbation, roughness, total);
-	add_surface(0.0, rock * (1.0 - snow), n, dx, dy, albedo, perturbation, roughness, total);
-	add_surface(4.0, snow, n, dx, dy, albedo, perturbation, roughness, total);
+	add_surface(2.0, (1.0 - rock) * (1.0 - snow), n, dx, dy, detail, perturbation, roughness, total);
+	add_surface(0.0, rock * (1.0 - snow), n, dx, dy, detail, perturbation, roughness, total);
+	add_surface(4.0, snow, n, dx, dy, detail, perturbation, roughness, total);
 	float inv_weight = 1.0 / max(total, 0.0001);
 	perturbation *= inv_weight * normal_strength;
 	perturbation -= n * dot(n, perturbation);
 	NORMAL = normalize(mat3(VIEW_MATRIX) * normalize(n + perturbation));
-	float macro = 1.0 + ((large - 0.5) * 0.8 + (medium - 0.5) * 0.4) * macro_strength;
-	vec3 ground = albedo * inv_weight * macro;
 	float rough = roughness * inv_weight;
-	float open_ground = (1.0 - rock) * (1.0 - snow);
 
-	// Scrub: darker, patchy grass.
-	float scrub = smoothstep(0.3, 0.7, mc.a + edge_noise) * open_ground;
-	ground = mix(ground, ground * vec3(0.55, 0.62, 0.48) * mix(0.8, 1.15, small), scrub * 0.85);
+	vec2 puv = (p - photo_rect.xy) / photo_rect.zw;
+	vec3 ground = textureGrad(photo, puv, dx.xz / photo_rect.zw, dy.xz / photo_rect.zw).rgb;
+	// A top-down photo streaks down cliffs: there, its ~30 m average turned towards bare limestone.
+	vec3 wall = textureLod(photo, puv, 5.0).rgb;
+	wall = mix(vec3(dot(wall, LUMINANCE)), wall, 0.3) * rock_tint * 1.6;
+	ground = mix(ground, wall, smoothstep(0.55, 0.8, slope) * (1.0 - snow));
+	ground = max(mix(vec3(dot(ground, LUMINANCE)), ground, photo_saturation), 0.0) * photo_gain;
+	// Grain where the photo runs out of texels; a hint of it further out keeps the slopes from looking printed.
+	float footprint = max(length(dx.xz), length(dy.xz));
+	float closeness = 1.0 - smoothstep(0.5, 3.0, footprint);
+	ground *= mix(1.0, clamp(detail * inv_weight, 0.45, 1.7), detail_strength * (0.25 + 0.75 * closeness));
 
-	// Woodland canopy; the 3D trees stand on it.
-	float forest = smoothstep(0.3, 0.7, ma.r + edge_noise) * (1.0 - rock * 0.6) * (1.0 - snow);
-	vec3 canopy = vec3(0.030, 0.050, 0.022) * mix(0.72, 1.28, medium) * mix(0.8, 1.2, small);
-	ground = mix(ground, canopy, forest * 0.9);
-
-	// Cultivated parcels: real outlines, row direction along each parcel's longest edge.
-	float angle = mc.r * PI;
-	float seed = mc.g;
-	float vine = smoothstep(0.3, 0.7, ma.g + edge_noise * 0.5);
-	float field = smoothstep(0.3, 0.7, ma.b + edge_noise * 0.5) * (1.0 - vine);
-	if (field > 0.001) {
-		vec3 crop = mix(vec3(0.085, 0.120, 0.040), vec3(0.165, 0.180, 0.075), fract(seed * 7.13));
-		if (fract(seed * 3.71) > 0.72) { crop = mix(vec3(0.150, 0.125, 0.075), vec3(0.230, 0.200, 0.120), fract(seed * 11.3)); }
-		float furrows = rows(p, angle, 0.9, 0.5);
-		crop *= mix(0.88, 1.06, furrows) * mix(0.9, 1.1, small);
-		ground = mix(ground, crop, field);
-	}
-	if (vine > 0.001) {
-		float orchard = step(0.75, mc.b);
-		float spacing = mix(2.6, 4.6, orchard);
-		float canopy_rows = rows(p, angle, spacing, mix(0.42, 0.55, orchard));
-		// Orchard trees are separate crowns along the row.
-		float along = dot(p, vec2(cos(angle), sin(angle))) / 3.6;
-		float crowns = mix(1.0, smoothstep(0.75, 0.35, abs(fract(along) - 0.5) * 2.0), orchard * (1.0 - smoothstep(0.25, 0.7, fwidth(along))));
-		vec3 leaves = mix(vec3(0.050, 0.080, 0.028), vec3(0.042, 0.070, 0.030), orchard) * mix(0.85, 1.15, fract(seed * 5.3));
-		vec3 between = mix(vec3(0.120, 0.120, 0.070), vec3(0.090, 0.110, 0.050), fract(seed * 9.1));
-		ground = mix(ground, mix(between, leaves, canopy_rows * crowns), vine);
-	}
-
-	// Settlements: yards and paving, then roofs and streets from the real footprints.
-	float urban = smoothstep(0.3, 0.7, ma.a + edge_noise * 0.5);
-	vec3 paving = mix(vec3(0.150, 0.145, 0.135), vec3(0.070, 0.085, 0.045), smoothstep(0.45, 0.7, medium * 0.6 + small * 0.4));
-	ground = mix(ground, paving, urban * 0.85);
-	rough = mix(rough, 0.85, urban);
-	float road = smoothstep(0.25, 0.65, mb.g);
-	ground = mix(ground, vec3(0.055, 0.055, 0.060) * mix(0.9, 1.1, small), road);
-	rough = mix(rough, 0.8, road);
-	float building = smoothstep(0.35, 0.65, mb.r);
-	// One colour per building (masks_c.g): weathered coppi or grey flat roofs.
-	vec3 roof = fract(seed * 5.71) > 0.3 ? mix(vec3(0.20, 0.105, 0.065), vec3(0.27, 0.155, 0.10), fract(seed * 13.7))
-		: mix(vec3(0.15, 0.145, 0.14), vec3(0.24, 0.235, 0.225), fract(seed * 13.7));
-	roof *= mix(0.92, 1.05, small);
-	ground = mix(ground, roof, building);
-	rough = mix(rough, 0.7, building);
-
-	// Pebble shores at the lake level (Riva/Torbole beaches), outside the towns.
-	// Only the strip next to the water: the Riva/Torbole plains lie just above the lake level.
-	float near_water = smoothstep(0.02, 0.15, textureLod(masks_b, muv, 2.5).a);
-	float shore = (1.0 - smoothstep(lake_level + 0.8, lake_level + 2.0, v_vertex.y + (medium - 0.5) * 0.8))
-		* near_water * (1.0 - smoothstep(0.2, 0.6, slope)) * (1.0 - building) * (1.0 - road) * (1.0 - urban * 0.7);
-	if (shore > 0.001) {
-		Surface gravel = sample_tile(p / 5.0, dx.xz / 5.0, dy.xz / 5.0, 5.0);
-		ground = mix(ground, gravel.albedo_height.rgb * vec3(0.80, 0.78, 0.72), shore);
-	}
+	rough = mix(rough, 0.85, smoothstep(0.3, 0.7, ma.a + edge_noise * 0.5));
+	rough = mix(rough, 0.8, smoothstep(0.25, 0.65, mb.g));
+	rough = mix(rough, 0.7, smoothstep(0.35, 0.65, mb.r));
 	// Rivers and ponds above the lake (Sarca, Varone): the lake itself is the water plane.
 	float water = smoothstep(0.4, 0.6, mb.a) * step(lake_level + 0.5, v_vertex.y);
-	ground = mix(ground, vec3(0.020, 0.045, 0.050), water);
 	rough = mix(rough, 0.12, water);
-
-	// Regional colour from the satellite: low-pass and class-relative, never its detail.
-	vec2 cuv = (p - context_rect.xy) / context_rect.zw;
-	vec3 tint = clamp(texture(satellite_tint, cuv).rgb * 2.0, vec3(0.7), vec3(1.4));
-	ground *= mix(vec3(1.0), tint, tint_strength);
-	// Last metres of the sample: hand over to the baked context colour.
-	float edge = min(min(p.x - mask_rect.x, mask_rect.x + mask_rect.z - p.x), min(p.y - mask_rect.y, mask_rect.y + mask_rect.w - p.y));
-	ground = mix(ground, texture(context_albedo, cuv).rgb, 1.0 - smoothstep(0.0, edge_fade, edge));
 
 	ALBEDO = ground;
 	ROUGHNESS = clamp(rough, 0.1, 1.0);

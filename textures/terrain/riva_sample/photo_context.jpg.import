@@ -2,20 +2,21 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://wrblhqteh3cy"
-path="res://.godot/imported/context_albedo_plain.png-2b4af09920e63793d25fefb0e26c39a9.ctex"
+uid="uid://cl8ievg2rvc6o"
+path.s3tc="res://.godot/imported/photo_context.jpg-0616bd5a2b33647dbc90b470aefc26dd.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
-source_file="res://textures/terrain/riva_sample/context_albedo_plain.png"
-dest_files=["res://.godot/imported/context_albedo_plain.png-2b4af09920e63793d25fefb0e26c39a9.ctex"]
+source_file="res://textures/terrain/riva_sample/photo_context.jpg"
+dest_files=["res://.godot/imported/photo_context.jpg-0616bd5a2b33647dbc90b470aefc26dd.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

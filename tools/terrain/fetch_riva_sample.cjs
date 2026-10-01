@@ -1,5 +1,5 @@
 // Riva del Garda sample: 10.24 km of real data + 61 km context, aligned in UTM 32N.
-// Phases: node tools/terrain/fetch_riva_sample.cjs fetch | build | all
+// Phases: node tools/terrain/fetch_riva_sample.cjs fetch | build | all | context | photo
 // Requires `npm i --no-save sharp` in tools/. Download cache in tools/tiles/riva/,
 // outputs in terrain/source/riva_sample/ (both git-ignored). Godot import:
 // tools/terrain/build_riva_sample.gd.
@@ -9,6 +9,7 @@
 //  - Copernicus DEM GLO-30, © DLR/Airbus, provided under COPERNICUS by the EU and ESA
 //  - ESA WorldCover 10 m 2021 v200, © ESA, CC BY 4.0
 //  - OpenStreetMap, © OpenStreetMap contributors, ODbL
+//  - Ortofoto PAT 2015 RGB 20 cm, Provincia autonoma di Trento, CC BY 4.0
 //  - Sentinel-2 cloudless 2016 (s2maps.eu) by EOX IT Services GmbH, CC BY 4.0
 //    (contains modified Copernicus Sentinel data 2016)
 const fs = require('fs');
@@ -22,6 +23,7 @@ const ROOT = path.resolve(__dirname, '../..');
 const TILES = path.join(ROOT, 'tools', 'tiles', 'riva');
 const OUT = path.join(ROOT, 'terrain', 'source', 'riva_sample');
 fs.mkdirSync(TILES, { recursive: true });
+fs.writeFileSync(path.join(TILES, '.gdignore'), ''); // downloads, not project assets
 fs.mkdirSync(OUT, { recursive: true });
 
 // World origin (UTM 32N / ETRS89, <1 m apart here). World x = E - CE, world z = CN - N.
@@ -29,6 +31,7 @@ const CE = 645120, CN = 5082880;
 const CORE_HALF = 5120, CORE_STEP = 2, CORE_N = 5120; // Terrain3D vertices
 const MASK_STEP = 4, MASK_N = 2560;                    // land use masks over the core
 const CTX_HALF = 30720, CTX_STEP = 30, CTX_N = 2048;   // context DEM, colour and tint
+const PHOTO_CORE_STEP = 1, PHOTO_CTX_STEP = 8;         // terrain albedo photos (orthophoto, Sentinel-2 fill)
 const LAKE_LEVEL = 65.0, LAKE_MAX_DEPTH = 300.0;
 const EDGE_BLEND = 400.0; // core LiDAR -> context DEM over the outer band of the core
 
@@ -191,6 +194,21 @@ async function fetchSatellite() {
   console.log(`Satellite: ${count} tiles`);
 }
 
+// PAT orthophoto 2015 (20 cm RGB) through the province WMS, already in our UTM grid.
+// Outside Trentino the service returns white.
+const ORTHO_TILE = 2048;
+const orthoGrid = (half, step) => ({ span: ORTHO_TILE * step, count: Math.ceil(2 * half / (ORTHO_TILE * step)) });
+async function fetchOrtho(name, half, step) {
+  const { span, count } = orthoGrid(half, step);
+  fs.mkdirSync(path.join(TILES, `ortho_${name}`), { recursive: true });
+  for (let ty = 0; ty < count; ty++) for (let tx = 0; tx < count; tx++) {
+    const e0 = CE - half + tx * span, n1 = CN + half - ty * span;
+    await get(`${STEM}/geoserver/stem/wms?service=WMS&version=1.3.0&request=GetMap&layers=ecw-rgb-2015&styles=`
+      + `&crs=EPSG:25832&bbox=${e0},${n1 - span},${e0 + span},${n1}&width=${ORTHO_TILE}&height=${ORTHO_TILE}&format=image/jpeg`,
+      `ortho_${name}/${tx}_${ty}.jpg`);
+  }
+}
+
 // ---------- build phase ----------
 async function loadCopernicus() {
   const tiles = {};
@@ -241,7 +259,7 @@ async function loadSatellite() {
     for (let x = r.x0; x <= r.x1; x++)
       composites.push({ input: path.join(TILES, 'sat', `${SAT_Z}_${x}_${y}.jpg`), left: (x - r.x0) * 256, top: (y - r.y0) * 256 });
   const { data } = await sharp({ create: { width: w, height: h, channels: 3, background: '#000' } })
-    .composite(composites).raw().toBuffer({ resolveWithObject: true });
+    .composite(composites).removeAlpha().raw().toBuffer({ resolveWithObject: true });
   return (lat, lon) => {
     const [fx, fy] = mercTile(lat, lon, SAT_Z);
     const x = (fx - r.x0) * 256 - 0.5, y = (fy - r.y0) * 256 - 0.5;
@@ -395,20 +413,95 @@ function parcelAngle(ring) {
   return ((angle % Math.PI) + Math.PI) % Math.PI / Math.PI;
 }
 
-async function build() {
+const utmLL = (e, n) => toLatLon(e, n);
+const png = (name, buf, n, channels = 4) => sharp(buf, { raw: { width: n, height: n, channels } }).png().toFile(path.join(OUT, name));
+const raw = (name, arr) => fs.writeFileSync(path.join(OUT, name), Buffer.from(arr.buffer, arr.byteOffset, arr.byteLength));
+
+// Terrain albedo: PAT orthophoto, 1 m over the core and 8 m over the context. Outside Trentino the
+// context falls back to Sentinel-2 matched to the orthophoto colours; the core falls back to the context.
+async function loadOrtho(name, half, step) {
+  const { count } = orthoGrid(half, step), n = 2 * half / step, size = count * ORTHO_TILE;
+  const composites = [];
+  for (let ty = 0; ty < count; ty++) for (let tx = 0; tx < count; tx++)
+    composites.push({ input: path.join(TILES, `ortho_${name}`, `${tx}_${ty}.jpg`), left: tx * ORTHO_TILE, top: ty * ORTHO_TILE });
+  const mosaic = await sharp({ create: { width: size, height: size, channels: 3, background: '#fff' }, limitInputPixels: false })
+    .composite(composites).removeAlpha().raw().toBuffer();
+  return sharp(mosaic, { raw: { width: size, height: size, channels: 3 }, limitInputPixels: false })
+    .extract({ left: 0, top: 0, width: n, height: n }).raw().toBuffer();
+}
+// 1 inside the orthophoto, ramping to 0 over ~2 sigma at its edge (white = no data).
+async function photoWeight(rgb, n, sigma) {
+  const valid = Buffer.alloc(n * n);
+  for (let i = 0; i < n * n; i++) valid[i] = Math.min(rgb[i * 3], rgb[i * 3 + 1], rgb[i * 3 + 2]) < 248 ? 255 : 0;
+  const blur = await sharp(valid, { raw: { width: n, height: n, channels: 1 }, limitInputPixels: false }).blur(sigma)
+    .extractChannel(0).raw().toBuffer(); // libvips blurs to sRGB: keep one band
+  const w = new Float32Array(n * n);
+  for (let i = 0; i < n * n; i++) w[i] = valid[i] ? Math.max(0, Math.min(1, (blur[i] - 128) / 120)) : 0; // the blur tops out near 253
+  return w;
+}
+const jpeg = (name, buf, n) => sharp(buf, { raw: { width: n, height: n, channels: 3 }, limitInputPixels: false })
+  .jpeg({ quality: 88 }).toFile(path.join(OUT, name));
+
+async function buildPhoto() {
+  // --- context: orthophoto, Sentinel-2 outside Trentino ---
+  const cn = 2 * CTX_HALF / PHOTO_CTX_STEP;
+  const ctx = await loadOrtho('context', CTX_HALF, PHOTO_CTX_STEP);
+  const cw = await photoWeight(ctx, cn, 12);
+  const satellite = await loadSatellite();
+  const sat = new Float32Array(cn * cn * 3);
+  for (let r = 0; r < cn; r++) for (let c = 0; c < cn; c++)
+    sat.set(satellite(...utmLL(CE - CTX_HALF + (c + 0.5) * PHOTO_CTX_STEP, CN + CTX_HALF - (r + 0.5) * PHOTO_CTX_STEP)), (r * cn + c) * 3);
+  // Per-channel mean/deviation match on the overlap, against the orthophoto at Sentinel-2 resolution.
+  const soft = await sharp(ctx, { raw: { width: cn, height: cn, channels: 3 }, limitInputPixels: false }).blur(1.2).raw().toBuffer();
+  const gain = [], offset = [];
+  for (let ch = 0; ch < 3; ch++) {
+    let k = 0, so = 0, so2 = 0, ss = 0, ss2 = 0;
+    for (let i = 0; i < cn * cn; i++) {
+      if (cw[i] < 1) continue;
+      const o = soft[i * 3 + ch], s = sat[i * 3 + ch];
+      k++; so += o; so2 += o * o; ss += s; ss2 += s * s;
+    }
+    const mo = so / k, ms = ss / k, dO = Math.sqrt(so2 / k - mo * mo), dS = Math.sqrt(ss2 / k - ms * ms);
+    gain[ch] = dO / dS; offset[ch] = mo - ms * gain[ch];
+  }
+  console.log('Sentinel-2 -> orthophoto gain', gain.map(g => g.toFixed(3)), 'offset', offset.map(o => o.toFixed(1)));
+  for (let i = 0; i < cn * cn; i++) for (let ch = 0; ch < 3; ch++) {
+    const fill = Math.max(0, Math.min(255, sat[i * 3 + ch] * gain[ch] + offset[ch]));
+    ctx[i * 3 + ch] = Math.round(ctx[i * 3 + ch] * cw[i] + fill * (1 - cw[i]));
+  }
+  await jpeg('photo_context.jpg', ctx, cn);
+
+  // --- core: orthophoto, the context photo outside Trentino ---
+  const n = 2 * CORE_HALF / PHOTO_CORE_STEP;
+  const core = await loadOrtho('core', CORE_HALF, PHOTO_CORE_STEP);
+  const w = await photoWeight(core, n, 15);
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
+    const i = r * n + c;
+    if (w[i] >= 1) continue;
+    const fx = (-CORE_HALF + (c + 0.5) * PHOTO_CORE_STEP + CTX_HALF) / PHOTO_CTX_STEP - 0.5;
+    const fy = (-CORE_HALF + (r + 0.5) * PHOTO_CORE_STEP + CTX_HALF) / PHOTO_CTX_STEP - 0.5;
+    const ix = Math.floor(fx), iy = Math.floor(fy), ax = fx - ix, ay = fy - iy;
+    for (let ch = 0; ch < 3; ch++) {
+      const p = (a, b) => ctx[((iy + b) * cn + ix + a) * 3 + ch];
+      const fill = (p(0, 0) * (1 - ax) + p(1, 0) * ax) * (1 - ay) + (p(0, 1) * (1 - ax) + p(1, 1) * ax) * ay;
+      core[i * 3 + ch] = Math.round(core[i * 3 + ch] * w[i] + fill * (1 - w[i]));
+    }
+  }
+  await jpeg('photo_core.jpg', core, n);
+  console.log('Photo build complete:', OUT);
+}
+
+// Context only (Copernicus, WorldCover): no LiDAR/OSM needed to iterate on it.
+async function buildContext() {
   const copernicus = await loadCopernicus();
   const worldcover = await loadWorldCover();
-  const satellite = await loadSatellite();
-  const utmLL = (e, n) => toLatLon(e, n);
 
-  // --- context grid: DEM, land cover class, satellite colour ---
-  const ctxH = new Float32Array(CTX_N * CTX_N), ctxClass = new Uint8Array(CTX_N * CTX_N), ctxSat = new Float32Array(CTX_N * CTX_N * 3);
+  // --- context grid: DEM, land cover class ---
+  const ctxH = new Float32Array(CTX_N * CTX_N), ctxClass = new Uint8Array(CTX_N * CTX_N);
   for (let r = 0; r < CTX_N; r++) for (let c = 0; c < CTX_N; c++) {
     const e = CE - CTX_HALF + c * CTX_STEP, n = CN + CTX_HALF - r * CTX_STEP, [lat, lon] = utmLL(e, n), i = r * CTX_N + c;
     ctxH[i] = copernicus(lat, lon);
     ctxClass[i] = worldcover(lat, lon);
-    const s = satellite(lat, lon);
-    ctxSat.set(s, i * 3);
   }
   const histogram = {};
   for (const k of ctxClass) histogram[k] = (histogram[k] || 0) + 1;
@@ -428,6 +521,37 @@ async function build() {
     return (p(ix, iz) * (1 - ax) + p(ix + 1, iz) * ax) * (1 - az) + (p(ix, iz + 1) * (1 - ax) + p(ix + 1, iz + 1) * ax) * az;
   };
 
+  // --- context land cover as filterable weights for the material response ---
+  // Texel centres sit on the grid points, like the DEM: world x = -CTX_HALF + c * step.
+  const coverage = (n, step, sub, channels, classes) => {
+    const out = Buffer.alloc(n * n * channels), offsets = [];
+    for (let k = 0; k < sub; k++) offsets.push((k - (sub - 1) / 2) * step / sub);
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
+      const e = CE - CTX_HALF + c * step, nn = CN + CTX_HALF - r * step, o = (r * n + c) * channels;
+      for (const oy of offsets) for (const ox of offsets) {
+        const ch = classes.indexOf(worldcover(...utmLL(e + ox, nn - oy)));
+        if (ch >= 0) out[o + ch] += 255 / (sub * sub);
+      }
+    }
+    return out;
+  };
+  // Bare rock, snow/ice, water (30 m): the photo carries the colour, these drive the material response.
+  const cover = coverage(CTX_N, CTX_STEP, 3, 3, [60, 70, 80]);
+
+  raw('context_height.r32', ctxH);
+  await png('context_cover.png', cover, CTX_N, 3);
+  const manifest = { center_utm32: [CE, CN], lake_level: LAKE_LEVEL,
+    core: { half: CORE_HALF, step: CORE_STEP, size: CORE_N, file: 'core_height.r32' },
+    masks: { half: CORE_HALF, step: MASK_STEP, size: MASK_N },
+    context: { half: CTX_HALF, step: CTX_STEP, size: CTX_N, file: 'context_height.r32' },
+    world: 'x = E - center_e, z = center_n - N, y = metres above sea level' };
+  fs.writeFileSync(path.join(OUT, 'manifest.json'), JSON.stringify(manifest, null, 2));
+  console.log('Context build complete:', OUT);
+  return { worldcover, ctxAt };
+}
+
+// Core: LiDAR heights and OSM/WorldCover masks, blended into the context at the edge.
+async function buildCore({ worldcover, ctxAt }) {
   // --- OSM masks over the core (4 m) ---
   const items = osmGeometry();
   const t = k => i => i.tags[k] !== undefined;
@@ -519,69 +643,31 @@ async function build() {
   }
   console.log(`Core: LiDAR coverage ${(100 * lidarCells / core.length).toFixed(1)}%`);
 
-  // --- satellite tint: low-pass colour relative to its land-cover class mean ---
-  const satBlur = boxBlur(ctxSat, CTX_N, CTX_N, 3, 2); // ~3x5x30 m effective ~ 150 m
-  const sums = {}, counts = {};
-  for (let i = 0; i < ctxClass.length; i++) {
-    const k = ctxClass[i]; sums[k] ??= [0, 0, 0]; counts[k] = (counts[k] || 0) + 1;
-    for (let ch = 0; ch < 3; ch++) sums[k][ch] += satBlur[i * 3 + ch];
-  }
-  const tint = Buffer.alloc(CTX_N * CTX_N * 4);
-  for (let i = 0; i < ctxClass.length; i++) {
-    const k = ctxClass[i];
-    for (let ch = 0; ch < 3; ch++) {
-      const ratio = satBlur[i * 3 + ch] / Math.max(1, sums[k][ch] / counts[k]);
-      tint[i * 4 + ch] = Math.round(Math.max(0, Math.min(1, ratio / 2)) * 255); // 128 = class mean
-    }
-    tint[i * 4 + 3] = 255;
-  }
-
-  // --- context albedo (sRGB), matching the core shader palette ---
-  const palette = { 10: [44, 58, 30], 20: [88, 92, 54], 30: [92, 100, 58], 40: [122, 116, 74], 50: [128, 120, 110],
-    60: [150, 146, 136], 70: [235, 238, 242], 80: [22, 44, 54], 90: [76, 88, 58], 95: [60, 80, 50], 100: [120, 120, 100], 0: [104, 112, 62] };
-  const albedoPlain = Buffer.alloc(CTX_N * CTX_N * 4), albedoTint = Buffer.alloc(CTX_N * CTX_N * 4);
-  for (let i = 0; i < ctxClass.length; i++) {
-    const p = palette[ctxClass[i]] || palette[0];
-    for (let ch = 0; ch < 3; ch++) {
-      albedoPlain[i * 4 + ch] = p[ch];
-      const lin = (p[ch] / 255) ** 2.2 * Math.max(0.7, Math.min(1.35, tint[i * 4 + ch] / 128));
-      albedoTint[i * 4 + ch] = Math.round(Math.min(1, lin) ** (1 / 2.2) * 255);
-    }
-    albedoPlain[i * 4 + 3] = albedoTint[i * 4 + 3] = 255;
-  }
-
-  // --- write ---
-  const raw = (name, arr) => fs.writeFileSync(path.join(OUT, name), Buffer.from(arr.buffer, arr.byteOffset, arr.byteLength));
   raw('core_height.r32', core);
-  raw('context_height.r32', ctxH);
-  const png = (name, buf, n) => sharp(buf, { raw: { width: n, height: n, channels: 4 } }).png().toFile(path.join(OUT, name));
   await png('masks_a.png', masksA, MASK_N);
   await png('masks_b.png', masksB, MASK_N);
   await png('masks_c.png', masksC, MASK_N);
-  await png('tint.png', tint, CTX_N);
-  await png('context_albedo_plain.png', albedoPlain, CTX_N);
-  await png('context_albedo_tint.png', albedoTint, CTX_N);
-  // Reference: raw satellite and a hillshade preview for review only.
-  const satPreview = Buffer.alloc(CTX_N * CTX_N * 3);
-  for (let i = 0; i < satPreview.length; i++) satPreview[i] = ctxSat[i];
-  await sharp(satPreview, { raw: { width: CTX_N, height: CTX_N, channels: 3 } }).png().toFile(path.join(OUT, 'satellite_reference.png'));
-  const manifest = { center_utm32: [CE, CN], lake_level: LAKE_LEVEL,
-    core: { half: CORE_HALF, step: CORE_STEP, size: CORE_N, file: 'core_height.r32' },
-    masks: { half: CORE_HALF, step: MASK_STEP, size: MASK_N },
-    context: { half: CTX_HALF, step: CTX_STEP, size: CTX_N, file: 'context_height.r32' },
-    world: 'x = E - center_e, z = center_n - N, y = metres above sea level' };
-  fs.writeFileSync(path.join(OUT, 'manifest.json'), JSON.stringify(manifest, null, 2));
-  console.log('Build complete:', OUT);
+  console.log('Core build complete:', OUT);
 }
 
 (async () => {
   const phase = process.argv[2] || 'all';
-  if (phase === 'fetch' || phase === 'all') {
+  // context = fetch + build of the context only (Copernicus, WorldCover).
+  // photo = fetch + build of the albedo photos (orthophoto, Sentinel-2).
+  if (phase === 'fetch' || phase === 'all' || phase === 'context') {
     await fetchCopernicus();
     await fetchWorldCover();
-    await fetchOsm();
+  }
+  if (phase === 'fetch' || phase === 'all' || phase === 'photo') {
     await fetchSatellite();
+    await fetchOrtho('core', CORE_HALF, PHOTO_CORE_STEP);
+    await fetchOrtho('context', CTX_HALF, PHOTO_CTX_STEP);
+  }
+  if (phase === 'fetch' || phase === 'all') {
+    await fetchOsm();
     await fetchLidar();
   }
-  if (phase === 'build' || phase === 'all') await build();
+  if (phase === 'context') await buildContext();
+  if (phase === 'build' || phase === 'all') await buildCore(await buildContext());
+  if (phase === 'photo' || phase === 'build' || phase === 'all') await buildPhoto();
 })().catch(e => { console.error(e); process.exit(1); });

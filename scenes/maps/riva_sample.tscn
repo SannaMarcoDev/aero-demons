@@ -14,9 +14,12 @@
 [ext_resource type="Script" path="res://scripts/maps/riva_sample_forests.gd" id="25_forests"]
 [ext_resource type="Texture2D" path="res://textures/terrain/riva_sample/masks_a.png" id="30_masks_a"]
 [ext_resource type="Texture2D" path="res://textures/terrain/riva_sample/masks_b.png" id="31_masks_b"]
-[ext_resource type="Texture2D" path="res://textures/terrain/riva_sample/masks_c.png" id="32_masks_c"]
-[ext_resource type="Texture2D" path="res://textures/terrain/riva_sample/tint.png" id="33_tint"]
-[ext_resource type="Texture2D" path="res://textures/terrain/riva_sample/context_albedo_tint.png" id="34_context_albedo"]
+[ext_resource type="Texture2D" path="res://textures/terrain/riva_sample/photo_core.jpg" id="33_photo_core"]
+[ext_resource type="Texture2D" path="res://textures/terrain/riva_sample/photo_context.jpg" id="34_photo_context"]
+[ext_resource type="Texture2D" path="res://textures/terrain/riva_sample/context_cover.png" id="38_cover"]
+[ext_resource type="Shader" path="res://resources/terrain/riva_sample_context.gdshader" id="39_context_shader"]
+[ext_resource type="Texture2D" uid="uid://bhfkenjrdvcn0" path="res://textures/terrain/garda/aerial_rocks_02_albedo_packed.png" id="40_rock"]
+[ext_resource type="Texture2D" uid="uid://in365pmsuiux" path="res://textures/terrain/rocky_terrain_02_albedo_packed.png" id="41_ground"]
 [ext_resource type="ArrayMesh" path="res://resources/terrain/riva_sample_context.res" id="35_context_mesh"]
 [ext_resource type="Shader" uid="uid://defbalsjhy5l1" path="res://resources/shaders/garda_water.gdshader" id="36_water_shader"]
 [ext_resource type="Texture2D" uid="uid://ban0efe0gbxeh" path="res://assets/BinbunWater/src/texture/wave/wave_03/wave_texture_03.tres" id="37_water_patches"]
@@ -35,13 +38,10 @@ seamless = true
 [sub_resource type="Terrain3DMaterial" id="Terrain3DMaterial_wc"]
 _shader_parameters = {
 &"detail_size": 4.0,
-&"context_albedo": ExtResource("34_context_albedo"),
 &"masks_a": ExtResource("30_masks_a"),
 &"masks_b": ExtResource("31_masks_b"),
-&"masks_c": ExtResource("32_masks_c"),
-&"satellite_tint": ExtResource("33_tint"),
+&"photo": ExtResource("33_photo_core"),
 &"macro_size": 4500.0,
-&"macro_strength": 0.6,
 &"meso_size": 72.0,
 &"normal_strength": 0.8,
 &"rock_end": 0.62,
@@ -203,11 +203,14 @@ shader_parameter/swell_size = 1800.0
 material = SubResource("ShaderMaterial_water")
 size = Vector2(1000000, 1000000)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_context"]
-albedo_texture = ExtResource("34_context_albedo")
-roughness = 1.0
-metallic_specular = 0.25
-texture_filter = 5
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_context"]
+render_priority = 0
+shader = ExtResource("39_context_shader")
+shader_parameter/surface_noise = SubResource("NoiseTexture2D_surface")
+shader_parameter/rock_albedo = ExtResource("40_rock")
+shader_parameter/ground_albedo = ExtResource("41_ground")
+shader_parameter/photo = ExtResource("34_photo_context")
+shader_parameter/cover = ExtResource("38_cover")
 
 [node name="RivaSample" type="Node3D" unique_id=1907416372]
 
@@ -327,4 +330,4 @@ forest_mask = ExtResource("30_masks_a")
 
 [node name="ContextTerrain" type="MeshInstance3D" parent="." unique_id=1402557931]
 mesh = ExtResource("35_context_mesh")
-material_override = SubResource("StandardMaterial3D_context")
+material_override = SubResource("ShaderMaterial_context")

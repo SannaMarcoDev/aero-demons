@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://4kugl5nbtede"
-path="res://.godot/imported/tint.png-c1aa3a3070993273aed510b8970c5f61.ctex"
+uid="uid://y85wgsh3vu5q"
+path="res://.godot/imported/context_cover.png-b87d4518dccc5806ea5a090d27a5ef37.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://textures/terrain/riva_sample/tint.png"
-dest_files=["res://.godot/imported/tint.png-c1aa3a3070993273aed510b8970c5f61.ctex"]
+source_file="res://textures/terrain/riva_sample/context_cover.png"
+dest_files=["res://.godot/imported/context_cover.png-b87d4518dccc5806ea5a090d27a5ef37.ctex"]
 
 [params]
 
