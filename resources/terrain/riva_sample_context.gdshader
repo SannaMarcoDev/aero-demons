@@ -1,10 +1,12 @@
-// Riva sample context (61 km mesh around the Terrain3D core): photo albedo (PAT orthophoto,
-// Sentinel-2 outside Trentino, 8 m) with the core's material grain where its texels magnify.
+// Riva sample context (199.68 km of mesh chunks around the Terrain3D core): photo albedo (PAT orthophoto,
+// Sentinel-2 outside Trentino, 8 m over 61 km, Sentinel-2 at 25.6 m beyond) with the core's material grain
+// where its texels magnify.
 // Keep the photo grading in step with riva_sample_surface.gdshader.
 // Photo/cover textures: tools/terrain/fetch_riva_sample.cjs. Material coordinates are world metres.
 shader_type spatial;
 render_mode blend_mix,depth_draw_opaque,cull_back,diffuse_burley,specular_schlick_ggx;
 #include "res://addons/clouds/cloud_pbr.gdshaderinc"
+#include "res://resources/shaders/earth_curvature.gdshaderinc"
 
 uniform sampler2D surface_noise : filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D rock_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
@@ -16,12 +18,14 @@ uniform float rock_end : hint_range(0.0, 1.0) = 0.45;
 
 uniform sampler2D photo : source_color, filter_linear_mipmap_anisotropic, repeat_disable;
 uniform vec4 photo_rect = vec4(-30720.0, -30720.0, 61440.0, 61440.0);
+uniform sampler2D photo_far : source_color, filter_linear_mipmap_anisotropic, repeat_disable;
+uniform vec4 photo_far_rect = vec4(-99840.0, -99840.0, 199680.0, 199680.0);
 uniform float photo_saturation : hint_range(0.0, 2.0) = 1.0;
 uniform float photo_gain : hint_range(0.0, 2.0) = 1.0;
 uniform float detail_strength : hint_range(0.0, 1.0) = 0.6;
-// WorldCover bare rock, snow/ice, water (30 m).
+// WorldCover bare rock, snow/ice, water (80 m, texel centres on x = -99840 + k * 80).
 uniform sampler2D cover : hint_default_black, filter_linear_mipmap, repeat_disable;
-uniform vec4 cover_rect = vec4(-30735.0, -30735.0, 61440.0, 61440.0);
+uniform vec4 cover_rect = vec4(-99880.0, -99880.0, 199760.0, 199760.0);
 uniform float lake_level = 65.0;
 
 const vec3 LUMINANCE = vec3(0.2126, 0.7152, 0.0722);
@@ -32,6 +36,7 @@ varying vec3 v_world_normal;
 void vertex() {
 	v_world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	v_world_normal = normalize(mat3(MODEL_MATRIX) * NORMAL);
+	VERTEX.y -= curvature_drop(v_world); // unrotated, unscaled chunks
 }
 
 // Two-offset stochastic sampling selected by smooth noise, as in the core (no tile repeats).
@@ -68,8 +73,12 @@ void fragment() {
 		/ max(dot(textureLod(ground_albedo, vec2(0.5), 14.0).rgb, LUMINANCE), 0.01);
 	float detail = clamp(mix(soil, stone, rock), 0.45, 1.7);
 
-	vec2 puv = (p - photo_rect.xy) / photo_rect.zw;
-	vec3 albedo = texture(photo, puv).rgb;
+	// The 8 m photo hands over to the far one across the last 15% of its half-width (~4.6 km): the
+	// orthophoto and Sentinel-2 differ in snow cover.
+	vec3 albedo = texture(photo_far, (p - photo_far_rect.xy) / photo_far_rect.zw).rgb;
+	vec2 q = abs(p - photo_rect.xy - photo_rect.zw * 0.5) / (photo_rect.zw * 0.5);
+	float near = 1.0 - smoothstep(0.85, 1.0, max(q.x, q.y));
+	albedo = mix(albedo, texture(photo, (p - photo_rect.xy) / photo_rect.zw).rgb, near); // no branch: implicit derivatives
 	albedo = max(mix(vec3(dot(albedo, LUMINANCE)), albedo, photo_saturation), 0.0) * photo_gain;
 	// The 8 m texels magnify near the core edge (~3 m screen pixels at 5 km).
 	float footprint = length(fwidth(v_world.xz));

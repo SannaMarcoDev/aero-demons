@@ -1,6 +1,7 @@
 // Deep, cold, opaque water for the flight map.
 shader_type spatial;
 render_mode depth_draw_opaque, cull_back, diffuse_burley, specular_schlick_ggx;
+#include "res://resources/shaders/earth_curvature.gdshaderinc"
 
 group_uniforms Water;
 uniform vec3 water_color : source_color = vec3(0.055, 0.145, 0.18);
@@ -22,6 +23,7 @@ void vertex() {
 	// The map is enormous. Shading waves in world metres avoids UV stretching
 	// and a tessellated grid whose cells are larger than the waves themselves.
 	world_position = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	VERTEX.y -= curvature_drop(world_position); // unrotated, unscaled plane; flat unless earth_radius is set
 }
 
 void fragment() {

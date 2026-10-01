@@ -15,19 +15,16 @@
 [ext_resource type="Texture2D" path="res://textures/terrain/riva_sample/masks_a.png" id="30_masks_a"]
 [ext_resource type="Texture2D" path="res://textures/terrain/riva_sample/masks_b.png" id="31_masks_b"]
 [ext_resource type="Texture2D" path="res://textures/terrain/riva_sample/photo_core.jpg" id="33_photo_core"]
-[ext_resource type="Texture2D" path="res://textures/terrain/riva_sample/photo_context.jpg" id="34_photo_context"]
 [ext_resource type="Texture2D" path="res://textures/terrain/riva_sample/photo_wide.jpg" id="44_photo_wide"]
-[ext_resource type="Texture2D" path="res://textures/terrain/riva_sample/context_cover.png" id="38_cover"]
-[ext_resource type="Shader" path="res://resources/terrain/riva_sample_context.gdshader" id="39_context_shader"]
-[ext_resource type="Texture2D" uid="uid://bhfkenjrdvcn0" path="res://textures/terrain/garda/aerial_rocks_02_albedo_packed.png" id="40_rock"]
-[ext_resource type="Texture2D" uid="uid://in365pmsuiux" path="res://textures/terrain/rocky_terrain_02_albedo_packed.png" id="41_ground"]
-[ext_resource type="ArrayMesh" path="res://resources/terrain/riva_sample_context.res" id="35_context_mesh"]
 [ext_resource type="Shader" uid="uid://defbalsjhy5l1" path="res://resources/shaders/garda_water.gdshader" id="36_water_shader"]
 [ext_resource type="Texture2D" uid="uid://ban0efe0gbxeh" path="res://assets/BinbunWater/src/texture/wave/wave_03/wave_texture_03.tres" id="37_water_patches"]
 [ext_resource type="Script" uid="uid://lma00y4574p0" path="res://addons/clouds/cloud_layer_3d.gd" id="27_cloud_layer"]
 [ext_resource type="ArrayMesh" path="res://resources/terrain/riva_sample_buildings.res" id="42_buildings"]
 [ext_resource type="Shader" path="res://resources/terrain/riva_sample_buildings.gdshader" id="43_buildings_shader"]
 [ext_resource type="Script" uid="uid://b208wjrs5p207" path="res://scripts/maps/garda_cloud_shadows.gd" id="28_cloud_shadows"]
+[ext_resource type="PackedScene" path="res://resources/terrain/riva_sample_context.scn" id="45_context"]
+[ext_resource type="Material" path="res://resources/terrain/riva_sample_context_material.tres" id="46_context_material"]
+[ext_resource type="Script" path="res://scripts/maps/earth_curvature.gd" id="47_curvature"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_surface"]
 seed = 7319
@@ -205,16 +202,9 @@ shader_parameter/swell_size = 1800.0
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_garda_water"]
 material = SubResource("ShaderMaterial_water")
-size = Vector2(1000000, 1000000)
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_context"]
-render_priority = 0
-shader = ExtResource("39_context_shader")
-shader_parameter/surface_noise = SubResource("NoiseTexture2D_surface")
-shader_parameter/rock_albedo = ExtResource("40_rock")
-shader_parameter/ground_albedo = ExtResource("41_ground")
-shader_parameter/photo = ExtResource("34_photo_context")
-shader_parameter/cover = ExtResource("38_cover")
+size = Vector2(29600, 51650)
+subdivide_width = 29
+subdivide_depth = 51
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_buildings"]
 render_priority = 0
@@ -229,6 +219,7 @@ material = SubResource("Terrain3DMaterial_wc")
 assets = ExtResource("1_assets")
 mesh_lods = 10
 vertex_spacing = 4.0
+cull_margin = 300.0
 top_level = true
 metadata/_edit_lock_ = true
 
@@ -328,9 +319,9 @@ shadow_darkness = 0.85
 script = ExtResource("28_cloud_shadows")
 
 [node name="Water" type="MeshInstance3D" parent="." unique_id=987654321]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 65, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13260, 65, 24855)
 cast_shadow = 0
-extra_cull_margin = 4.0
+extra_cull_margin = 500.0
 mesh = SubResource("PlaneMesh_garda_water")
 
 [node name="Forests" type="Node" parent="." unique_id=83992146]
@@ -338,10 +329,14 @@ script = ExtResource("25_forests")
 forest_mask = ExtResource("30_masks_a")
 building_mask = ExtResource("31_masks_b")
 
-[node name="ContextTerrain" type="MeshInstance3D" parent="." unique_id=1402557931]
-mesh = ExtResource("35_context_mesh")
-material_override = SubResource("ShaderMaterial_context")
+[node name="ContextTerrain" parent="." unique_id=1402557931 instance=ExtResource("45_context")]
 
 [node name="Buildings" type="MeshInstance3D" parent="." unique_id=1650381127]
+extra_cull_margin = 60.0
 mesh = ExtResource("42_buildings")
 material_override = SubResource("ShaderMaterial_buildings")
+
+[node name="EarthCurvature" type="Node" parent="." unique_id=1873301447 node_paths=PackedStringArray("terrain")]
+script = ExtResource("47_curvature")
+terrain = NodePath("../GardaTerrain")
+materials = Array[ShaderMaterial]([ExtResource("46_context_material"), SubResource("ShaderMaterial_buildings"), SubResource("ShaderMaterial_water")])

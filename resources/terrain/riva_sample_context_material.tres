@@ -1,0 +1,27 @@
+[gd_resource type="ShaderMaterial" format=3]
+
+[ext_resource type="Shader" path="res://resources/terrain/riva_sample_context.gdshader" id="1_shader"]
+[ext_resource type="Texture2D" uid="uid://bhfkenjrdvcn0" path="res://textures/terrain/garda/aerial_rocks_02_albedo_packed.png" id="2_rock"]
+[ext_resource type="Texture2D" uid="uid://in365pmsuiux" path="res://textures/terrain/rocky_terrain_02_albedo_packed.png" id="3_ground"]
+[ext_resource type="Texture2D" path="res://textures/terrain/riva_sample/photo_context.jpg" id="4_photo"]
+[ext_resource type="Texture2D" path="res://textures/terrain/riva_sample/photo_far.jpg" id="5_photo_far"]
+[ext_resource type="Texture2D" path="res://textures/terrain/riva_sample/context_cover.png" id="6_cover"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_surface"]
+seed = 7319
+frequency = 0.008
+fractal_octaves = 4
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_surface"]
+noise = SubResource("FastNoiseLite_surface")
+seamless = true
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_shader")
+shader_parameter/surface_noise = SubResource("NoiseTexture2D_surface")
+shader_parameter/rock_albedo = ExtResource("2_rock")
+shader_parameter/ground_albedo = ExtResource("3_ground")
+shader_parameter/photo = ExtResource("4_photo")
+shader_parameter/photo_far = ExtResource("5_photo_far")
+shader_parameter/cover = ExtResource("6_cover")

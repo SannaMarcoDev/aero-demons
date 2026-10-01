@@ -6,6 +6,7 @@
 shader_type spatial;
 render_mode blend_mix,depth_draw_opaque,cull_back,diffuse_burley,specular_schlick_ggx;
 #include "res://addons/clouds/cloud_pbr.gdshaderinc"
+#include "res://resources/shaders/earth_curvature.gdshaderinc"
 
 uniform vec3 wall_color : source_color = vec3(0.62, 0.57, 0.50);
 uniform float wall_variation : hint_range(0.0, 0.5) = 0.2;
@@ -37,6 +38,7 @@ void vertex() {
 	v_roof = UV.x;
 	v_hash = fract(sin(UV.y * vec3(1289.898, 7823.3, 3771.9)) * 43758.5453);
 	v_extra = UV2;
+	VERTEX.y -= curvature_drop(v_world); // unrotated, unscaled node
 }
 
 // Anti-aliased [a, b] band of a repeating 0..1 coordinate; w = its screen derivative.

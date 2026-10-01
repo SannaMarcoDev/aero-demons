@@ -1,18 +1,24 @@
 extends SceneTree
 ## Imports terrain/source/riva_sample (tools/terrain/fetch_riva_sample.cjs) into the project:
-## Terrain3D regions (4 m over 40.96 km), land-use masks, albedo photos and the low-resolution context mesh.
+## Terrain3D regions (4 m over 40.96 km), land-use masks, albedo photos and the 199.68 km context chunks.
 ## godot --headless --path . --script res://tools/terrain/build_riva_sample.gd [-- --context | --buildings]
-## --context: context mesh, cover and photos only (after `fetch_riva_sample.cjs context` and `photo`).
+## --context: context chunks, cover and photos only (after `fetch_riva_sample.cjs context` and `photo`).
 ## --buildings: building boxes only (after `fetch_riva_sample.cjs buildings`), on the saved regions.
 const SOURCE := "res://terrain/source/riva_sample/"
 const REGIONS := "res://terrain/riva_sample/"
 const TEXTURES := "res://textures/terrain/riva_sample/"
-const CONTEXT_MESH := "res://resources/terrain/riva_sample_context.res"
+const CONTEXT_SCENE := "res://resources/terrain/riva_sample_context.scn"
+const CONTEXT_MATERIAL := "res://resources/terrain/riva_sample_context_material.tres"
 const REGION_SIZE := 512
-const CONTEXT_MESH_STRIDE := 2 # 60 m mesh cells over the 30 m context DEM.
+const CONTEXT_CHUNK := 512 # DEM cells per chunk side: 15.36 km at 30 m.
+# Mesh cell stride by the chunk's gap to the core (the playable area): 60, 120, 240 m cells.
+const CONTEXT_STRIDES := [[10000.0, 2], [30000.0, 4], [INF, 8]]
+const SKIRT_DEPTH := 50.0 # per stride: chunk edges hang down over LOD and stride cracks.
+# Curvature lowers far chunks below their mesh AABB (785 m at 100 km): keep them from being culled.
+const CURVATURE_CULL_MARGIN := 1000.0
 const HIDDEN_DEPTH := 40.0 # The context mesh sinks under the Terrain3D core edge band.
 const CORE_TEXTURES := ["masks_a.png", "masks_b.png"]
-const CONTEXT_TEXTURES := ["context_cover.png", "photo_core.jpg", "photo_wide.jpg", "photo_context.jpg"]
+const CONTEXT_TEXTURES := ["context_cover.png", "photo_core.jpg", "photo_wide.jpg", "photo_context.jpg", "photo_far.jpg"]
 const BUILDINGS := "res://resources/terrain/riva_sample_buildings.res"
 const BUILDING_MIN_HEIGHT := 2.5 # lower DBM roofs: building missing in 2014, use OSM height or default
 const BUILDING_DEFAULT_HEIGHT := 7.0
@@ -33,7 +39,7 @@ func _run() -> void:
 			_save_regions(manifest.core)
 			_save_buildings(manifest.core)
 		_copy_textures(CONTEXT_TEXTURES if context_only else CORE_TEXTURES + CONTEXT_TEXTURES)
-		_save_context_mesh(manifest.context, manifest.core)
+		_save_context(manifest.context, manifest.core)
 	print("PASS: RIVA SAMPLE BUILD COMPLETE")
 	quit()
 
@@ -210,60 +216,100 @@ func _copy_textures(names: Array) -> void:
 			% (2 if name.ends_with(".jpg") else 0))
 	print("Textures copied to ", TEXTURES)
 
-func _save_context_mesh(context: Dictionary, core: Dictionary) -> void:
+func _save_context(context: Dictionary, core: Dictionary) -> void:
 	var size: int = context.size
 	var step: float = context.step
 	var half: float = context.half
 	var heights := _read_floats(context.file, size)
 	var height_at := func(c: int, r: int) -> float:
 		return heights[clampi(r, 0, size - 1) * size + clampi(c, 0, size - 1)]
-	var cells := (size - 1) / CONTEXT_MESH_STRIDE
-	var n := cells + 1
+	assert((size - 1) % CONTEXT_CHUNK == 0, "Context cells must split into chunks")
+	var chunks := (size - 1) / CONTEXT_CHUNK
+	var span := CONTEXT_CHUNK * step
+	var root := Node3D.new()
+	root.name = "ContextTerrain"
+	var material: Material = load(CONTEXT_MATERIAL)
+	var triangles := 0
+	for cz in chunks:
+		for cx in chunks:
+			var x0 := -half + cx * span
+			var z0 := -half + cz * span
+			var gap := maxf(maxf(x0 - core.half, -core.half - x0 - span), maxf(z0 - core.half, -core.half - z0 - span))
+			var stride := 0
+			for entry: Array in CONTEXT_STRIDES:
+				if gap < entry[0]:
+					stride = entry[1]
+					break
+			var mesh := _context_chunk(height_at, cx * CONTEXT_CHUNK, cz * CONTEXT_CHUNK, stride, step, half, core.half)
+			if mesh == null:
+				continue
+			var chunk := MeshInstance3D.new()
+			chunk.name = "Chunk_%d_%d" % [cx, cz]
+			chunk.mesh = mesh
+			chunk.material_override = material
+			chunk.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			chunk.extra_cull_margin = CURVATURE_CULL_MARGIN
+			root.add_child(chunk)
+			chunk.owner = root
+			triangles += mesh.surface_get_array_index_len(0) / 3
+	var scene := PackedScene.new()
+	assert(scene.pack(root) == OK)
+	assert(ResourceSaver.save(scene, CONTEXT_SCENE, ResourceSaver.FLAG_COMPRESS) == OK)
+	print("Context: ", root.get_child_count(), " chunks, ", triangles, " triangles at full detail")
+	root.free()
+
+## One chunk from DEM cell (c0, r0): stride-spaced vertices, a hole under the core (60 m triangles
+## cannot stay below the LiDAR cliffs; only the edge band remains, its inner vertices sunk by HIDDEN_DEPTH),
+## skirts on all four edges, automatic LODs. Null when the chunk lies inside the hole.
+func _context_chunk(height_at: Callable, c0: int, r0: int, stride: int, step: float, half: float, core_half: float) -> ArrayMesh:
+	var n := CONTEXT_CHUNK / stride + 1
+	var core_inner := core_half - 2.0 * step * stride
 	var vertices := PackedVector3Array()
 	var normals := PackedVector3Array()
-	var uvs := PackedVector2Array()
 	vertices.resize(n * n)
 	normals.resize(n * n)
-	uvs.resize(n * n)
-	var core_inner: float = core.half - 2.0 * step * CONTEXT_MESH_STRIDE
-	for r in n:
-		for c in n:
-			var sc := c * CONTEXT_MESH_STRIDE
-			var sr := r * CONTEXT_MESH_STRIDE
-			var x := -half + sc * step
-			var z := -half + sr * step
-			var y: float = height_at.call(sc, sr)
+	for j in n:
+		for i in n:
+			var c := c0 + i * stride
+			var r := r0 + j * stride
+			var x := -half + c * step
+			var z := -half + r * step
+			var y: float = height_at.call(c, r)
 			if absf(x) < core_inner and absf(z) < core_inner:
 				y -= HIDDEN_DEPTH
-			var i := r * n + c
-			vertices[i] = Vector3(x, y, z)
-			var dx: float = height_at.call(sc + 1, sr) - height_at.call(sc - 1, sr)
-			var dz: float = height_at.call(sc, sr + 1) - height_at.call(sc, sr - 1)
-			normals[i] = Vector3(-dx, 2.0 * step, -dz).normalized()
-			uvs[i] = Vector2((sc + 0.5) / size, (sr + 0.5) / size)
+			vertices[j * n + i] = Vector3(x, y, z)
+			var dx: float = height_at.call(c + stride, r) - height_at.call(c - stride, r)
+			var dz: float = height_at.call(c, r + stride) - height_at.call(c, r - stride)
+			normals[j * n + i] = Vector3(-dx, 2.0 * step * stride, -dz).normalized()
 	var indices := PackedInt32Array()
-	for r in cells:
-		for c in cells:
-			# Hole under the core: 60 m triangles cannot stay below 2 m LiDAR cliffs (up to
-			# 156 m above). Only the edge band remains, its inner vertices sunk by HIDDEN_DEPTH.
-			var x0 := -half + c * CONTEXT_MESH_STRIDE * step
-			var z0 := -half + r * CONTEXT_MESH_STRIDE * step
-			var x1 := x0 + CONTEXT_MESH_STRIDE * step
-			var z1 := z0 + CONTEXT_MESH_STRIDE * step
-			if maxf(absf(x0), absf(x1)) < core_inner and maxf(absf(z0), absf(z1)) < core_inner:
+	var cell := step * stride
+	for j in n - 1:
+		for i in n - 1:
+			var x0 := -half + c0 * step + i * cell
+			var z0 := -half + r0 * step + j * cell
+			if maxf(absf(x0), absf(x0 + cell)) < core_inner and maxf(absf(z0), absf(z0 + cell)) < core_inner:
 				continue
-			var a := r * n + c
+			var a := j * n + i
 			# Clockwise seen from above: Godot front faces point up.
 			indices.append_array([a, a + 1, a + n, a + 1, a + n + 1, a + n])
+	if indices.is_empty():
+		return null
+	# Skirts: each edge vertex repeated SKIRT_DEPTH * stride lower, quads wound both ways (no outward bookkeeping).
+	for edge in [range(0, n), range(n * (n - 1), n * n), range(0, n * n, n), range(n - 1, n * n, n)]:
+		var previous := -1
+		for k: int in edge:
+			var low := vertices.size()
+			vertices.append(vertices[k] - Vector3(0.0, SKIRT_DEPTH * stride, 0.0))
+			normals.append(normals[k])
+			if previous >= 0:
+				indices.append_array([previous, k, low, previous, low - 1, low, previous, low, k, previous, low, low - 1])
+			previous = k
 	var arrays := []
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = vertices
 	arrays[Mesh.ARRAY_NORMAL] = normals
-	arrays[Mesh.ARRAY_TEX_UV] = uvs
 	arrays[Mesh.ARRAY_INDEX] = indices
 	var importer := ImporterMesh.new()
 	importer.add_surface(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	importer.generate_lods(25.0, 60.0, [])
-	var mesh := importer.get_mesh()
-	assert(ResourceSaver.save(mesh, CONTEXT_MESH, ResourceSaver.FLAG_COMPRESS) == OK)
-	print("Context mesh: ", n, "x", n, " vertices, ", mesh.get_surface_count(), " surface")
+	return importer.get_mesh()

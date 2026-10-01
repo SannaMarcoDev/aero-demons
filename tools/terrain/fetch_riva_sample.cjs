@@ -1,4 +1,4 @@
-// Riva del Garda sample: 10.24 km of real data + 61 km context, aligned in UTM 32N.
+// Riva del Garda sample: 40.96 km of real data + 199.68 km context, aligned in UTM 32N.
 // Phases: node tools/terrain/fetch_riva_sample.cjs fetch | build | all | context | photo | buildings | lidar
 // Requires `npm i --no-save sharp` in tools/. Download cache in tools/tiles/riva/,
 // outputs in terrain/source/riva_sample/ (both git-ignored). Godot import:
@@ -30,9 +30,14 @@ fs.mkdirSync(OUT, { recursive: true });
 const CE = 645120, CN = 5082880;
 const CORE_HALF = 20480, CORE_STEP = 4, CORE_N = 10240; // Terrain3D vertices
 const MASK_STEP = 8, MASK_N = 5120;                      // land use masks over the core
-const CTX_HALF = 30720, CTX_STEP = 30, CTX_N = 2048;   // context DEM, colour and tint
-// Terrain albedo photos: 1 m around Riva (buildings), 2.5 m over the core (16384 px), 8 m over the context.
-const PHOTO_CORE_HALF = 5120, PHOTO_CORE_STEP = 1, PHOTO_WIDE_STEP = 2.5, PHOTO_CTX_STEP = 8;
+// Context DEM on the Copernicus 30 m grid; its points stay those of the former 61 km context (x = k * 30 m),
+// so the core edge band, blended into it, needs no rebuild. 6656 cells: 13 x 13 mesh chunks of 512.
+const CTX_HALF = 99840, CTX_STEP = 30, CTX_N = 6657;
+const COVER_STEP = 80, COVER_N = 2 * CTX_HALF / COVER_STEP + 1; // WorldCover rock/snow/water over the context
+// Terrain albedo photos: 1 m around Riva (buildings), 2.5 m over the core (16384 px), 8 m over 61 km,
+// 25.6 m (Sentinel-2) over the whole context.
+const PHOTO_CORE_HALF = 5120, PHOTO_CORE_STEP = 1, PHOTO_WIDE_STEP = 2.5, PHOTO_CTX_HALF = 30720, PHOTO_CTX_STEP = 8;
+const PHOTO_FAR_STEP = 25.6;
 const BUILDINGS_HALF = 5120; // ponytail: buildings around Riva only, one mesh; chunk it before going wider
 const LAKE_LEVEL = 65.0, LAKE_MAX_DEPTH = 300.0;
 const EDGE_BLEND = 400.0;  // core -> context DEM over the outer band of the core
@@ -144,10 +149,10 @@ async function fetchLidar(kind = 'dtm', want = () => true) {
   return features;
 }
 
-function contextLatLonBounds() {
+function contextLatLonBounds(half = CTX_HALF) {
   let s = 90, n = -90, w = 180, e = -180;
   for (const [dx, dy] of [[-1, -1], [1, -1], [-1, 1], [1, 1], [0, -1], [0, 1], [-1, 0], [1, 0]]) {
-    const [la, lo] = toLatLon(CE + dx * CTX_HALF, CN + dy * CTX_HALF);
+    const [la, lo] = toLatLon(CE + dx * half, CN + dy * half);
     s = Math.min(s, la); n = Math.max(n, la); w = Math.min(w, lo); e = Math.max(e, lo);
   }
   return { s: s - 0.01, n: n + 0.01, w: w - 0.01, e: e + 0.01 };
@@ -162,9 +167,17 @@ async function fetchCopernicus() {
     }
 }
 
-const WORLDCOVER = 'ESA_WorldCover_10m_2021_v200_N45E009_Map.tif';
+// WorldCover comes in 3 x 3 degree tiles named by their south-west corner.
+function worldCoverTiles(b) {
+  const tiles = [];
+  for (let lat = Math.floor(b.s / 3) * 3; lat <= b.n; lat += 3)
+    for (let lon = Math.floor(b.w / 3) * 3; lon <= b.e; lon += 3)
+      tiles.push({ lat, lon, file: `ESA_WorldCover_10m_2021_v200_N${lat}E${String(lon).padStart(3, '0')}_Map.tif` });
+  return tiles;
+}
 async function fetchWorldCover() {
-  await get(`https://esa-worldcover.s3.eu-central-1.amazonaws.com/v200/2021/map/${WORLDCOVER}`, WORLDCOVER);
+  for (const { file } of worldCoverTiles(contextLatLonBounds()))
+    await get(`https://esa-worldcover.s3.eu-central-1.amazonaws.com/v200/2021/map/${file}`, file);
 }
 
 function utmLatLonBounds(e0, n0, e1, n1) {
@@ -235,26 +248,27 @@ async function fetchVeneto() {
 }
 
 // Web Mercator tiles of the EOX 2016 mosaic (CC BY 4.0; later years are non-commercial).
-const SAT_Z = 13;
+// z13 (~13 m) under the 8 m context photo, z12 (~27 m) for the far photo.
+const SAT_Z = 13, SAT_FAR_Z = 12;
 function mercTile(lat, lon, z) {
   const n = 2 ** z, la = lat * Math.PI / 180;
   return [(lon + 180) / 360 * n, (1 - Math.log(Math.tan(la) + 1 / Math.cos(la)) / Math.PI) / 2 * n];
 }
-function satRange() {
-  const b = contextLatLonBounds();
-  const [x0, y0] = mercTile(b.n, b.w, SAT_Z), [x1, y1] = mercTile(b.s, b.e, SAT_Z);
+function satRange(z, half) {
+  const b = contextLatLonBounds(half);
+  const [x0, y0] = mercTile(b.n, b.w, z), [x1, y1] = mercTile(b.s, b.e, z);
   return { x0: Math.floor(x0), y0: Math.floor(y0), x1: Math.floor(x1), y1: Math.floor(y1) };
 }
-async function fetchSatellite() {
-  const r = satRange();
+async function fetchSatellite(z, half) {
+  const r = satRange(z, half);
   fs.mkdirSync(path.join(TILES, 'sat'), { recursive: true });
   let count = 0;
   for (let y = r.y0; y <= r.y1; y++)
     for (let x = r.x0; x <= r.x1; x++) {
-      await get(`https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/${SAT_Z}/${y}/${x}.jpg`, `sat/${SAT_Z}_${x}_${y}.jpg`);
+      await get(`https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/${z}/${y}/${x}.jpg`, `sat/${z}_${x}_${y}.jpg`);
       count++;
     }
-  console.log(`Satellite: ${count} tiles`);
+  console.log(`Satellite z${z}: ${count} tiles`);
 }
 
 // Orthophotos through WMS, already in our UTM grid; outside their region the services return white.
@@ -297,37 +311,47 @@ async function loadCopernicus() {
   };
 }
 
-async function loadWorldCover() {
-  const b = contextLatLonBounds();
-  const left = Math.floor((b.w - 9) * 12000), top = Math.floor((48 - b.n) * 12000);
-  const width = Math.ceil((b.e - 9) * 12000) - left, height = Math.ceil((48 - b.s) * 12000) - top;
-  // The map is a paletted TIFF: libvips expands it to the official class colours.
-  const { data, info } = await sharp(path.join(TILES, WORLDCOVER), { limitInputPixels: false })
-    .extract({ left, top, width, height }).raw().toBuffer({ resolveWithObject: true });
+// Classes inside the lat/lon box b, every `scale`-th 10 m pixel (nearest).
+async function loadWorldCover(b, scale = 1) {
   const palette = { 10: [0, 100, 0], 20: [255, 187, 34], 30: [255, 255, 76], 40: [240, 150, 255], 50: [250, 0, 0],
     60: [180, 180, 180], 70: [240, 240, 240], 80: [0, 100, 200], 90: [0, 150, 160], 95: [0, 207, 117], 100: [250, 230, 160] };
   const byColour = new Map(Object.entries(palette).map(([k, c]) => [(c[0] << 16) | (c[1] << 8) | c[2], +k]));
-  const classes = new Uint8Array(width * height);
-  for (let i = 0; i < classes.length; i++) {
-    const o = i * info.channels;
-    classes[i] = byColour.get((data[o] << 16) | (data[o + 1] << 8) | data[o + 2]) || 0;
+  const tiles = {};
+  for (const t of worldCoverTiles(b)) {
+    const px = v => Math.max(0, Math.min(36000, v));
+    const left = px(Math.floor((b.w - t.lon) * 12000)), right = px(Math.ceil((b.e - t.lon) * 12000));
+    const top = px(Math.floor((t.lat + 3 - b.n) * 12000)), bottom = px(Math.ceil((t.lat + 3 - b.s) * 12000));
+    const width = right - left, height = bottom - top;
+    if (width <= 0 || height <= 0) continue;
+    const w = Math.ceil(width / scale), h = Math.ceil(height / scale);
+    // The map is a paletted TIFF: libvips expands it to the official class colours.
+    const { data, info } = await sharp(path.join(TILES, t.file), { limitInputPixels: false })
+      .extract({ left, top, width, height }).resize(w, h, { kernel: 'nearest' }).raw().toBuffer({ resolveWithObject: true });
+    const classes = new Uint8Array(w * h);
+    for (let i = 0; i < classes.length; i++) {
+      const o = i * info.channels;
+      classes[i] = byColour.get((data[o] << 16) | (data[o + 1] << 8) | data[o + 2]) || 0;
+    }
+    tiles[`${t.lat}_${t.lon}`] = { ...t, left, top, sx: w / width, sy: h / height, w, h, classes };
   }
   return (lat, lon) => {
-    const x = Math.floor((lon - 9) * 12000) - left, y = Math.floor((48 - lat) * 12000) - top;
-    return x < 0 || y < 0 || x >= width || y >= height ? 0 : classes[y * width + x];
+    const t = tiles[`${Math.floor(lat / 3) * 3}_${Math.floor(lon / 3) * 3}`];
+    if (!t) return 0;
+    const x = Math.floor(((lon - t.lon) * 12000 - t.left) * t.sx), y = Math.floor(((t.lat + 3 - lat) * 12000 - t.top) * t.sy);
+    return x < 0 || y < 0 || x >= t.w || y >= t.h ? 0 : t.classes[y * t.w + x];
   };
 }
 
-async function loadSatellite() {
-  const r = satRange(), w = (r.x1 - r.x0 + 1) * 256, h = (r.y1 - r.y0 + 1) * 256;
+async function loadSatellite(z, half) {
+  const r = satRange(z, half), w = (r.x1 - r.x0 + 1) * 256, h = (r.y1 - r.y0 + 1) * 256;
   const composites = [];
   for (let y = r.y0; y <= r.y1; y++)
     for (let x = r.x0; x <= r.x1; x++)
-      composites.push({ input: path.join(TILES, 'sat', `${SAT_Z}_${x}_${y}.jpg`), left: (x - r.x0) * 256, top: (y - r.y0) * 256 });
-  const { data } = await sharp({ create: { width: w, height: h, channels: 3, background: '#000' } })
+      composites.push({ input: path.join(TILES, 'sat', `${z}_${x}_${y}.jpg`), left: (x - r.x0) * 256, top: (y - r.y0) * 256 });
+  const { data } = await sharp({ create: { width: w, height: h, channels: 3, background: '#000' }, limitInputPixels: false })
     .composite(composites).removeAlpha().raw().toBuffer({ resolveWithObject: true });
   return (lat, lon) => {
-    const [fx, fy] = mercTile(lat, lon, SAT_Z);
+    const [fx, fy] = mercTile(lat, lon, z);
     const x = (fx - r.x0) * 256 - 0.5, y = (fy - r.y0) * 256 - 0.5;
     const ix = Math.max(0, Math.min(w - 2, Math.floor(x))), iy = Math.max(0, Math.min(h - 2, Math.floor(y)));
     const ax = x - ix, ay = y - iy, out = [0, 0, 0];
@@ -587,7 +611,8 @@ const utmLL = (e, n) => toLatLon(e, n);
 const png = (name, buf, n, channels = 4) => sharp(buf, { raw: { width: n, height: n, channels } }).png().toFile(path.join(OUT, name));
 const raw = (name, arr) => fs.writeFileSync(path.join(OUT, name), Buffer.from(arr.buffer, arr.byteOffset, arr.byteLength));
 
-// Terrain albedo. Context (8 m): PAT orthophoto, Sentinel-2 matched to it outside Trentino. Wide (2.5 m, the
+// Terrain albedo. Context (8 m over 61 km): PAT orthophoto, Sentinel-2 matched to it outside Trentino. Far
+// (25.6 m, the whole context): Sentinel-2 with the same grade, the context photo in its centre. Wide (2.5 m, the
 // Terrain3D core): orthophoto, AGEA 2024 in Veneto, the context photo elsewhere. Core (1 m around Riva, under
 // the buildings): orthophoto, the wide photo elsewhere.
 async function loadOrtho(dir, half, step) {
@@ -653,13 +678,16 @@ const jpeg = (name, buf, n) => sharp(buf, { raw: { width: n, height: n, channels
 
 async function buildPhoto() {
   // --- context ---
-  const cn = 2 * CTX_HALF / PHOTO_CTX_STEP;
-  const ortho = await loadOrtho('ortho_context', CTX_HALF, PHOTO_CTX_STEP);
+  const sentinel = async (z, half, step) => {
+    const satellite = await loadSatellite(z, half), n = 2 * half / step, out = new Float32Array(n * n * 3);
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++)
+      out.set(satellite(...utmLL(CE - half + (c + 0.5) * step, CN + half - (r + 0.5) * step)), (r * n + c) * 3);
+    return out;
+  };
+  const cn = 2 * PHOTO_CTX_HALF / PHOTO_CTX_STEP;
+  const ortho = await loadOrtho('ortho_context', PHOTO_CTX_HALF, PHOTO_CTX_STEP);
   const cw = await photoWeight(ortho, cn, 12);
-  const satellite = await loadSatellite();
-  const sat = new Float32Array(cn * cn * 3);
-  for (let r = 0; r < cn; r++) for (let c = 0; c < cn; c++)
-    sat.set(satellite(...utmLL(CE - CTX_HALF + (c + 0.5) * PHOTO_CTX_STEP, CN + CTX_HALF - (r + 0.5) * PHOTO_CTX_STEP)), (r * cn + c) * 3);
+  const sat = await sentinel(SAT_Z, PHOTO_CTX_HALF, PHOTO_CTX_STEP);
   // Matched against the orthophoto at Sentinel-2 resolution.
   console.log('Sentinel-2 -> orthophoto');
   const grade = colourMatch(sat, await sharp(ortho, { raw: { width: cn, height: cn, channels: 3 }, limitInputPixels: false }).blur(1.2).raw().toBuffer(), cw);
@@ -668,9 +696,18 @@ async function buildPhoto() {
   blendPhoto(ctx, ortho, cw);
   await jpeg('photo_context.jpg', ctx, cn);
 
+  // --- far ---
+  const fn = 2 * CTX_HALF / PHOTO_FAR_STEP, inner = 2 * PHOTO_CTX_HALF / PHOTO_FAR_STEP, offset = (CTX_HALF - PHOTO_CTX_HALF) / PHOTO_FAR_STEP;
+  const far = Buffer.alloc(fn * fn * 3);
+  blendPhoto(far, await sentinel(SAT_FAR_Z, CTX_HALF, PHOTO_FAR_STEP), new Uint8Array(fn * fn).fill(255), grade);
+  const centre = await sharp(ctx, { raw: { width: cn, height: cn, channels: 3 }, limitInputPixels: false })
+    .resize(inner, inner, { kernel: 'lanczos3' }).raw().toBuffer();
+  for (let r = 0; r < inner; r++) centre.copy(far, ((r + offset) * fn + offset) * 3, r * inner * 3, (r + 1) * inner * 3);
+  await jpeg('photo_far.jpg', far, fn);
+
   // --- wide ---
   const wn = 2 * CORE_HALF / PHOTO_WIDE_STEP, sn = 2 * CORE_HALF / PHOTO_CTX_STEP;
-  const wide = await cropPhoto(ctx, CTX_HALF, PHOTO_CTX_STEP, CORE_HALF, wn);
+  const wide = await cropPhoto(ctx, PHOTO_CTX_HALF, PHOTO_CTX_STEP, CORE_HALF, wn);
   const agea = await loadOrtho('agea_wide', CORE_HALF, PHOTO_WIDE_STEP), aw = await photoWeight(agea, wn, 15);
   const pat = await loadOrtho('ortho_wide', CORE_HALF, PHOTO_WIDE_STEP), pw = await photoWeight(pat, wn, 15);
   // AGEA graded to the orthophoto where both cover the ground (southern Trentino, the lake), at 8 m.
@@ -696,7 +733,7 @@ async function buildPhoto() {
 // Context only (Copernicus, WorldCover): no LiDAR/OSM needed to iterate on it.
 async function buildContext() {
   const copernicus = await loadCopernicus();
-  const worldcover = await loadWorldCover();
+  const worldcover = await loadWorldCover(contextLatLonBounds(), 3); // 30 m: the DEM step
 
   // --- context grid: DEM, land cover class ---
   const ctxH = new Float32Array(CTX_N * CTX_N), ctxClass = new Uint8Array(CTX_N * CTX_N);
@@ -709,9 +746,33 @@ async function buildContext() {
   for (const k of ctxClass) histogram[k] = (histogram[k] || 0) + 1;
   console.log('WorldCover classes (context):', JSON.stringify(histogram));
   assert(!histogram[0] || histogram[0] < ctxClass.length * 0.01, 'WorldCover decoding failed');
-  // Lake Garda: WorldCover water at the lake level, given a bed so the water plane covers it.
+  assert(ctxH.every(Number.isFinite), 'Copernicus tile missing');
+  // Lake Garda: WorldCover water at the lake level, given a bed so the water plane covers it. Only the largest
+  // such area: rivers and plain lakes elsewhere are below the Garda level but outside its water plane.
   const lake = new Uint8Array(CTX_N * CTX_N);
   for (let i = 0; i < lake.length; i++) lake[i] = ctxClass[i] === 80 && ctxH[i] < LAKE_LEVEL + 12 ? 1 : 0;
+  const label = new Int32Array(CTX_N * CTX_N), queue = new Int32Array(CTX_N * CTX_N);
+  let best = 0, bestSize = 0;
+  for (let start = 0, id = 0; start < lake.length; start++) {
+    if (!lake[start] || label[start]) continue;
+    let head = 0, tail = 0;
+    label[start] = ++id; queue[tail++] = start;
+    while (head < tail) {
+      const i = queue[head++], c = i % CTX_N;
+      for (const j of [c > 0 ? i - 1 : -1, c < CTX_N - 1 ? i + 1 : -1, i - CTX_N, i + CTX_N])
+        if (j >= 0 && j < lake.length && lake[j] && !label[j]) { label[j] = id; queue[tail++] = j; }
+    }
+    if (tail > bestSize) { best = id; bestSize = tail; }
+  }
+  const lakeRect = [Infinity, Infinity, -Infinity, -Infinity];
+  for (let i = 0; i < lake.length; i++) {
+    lake[i] = label[i] === best ? 1 : 0;
+    if (!lake[i]) continue;
+    const x = -CTX_HALF + (i % CTX_N) * CTX_STEP, z = -CTX_HALF + Math.floor(i / CTX_N) * CTX_STEP;
+    lakeRect[0] = Math.min(lakeRect[0], x); lakeRect[1] = Math.min(lakeRect[1], z);
+    lakeRect[2] = Math.max(lakeRect[2], x); lakeRect[3] = Math.max(lakeRect[3], z);
+  }
+  console.log(`Lake Garda: ${(bestSize * CTX_STEP * CTX_STEP / 1e6).toFixed(0)} km2, x/z ${lakeRect.join(' ')}`);
   const ctxLakeDist = distanceInside(lake, CTX_N, CTX_N);
   for (let i = 0; i < lake.length; i++)
     if (lake[i]) ctxH[i] = LAKE_LEVEL - Math.min(LAKE_MAX_DEPTH, 4 + ctxLakeDist[i] * CTX_STEP * 0.35);
@@ -724,36 +785,33 @@ async function buildContext() {
   };
 
   // --- context land cover as filterable weights for the material response ---
-  // Texel centres sit on the grid points, like the DEM: world x = -CTX_HALF + c * step.
-  const coverage = (n, step, sub, channels, classes) => {
-    const out = Buffer.alloc(n * n * channels), offsets = [];
-    for (let k = 0; k < sub; k++) offsets.push((k - (sub - 1) / 2) * step / sub);
-    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
-      const e = CE - CTX_HALF + c * step, nn = CN + CTX_HALF - r * step, o = (r * n + c) * channels;
-      for (const oy of offsets) for (const ox of offsets) {
-        const ch = classes.indexOf(worldcover(...utmLL(e + ox, nn - oy)));
-        if (ch >= 0) out[o + ch] += 255 / (sub * sub);
-      }
+  // Texel centres sit on grid points, like the DEM: world x = -CTX_HALF + c * COVER_STEP.
+  // Bare rock, snow/ice, water: the photo carries the colour, these drive the material response.
+  const offsets = [-1, 0, 1].map(k => k * COVER_STEP / 3);
+  const cover = Buffer.alloc(COVER_N * COVER_N * 3);
+  for (let r = 0; r < COVER_N; r++) for (let c = 0; c < COVER_N; c++) {
+    const e = CE - CTX_HALF + c * COVER_STEP, n = CN + CTX_HALF - r * COVER_STEP, o = (r * COVER_N + c) * 3;
+    for (const oy of offsets) for (const ox of offsets) {
+      const ch = [60, 70, 80].indexOf(worldcover(...utmLL(e + ox, n - oy)));
+      if (ch >= 0) cover[o + ch] += 255 / 9;
     }
-    return out;
-  };
-  // Bare rock, snow/ice, water (30 m): the photo carries the colour, these drive the material response.
-  const cover = coverage(CTX_N, CTX_STEP, 3, 3, [60, 70, 80]);
+  }
 
   raw('context_height.r32', ctxH);
-  await png('context_cover.png', cover, CTX_N, 3);
-  const manifest = { center_utm32: [CE, CN], lake_level: LAKE_LEVEL,
+  await png('context_cover.png', cover, COVER_N, 3);
+  const manifest = { center_utm32: [CE, CN], lake_level: LAKE_LEVEL, lake_rect: lakeRect,
     core: { half: CORE_HALF, step: CORE_STEP, size: CORE_N, file: 'core_height.r32' },
     masks: { half: CORE_HALF, step: MASK_STEP, size: MASK_N },
     context: { half: CTX_HALF, step: CTX_STEP, size: CTX_N, file: 'context_height.r32' },
     world: 'x = E - center_e, z = center_n - N, y = metres above sea level' };
   fs.writeFileSync(path.join(OUT, 'manifest.json'), JSON.stringify(manifest, null, 2));
   console.log('Context build complete:', OUT);
-  return { worldcover, ctxAt };
+  return { ctxAt };
 }
 
 // Core: LiDAR heights and OSM/WorldCover masks, blended into the context at the edge.
-async function buildCore({ worldcover, ctxAt }) {
+async function buildCore({ ctxAt }) {
+  const worldcover = await loadWorldCover(contextLatLonBounds(CORE_HALF));
   // --- OSM masks over the core ---
   const items = osmGeometry();
   const t = k => i => i.tags[k] !== undefined;
@@ -1002,11 +1060,12 @@ async function buildBuildings(buildings) {
     await fetchWorldCover();
   }
   if (phase === 'fetch' || phase === 'all' || phase === 'photo') {
-    await fetchSatellite();
+    await fetchSatellite(SAT_Z, PHOTO_CTX_HALF);
+    await fetchSatellite(SAT_FAR_Z, CTX_HALF);
     await fetchOrtho('ortho_core', PHOTO_CORE_HALF, PHOTO_CORE_STEP);
     await fetchOrtho('ortho_wide', CORE_HALF, PHOTO_WIDE_STEP);
     await fetchOrtho('agea_wide', CORE_HALF, PHOTO_WIDE_STEP, 'agea');
-    await fetchOrtho('ortho_context', CTX_HALF, PHOTO_CTX_STEP);
+    await fetchOrtho('ortho_context', PHOTO_CTX_HALF, PHOTO_CTX_STEP);
   }
   if (phase === 'fetch' || phase === 'all') {
     await fetchOsm();

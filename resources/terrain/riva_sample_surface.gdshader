@@ -6,6 +6,7 @@
 shader_type spatial;
 render_mode blend_mix,depth_draw_opaque,cull_back,diffuse_burley,specular_schlick_ggx,skip_vertex_transform;
 #include "res://addons/clouds/cloud_pbr.gdshaderinc"
+#include "res://resources/shaders/earth_curvature.gdshaderinc"
 
 #define SKIP_PASS 0
 #define VERTEX_PASS 1
@@ -103,7 +104,7 @@ void vertex() {
 		float h1 = end_region.z >= 0 ? texelFetch(_height_maps, end_region, 0).r : h0;
 		v_vertex.y = mix(h0, h1, vertex_lerp);
 	}
-	VERTEX = (VIEW_MATRIX * vec4(v_vertex, 1.0)).xyz;
+	VERTEX = (VIEW_MATRIX * vec4(v_vertex.x, v_vertex.y - curvature_drop(v_vertex), v_vertex.z, 1.0)).xyz;
 	NORMAL = normalize((MODELVIEW_MATRIX * vec4(NORMAL, 0.0)).xyz);
 	BINORMAL = normalize((MODELVIEW_MATRIX * vec4(BINORMAL, 0.0)).xyz);
 	TANGENT = normalize((MODELVIEW_MATRIX * vec4(TANGENT, 0.0)).xyz);

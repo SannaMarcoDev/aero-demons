@@ -1,7 +1,8 @@
 # Riva del Garda sample — data sources
 
 Prototype map (`scenes/levels/riva_sample.tscn`): 40.96 × 40.96 km of Terrain3D at 4 m around Riva, Torbole
-and Arco (UTM 32N centre 645120 E, 5082880 N; Rovereto, Ledro, Malcesine, Tremosine), inside a 61 km context. World axes:
+and Arco (UTM 32N centre 645120 E, 5082880 N; Rovereto, Ledro, Malcesine, Tremosine), inside a 199.68 km context (Adamello,
+Brenta, Verona, Brescia, the plain to the Po). World axes:
 x = east, z = south, y = metres above sea level; lake surface at 65 m.
 
 Rebuild: `node tools/terrain/fetch_riva_sample.cjs all` (needs `npm i --no-save sharp`
@@ -20,7 +21,7 @@ then `godot --headless --path . --script res://tools/terrain/build_riva_sample.g
 | Ortofoto PAT 2015 RGB, 20 cm, Provincia autonoma di Trento (WMS `ecw-rgb-2015`) | terrain albedo: 1 m around Riva, 2.5 m core, 8 m context (Trentino only) | CC BY 4.0 — © Provincia autonoma di Trento |
 | Ortofoto AGEA 2024, served by Regione del Veneto (WMS `rv:ortofoto_agea_2024`) | terrain albedo in Veneto, 2.5 m core | CC BY 4.0 — AGEA |
 | OpenStreetMap (Overpass) | parcels, vineyards/orchards, building footprints, roads, rivers, rock | ODbL — © OpenStreetMap contributors |
-| Sentinel-2 cloudless 2016 (s2maps.eu), EOX IT Services GmbH | context albedo outside Trentino, colour-matched to the orthophoto | CC BY 4.0 — Sentinel-2 cloudless by EOX IT Services GmbH (Contains modified Copernicus Sentinel data 2016) |
+| Sentinel-2 cloudless 2016 (s2maps.eu), EOX IT Services GmbH | context albedo outside Trentino and beyond 61 km, colour-matched to the orthophoto | CC BY 4.0 — Sentinel-2 cloudless by EOX IT Services GmbH (Contains modified Copernicus Sentinel data 2016) |
 
 Later Sentinel-2 cloudless years are CC BY-NC-SA: do not switch to them for a commercial build. The Lombardia
 orthophotos are copyright (not open): Lombardia uses Sentinel-2.
@@ -29,16 +30,20 @@ Photos (VRAM compressed, mipmapped):
 
 - `photo_core.jpg` RGB: orthophoto, 1 m/px around Riva (±5.12 km, under the buildings); outside Trentino the wide photo
 - `photo_wide.jpg` RGB: orthophoto, 2.5 m/px over the core (16384 px); AGEA in Veneto, the context photo elsewhere
-- `photo_context.jpg` RGB: orthophoto, 8 m/px over the context; Sentinel-2 outside Trentino
+- `photo_context.jpg` RGB: orthophoto, 8 m/px over 61.44 km; Sentinel-2 outside Trentino
+- `photo_far.jpg` RGB: Sentinel-2, 25.6 m/px over the whole context (7800 px), the context photo in its centre
 
 Data textures (lossless, mipmapped, alpha is data):
 
 - `masks_a.png` RGBA: forest, vineyard/orchard, field, settlement (8 m/px over the core)
 - `masks_b.png` RGBA: building footprint, road/rail, bare rock, water
-- `context_cover.png` RGB: WorldCover bare rock, snow/ice, water weights (30 m/px, context extent)
+- `context_cover.png` RGB: WorldCover bare rock, snow/ice, water weights (80 m/px, context extent)
 
 Context only (no LiDAR/OSM): `node tools/terrain/fetch_riva_sample.cjs context` and `photo`, then the
-Godot build with `-- --context`.
+Godot build with `-- --context`. The context (`resources/terrain/riva_sample_context.scn`) is 13 × 13 chunks of
+15.36 km on the Copernicus 30 m grid, with 60/120/240 m cells by distance from the core, skirts, automatic LODs and
+no shadows; only Lake Garda's basin gets the lake bed and the water plane. Earth curvature (`EarthCurvature` node,
+`resources/shaders/earth_curvature.gdshaderinc`) bends terrain, context, buildings and water around the camera.
 
 Core heights: PAT LiDAR > Veneto > Lombardia, ramped over 100 m at the Trentino border and into Copernicus over
 300 m where the DTMs end; the outer 400 m of the core blend into the context. The PAT DTM download (`lidar` phase,
