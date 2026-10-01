@@ -23,6 +23,11 @@ esistenti non sono modificati; i cumuli 2D erano già disattivati.
   0 = aspetto originale, 1 = occlusione fisica, oltre 1 = stilizzato. Non
   richiede bake. Garda **1.0**. Per l'aria e il terreno sotto le nuvole vedere
   `shadow_darkness`.
+- La luce del cielo dentro/sotto le nuvole usa lo stesso modello dell'aria
+  (colore × energia del sole × `haze_color`), non più un blu fisso di mezzogiorno:
+  all'alba o al tramonto basi e interni seguono la luce reale.
+- Preset di luce per missione: `MapLighting` + `MapLightingPreset`
+  (`scripts/maps/`), es. `resources/lighting/garda_dawn.tres` nel freeroam.
 - `Editor Preview` è disattivato: abilitarlo per vedere le nuvole nell'editor.
   La prima generazione richiede qualche secondo; cambiare sole o formazione
   ricostruisce le cache. Non animare questi parametri ogni frame.

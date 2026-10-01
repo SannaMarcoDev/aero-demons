@@ -48,6 +48,9 @@ void main() {
 	float phase = 0.35 + 0.24 * mix(hg(mu, -0.2), hg(mu, 0.65), 0.8);
 	vec3 haze = vec3(0.263, 0.380, 0.604) + p.sun_color.rgb
 		* (pow(max(mu, 0.0), 8.0) * 3.14159265 * 0.30);
+	// Skylight from the same model as the air (atm_color): it follows the sun's
+	// color and energy, so dawn bases are not lit by a fixed noon-blue sky.
+	vec3 sky_light = p.sun_color.rgb * p.atm_b.rgb * 0.55;
 	vec4 acc = vec4(0.0, 0.0, 0.0, 1.0);
 	// Sun seen by the air between the camera and the first cloud: computed
 	// once, so distant bases are veiled by shadowed haze under the deck.
@@ -75,7 +78,7 @@ void main() {
 			// multiple scattering fades faster with depth (0.30 = original).
 			float occlusion = mix(0.30, 1.0, p.deck.z);
 			float sky_access = exp(-tau.y * occlusion);
-			vec3 ambient = mix(vec3(0.025, 0.040, 0.075), vec3(0.22, 0.30, 0.44), sky_access);
+			vec3 ambient = sky_light * mix(0.12, 1.0, sky_access);
 			float sun = exp(-tau.x) * phase * 1.4 + 0.22 * exp(-tau.x * occlusion);
 			vec3 light = ambient + p.sun_color.rgb * sun;
 			if (p.atm_c.x > 0.5) {
