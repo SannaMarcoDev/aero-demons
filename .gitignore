@@ -34,3 +34,6 @@ terrain/garda_outer_height_5x/
 /terrain/source/utah_250km/
 /tools/tiles/
 /tools/node_modules/
+
+# Riva sample real-data sources (reproducible via tools/terrain/fetch_riva_sample.cjs)
+/terrain/source/riva_sample/

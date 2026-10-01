@@ -22,7 +22,7 @@ var build_msec := 0.0
 var largest_tile_msec := 0.0
 var cover_image: Image
 var cover_texture: ImageTexture
-var landcover: Landcover
+var landcover # Landcover, or any source with sample(Vector3) -> Color (riva_sample_forests.gd).
 var noise := FastNoiseLite.new()
 var _started := 0
 @onready var terrain: Terrain3D = get_parent().get_node("GardaTerrain")
@@ -90,7 +90,7 @@ func make_tile(key: Vector2i) -> Dictionary:
 	for z in steps:
 		for x in steps:
 			var point := (Vector2(key) + (Vector2(x, z) + Vector2(rng.randf_range(0.1, 0.9), rng.randf_range(0.1, 0.9))) / steps) * TILE
-			var cover := landcover.sample(Vector3(point.x, 0, point.y))
+			var cover: Color = landcover.sample(Vector3(point.x, 0, point.y))
 			var density := smoothstep(0.12, 0.72, cover.r)
 			if density > 0.0:
 				density *= 0.80 + 0.20 * smoothstep(-0.4, 0.3, noise.get_noise_2d(point.x, point.y))
