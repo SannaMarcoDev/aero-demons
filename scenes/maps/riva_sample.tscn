@@ -25,6 +25,7 @@
 [ext_resource type="PackedScene" path="res://resources/terrain/riva_sample_context.scn" id="45_context"]
 [ext_resource type="Material" path="res://resources/terrain/riva_sample_context_material.tres" id="46_context_material"]
 [ext_resource type="Script" path="res://scripts/maps/earth_curvature.gd" id="47_curvature"]
+[ext_resource type="Texture2D" path="res://textures/terrain/riva_sample/relief_core.png" id="48_relief"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_surface"]
 seed = 7319
@@ -42,6 +43,7 @@ _shader_parameters = {
 &"masks_b": ExtResource("31_masks_b"),
 &"photo": ExtResource("44_photo_wide"),
 &"photo_core": ExtResource("33_photo_core"),
+&"relief": ExtResource("48_relief"),
 &"macro_size": 4500.0,
 &"meso_size": 72.0,
 &"normal_strength": 0.8,

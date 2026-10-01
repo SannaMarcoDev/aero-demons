@@ -17,7 +17,7 @@ const SKIRT_DEPTH := 50.0 # per stride: chunk edges hang down over LOD and strid
 # Curvature lowers far chunks below their mesh AABB (785 m at 100 km): keep them from being culled.
 const CURVATURE_CULL_MARGIN := 1000.0
 const HIDDEN_DEPTH := 40.0 # The context mesh sinks under the Terrain3D core edge band.
-const CORE_TEXTURES := ["masks_a.png", "masks_b.png"]
+const CORE_TEXTURES := ["masks_a.png", "masks_b.png", "relief_core.png"]
 const CONTEXT_TEXTURES := ["context_cover.png", "photo_core.jpg", "photo_wide.jpg", "photo_context.jpg", "photo_far.jpg"]
 const BUILDINGS := "res://resources/terrain/riva_sample_buildings.res"
 const BUILDING_MIN_HEIGHT := 2.5 # lower DBM roofs: building missing in 2014, use OSM height or default
@@ -210,10 +210,12 @@ func _copy_textures(names: Array) -> void:
 			continue
 		# Data: lossless with mipmaps; alpha is data, so no alpha-border fix. VRAM compression would
 		# smear the classes. Photos (jpg): VRAM compressed, 16384 px is ~170 MB instead of ~1 GB.
+		# Relief normals: BC5 (R, G only), 5120 px is ~35 MB.
+		var relief := name.begins_with("relief")
 		var file := FileAccess.open(import_file, FileAccess.WRITE)
 		file.store_string("[remap]\n\nimporter=\"texture\"\ntype=\"CompressedTexture2D\"\n\n[params]\n\n"
-			+ "compress/mode=%d\nmipmaps/generate=true\ndetect_3d/compress_to=0\nprocess/fix_alpha_border=false\nprocess/premult_alpha=false\n"
-			% (2 if name.ends_with(".jpg") else 0))
+			+ "compress/mode=%d\ncompress/normal_map=%d\nmipmaps/generate=true\ndetect_3d/compress_to=0\nprocess/fix_alpha_border=false\nprocess/premult_alpha=false\n"
+			% [2 if name.ends_with(".jpg") or relief else 0, 1 if relief else 0])
 	print("Textures copied to ", TEXTURES)
 
 func _save_context(context: Dictionary, core: Dictionary) -> void:

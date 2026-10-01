@@ -48,6 +48,9 @@ uniform sampler2D photo : source_color, filter_linear_mipmap_anisotropic, repeat
 uniform vec4 photo_rect = vec4(-20480.0, -20480.0, 40960.0, 40960.0);
 uniform sampler2D photo_core : source_color, filter_linear_mipmap_anisotropic, repeat_disable;
 uniform vec4 photo_core_rect = vec4(-5120.0, -5120.0, 10240.0, 10240.0);
+// PAT LiDAR world normals at 2 m around Riva (x, z in R, G), fading to the 4 m vertex normals at its edge.
+uniform sampler2D relief : hint_normal, filter_linear_mipmap_anisotropic, repeat_disable;
+uniform vec4 relief_rect = vec4(-5120.0, -5120.0, 10240.0, 10240.0);
 uniform float photo_saturation : hint_range(0.0, 2.0) = 1.0;
 uniform float photo_gain : hint_range(0.0, 2.0) = 1.0;
 uniform float detail_strength : hint_range(0.0, 1.0) = 0.6;
@@ -232,6 +235,10 @@ void fragment() {
 	vec3 dx = dFdxCoarse(v_vertex);
 	vec3 dy = dFdyCoarse(v_vertex);
 	vec2 p = v_vertex.xz;
+	vec2 rq = abs(p - relief_rect.xy - relief_rect.zw * 0.5) / (relief_rect.zw * 0.5);
+	vec2 rn = textureGrad(relief, (p - relief_rect.xy) / relief_rect.zw, dx.xz / relief_rect.zw, dy.xz / relief_rect.zw).rg * 2.0 - 1.0;
+	vec3 fine_n = vec3(rn.x, sqrt(max(1.0 - dot(rn, rn), 0.0)), rn.y);
+	n = normalize(mix(n, fine_n, 1.0 - smoothstep(0.9, 1.0, max(rq.x, rq.y))));
 	float continental = textureGrad(surface_noise, p / 37000.0, dx.xz / 37000.0, dy.xz / 37000.0).r;
 	float large = textureGrad(surface_noise, p / macro_size + continental * 0.7, dx.xz / macro_size, dy.xz / macro_size).r;
 	float medium = textureGrad(surface_noise, p / 170.0 + vec2(0.27), dx.xz / 170.0, dy.xz / 170.0).r;

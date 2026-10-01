@@ -1,5 +1,5 @@
 // Riva del Garda sample: 40.96 km of real data + 199.68 km context, aligned in UTM 32N.
-// Phases: node tools/terrain/fetch_riva_sample.cjs fetch | build | all | context | photo | buildings | lidar
+// Phases: node tools/terrain/fetch_riva_sample.cjs fetch | build | all | context | photo | buildings | lidar | relief
 // Requires `npm i --no-save sharp` in tools/. Download cache in tools/tiles/riva/,
 // outputs in terrain/source/riva_sample/ (both git-ignored). Godot import:
 // tools/terrain/build_riva_sample.gd.
@@ -919,6 +919,48 @@ async function buildCore({ ctxAt }) {
   console.log('Core build complete:', OUT);
 }
 
+// relief_core.png: world normals (x, z in R, G; y = sqrt(1 - x² - z²)) of the PAT LiDAR 2 m blocks around
+// Riva, the detail the 4 m Terrain3D vertices average away. Riding on the core heights (clamped difference),
+// so the shading follows the rendered surface where the LiDAR ends (lake, Lombardia) or differs (seams).
+const RELIEF_HALF = 5120, RELIEF_STEP = 2, RELIEF_DETAIL = 3.0;
+function buildRelief() {
+  const n = 2 * RELIEF_HALF / RELIEF_STEP, west = CE - RELIEF_HALF, north = CN + RELIEF_HALF;
+  const lidar = new Float32Array(n * n).fill(NaN);
+  for (const { properties: p } of JSON.parse(fs.readFileSync(path.join(TILES, 'lidar_index.json'))).features) {
+    const file = path.join(TILES, 'lidar', `${p.n_tavola}.f32`);
+    const c0 = (p.x_min - west) / DTM_BLOCK, r0 = (north - p.y_min - DTM_TILE) / DTM_BLOCK;
+    if (c0 <= -DTM_BLOCKS || c0 >= n || r0 <= -DTM_BLOCKS || r0 >= n || !fs.existsSync(file)) continue;
+    const b = fs.readFileSync(file), blocks = new Float32Array(b.buffer.slice(b.byteOffset, b.byteOffset + b.length));
+    for (let bj = 0; bj < DTM_BLOCKS; bj++) for (let bi = 0; bi < DTM_BLOCKS; bi++) {
+      const r = r0 + bj, c = c0 + bi;
+      if (r >= 0 && r < n && c >= 0 && c < n) lidar[r * n + c] = blocks[bj * DTM_BLOCKS + bi];
+    }
+  }
+  const b = fs.readFileSync(path.join(OUT, 'core_height.r32')), core = new Float32Array(b.buffer, b.byteOffset, CORE_N * CORE_N);
+  const h = new Float32Array(n * n);
+  let covered = 0;
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
+    // Pixel centre on the core vertex grid (bilinear).
+    const u = (-RELIEF_HALF + (c + 0.5) * RELIEF_STEP + CORE_HALF) / CORE_STEP, v = (-RELIEF_HALF + (r + 0.5) * RELIEF_STEP + CORE_HALF) / CORE_STEP;
+    const u0 = Math.floor(u), v0 = Math.floor(v), fu = u - u0, fv = v - v0, k = v0 * CORE_N + u0;
+    const base = (core[k] * (1 - fu) + core[k + 1] * fu) * (1 - fv) + (core[k + CORE_N] * (1 - fu) + core[k + CORE_N + 1] * fu) * fv;
+    const l = lidar[r * n + c];
+    if (!Number.isNaN(l)) covered++;
+    h[r * n + c] = Number.isNaN(l) ? base : base + Math.max(-RELIEF_DETAIL, Math.min(RELIEF_DETAIL, l - base));
+  }
+  const out = Buffer.alloc(n * n * 3);
+  const at = (r, c) => h[Math.min(n - 1, Math.max(0, r)) * n + Math.min(n - 1, Math.max(0, c))];
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
+    const x = at(r, c - 1) - at(r, c + 1), y = 2 * RELIEF_STEP, z = at(r - 1, c) - at(r + 1, c), len = Math.hypot(x, y, z);
+    const i = (r * n + c) * 3;
+    out[i] = Math.round((x / len * 0.5 + 0.5) * 255);
+    out[i + 1] = Math.round((z / len * 0.5 + 0.5) * 255);
+    out[i + 2] = 255;
+  }
+  console.log(`Relief: ${n} px, LiDAR on ${(covered / n / n * 100).toFixed(1)}%`);
+  return png('relief_core.png', out, n, 3);
+}
+
 // ---------- buildings: OSM footprints as boxes, roof height from the PAT DBM ----------
 // buildings.json, one entry per building: ring (world x, z pairs, outer ring only), roof (DBM median
 // inside the footprint, null if none), height (OSM height/levels, 0 if untagged), colour (sRGB 0..1,
@@ -1077,6 +1119,8 @@ async function buildBuildings(buildings) {
   if (phase === 'context') await buildContext();
   if (phase === 'build' || phase === 'all') await buildCore(await buildContext());
   if (phase === 'photo' || phase === 'build' || phase === 'all') await buildPhoto();
+  // relief = the 2 m normal map alone (needs the LiDAR cache and core_height.r32).
+  if (phase === 'relief' || phase === 'build' || phase === 'all') await buildRelief();
   // buildings = OSM + DBM tiles under the footprints, then boxes (after photo: roof colours).
   if (phase === 'buildings' || phase === 'all') {
     if (phase === 'buildings') await fetchOsm();
