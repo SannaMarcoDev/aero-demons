@@ -4,6 +4,7 @@ uniform sampler2DArray cloud_shadow_texture : filter_linear_mipmap, repeat_enabl
 uniform bool cloud_shadow_enabled = false;
 uniform vec3 cloud_shadow_deck = vec3(2000.0, 15000.0, 100000.0);
 uniform vec3 cloud_shadow_sun_direction = vec3(0.0, 1.0, 0.0);
+uniform float cloud_shadow_ambient = 0.0;
 
 float cloud_sun_transmittance(vec3 world_position) {
 	if (!cloud_shadow_enabled) return 1.0;
@@ -24,6 +25,12 @@ float cloud_sun_transmittance(vec3 world_position) {
 	float a = textureLod(cloud_shadow_texture, vec3(uv, lower), lod).r;
 	float b = textureLod(cloud_shadow_texture, vec3(uv, min(lower + 1.0, size.z - 1.0)), lod).r;
 	return clamp(mix(a, b, fract(altitude)), 0.0, 1.0);
+}
+
+// A cloud overhead also hides part of the sky: multiply AO by this to dim
+// ambient light and reflections in the cloud's shadow. 1.0 when disabled.
+float cloud_ambient_occlusion(float transmission) {
+	return mix(1.0, transmission, cloud_shadow_ambient);
 }
 
 // Match only the assigned sun. Omni/spot/other directional lights stay intact.

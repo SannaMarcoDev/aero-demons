@@ -1,0 +1,43 @@
+// Shared aerial perspective: the scene pass (atmosphere.glsl) and every cloud
+// sample (raymarch.glsl) see the same air, so distant ground and clouds match.
+// Needs Params p with sun_dir, sun_color, atm_a, atm_b, atm_c (CloudSystem._pack_ubo):
+// atm_a = haze extinction at base (1/m), haze scale height (m), air density, base Y.
+// atm_b = sky tint (linear, times sun color), forward scattering toward the sun.
+// atm_c = enabled, unused, share of haze light from the whole sky, cloud shadowing.
+const vec3 AIR_BETA = vec3(5.8e-6, 13.5e-6, 33.1e-6); // sea-level Rayleigh
+const float AIR_HEIGHT = 8000.0;
+
+// Integral of exp(-h / height) along a straight segment from h0 to h1 (meters
+// above the haze base). Analytic; clamped below the base to stay finite.
+float atm_column(float h0, float h1, float dist, float height) {
+	h0 = max(h0, -2.0 * height);
+	h1 = max(h1, -2.0 * height);
+	float dh = h1 - h0;
+	if (abs(dh) < 0.01 * height) return dist * exp(-0.5 * (h0 + h1) / height);
+	return (exp(-h0 / height) - exp(-h1 / height)) * height * dist / dh;
+}
+
+vec3 atm_optical_depth(float h0, float h1, float dist) {
+	return vec3(p.atm_a.x * atm_column(h0, h1, dist, p.atm_a.y))
+		+ AIR_BETA * (p.atm_a.z * atm_column(h0, h1, dist, AIR_HEIGHT));
+}
+
+// Radiance the air converges to. sun_visibility is the fraction of the path's
+// scattering that still sees the sun past the clouds; skylight is unaffected.
+vec3 atm_color(vec3 dir, float sun_visibility) {
+	float mu = max(dot(dir, p.sun_dir.xyz), 0.0);
+	float sky = p.atm_c.z;
+	return p.sun_color.rgb * (p.atm_b.rgb * (sky + (1.0 - sky) * sun_visibility)
+		+ pow(mu, 8.0) * 3.14159265 * p.atm_b.w * sun_visibility);
+}
+
+struct Aerial {
+	vec3 transmittance;
+	vec3 inscatter;
+};
+
+Aerial atm_aerial(vec3 ro, vec3 dir, float dist) {
+	float h0 = ro.y - p.atm_a.w;
+	vec3 transmittance = exp(-atm_optical_depth(h0, h0 + dir.y * dist, dist));
+	return Aerial(transmittance, atm_color(dir, 1.0) * (1.0 - transmittance));
+}

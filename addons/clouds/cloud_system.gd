@@ -19,6 +19,16 @@ var sun: DirectionalLight3D
 @export var light_steps := 8
 @export var coverage := 1.18
 @export var preset: CloudNoiseGen.Preset = CloudNoiseGen.Preset.ORIGINAL
+# Shared aerial perspective (atmosphere.glslinc). Not part of the field bake key.
+var atmosphere_enabled := true
+var haze_extinction := 1.0 / 45000.0
+var haze_height := 1500.0
+var haze_base := 0.0
+var air_density := 1.0
+var haze_tint := Vector3(0.214, 0.284, 0.367) # linear, multiplied by sun color
+var haze_sun_scattering := 0.30
+var haze_sky_light := 0.35 # share of haze light from the whole sky, not cloud-shadowed
+var haze_cloud_shadows := 1.0
 
 var rd: RenderingDevice
 var _raymarch_shader: RID
@@ -96,8 +106,9 @@ static func _compile_compute_dev(dev: RenderingDevice, path: String) -> RID:
 	var raw := FileAccess.get_file_as_string(path)
 	# RDShaderSource has no resource-relative include resolver. Both the
 	# light bake and camera compile this exact density definition.
-	raw = raw.replace('#include "density.glslinc"',
-			FileAccess.get_file_as_string("res://addons/clouds/density.glslinc"))
+	for include in ["density.glslinc", "atmosphere.glslinc"]:
+		raw = raw.replace('#include "%s"' % include,
+				FileAccess.get_file_as_string("res://addons/clouds/" + include))
 	var lines := raw.split("\n")
 	var kept := PackedStringArray()
 	for l in lines:
@@ -343,7 +354,21 @@ func _pack_ubo(cam_xf: Transform3D, inv_proj: Projection,
 	f.append_array([sun_col.x, sun_col.y, sun_col.z, 0.0])
 	f.append_array([deck_base, deck_top, 0.0, weather_world_m])
 	f.append_array([density_scale, float(max_steps), float(light_steps), coverage])
+	# Appended after the bake prefix: bake/sample shaders keep their shorter block.
+	f.append_array([haze_extinction, haze_height, air_density, haze_base])
+	f.append_array([haze_tint.x, haze_tint.y, haze_tint.z, haze_sun_scattering])
+	f.append_array([1.0 if atmosphere_enabled else 0.0, 0.0, haze_sky_light, haze_cloud_shadows])
 	return f
+
+
+## [direction toward the sun, linear color * energy] of the assigned sun.
+func sun_lighting() -> Array:
+	if not is_instance_valid(sun):
+		return [Vector3(0.3, 0.7, 0.3).normalized(), Vector3.ONE]
+	# DirectionalLight3D shines along -Z; the sun sits at +Z.
+	var linear_color := sun.light_color.srgb_to_linear()
+	return [sun.global_transform.basis.z.normalized(),
+		Vector3(linear_color.r, linear_color.g, linear_color.b) * sun.light_energy]
 
 
 static func _basis_to_cols(t: Transform3D, out: PackedFloat32Array) -> void:
@@ -402,13 +427,9 @@ func _render_view(sb: RenderSceneBuffersRD, sd: RenderSceneData,
 	var inv_proj := proj.inverse()
 	var inv_view := cam_xf.affine_inverse()
 
-	var sun_dir := Vector3(0.3, 0.7, 0.3).normalized()
-	var sun_col := Vector3.ONE
-	if is_instance_valid(sun):
-		# DirectionalLight3D shines along -Z; the sun sits at +Z.
-		sun_dir = sun.global_transform.basis.z.normalized()
-		var linear_color := sun.light_color.srgb_to_linear()
-		sun_col = Vector3(linear_color.r, linear_color.g, linear_color.b) * sun.light_energy
+	var lighting := sun_lighting()
+	var sun_dir: Vector3 = lighting[0]
+	var sun_col: Vector3 = lighting[1]
 
 	if not clouds_enabled:
 		_complete_pending_density()

@@ -3,6 +3,7 @@
 // Material coordinates are world metres, never height/control/color-map texels.
 shader_type spatial;
 render_mode blend_mix,depth_draw_opaque,cull_back,diffuse_burley,specular_schlick_ggx,skip_vertex_transform;
+#include "res://addons/clouds/cloud_pbr.gdshaderinc"
 
 #define SKIP_PASS 0
 #define VERTEX_PASS 1
@@ -290,4 +291,7 @@ void fragment() {
 	ALBEDO = ground;
 	ROUGHNESS = clamp(roughness * inv_weight, 0.55, 1.0);
 	SPECULAR = 0.25;
+	cloud_material_specular = SPECULAR;
+	cloud_transmission = cloud_sun_transmittance(v_vertex);
+	AO *= cloud_ambient_occlusion(cloud_transmission);
 }

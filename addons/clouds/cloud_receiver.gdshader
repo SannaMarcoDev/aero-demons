@@ -29,6 +29,7 @@ void fragment() {
 	NORMAL_MAP_DEPTH = normal_scale;
 	EMISSION = emission_color;
 	cloud_transmission = cloud_sun_transmittance((INV_VIEW_MATRIX * vec4(VERTEX, 1.0)).xyz);
+	AO *= cloud_ambient_occlusion(cloud_transmission);
 }
 
 float schlick_weight(float cosine) {

@@ -3,7 +3,7 @@
 layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 layout(set = 0, binding = 0) uniform Params {
 	mat4 inv_view; mat4 inv_proj; vec4 cam_pos; vec4 sun_dir;
-	vec4 sun_color; vec4 deck; vec4 misc;
+	vec4 sun_color; vec4 deck; vec4 misc; vec4 atm_a; vec4 atm_b; vec4 atm_c;
 } p;
 layout(rgba16f, set = 0, binding = 1) uniform restrict writeonly image2D out_clouds;
 layout(set = 0, binding = 2) uniform sampler3D noise_tex;
@@ -12,6 +12,7 @@ layout(set = 0, binding = 4) uniform sampler2D depth_tex;
 layout(set = 0, binding = 5) uniform sampler3D shape_tex;
 layout(set = 0, binding = 6) uniform sampler3D light_tex;
 #include "density.glslinc"
+#include "atmosphere.glslinc"
 
 float scene_distance(vec2 uv) {
 	float d = texture(depth_tex, uv).r;
@@ -69,7 +70,12 @@ void main() {
 			vec3 ambient = mix(vec3(0.025, 0.040, 0.075), vec3(0.22, 0.30, 0.44), sky_access);
 			float sun = exp(-tau.x) * phase * 1.4 + 0.22 * exp(-tau.x * 0.30);
 			vec3 light = ambient + p.sun_color.rgb * sun;
-			light = mix(haze, light, exp(-tm * 0.000018));
+			if (p.atm_c.x > 0.5) {
+				Aerial air = atm_aerial(ro, rd, tm);
+				light = light * air.transmittance + air.inscatter;
+			} else {
+				light = mix(haze, light, exp(-tm * 0.000018));
+			}
 			float alpha = 1.0 - exp(-d * dt);
 			acc.rgb += acc.a * alpha * light;
 			acc.a *= 1.0 - alpha;

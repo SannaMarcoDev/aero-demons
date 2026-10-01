@@ -8,8 +8,10 @@ extends RefCounted
 ## One pass per layer; materials must not be shared between different layers.
 var source: CloudSystem
 var resolution := 512
-var materials: Array[ShaderMaterial] = []
+var materials: Array[Resource] = []
 var shadows_enabled := true
+## Share of ambient light and reflections also removed in cloud shadows.
+var ambient_dimming := 0.0
 var bake_count := 0
 var texture := Texture2DArrayRD.new()
 var _shader: RID
@@ -18,8 +20,13 @@ var _mip_shader: RID
 var _mip_pipeline: RID
 var _volume: RID
 var _key: Array = []
-var _bound_materials: Array[ShaderMaterial] = []
+var _bound_materials: Array[Resource] = []
 var _active := false
+var _bound_ambient := -1.0
+
+
+static func material_rid(material: Resource) -> RID:
+	return material.get_material_rid() if material.has_method("get_material_rid") else material.get_rid()
 
 
 func _notification(what: int) -> void:
@@ -31,8 +38,8 @@ func _notification(what: int) -> void:
 
 static func _release(rd: RenderingDevice, wrapper: Texture2DArrayRD, resources: Array, receivers: Array) -> void:
 	for material in receivers:
-		RenderingServer.material_set_param(material.get_rid(), &"cloud_shadow_enabled", false)
-		RenderingServer.material_set_param(material.get_rid(), &"cloud_shadow_texture", null)
+		RenderingServer.material_set_param(material_rid(material), &"cloud_shadow_enabled", false)
+		RenderingServer.material_set_param(material_rid(material), &"cloud_shadow_texture", null)
 	wrapper.texture_rd_rid = RID()
 	for rid in resources:
 		if rid.is_valid():
@@ -44,10 +51,10 @@ func _set_active(value: bool) -> void:
 		return
 	for material in _bound_materials:
 		if not materials.has(material):
-			RenderingServer.material_set_param(material.get_rid(), &"cloud_shadow_enabled", false)
-			RenderingServer.material_set_param(material.get_rid(), &"cloud_shadow_texture", null)
+			RenderingServer.material_set_param(material_rid(material), &"cloud_shadow_enabled", false)
+			RenderingServer.material_set_param(material_rid(material), &"cloud_shadow_texture", null)
 	for material in materials:
-		RenderingServer.material_set_param(material.get_rid(), &"cloud_shadow_enabled", value)
+		RenderingServer.material_set_param(material_rid(material), &"cloud_shadow_enabled", value)
 	_bound_materials = materials.duplicate()
 	_active = value
 
@@ -76,12 +83,14 @@ func update() -> void:
 			return
 		_key = key
 		bake_count += 1
-	if changed or not _active or _bound_materials != materials:
+	if changed or not _active or _bound_materials != materials or ambient_dimming != _bound_ambient:
 		for material in materials:
-			RenderingServer.material_set_param(material.get_rid(), &"cloud_shadow_texture", texture.get_rid())
-			RenderingServer.material_set_param(material.get_rid(), &"cloud_shadow_deck",
+			RenderingServer.material_set_param(material_rid(material), &"cloud_shadow_texture", texture.get_rid())
+			RenderingServer.material_set_param(material_rid(material), &"cloud_shadow_deck",
 				Vector3(source.deck_base, source.deck_top, source.weather_world_m))
-			RenderingServer.material_set_param(material.get_rid(), &"cloud_shadow_sun_direction", direction)
+			RenderingServer.material_set_param(material_rid(material), &"cloud_shadow_sun_direction", direction)
+			RenderingServer.material_set_param(material_rid(material), &"cloud_shadow_ambient", ambient_dimming)
+		_bound_ambient = ambient_dimming
 	_set_active(true)
 
 

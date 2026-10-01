@@ -16,7 +16,8 @@
 [ext_resource type="Material" uid="uid://30yhc4wq6lxr" path="res://resources/materials/garda_water.tres" id="24_water"]
 [ext_resource type="Script" uid="uid://dcp1kek7gt3ik" path="res://scripts/maps/garda_forests.gd" id="25_forests"]
 [ext_resource type="Script" uid="uid://dcn2geieg0s6j" path="res://scripts/maps/garda_ground_cover.gd" id="26_ground_cover"]
-[ext_resource type="Script" path="res://addons/clouds/cloud_layer_3d.gd" id="27_cloud_layer"]
+[ext_resource type="Script" uid="uid://lma00y4574p0" path="res://addons/clouds/cloud_layer_3d.gd" id="27_cloud_layer"]
+[ext_resource type="Script" uid="uid://b208wjrs5p207" path="res://scripts/maps/garda_cloud_shadows.gd" id="28_cloud_shadows"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_surface"]
 seed = 7319
@@ -45,6 +46,7 @@ _shader_parameters = {
 world_background = 0
 shader_override_enabled = true
 shader_override = ExtResource("3_wcover")
+resource_local_to_scene = true
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_clear_cirrus"]
 seed = 42137
@@ -145,8 +147,8 @@ background_mode = 2
 sky = SubResource("Sky_sky3d")
 ambient_light_source = 3
 ambient_light_color = Color(0.92813873, 0.909576, 0.88173187, 1)
-ambient_light_sky_contribution = 0.3
-ambient_light_energy = 0.22
+ambient_light_sky_contribution = 0.5
+ambient_light_energy = 1.75
 reflected_light_source = 2
 tonemap_mode = 3
 tonemap_white = 6.0
@@ -176,10 +178,9 @@ fog_enabled = false
 editor_time_enabled = false
 game_time_enabled = false
 current_time = 9.0
-sun_energy = 1.8
-sun_shadow_opacity = 0.8
-sky_contribution = 0.3
-ambient_energy = 0.22
+sun_energy = 2.0
+sky_contribution = 0.5
+ambient_energy = 1.75
 wind_speed = 0.35
 wind_direction = 2.35619451204804
 metadata/_custom_type_script = "uid://deo0gxkmk2ahd"
@@ -188,11 +189,10 @@ metadata/shadow_distance_scale = 2.0
 [node name="SunLight" type="DirectionalLight3D" parent="Sky3D" unique_id=730235234]
 transform = Transform3D(0.020141236, -0.52803165, 0.84898585, 0, 0.8491581, 0.52813876, -0.99979717, -0.010637367, 0.017103095, 0.84898585, 0.52813876, 0.017103095)
 light_color = Color(1, 0.98, 0.95000005, 1)
-light_energy = 1.8
+light_energy = 2.0
 shadow_enabled = true
 shadow_bias = 0.03
 shadow_normal_bias = 1.0
-shadow_opacity = 0.8
 directional_shadow_split_1 = 0.025
 directional_shadow_split_2 = 0.08
 directional_shadow_split_3 = 0.25
@@ -214,7 +214,7 @@ sun_altitude = -1.0143892
 sun_disk_color = Color(1, 0.97, 0.9, 1)
 sun_disk_intensity = 18.0
 sun_light_color = Color(1, 0.98, 0.95, 1)
-sun_light_energy = 1.8
+sun_light_energy = 2.0
 moon_azimuth = -4.26387
 moon_altitude = -1.2831078
 atm_darkness = 0.4
@@ -253,11 +253,16 @@ latitude = 0.7967428035354114
 longitude = 0.18675022996339324
 utc = 2.0
 
-[node name="CloudLayer3D" type="Node3D" parent="." node_paths=PackedStringArray("world_environment", "sun")]
+[node name="CloudLayer3D" type="Node3D" parent="." unique_id=1806530686 node_paths=PackedStringArray("world_environment", "sun")]
 script = ExtResource("27_cloud_layer")
 world_environment = NodePath("../Sky3D")
 sun = NodePath("../Sky3D/SunLight")
-shadows_enabled = false
+haze_base_altitude = 185.0
+haze_sky_light = 0.45
+shadow_ambient_dimming = 0.7
+
+[node name="CloudShadowReceivers" type="Node" parent="." unique_id=327436645]
+script = ExtResource("28_cloud_shadows")
 
 [node name="TutorialBoundaryController" type="Node3D" parent="." unique_id=1748372949]
 script = ExtResource("23_boundary")

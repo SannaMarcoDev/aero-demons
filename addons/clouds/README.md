@@ -1,4 +1,4 @@
-# CloudLayer3D — prima integrazione Garda
+# CloudLayer3D — integrazione Garda
 
 Importato dal progetto locale `clouds-testing`, cartella `clouds/`, revisione
 `cff3257`. Renderer, generatori, shader e preset originali conservati. Adattamenti:
@@ -24,23 +24,116 @@ esistenti non sono modificati; i cumuli 2D erano già disattivati.
 - Non aggiungere più layer allo stesso WorldEnvironment. Il compositor
   preesistente viene preservato e ripristinato all'uscita.
 
-## Limiti di questa prima integrazione
+## Ombre su Garda
 
-Ombre su terreno/aereo disattivate e nessun materiale registrato: nessuna cache
-ombre aggiuntiva. Il supporto originale è incluso (`cloud_receiver.gdshader`,
-`cloud_shadow.gdshaderinc`, `register_shadow_material()`), ma richiede adattare
-esplicitamente i materiali del gioco. Nessuna modifica automatica ai materiali.
+Le ombre volumetriche sono attive a **512²**, circa **86 MiB** aggiuntivi di VRAM.
+Il campo e la formazione delle nuvole restano quelli originali. La cache viene
+ricostruita soltanto quando cambiano sole/formazione/risoluzione, non al movimento
+della camera o dell'aereo.
+
+`CloudShadowReceivers` (`scripts/maps/garda_cloud_shadows.gd`) collega a runtime
+terreno, acqua, boschi/erba, aeroporto, player e oggetti aggiunti successivamente
+(compresi AI e attori replay). Le copie di materiali/mesh sono locali al mondo:
+nessun GLB, materiale importato o asset Terrain3D viene riscritto. I viewport di
+anteprima separati e gli effetti unshaded non vengono convertiti.
+
+`register_shadow_material()` accetta ora anche il `Terrain3DMaterial` nativo.
+Il terreno usa `cloud_pbr.gdshaderinc`; gli altri shader di Garda ricevono la
+stessa funzione di luce nelle loro copie runtime. I materiali StandardMaterial3D
+usano `resources/shaders/cloud_standard.gdshader`, conservando albedo, normal,
+canali metallic/roughness/AO, emissione, UV, vertex color, culling e modalità
+alpha. Il ricevitore copre il PBR isotropo Burley/GGX effettivamente usato su
+Garda; clearcoat, anisotropia, SSS e shader con una propria `light()` richiedono
+un'integrazione specifica prima di introdurre nuovi asset con quelle funzioni.
+
+Sono attenuati **diffuso, speculare e backlight diretti del sole assegnato**:
+emissione e ombre delle mesh non sono moltiplicate per la trasmissione delle
+nuvole. `shadow_ambient_dimming` (gruppo Cloud Shadows, 0–1) toglie anche quella
+quota di luce ambientale e riflessi sotto le nuvole tramite `AO`
+(`cloud_ambient_occlusion()` in `cloud_shadow.gdshaderinc`): con l'ambientale
+alto di Garda rende leggibili le zone in ombra. Default 0, Garda **0.7**. Agisce
+solo a runtime: regolarlo dal Remote inspector col gioco avviato. Il collegamento dei materiali è runtime-only;
+il solo `Editor Preview` del layer mostra le nuvole ma non converte i ricevitori.
+
+### Controllo rapido tramite Godot AI
+
+Con una scena Garda in esecuzione, eseguire questo GDScript con
+`editor_manage(op="game_eval", params={code: ...})`:
+
+```gdscript
+var layer = get_tree().current_scene.find_child("CloudLayer3D", true, false)
+assert(layer != null and layer.shadows_enabled)
+assert(layer._shadow_pass != null and layer._shadow_pass._active)
+assert(layer._runtime_shadow_materials.size() > 1)
+for material in layer._runtime_shadow_materials:
+    var rid = CloudShadowPass.material_rid(material)
+    assert(RenderingServer.material_get_param(rid, "cloud_shadow_enabled"))
+    assert(RenderingServer.material_get_param(rid, "cloud_shadow_texture") != null)
+return "GARDA CLOUD SHADOW BINDINGS PASS"
+```
+
+Per il confronto visivo usare `layer.shadows_enabled = false/true` a camera
+ferma e attendere alcuni frame renderizzati. Il toggle non cambia le nuvole
+né richiede un nuovo bake. L'integrazione rimane inattiva in headless.
 
 La query asincrona `request_density(world_position, callback)` è disponibile,
 ma effetti sul parabrezza, turbolenza e logica del player non sono collegati.
-La foschia interna al renderer conserva la taratura della demo: nessuna nuova
-taratura artistica o garanzia di prestazioni sulla mappa Garda.
+
+## Atmosfera (prospettiva aerea)
+
+Un solo modello d'aria, `atmosphere.glslinc`, vela sia la geometria opaca sia
+ogni campione di nuvola: monti lontani e nuvole lontane ricevono la stessa
+foschia. Due componenti esponenziali in quota, integrate analiticamente:
+foschia bassa (`haze_distance`, `haze_height`, sopra `haze_base_altitude`) e
+aria Rayleigh (`air_density`, tinta blu in distanza). Il colore è
+`haze_color` × colore/energia del sole, più `haze_sun_scattering` verso il sole.
+
+- `CloudAtmosphere` è un secondo CompositorEffect creato da `CloudLayer3D` nello
+  stesso compositor, dopo il cielo e prima dei trasparenti: scie e particelle
+  non vengono velate con la profondità del terreno dietro di loro.
+- Il cielo sopra l'orizzonte resta a Sky3D. Sotto l'orizzonte, oltre il far
+  plane, la cupola mostrerebbe il suo `ground_color` scuro: viene velato come
+  terreno alla quota base, così acqua e terreno lontani si fondono con l'orizzonte.
+- Indipendente da `clouds_enabled`. Con `atmosphere_enabled = false` il terreno
+  torna nitido e le nuvole riprendono la foschia originale della demo.
+- Nessun bake: i parametri si possono cambiare a runtime.
+- Ombre nella foschia: la luce della foschia è divisa tra cielo
+  (`haze_sky_light`, non ombreggiata) e sole diretto. La parte solare campiona
+  la stessa cache delle ombre lungo il raggio di vista, quindi sotto i banchi
+  l'aria si scurisce e compaiono i raggi di luce; `haze_cloud_shadows` regola
+  l'intensità (0 = foschia uniforme). Richiede `shadows_enabled` e almeno un
+  ricevitore registrato; il jitter dei campioni è risolto dal TAA. Le ombre
+  sono campionate nei primi 80 km del raggio; l'aria oltre resta al sole.
+- Garda: `haze_base_altitude = 185` (livello del lago), `haze_sky_light = 0.45`,
+  altri valori di default.
+
+### Luce del mondo su Garda
+
+La radiance del cielo Sky3D fornisce un ambientale quasi nullo: con
+`sky_contribution` basso il terreno in ombra risultava nero rispetto al cielo
+nuvoloso. Valori in `Sky3D` (che li propaga a Environment e `SunLight`):
+`sun_energy = 2.0`, `ambient_energy = 1.75`, `sky_contribution = 0.5`,
+`sun_shadow_opacity = 1.0`, `tonemap_exposure = 1.0`. La fog globale di Godot
+resta disattivata: la prospettiva aerea è solo `CloudAtmosphere`. L'aeroporto
+ha un proprio `DirectionalLight3D` (`Airport/Sun`), non modificato.
 
 Per esportare mantenere **Export all resources** (già configurato nel progetto):
 i compute shader caricati per percorso devono essere inclusi come risorse GLSL
 importate. Demo, benchmark e test del progetto sorgente non sono stati copiati.
 
-## Verifiche della prima integrazione
+## Verifiche delle ombre
+
+Su Godot 4.7.2 / Forward+ Vulkan: controlli headless esistenti
+`garda_ground_cover_check.gd` e `garda_surface_review.gd` passati;
+shader ricevitore validato dal compilatore Godot. Freeroam, Arena, Tutorial e
+replay avviati via Godot AI con `autosave=false`, stato `live` e nessun nuovo
+errore nei log. Verificati 53 ricevitori in Freeroam/replay, 54 in Arena,
+registrazione degli oggetti aggiunti dopo l'avvio e un solo bake condiviso.
+Confrontate immagini ON/OFF di paesaggio, aeroporto e aereo in volo.
+Restano warning preesistenti, inclusa l'interpolazione deprecata nel replay.
+Prestazioni, export e gameplay completo non verificati.
+
+## Verifiche della prima integrazione (storiche)
 
 Su Godot 4.7.2 / Forward+ Metal: controllo esistente
 `tests/maps/garda_ground_cover_check.gd` passato in headless; Freeroam, Tutorial
