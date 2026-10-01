@@ -16,6 +16,7 @@
 [ext_resource type="Texture2D" path="res://textures/terrain/riva_sample/masks_b.png" id="31_masks_b"]
 [ext_resource type="Texture2D" path="res://textures/terrain/riva_sample/photo_core.jpg" id="33_photo_core"]
 [ext_resource type="Texture2D" path="res://textures/terrain/riva_sample/photo_context.jpg" id="34_photo_context"]
+[ext_resource type="Texture2D" path="res://textures/terrain/riva_sample/photo_wide.jpg" id="44_photo_wide"]
 [ext_resource type="Texture2D" path="res://textures/terrain/riva_sample/context_cover.png" id="38_cover"]
 [ext_resource type="Shader" path="res://resources/terrain/riva_sample_context.gdshader" id="39_context_shader"]
 [ext_resource type="Texture2D" uid="uid://bhfkenjrdvcn0" path="res://textures/terrain/garda/aerial_rocks_02_albedo_packed.png" id="40_rock"]
@@ -42,7 +43,8 @@ _shader_parameters = {
 &"detail_size": 4.0,
 &"masks_a": ExtResource("30_masks_a"),
 &"masks_b": ExtResource("31_masks_b"),
-&"photo": ExtResource("33_photo_core"),
+&"photo": ExtResource("44_photo_wide"),
+&"photo_core": ExtResource("33_photo_core"),
 &"macro_size": 4500.0,
 &"meso_size": 72.0,
 &"normal_strength": 0.8,
@@ -226,7 +228,7 @@ data_directory = "res://terrain/riva_sample"
 material = SubResource("Terrain3DMaterial_wc")
 assets = ExtResource("1_assets")
 mesh_lods = 10
-vertex_spacing = 2.0
+vertex_spacing = 4.0
 top_level = true
 metadata/_edit_lock_ = true
 

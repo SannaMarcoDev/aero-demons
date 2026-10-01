@@ -7,7 +7,7 @@ const LAKE_LEVEL := 65.0
 @export var forest_mask: Texture2D
 ## masks_b.r: OSM building footprints. No trees through the building meshes.
 @export var building_mask: Texture2D
-@export var mask_rect := Rect2(-5120, -5120, 10240, 10240)
+@export var mask_rect := Rect2(-20480, -20480, 40960, 40960)
 var buildings: MaskCover
 
 

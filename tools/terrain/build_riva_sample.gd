@@ -1,6 +1,6 @@
 extends SceneTree
 ## Imports terrain/source/riva_sample (tools/terrain/fetch_riva_sample.cjs) into the project:
-## Terrain3D regions (2 m), land-use masks, albedo photos and the low-resolution context mesh.
+## Terrain3D regions (4 m over 40.96 km), land-use masks, albedo photos and the low-resolution context mesh.
 ## godot --headless --path . --script res://tools/terrain/build_riva_sample.gd [-- --context | --buildings]
 ## --context: context mesh, cover and photos only (after `fetch_riva_sample.cjs context` and `photo`).
 ## --buildings: building boxes only (after `fetch_riva_sample.cjs buildings`), on the saved regions.
@@ -12,7 +12,7 @@ const REGION_SIZE := 512
 const CONTEXT_MESH_STRIDE := 2 # 60 m mesh cells over the 30 m context DEM.
 const HIDDEN_DEPTH := 40.0 # The context mesh sinks under the Terrain3D core edge band.
 const CORE_TEXTURES := ["masks_a.png", "masks_b.png"]
-const CONTEXT_TEXTURES := ["context_cover.png", "photo_core.jpg", "photo_context.jpg"]
+const CONTEXT_TEXTURES := ["context_cover.png", "photo_core.jpg", "photo_wide.jpg", "photo_context.jpg"]
 const BUILDINGS := "res://resources/terrain/riva_sample_buildings.res"
 const BUILDING_MIN_HEIGHT := 2.5 # lower DBM roofs: building missing in 2014, use OSM height or default
 const BUILDING_DEFAULT_HEIGHT := 7.0
@@ -45,7 +45,9 @@ func _read_floats(file_name: String, size: int) -> PackedFloat32Array:
 func _save_regions(core: Dictionary) -> void:
 	var size: int = core.size
 	var spacing: float = core.step
-	var heights := _read_floats(core.file, size)
+	var bytes := FileAccess.get_file_as_bytes(SOURCE + core.file)
+	assert(bytes.size() == size * size * 4, "Unexpected size: " + core.file)
+	var heights := Image.create_from_data(size, size, false, Image.FORMAT_RF, bytes)
 	var util := Terrain3DUtil.new()
 	DirAccess.make_dir_recursive_absolute(REGIONS)
 	for old in DirAccess.get_files_at(REGIONS):
@@ -59,18 +61,12 @@ func _save_regions(core: Dictionary) -> void:
 	color.fill(Color.WHITE)
 	for rz in count:
 		for rx in count:
-			var block := PackedFloat32Array()
-			block.resize(REGION_SIZE * REGION_SIZE)
-			for y in REGION_SIZE:
-				var row := (rz * REGION_SIZE + y) * size + rx * REGION_SIZE
-				for x in REGION_SIZE:
-					block[y * REGION_SIZE + x] = heights[row + x]
 			var region := Terrain3DRegion.new()
 			region.set_region_size(REGION_SIZE)
 			region.set_vertex_spacing(spacing)
 			var location := Vector2i(first + rx, first + rz)
 			region.set_location(location)
-			region.set_map(Terrain3DRegion.TYPE_HEIGHT, Image.create_from_data(REGION_SIZE, REGION_SIZE, false, Image.FORMAT_RF, block.to_byte_array()))
+			region.set_map(Terrain3DRegion.TYPE_HEIGHT, heights.get_region(Rect2i(rx * REGION_SIZE, rz * REGION_SIZE, REGION_SIZE, REGION_SIZE)))
 			region.set_map(Terrain3DRegion.TYPE_CONTROL, control.duplicate())
 			region.set_map(Terrain3DRegion.TYPE_COLOR, color.duplicate())
 			region.calc_height_range()
@@ -207,7 +203,7 @@ func _copy_textures(names: Array) -> void:
 		if FileAccess.file_exists(import_file):
 			continue
 		# Data: lossless with mipmaps; alpha is data, so no alpha-border fix. VRAM compression would
-		# smear the classes. Photos (jpg): VRAM compressed, 10240 px is ~70 MB instead of ~560.
+		# smear the classes. Photos (jpg): VRAM compressed, 16384 px is ~170 MB instead of ~1 GB.
 		var file := FileAccess.open(import_file, FileAccess.WRITE)
 		file.store_string("[remap]\n\nimporter=\"texture\"\ntype=\"CompressedTexture2D\"\n\n[params]\n\n"
 			+ "compress/mode=%d\nmipmaps/generate=true\ndetect_3d/compress_to=0\nprocess/fix_alpha_border=false\nprocess/premult_alpha=false\n"

@@ -1,5 +1,5 @@
 // Riva del Garda sample: 10.24 km of real data + 61 km context, aligned in UTM 32N.
-// Phases: node tools/terrain/fetch_riva_sample.cjs fetch | build | all | context | photo | buildings
+// Phases: node tools/terrain/fetch_riva_sample.cjs fetch | build | all | context | photo | buildings | lidar
 // Requires `npm i --no-save sharp` in tools/. Download cache in tools/tiles/riva/,
 // outputs in terrain/source/riva_sample/ (both git-ignored). Godot import:
 // tools/terrain/build_riva_sample.gd.
@@ -28,27 +28,33 @@ fs.mkdirSync(OUT, { recursive: true });
 
 // World origin (UTM 32N / ETRS89, <1 m apart here). World x = E - CE, world z = CN - N.
 const CE = 645120, CN = 5082880;
-const CORE_HALF = 5120, CORE_STEP = 2, CORE_N = 5120; // Terrain3D vertices
-const MASK_STEP = 4, MASK_N = 2560;                    // land use masks over the core
+const CORE_HALF = 20480, CORE_STEP = 4, CORE_N = 10240; // Terrain3D vertices
+const MASK_STEP = 8, MASK_N = 5120;                      // land use masks over the core
 const CTX_HALF = 30720, CTX_STEP = 30, CTX_N = 2048;   // context DEM, colour and tint
-const PHOTO_CORE_STEP = 1, PHOTO_CTX_STEP = 8;         // terrain albedo photos (orthophoto, Sentinel-2 fill)
+// Terrain albedo photos: 1 m around Riva (buildings), 2.5 m over the core (16384 px), 8 m over the context.
+const PHOTO_CORE_HALF = 5120, PHOTO_CORE_STEP = 1, PHOTO_WIDE_STEP = 2.5, PHOTO_CTX_STEP = 8;
+const BUILDINGS_HALF = 5120; // ponytail: buildings around Riva only, one mesh; chunk it before going wider
 const LAKE_LEVEL = 65.0, LAKE_MAX_DEPTH = 300.0;
-const EDGE_BLEND = 400.0; // core LiDAR -> context DEM over the outer band of the core
+const EDGE_BLEND = 400.0;  // core -> context DEM over the outer band of the core
+const FINE_BLEND = 300.0;  // DTMs (PAT LiDAR, Veneto/Lombardia 5 m) -> Copernicus where they end
+const SEAM_BLEND = 100.0;  // PAT LiDAR -> regional 5 m DTMs across the Trentino border
 
 // ---------- UTM zone 32 ----------
 const A = 6378137, F = 1 / 298.257223563, K0 = 0.9996, E2 = 2 * F - F * F, EP2 = E2 / (1 - E2);
 const LON0 = 9 * Math.PI / 180;
-function toUtm(lat, lon) {
+// Transverse Mercator (UTM 32 by default; the Veneto DTM is on the RDN2008 zone 12 grid).
+function toTm(lat, lon, lon0 = 9, k0 = K0, fe = 500000) {
   const la = lat * Math.PI / 180, lo = lon * Math.PI / 180;
   const N = A / Math.sqrt(1 - E2 * Math.sin(la) ** 2);
-  const T = Math.tan(la) ** 2, C = EP2 * Math.cos(la) ** 2, Aa = Math.cos(la) * (lo - LON0);
+  const T = Math.tan(la) ** 2, C = EP2 * Math.cos(la) ** 2, Aa = Math.cos(la) * (lo - lon0 * Math.PI / 180);
   const M = A * ((1 - E2 / 4 - 3 * E2 * E2 / 64 - 5 * E2 ** 3 / 256) * la
     - (3 * E2 / 8 + 3 * E2 * E2 / 32 + 45 * E2 ** 3 / 1024) * Math.sin(2 * la)
     + (15 * E2 * E2 / 256 + 45 * E2 ** 3 / 1024) * Math.sin(4 * la) - (35 * E2 ** 3 / 3072) * Math.sin(6 * la));
-  return [K0 * N * (Aa + (1 - T + C) * Aa ** 3 / 6 + (5 - 18 * T + T * T + 72 * C - 58 * EP2) * Aa ** 5 / 120) + 500000,
-    K0 * (M + N * Math.tan(la) * (Aa * Aa / 2 + (5 - T + 9 * C + 4 * C * C) * Aa ** 4 / 24
+  return [k0 * N * (Aa + (1 - T + C) * Aa ** 3 / 6 + (5 - 18 * T + T * T + 72 * C - 58 * EP2) * Aa ** 5 / 120) + fe,
+    k0 * (M + N * Math.tan(la) * (Aa * Aa / 2 + (5 - T + 9 * C + 4 * C * C) * Aa ** 4 / 24
       + (61 - 58 * T + T * T + 600 * C - 330 * EP2) * Aa ** 6 / 720))];
 }
+const toUtm = (lat, lon) => toTm(lat, lon);
 function toLatLon(x, y) {
   const e1 = (1 - Math.sqrt(1 - E2)) / (1 + Math.sqrt(1 - E2));
   x -= 500000;
@@ -79,7 +85,7 @@ async function get(url, file, opts = {}) {
     } catch (e) {
       console.log(`  ${file} attempt ${i}: ${e.message}`);
       if (i === 4) throw e;
-      await new Promise(r => setTimeout(r, 4000 * i));
+      await new Promise(r => setTimeout(r, 15000 * i));
     }
   }
 }
@@ -96,31 +102,42 @@ async function fetchLidar(kind = 'dtm', want = () => true) {
     + `&typeNames=stem:inqlid2014_${kind}_asc&outputFormat=application/json`
     + `&bbox=${e0 - 1},${n0 - 1},${e0 + 2 * CORE_HALF + 1},${n0 + 2 * CORE_HALF + 1},urn:ogc:def:crs:EPSG::25832`, `${name}_index.json`);
   const features = JSON.parse(index).features.filter(want);
-  const missing = features.filter(f => !fs.existsSync(path.join(TILES, name, `${f.properties.n_tavola}.asc`)));
+  const ext = kind === 'dtm' ? '.f32' : '.asc'; // the DTM is kept as 2 m block means (shrinkDtm)
+  const missing = features.filter(f => !fs.existsSync(path.join(TILES, name, `${f.properties.n_tavola}${ext}`)));
   console.log(`LiDAR ${kind}: ${features.length} tiles, ${missing.length} to download`);
   fs.mkdirSync(path.join(TILES, name), { recursive: true });
+  const dir = path.join(TILES, name);
   for (let i = 0; i < missing.length; i += 80) {
-    const batch = missing.slice(i, i + 80);
-    const r = await fetch(`${STEM}/stem/services/merge`, { method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ files: batch.map(f => f.properties.location) }) });
-    const job = await r.json();
-    if (!job.success) throw new Error('STEM merge failed ' + JSON.stringify(job));
-    for (;;) {
-      const info = await (await fetch(`${STEM}/stem/services/file/info?id=${job.id}&token=${job.token}`)).json();
-      if (info.state !== 0) break;
-      await sleep(5000);
-    }
-    const zip = path.join(TILES, `${name}_batch_${i}.zip`);
-    fs.rmSync(zip, { force: true });
-    await get(`${STEM}/stem/services/file?id=${job.id}&token=${job.token}`, path.basename(zip));
-    const dir = path.join(TILES, name);
-    execFileSync('unzip', ['-o', '-q', zip, '-d', dir]);
-    for (const inner of fs.readdirSync(dir).filter(f => f.endsWith('.zip'))) {
-      execFileSync('unzip', ['-o', '-q', path.join(dir, inner), '-d', dir]);
-      fs.rmSync(path.join(dir, inner));
+    const batch = missing.slice(i, i + 80), zip = path.join(TILES, `${name}_batch_${i}.zip`);
+    // The merge service now and then serves a truncated zip: ask for the batch again.
+    for (let attempt = 1; ; attempt++) {
+      const r = await fetch(`${STEM}/stem/services/merge`, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ files: batch.map(f => f.properties.location) }) });
+      const job = await r.json();
+      if (!job.success) throw new Error('STEM merge failed ' + JSON.stringify(job));
+      for (;;) {
+        const info = await (await fetch(`${STEM}/stem/services/file/info?id=${job.id}&token=${job.token}`)).json();
+        if (info.state !== 0) break;
+        await sleep(5000);
+      }
+      fs.rmSync(zip, { force: true });
+      await get(`${STEM}/stem/services/file?id=${job.id}&token=${job.token}`, path.basename(zip));
+      try {
+        execFileSync('unzip', ['-o', '-q', zip, '-d', dir]);
+        for (const inner of fs.readdirSync(dir).filter(f => f.endsWith('.zip'))) {
+          execFileSync('unzip', ['-o', '-q', path.join(dir, inner), '-d', dir]);
+          fs.rmSync(path.join(dir, inner));
+        }
+        break;
+      } catch (e) {
+        for (const inner of fs.readdirSync(dir).filter(f => f.endsWith('.zip'))) fs.rmSync(path.join(dir, inner));
+        if (attempt === 3) throw e;
+        console.log(`  LiDAR ${kind} batch ${i / 80 + 1}: bad zip, again`);
+      }
     }
     for (const asc of fs.readdirSync(dir).filter(f => /_(DTM|DBM)\.asc$/.test(f)))
       fs.renameSync(path.join(dir, asc), path.join(dir, asc.replace(/_(DTM|DBM)\.asc$/, '.asc')));
+    if (kind === 'dtm') shrinkDtm(dir);
     fs.rmSync(zip);
     console.log(`  LiDAR ${kind} batch ${i / 80 + 1}/${Math.ceil(missing.length / 80)} done`);
   }
@@ -150,27 +167,71 @@ async function fetchWorldCover() {
   await get(`https://esa-worldcover.s3.eu-central-1.amazonaws.com/v200/2021/map/${WORLDCOVER}`, WORLDCOVER);
 }
 
-function coreLatLonBounds(margin) {
-  const [s, w] = toLatLon(CE - CORE_HALF - margin, CN - CORE_HALF - margin);
-  const [n, e] = toLatLon(CE + CORE_HALF + margin, CN + CORE_HALF + margin);
-  const [s2, e2] = toLatLon(CE + CORE_HALF + margin, CN - CORE_HALF - margin);
-  const [n2, w2] = toLatLon(CE - CORE_HALF - margin, CN + CORE_HALF + margin);
-  return { s: Math.min(s, s2), n: Math.max(n, n2), w: Math.min(w, w2), e: Math.max(e, e2) };
+function utmLatLonBounds(e0, n0, e1, n1) {
+  const c = [[e0, n0], [e1, n0], [e0, n1], [e1, n1]].map(([e, n]) => toLatLon(e, n));
+  return { s: Math.min(...c.map(p => p[0])), n: Math.max(...c.map(p => p[0])), w: Math.min(...c.map(p => p[1])), e: Math.max(...c.map(p => p[1])) };
 }
 
+// Overpass in 4 x 4 tiles of the core (a 40 km query is ~1 GB); forEachOsm drops the duplicates.
+const OSM_TILES = 4;
 async function fetchOsm() {
-  const b = coreLatLonBounds(300);
-  const bbox = `${b.s},${b.w},${b.n},${b.e}`;
-  const query = `[out:json][timeout:300];(
-    way["landuse"](${bbox});relation["landuse"](${bbox});
-    way["natural"](${bbox});relation["natural"](${bbox});
-    way["leisure"](${bbox});way["aeroway"](${bbox});
-    way["building"](${bbox});relation["building"](${bbox});
-    way["highway"](${bbox});way["railway"="rail"](${bbox});
-    way["waterway"](${bbox});relation["water"](${bbox});
-  );out geom;`;
-  await get('https://overpass-api.de/api/interpreter', 'osm_core.json',
-    { method: 'POST', body: 'data=' + encodeURIComponent(query), headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+  const span = 2 * CORE_HALF / OSM_TILES, margin = 300;
+  fs.mkdirSync(path.join(TILES, 'osm'), { recursive: true });
+  for (let ty = 0; ty < OSM_TILES; ty++) for (let tx = 0; tx < OSM_TILES; tx++) {
+    const e0 = CE - CORE_HALF + tx * span, n1 = CN + CORE_HALF - ty * span;
+    const b = utmLatLonBounds(e0 - margin, n1 - span - margin, e0 + span + margin, n1 + margin);
+    const bbox = `${b.s},${b.w},${b.n},${b.e}`;
+    const query = `[out:json][timeout:300];(
+      way["landuse"](${bbox});relation["landuse"](${bbox});
+      way["natural"](${bbox});relation["natural"](${bbox});
+      way["leisure"](${bbox});way["aeroway"](${bbox});
+      way["building"](${bbox});relation["building"](${bbox});
+      way["highway"](${bbox});way["railway"="rail"](${bbox});
+      way["waterway"](${bbox});relation["water"](${bbox});
+    );out geom;`;
+    await get('https://overpass-api.de/api/interpreter', `osm/${tx}_${ty}.json`,
+      { method: 'POST', body: 'data=' + encodeURIComponent(query), headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+  }
+}
+function forEachOsm(fn) {
+  const seen = new Set();
+  for (let ty = 0; ty < OSM_TILES; ty++) for (let tx = 0; tx < OSM_TILES; tx++)
+    for (const el of JSON.parse(fs.readFileSync(path.join(TILES, 'osm', `${tx}_${ty}.json`), 'utf8')).elements) {
+      const key = el.type[0] + el.id;
+      if (!seen.has(key)) { seen.add(key); fn(el); }
+    }
+}
+
+// Regional DTMs outside Trentino. Lombardia: DTM 5 m (2015, CC BY 4.0) from the region's ImageServer,
+// resampled by the server onto the Terrain3D vertices. Veneto: DTM LiDAR 5 m (IODL 2.0), 2 km ASCII tiles
+// on the RDN2008 zone 12 grid.
+const LOMBARDIA = 'https://www.cartografia.servizirl.it/arcgis2/rest/services/BaseMap/DTM5_RL_img/ImageServer/exportImage';
+const LOM_TILE = 2048; // vertices per export (server limit 15000 x 4100)
+async function fetchLombardia() {
+  fs.mkdirSync(path.join(TILES, 'lombardia'), { recursive: true });
+  const span = LOM_TILE * CORE_STEP;
+  for (let ty = 0; ty < CORE_N / LOM_TILE; ty++) for (let tx = 0; tx < CORE_N / LOM_TILE; tx++) {
+    // Pixel centres on the vertices: x = -CORE_HALF + c * CORE_STEP, rows from the north edge.
+    const e0 = CE - CORE_HALF + tx * span - CORE_STEP / 2, n1 = CN + CORE_HALF - ty * span + CORE_STEP / 2;
+    await get(`${LOMBARDIA}?bbox=${e0},${n1 - span},${e0 + span},${n1}&bboxSR=32632&imageSR=32632&size=${LOM_TILE},${LOM_TILE}`
+      + '&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&f=image', `lombardia/${tx}_${ty}.tif`);
+  }
+}
+const VENETO_GS = 'https://idt2-geoserver.regione.veneto.it/geoserver/ows';
+const VENETO_TM = [12, 1, 3000000]; // RDN2008 / zone 12: central meridian, scale 1, false easting (fit on Copernicus)
+async function fetchVeneto() {
+  const index = await get(`${VENETO_GS}?service=WFS&version=2.0.0&request=GetFeature&typeNames=rv:c0101071_lidar5m`
+    + `&outputFormat=application/json&srsName=urn:ogc:def:crs:EPSG::25832`
+    + `&bbox=${CE - CORE_HALF},${CN - CORE_HALF},${CE + CORE_HALF},${CN + CORE_HALF},urn:ogc:def:crs:EPSG::25832`, 'veneto_index.json');
+  const dir = path.join(TILES, 'veneto');
+  fs.mkdirSync(dir, { recursive: true });
+  for (const { properties: p } of JSON.parse(index).features) {
+    if (fs.existsSync(path.join(dir, `${p.nome}.asc`))) continue;
+    await get(`https://idt2.regione.veneto.it/idt/download/layerDownload/downloadDtmLidar5?dataDtmLidarId=${p.id_pol}`, `veneto/${p.nome}.zip`);
+    execFileSync('unzip', ['-o', '-q', path.join(dir, `${p.nome}.zip`), '-d', dir]);
+    fs.rmSync(path.join(dir, `${p.nome}.zip`));
+  }
+  console.log(`Veneto DTM: ${JSON.parse(index).features.length} tiles`);
 }
 
 // Web Mercator tiles of the EOX 2016 mosaic (CC BY 4.0; later years are non-commercial).
@@ -196,18 +257,21 @@ async function fetchSatellite() {
   console.log(`Satellite: ${count} tiles`);
 }
 
-// PAT orthophoto 2015 (20 cm RGB) through the province WMS, already in our UTM grid.
-// Outside Trentino the service returns white.
+// Orthophotos through WMS, already in our UTM grid; outside their region the services return white.
+// pat: PAT 2015 (20 cm RGB). agea: AGEA 2024 as served by Regione Veneto (CC BY 4.0, AGEA).
 const ORTHO_TILE = 2048;
+const ORTHO_WMS = {
+  pat: `${STEM}/geoserver/stem/wms?service=WMS&version=1.3.0&request=GetMap&layers=ecw-rgb-2015&styles=&crs=EPSG:25832`,
+  agea: `${VENETO_GS}?service=WMS&version=1.3.0&request=GetMap&layers=rv:ortofoto_agea_2024&styles=&crs=EPSG:32632`,
+};
 const orthoGrid = (half, step) => ({ span: ORTHO_TILE * step, count: Math.ceil(2 * half / (ORTHO_TILE * step)) });
-async function fetchOrtho(name, half, step) {
+async function fetchOrtho(dir, half, step, source = 'pat') {
   const { span, count } = orthoGrid(half, step);
-  fs.mkdirSync(path.join(TILES, `ortho_${name}`), { recursive: true });
+  fs.mkdirSync(path.join(TILES, dir), { recursive: true });
   for (let ty = 0; ty < count; ty++) for (let tx = 0; tx < count; tx++) {
     const e0 = CE - half + tx * span, n1 = CN + half - ty * span;
-    await get(`${STEM}/geoserver/stem/wms?service=WMS&version=1.3.0&request=GetMap&layers=ecw-rgb-2015&styles=`
-      + `&crs=EPSG:25832&bbox=${e0},${n1 - span},${e0 + span},${n1}&width=${ORTHO_TILE}&height=${ORTHO_TILE}&format=image/jpeg`,
-      `ortho_${name}/${tx}_${ty}.jpg`);
+    await get(`${ORTHO_WMS[source]}&bbox=${e0},${n1 - span},${e0 + span},${n1}&width=${ORTHO_TILE}&height=${ORTHO_TILE}&format=image/jpeg`,
+      `${dir}/${tx}_${ty}.jpg`);
   }
 }
 
@@ -275,47 +339,124 @@ async function loadSatellite() {
   };
 }
 
-// ESRI ASCII grid; values stay strings (row-major from the north edge), x0/y0 = south-west cell centre.
+// ESRI ASCII grid: values row-major from the north edge (NaN = no data), x0/y0 = south-west cell centre.
 function readAsc(file) {
-  const text = fs.readFileSync(file, 'latin1');
+  const buf = fs.readFileSync(file), len = buf.length;
   const header = {};
-  let pos = 0;
+  let p = 0;
   for (let line = 0; line < 6; line++) {
-    const end = text.indexOf('\n', pos);
-    const [k, v] = text.slice(pos, end).trim().split(/\s+/);
+    const end = buf.indexOf(10, p);
+    const [k, v] = buf.toString('latin1', p, end).trim().split(/\s+/);
     header[k.toLowerCase()] = +v;
-    pos = end + 1;
+    p = end + 1;
   }
-  const cell = header.cellsize;
-  return { cols: header.ncols, rows: header.nrows, cell, nodata: header.nodata_value,
-    x0: header.xllcenter ?? header.xllcorner + cell / 2, y0: header.yllcenter ?? header.yllcorner + cell / 2,
-    values: text.slice(pos).trim().split(/\s+/) };
+  const cell = header.cellsize, n = header.ncols * header.nrows, values = new Float32Array(n).fill(NaN);
+  // Hand-rolled number scan: the 40 km DTM is ~40 GB of text.
+  for (let i = 0; i < n && p < len;) {
+    if (buf[p] <= 32) { p++; continue; }
+    const start = p;
+    let v = 0, scale = 0, plain = true;
+    for (; p < len && buf[p] > 32; p++) {
+      const c = buf[p];
+      if (c >= 48 && c <= 57) { v = v * 10 + c - 48; scale *= 10; } else if (c === 46 && !scale) scale = 1;
+      else if (c !== 45 || p !== start) plain = false;
+    }
+    if (plain) { v = scale ? v / scale : v; if (buf[start] === 45) v = -v; } else v = parseFloat(buf.toString('latin1', start, p));
+    values[i++] = v === header.nodata_value ? NaN : v;
+  }
+  return { cols: header.ncols, rows: header.nrows, cell, x0: header.xllcenter ?? header.xllcorner + cell / 2,
+    y0: header.yllcenter ?? header.yllcorner + cell / 2, values };
 }
 
-function loadLidar() {
-  // 0.5 m cells averaged into the 2 m Terrain3D vertex grid (each cell to its nearest vertex).
-  const sum = new Float64Array(CORE_N * CORE_N), count = new Uint16Array(CORE_N * CORE_N);
-  const west = CE - CORE_HALF, north = CN + CORE_HALF;
-  const dir = path.join(TILES, 'lidar');
-  const files = fs.readdirSync(dir).filter(f => f.endsWith('.asc'));
-  for (const f of files) {
-    const { cols, rows, cell, nodata, x0, y0, values } = readAsc(path.join(dir, f));
+// 500 m PAT DTM tiles become 2 m block means (250 x 250 from the north-west corner, NaN when under half
+// covered) next to the .asc, which is dropped: 250 KB instead of 6.5 MB per tile.
+const DTM_TILE = 500, DTM_BLOCK = 2, DTM_BLOCKS = DTM_TILE / DTM_BLOCK;
+function shrinkDtm(dir) {
+  for (const f of fs.readdirSync(dir).filter(f => f.endsWith('.asc'))) {
+    const { cols, rows, cell, x0, y0, values } = readAsc(path.join(dir, f));
+    const e0 = Math.floor((x0 - cell / 2) / DTM_TILE) * DTM_TILE, n1 = Math.floor((y0 - cell / 2) / DTM_TILE) * DTM_TILE + DTM_TILE;
+    const sum = new Float32Array(DTM_BLOCKS * DTM_BLOCKS), count = new Uint8Array(sum.length);
     for (let r = 0; r < rows; r++) {
-      const n = y0 + (rows - 1 - r) * cell;
-      const vr = Math.round((north - n) / CORE_STEP);
-      if (vr < 0 || vr >= CORE_N) continue;
+      const bj = Math.floor((n1 - (y0 + (rows - 1 - r) * cell)) / DTM_BLOCK);
+      if (bj < 0 || bj >= DTM_BLOCKS) continue;
       for (let c = 0; c < cols; c++) {
-        const v = +values[r * cols + c];
-        if (v === nodata || !Number.isFinite(v)) continue;
-        const vc = Math.round((x0 + c * cell - west) / CORE_STEP);
-        if (vc < 0 || vc >= CORE_N) continue;
+        const v = values[r * cols + c], bi = Math.floor((x0 + c * cell - e0) / DTM_BLOCK);
+        if (Number.isNaN(v) || bi < 0 || bi >= DTM_BLOCKS) continue;
+        sum[bj * DTM_BLOCKS + bi] += v; count[bj * DTM_BLOCKS + bi]++;
+      }
+    }
+    const half = (DTM_BLOCK / cell) ** 2 / 2;
+    for (let i = 0; i < sum.length; i++) sum[i] = count[i] >= half ? sum[i] / count[i] : NaN;
+    fs.writeFileSync(path.join(dir, f.replace(/\.asc$/, '.f32')), Buffer.from(sum.buffer));
+    fs.rmSync(path.join(dir, f));
+  }
+}
+
+// PAT LiDAR at the Terrain3D vertices: each vertex V averages the 2 m blocks centred at V +- 1 m (shrinkDtm).
+function loadLidar() {
+  const sum = new Float32Array(CORE_N * CORE_N), count = new Uint8Array(CORE_N * CORE_N);
+  const west = CE - CORE_HALF, north = CN + CORE_HALF;
+  let tiles = 0;
+  for (const { properties: p } of JSON.parse(fs.readFileSync(path.join(TILES, 'lidar_index.json'))).features) {
+    const file = path.join(TILES, 'lidar', `${p.n_tavola}.f32`);
+    if (!fs.existsSync(file)) continue;
+    const b = fs.readFileSync(file), blocks = new Float32Array(b.buffer.slice(b.byteOffset, b.byteOffset + b.length));
+    tiles++;
+    for (let bj = 0; bj < DTM_BLOCKS; bj++) {
+      const vr = Math.round((north - (p.y_min + DTM_TILE - (bj + 0.5) * DTM_BLOCK)) / CORE_STEP);
+      if (vr < 0 || vr >= CORE_N) continue;
+      for (let bi = 0; bi < DTM_BLOCKS; bi++) {
+        const v = blocks[bj * DTM_BLOCKS + bi], vc = Math.round((p.x_min + (bi + 0.5) * DTM_BLOCK - west) / CORE_STEP);
+        if (Number.isNaN(v) || vc < 0 || vc >= CORE_N) continue;
         sum[vr * CORE_N + vc] += v; count[vr * CORE_N + vc]++;
       }
     }
   }
-  const out = new Float32Array(CORE_N * CORE_N).fill(NaN);
-  for (let i = 0; i < out.length; i++) if (count[i] >= 4) out[i] = sum[i] / count[i];
-  console.log(`LiDAR: ${files.length} tiles assembled`);
+  for (let i = 0; i < sum.length; i++) sum[i] = count[i] >= 3 ? sum[i] / count[i] : NaN;
+  console.log(`PAT LiDAR: ${tiles} tiles`);
+  return sum;
+}
+
+// Lombardia DTM at the vertices (the exports are already on the vertex grid).
+async function loadLombardia() {
+  const out = new Float32Array(CORE_N * CORE_N).fill(NaN), tiles = CORE_N / LOM_TILE;
+  for (let ty = 0; ty < tiles; ty++) for (let tx = 0; tx < tiles; tx++) {
+    const { data, info } = await sharp(path.join(TILES, 'lombardia', `${tx}_${ty}.tif`), { limitInputPixels: false })
+      .extractChannel(0).raw({ depth: 'float' }).toBuffer({ resolveWithObject: true });
+    assert(info.width === LOM_TILE && info.height === LOM_TILE, 'Unexpected Lombardia tile');
+    const px = new Float32Array(data.buffer, data.byteOffset, LOM_TILE * LOM_TILE);
+    for (let y = 0; y < LOM_TILE; y++) for (let x = 0; x < LOM_TILE; x++) {
+      const v = px[y * LOM_TILE + x];
+      if (v > -1000) out[(ty * LOM_TILE + y) * CORE_N + tx * LOM_TILE + x] = v; // no data: -3.4e38
+    }
+  }
+  return out;
+}
+
+// Veneto DTM at the vertices inside its tiles (bilinear on the zone 12 grid).
+function loadVeneto() {
+  const out = new Float32Array(CORE_N * CORE_N).fill(NaN), dir = path.join(TILES, 'veneto');
+  const tiles = new Map();
+  for (const f of fs.readdirSync(dir).filter(f => f.endsWith('.asc'))) {
+    const g = readAsc(path.join(dir, f)), span = g.cols * g.cell;
+    tiles.set(`${Math.round((g.x0 - g.cell / 2) / span)}_${Math.round((g.y0 - g.cell / 2) / span)}`, { ...g, span });
+  }
+  if (!tiles.size) return out;
+  const span = tiles.values().next().value.span;
+  // Vertex window: the tile footprints from the WFS index (in UTM 32).
+  let e0 = Infinity, n0 = Infinity, e1 = -Infinity, n1 = -Infinity;
+  for (const f of JSON.parse(fs.readFileSync(path.join(TILES, 'veneto_index.json'))).features)
+    for (const [e, n] of f.geometry.coordinates.flat(2)) { e0 = Math.min(e0, e); e1 = Math.max(e1, e); n0 = Math.min(n0, n); n1 = Math.max(n1, n); }
+  const c0 = Math.max(0, Math.floor((e0 - CE + CORE_HALF) / CORE_STEP)), c1 = Math.min(CORE_N - 1, Math.ceil((e1 - CE + CORE_HALF) / CORE_STEP));
+  const r0 = Math.max(0, Math.floor((CN + CORE_HALF - n1) / CORE_STEP)), r1 = Math.min(CORE_N - 1, Math.ceil((CN + CORE_HALF - n0) / CORE_STEP));
+  for (let r = r0; r <= r1; r++) for (let c = c0; c <= c1; c++) {
+    const [x, y] = toTm(...utmLL(CE - CORE_HALF + c * CORE_STEP, CN + CORE_HALF - r * CORE_STEP), ...VENETO_TM);
+    const g = tiles.get(`${Math.floor(x / span)}_${Math.floor(y / span)}`);
+    if (!g) continue;
+    const fx = Math.max(0, Math.min(g.cols - 1.001, (x - g.x0) / g.cell)), fy = Math.max(0, Math.min(g.rows - 1.001, (g.y0 + (g.rows - 1) * g.cell - y) / g.cell));
+    const ix = Math.floor(fx), iy = Math.floor(fy), ax = fx - ix, ay = fy - iy, p = (i, j) => g.values[(iy + j) * g.cols + ix + i];
+    out[r * CORE_N + c] = (p(0, 0) * (1 - ax) + p(1, 0) * ax) * (1 - ay) + (p(0, 1) * (1 - ax) + p(1, 1) * ax) * ay; // NaN near gaps
+  }
   return out;
 }
 
@@ -357,8 +498,8 @@ function boxBlur(src, w, h, channels, radius) {
 }
 
 // ---------- OSM rasterisation (SVG, pixel = MASK_STEP metres) ----------
+// Items keep their rings/lines as flat Float32Arrays of mask pixels (x0, y0, x1, y1, ...) and a pixel box.
 function osmGeometry() {
-  const osm = JSON.parse(fs.readFileSync(path.join(TILES, 'osm_core.json'), 'utf8'));
   const west = CE - CORE_HALF, north = CN + CORE_HALF;
   const px = g => { const [e, n] = toUtm(g.lat, g.lon); return [(e - west) / MASK_STEP, (north - n) / MASK_STEP]; };
   const rings = (members) => {
@@ -381,31 +522,52 @@ function osmGeometry() {
     }
     return closed;
   };
+  const flat = pts => Float32Array.from(pts.flat());
   const items = [];
-  for (const el of osm.elements) {
+  forEachOsm(el => {
     const tags = el.tags || {};
+    let item;
     if (el.type === 'way' && el.geometry) {
-      const pts = el.geometry.map(px);
+      const pts = flat(el.geometry.map(px));
       const isClosed = el.nodes && el.nodes[0] === el.nodes[el.nodes.length - 1];
-      items.push({ tags, rings: isClosed ? [pts] : [], line: isClosed ? null : pts, id: el.id, closedLine: isClosed ? pts : null });
+      item = { tags, rings: isClosed ? [pts] : [], line: isClosed ? null : pts, id: el.id, closedLine: isClosed ? pts : null };
     } else if (el.type === 'relation' && el.members) {
       const members = el.members.filter(m => m.type === 'way' && m.geometry && (m.role === 'outer' || m.role === 'inner' || m.role === ''));
-      items.push({ tags, rings: rings(members), line: null, id: el.id });
-    }
-  }
+      item = { tags, rings: rings(members).map(flat), line: null, id: el.id };
+    } else return;
+    const box = [Infinity, Infinity, -Infinity, -Infinity];
+    for (const r of item.rings.concat(item.line ? [item.line] : []))
+      for (let i = 0; i < r.length; i += 2) {
+        box[0] = Math.min(box[0], r[i]); box[1] = Math.min(box[1], r[i + 1]); box[2] = Math.max(box[2], r[i]); box[3] = Math.max(box[3], r[i + 1]);
+      }
+    if (box[2] < 0 || box[3] < 0 || box[0] > MASK_N || box[1] > MASK_N) return;
+    item.box = box;
+    items.push(item);
+  });
   return items;
 }
-const pathOf = rings => rings.map(r => 'M' + r.map(p => `${p[0].toFixed(2)},${p[1].toFixed(2)}`).join('L') + 'Z').join('');
-const lineOf = pts => 'M' + pts.map(p => `${p[0].toFixed(2)},${p[1].toFixed(2)}`).join('L');
-async function renderSvg(body, crisp = false) {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${MASK_N}" height="${MASK_N}" viewBox="0 0 ${MASK_N} ${MASK_N}"`
-    + `${crisp ? ' shape-rendering="crispEdges"' : ''}><rect width="100%" height="100%" fill="#000"/>${body}</svg>`;
-  const { data } = await sharp(Buffer.from(svg), { limitInputPixels: false, density: 72 })
-    .removeAlpha().extractChannel(0).raw().toBuffer({ resolveWithObject: true });
-  return data;
+const coords = r => { let s = ''; for (let i = 0; i < r.length; i += 2) s += (i ? 'L' : '') + r[i].toFixed(2) + ',' + r[i + 1].toFixed(2); return s; };
+const pathOf = rings => rings.map(r => 'M' + coords(r) + 'Z').join('');
+const lineOf = pts => 'M' + coords(pts);
+// Rasterise [item, item => svg] entries one chunk at a time: the SVG of the whole core would not fit a string.
+const MASK_CHUNKS = 4;
+async function renderMask(entries, crisp = false) {
+  const out = Buffer.alloc(MASK_N * MASK_N), size = MASK_N / MASK_CHUNKS, pad = 8;
+  for (let cy = 0; cy < MASK_CHUNKS; cy++) for (let cx = 0; cx < MASK_CHUNKS; cx++) {
+    const x0 = cx * size, y0 = cy * size;
+    const body = entries.filter(([i]) => i.box[2] >= x0 - pad && i.box[0] <= x0 + size + pad && i.box[3] >= y0 - pad && i.box[1] <= y0 + size + pad)
+      .map(([i, svg]) => svg(i)).join('');
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="${x0} ${y0} ${size} ${size}"`
+      + `${crisp ? ' shape-rendering="crispEdges"' : ''}><rect x="${x0}" y="${y0}" width="${size}" height="${size}" fill="#000"/>${body}</svg>`;
+    const data = await sharp(Buffer.from(svg), { limitInputPixels: false, density: 72 }).removeAlpha().extractChannel(0).raw().toBuffer();
+    for (let r = 0; r < size; r++) data.copy(out, (y0 + r) * MASK_N + x0, r * size, (r + 1) * size);
+  }
+  return out;
 }
-const fillPaths = (items, test, fill = '#fff') => items.filter(test).filter(i => i.rings.length)
-  .map(i => `<path d="${pathOf(i.rings)}" fill="${fill}" fill-rule="evenodd"/>`).join('');
+const fills = (items, test, fill = () => '#fff') => items.filter(i => i.rings.length && test(i))
+  .map(i => [i, i => `<path d="${pathOf(i.rings)}" fill="${fill(i)}" fill-rule="evenodd"/>`]);
+const strokes = (items, width, cap = 'round') => items.filter(i => i.line || i.closedLine).map(i => [i, i =>
+  `<path d="${lineOf(i.line || i.closedLine)}" stroke="#fff" stroke-width="${width(i) / MASK_STEP}" stroke-linecap="${cap}" stroke-linejoin="round" fill="none"/>`]);
 const roadWidth = { motorway: 22, trunk: 16, primary: 12, secondary: 10, tertiary: 8, unclassified: 6, residential: 6,
   living_street: 5, service: 4, motorway_link: 8, trunk_link: 8, primary_link: 7, secondary_link: 7, tertiary_link: 6,
   pedestrian: 5, track: 3, cycleway: 2.5 };
@@ -414,8 +576,8 @@ function hash01(n) { const x = Math.sin(n * 12.9898) * 43758.5453; return x - Ma
 // Row direction of a parcel: its longest edge, 0..1 for 0..pi.
 function parcelAngle(ring) {
   let best = 0, angle = 0;
-  for (let i = 1; i < ring.length; i++) {
-    const dx = ring[i][0] - ring[i - 1][0], dy = ring[i][1] - ring[i - 1][1], l = dx * dx + dy * dy;
+  for (let i = 2; i < ring.length; i += 2) {
+    const dx = ring[i] - ring[i - 2], dy = ring[i + 1] - ring[i - 1], l = dx * dx + dy * dy;
     if (l > best) { best = l; angle = Math.atan2(dy, dx); }
   }
   return ((angle % Math.PI) + Math.PI) % Math.PI / Math.PI;
@@ -425,76 +587,108 @@ const utmLL = (e, n) => toLatLon(e, n);
 const png = (name, buf, n, channels = 4) => sharp(buf, { raw: { width: n, height: n, channels } }).png().toFile(path.join(OUT, name));
 const raw = (name, arr) => fs.writeFileSync(path.join(OUT, name), Buffer.from(arr.buffer, arr.byteOffset, arr.byteLength));
 
-// Terrain albedo: PAT orthophoto, 1 m over the core and 8 m over the context. Outside Trentino the
-// context falls back to Sentinel-2 matched to the orthophoto colours; the core falls back to the context.
-async function loadOrtho(name, half, step) {
+// Terrain albedo. Context (8 m): PAT orthophoto, Sentinel-2 matched to it outside Trentino. Wide (2.5 m, the
+// Terrain3D core): orthophoto, AGEA 2024 in Veneto, the context photo elsewhere. Core (1 m around Riva, under
+// the buildings): orthophoto, the wide photo elsewhere.
+async function loadOrtho(dir, half, step) {
   const { count } = orthoGrid(half, step), n = 2 * half / step, size = count * ORTHO_TILE;
   const composites = [];
   for (let ty = 0; ty < count; ty++) for (let tx = 0; tx < count; tx++)
-    composites.push({ input: path.join(TILES, `ortho_${name}`, `${tx}_${ty}.jpg`), left: tx * ORTHO_TILE, top: ty * ORTHO_TILE });
+    composites.push({ input: path.join(TILES, dir, `${tx}_${ty}.jpg`), left: tx * ORTHO_TILE, top: ty * ORTHO_TILE });
   const mosaic = await sharp({ create: { width: size, height: size, channels: 3, background: '#fff' }, limitInputPixels: false })
     .composite(composites).removeAlpha().raw().toBuffer();
   return sharp(mosaic, { raw: { width: size, height: size, channels: 3 }, limitInputPixels: false })
     .extract({ left: 0, top: 0, width: n, height: n }).raw().toBuffer();
 }
-// 1 inside the orthophoto, ramping to 0 over ~2 sigma at its edge (white = no data).
+// 255 inside the orthophoto, ramping to 0 over ~2 sigma at its edge (white or black = no data: the AGEA
+// service answers black outside its coverage).
 async function photoWeight(rgb, n, sigma) {
   const valid = Buffer.alloc(n * n);
-  for (let i = 0; i < n * n; i++) valid[i] = Math.min(rgb[i * 3], rgb[i * 3 + 1], rgb[i * 3 + 2]) < 248 ? 255 : 0;
+  for (let i = 0; i < n * n; i++) {
+    const r = rgb[i * 3], g = rgb[i * 3 + 1], b = rgb[i * 3 + 2];
+    valid[i] = Math.min(r, g, b) < 248 && Math.max(r, g, b) > 6 ? 255 : 0;
+  }
   const blur = await sharp(valid, { raw: { width: n, height: n, channels: 1 }, limitInputPixels: false }).blur(sigma)
     .extractChannel(0).raw().toBuffer(); // libvips blurs to sRGB: keep one band
-  const w = new Float32Array(n * n);
-  for (let i = 0; i < n * n; i++) w[i] = valid[i] ? Math.max(0, Math.min(1, (blur[i] - 128) / 120)) : 0; // the blur tops out near 253
+  const w = new Uint8Array(n * n);
+  for (let i = 0; i < n * n; i++) w[i] = valid[i] ? Math.round(255 * Math.max(0, Math.min(1, (blur[i] - 128) / 120))) : 0; // the blur tops out near 253
   return w;
+}
+// Per-channel gain/offset giving src the mean and deviation of ref where weight is full.
+function colourMatch(src, ref, weight) {
+  const gain = [], offset = [];
+  for (let ch = 0; ch < 3; ch++) {
+    let k = 0, so = 0, so2 = 0, ss = 0, ss2 = 0;
+    for (let i = 0; i < weight.length; i++) {
+      if (weight[i] < 255) continue;
+      const o = ref[i * 3 + ch], s = src[i * 3 + ch];
+      k++; so += o; so2 += o * o; ss += s; ss2 += s * s;
+    }
+    assert(k > 1000, 'No overlap to match colours on');
+    const mo = so / k, ms = ss / k, dO = Math.sqrt(so2 / k - mo * mo), dS = Math.sqrt(ss2 / k - ms * ms);
+    gain[ch] = dO / dS; offset[ch] = mo - ms * gain[ch];
+  }
+  console.log('  colour match gain', gain.map(g => g.toFixed(3)), 'offset', offset.map(o => o.toFixed(1)));
+  return { gain, offset };
+}
+// dst = mix(dst, graded src, weight / 255), in place.
+function blendPhoto(dst, src, weight, grade = { gain: [1, 1, 1], offset: [0, 0, 0] }) {
+  for (let i = 0; i < weight.length; i++) {
+    const w = weight[i] / 255;
+    if (!w) continue;
+    for (let ch = 0; ch < 3; ch++) {
+      const v = Math.max(0, Math.min(255, src[i * 3 + ch] * grade.gain[ch] + grade.offset[ch]));
+      dst[i * 3 + ch] = Math.round(dst[i * 3 + ch] + (v - dst[i * 3 + ch]) * w);
+    }
+  }
+}
+// The centre [-half, half] of a square photo covering [-srcHalf, srcHalf], resized to n pixels.
+function cropPhoto(src, srcHalf, srcStep, half, n) {
+  const sn = Math.round(2 * srcHalf / srcStep), off = Math.round((srcHalf - half) / srcStep), size = Math.round(2 * half / srcStep);
+  return sharp(src, { raw: { width: sn, height: sn, channels: 3 }, limitInputPixels: false })
+    .extract({ left: off, top: off, width: size, height: size }).resize(n, n, { kernel: 'cubic' }).raw().toBuffer();
 }
 const jpeg = (name, buf, n) => sharp(buf, { raw: { width: n, height: n, channels: 3 }, limitInputPixels: false })
   .jpeg({ quality: 88 }).toFile(path.join(OUT, name));
 
 async function buildPhoto() {
-  // --- context: orthophoto, Sentinel-2 outside Trentino ---
+  // --- context ---
   const cn = 2 * CTX_HALF / PHOTO_CTX_STEP;
-  const ctx = await loadOrtho('context', CTX_HALF, PHOTO_CTX_STEP);
-  const cw = await photoWeight(ctx, cn, 12);
+  const ortho = await loadOrtho('ortho_context', CTX_HALF, PHOTO_CTX_STEP);
+  const cw = await photoWeight(ortho, cn, 12);
   const satellite = await loadSatellite();
   const sat = new Float32Array(cn * cn * 3);
   for (let r = 0; r < cn; r++) for (let c = 0; c < cn; c++)
     sat.set(satellite(...utmLL(CE - CTX_HALF + (c + 0.5) * PHOTO_CTX_STEP, CN + CTX_HALF - (r + 0.5) * PHOTO_CTX_STEP)), (r * cn + c) * 3);
-  // Per-channel mean/deviation match on the overlap, against the orthophoto at Sentinel-2 resolution.
-  const soft = await sharp(ctx, { raw: { width: cn, height: cn, channels: 3 }, limitInputPixels: false }).blur(1.2).raw().toBuffer();
-  const gain = [], offset = [];
-  for (let ch = 0; ch < 3; ch++) {
-    let k = 0, so = 0, so2 = 0, ss = 0, ss2 = 0;
-    for (let i = 0; i < cn * cn; i++) {
-      if (cw[i] < 1) continue;
-      const o = soft[i * 3 + ch], s = sat[i * 3 + ch];
-      k++; so += o; so2 += o * o; ss += s; ss2 += s * s;
-    }
-    const mo = so / k, ms = ss / k, dO = Math.sqrt(so2 / k - mo * mo), dS = Math.sqrt(ss2 / k - ms * ms);
-    gain[ch] = dO / dS; offset[ch] = mo - ms * gain[ch];
-  }
-  console.log('Sentinel-2 -> orthophoto gain', gain.map(g => g.toFixed(3)), 'offset', offset.map(o => o.toFixed(1)));
-  for (let i = 0; i < cn * cn; i++) for (let ch = 0; ch < 3; ch++) {
-    const fill = Math.max(0, Math.min(255, sat[i * 3 + ch] * gain[ch] + offset[ch]));
-    ctx[i * 3 + ch] = Math.round(ctx[i * 3 + ch] * cw[i] + fill * (1 - cw[i]));
-  }
+  // Matched against the orthophoto at Sentinel-2 resolution.
+  console.log('Sentinel-2 -> orthophoto');
+  const grade = colourMatch(sat, await sharp(ortho, { raw: { width: cn, height: cn, channels: 3 }, limitInputPixels: false }).blur(1.2).raw().toBuffer(), cw);
+  const ctx = Buffer.alloc(cn * cn * 3);
+  blendPhoto(ctx, sat, new Uint8Array(cn * cn).fill(255), grade);
+  blendPhoto(ctx, ortho, cw);
   await jpeg('photo_context.jpg', ctx, cn);
 
-  // --- core: orthophoto, the context photo outside Trentino ---
-  const n = 2 * CORE_HALF / PHOTO_CORE_STEP;
-  const core = await loadOrtho('core', CORE_HALF, PHOTO_CORE_STEP);
-  const w = await photoWeight(core, n, 15);
-  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
-    const i = r * n + c;
-    if (w[i] >= 1) continue;
-    const fx = (-CORE_HALF + (c + 0.5) * PHOTO_CORE_STEP + CTX_HALF) / PHOTO_CTX_STEP - 0.5;
-    const fy = (-CORE_HALF + (r + 0.5) * PHOTO_CORE_STEP + CTX_HALF) / PHOTO_CTX_STEP - 0.5;
-    const ix = Math.floor(fx), iy = Math.floor(fy), ax = fx - ix, ay = fy - iy;
-    for (let ch = 0; ch < 3; ch++) {
-      const p = (a, b) => ctx[((iy + b) * cn + ix + a) * 3 + ch];
-      const fill = (p(0, 0) * (1 - ax) + p(1, 0) * ax) * (1 - ay) + (p(0, 1) * (1 - ax) + p(1, 1) * ax) * ay;
-      core[i * 3 + ch] = Math.round(core[i * 3 + ch] * w[i] + fill * (1 - w[i]));
-    }
-  }
+  // --- wide ---
+  const wn = 2 * CORE_HALF / PHOTO_WIDE_STEP, sn = 2 * CORE_HALF / PHOTO_CTX_STEP;
+  const wide = await cropPhoto(ctx, CTX_HALF, PHOTO_CTX_STEP, CORE_HALF, wn);
+  const agea = await loadOrtho('agea_wide', CORE_HALF, PHOTO_WIDE_STEP), aw = await photoWeight(agea, wn, 15);
+  const pat = await loadOrtho('ortho_wide', CORE_HALF, PHOTO_WIDE_STEP), pw = await photoWeight(pat, wn, 15);
+  // AGEA graded to the orthophoto where both cover the ground (southern Trentino, the lake), at 8 m.
+  console.log('AGEA 2024 -> orthophoto');
+  const small = (buf, channels, kernel) => {
+    const image = sharp(buf, { raw: { width: wn, height: wn, channels }, limitInputPixels: false }).resize(sn, sn, { kernel });
+    return (channels === 1 ? image.extractChannel(0) : image).raw().toBuffer();
+  };
+  const both = await small(aw.map((w, i) => Math.min(w, pw[i])), 1, 'nearest');
+  blendPhoto(wide, agea, aw, colourMatch(await small(agea, 3, 'lanczos3'), await small(pat, 3, 'lanczos3'), both));
+  blendPhoto(wide, pat, pw);
+  await jpeg('photo_wide.jpg', wide, wn);
+
+  // --- core ---
+  const n = 2 * PHOTO_CORE_HALF / PHOTO_CORE_STEP;
+  const core = await cropPhoto(wide, CORE_HALF, PHOTO_WIDE_STEP, PHOTO_CORE_HALF, n);
+  const fine = await loadOrtho('ortho_core', PHOTO_CORE_HALF, PHOTO_CORE_STEP);
+  blendPhoto(core, fine, await photoWeight(fine, n, 15));
   await jpeg('photo_core.jpg', core, n);
   console.log('Photo build complete:', OUT);
 }
@@ -560,7 +754,7 @@ async function buildContext() {
 
 // Core: LiDAR heights and OSM/WorldCover masks, blended into the context at the edge.
 async function buildCore({ worldcover, ctxAt }) {
-  // --- OSM masks over the core (4 m) ---
+  // --- OSM masks over the core ---
   const items = osmGeometry();
   const t = k => i => i.tags[k] !== undefined;
   const is = (k, ...v) => i => v.includes(i.tags[k]);
@@ -575,34 +769,27 @@ async function buildCore({ worldcover, ctxAt }) {
   const waterTest = i => is('natural', 'water')(i) || is('landuse', 'reservoir', 'basin')(i) || i.tags.water !== undefined || is('waterway', 'riverbank')(i);
   const buildingTest = t('building');
 
-  const mUrban = await renderSvg(fillPaths(items, urbanTest));
-  const mVine = await renderSvg(fillPaths(items, vineTest));
-  const mField = await renderSvg(fillPaths(items, fieldTest));
-  const mMeadow = await renderSvg(fillPaths(items, meadowTest));
-  const mForestOsm = await renderSvg(fillPaths(items, forestTest));
-  const mRock = await renderSvg(fillPaths(items, rockTest)
-    + items.filter(is('natural', 'cliff')).filter(i => i.line).map(i => `<path d="${lineOf(i.line)}" stroke="#fff" stroke-width="${12 / MASK_STEP}" fill="none"/>`).join(''));
-  const mScrub = await renderSvg(fillPaths(items, scrubTest));
-  const mWater = await renderSvg(fillPaths(items, waterTest)
-    + items.filter(i => is('waterway', 'river', 'stream', 'canal')(i)).map(i => {
-      const pts = i.line || i.closedLine; if (!pts) return '';
-      const width = i.tags.waterway === 'river' ? 30 : i.tags.waterway === 'canal' ? 8 : 3;
-      return `<path d="${lineOf(pts)}" stroke="#fff" stroke-width="${width / MASK_STEP}" stroke-linecap="round" fill="none"/>`;
-    }).join(''));
-  const mBuild = await renderSvg(fillPaths(items, buildingTest));
-  const roadSvg = items.filter(i => roadWidth[i.tags.highway] && !i.tags.tunnel && (i.line || i.closedLine)).map(i => {
-    const width = Math.max(roadWidth[i.tags.highway], (+i.tags.lanes || 0) * 3.2);
-    return `<path d="${lineOf(i.line || i.closedLine)}" stroke="#fff" stroke-width="${width / MASK_STEP}" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`;
-  }).join('') + items.filter(i => i.tags.railway === 'rail' && i.line && !i.tags.tunnel)
-    .map(i => `<path d="${lineOf(i.line)}" stroke="#fff" stroke-width="${6 / MASK_STEP}" fill="none"/>`).join('');
-  const mRoad = await renderSvg(roadSvg);
+  const mUrban = await renderMask(fills(items, urbanTest));
+  const mVine = await renderMask(fills(items, vineTest));
+  const mField = await renderMask(fills(items, fieldTest));
+  const mMeadow = await renderMask(fills(items, meadowTest));
+  const mForestOsm = await renderMask(fills(items, forestTest));
+  const mRock = await renderMask(fills(items, rockTest).concat(strokes(items.filter(i => is('natural', 'cliff')(i) && i.line), () => 12, 'butt')));
+  const mScrub = await renderMask(fills(items, scrubTest));
+  const mWater = await renderMask(fills(items, waterTest).concat(strokes(items.filter(is('waterway', 'river', 'stream', 'canal')),
+    i => i.tags.waterway === 'river' ? 30 : i.tags.waterway === 'canal' ? 8 : 3)));
+  const mBuild = await renderMask(fills(items, buildingTest));
+  const mRoad = await renderMask(strokes(items.filter(i => roadWidth[i.tags.highway] && !i.tags.tunnel),
+    i => Math.max(roadWidth[i.tags.highway], (+i.tags.lanes || 0) * 3.2))
+    .concat(strokes(items.filter(i => i.tags.railway === 'rail' && i.line && !i.tags.tunnel), () => 6, 'butt')));
   // Parcel row direction and a per-parcel seed for colour variation.
   const parcels = items.filter(i => (vineTest(i) || fieldTest(i) || meadowTest(i)) && i.rings.length);
   const grey = v => { const g = Math.round(Math.max(0, Math.min(1, v)) * 255); return `rgb(${g},${g},${g})`; };
-  const mAngle = await renderSvg(parcels.map(i => `<path d="${pathOf(i.rings)}" fill="${grey(parcelAngle(i.rings[0]))}" fill-rule="evenodd"/>`).join(''), true);
-  const mSeed = await renderSvg(parcels.concat(items.filter(i => buildingTest(i) && i.rings.length))
-    .map(i => `<path d="${pathOf(i.rings)}" fill="${grey(0.04 + 0.96 * hash01(i.id))}" fill-rule="evenodd"/>`).join(''), true);
-  const mKind = await renderSvg(parcels.map(i => `<path d="${pathOf(i.rings)}" fill="${is('landuse', 'orchard')(i) ? '#fff' : is('landuse', 'vineyard')(i) ? '#808080' : '#000'}" fill-rule="evenodd"/>`).join(''), true);
+  const all = () => true;
+  const mAngle = await renderMask(fills(parcels, all, i => grey(parcelAngle(i.rings[0]))), true);
+  const seed = i => grey(0.04 + 0.96 * hash01(i.id));
+  const mSeed = await renderMask(fills(parcels, all, seed).concat(fills(items, buildingTest, seed)), true);
+  const mKind = await renderMask(fills(parcels, all, i => is('landuse', 'orchard')(i) ? '#fff' : is('landuse', 'vineyard')(i) ? '#808080' : '#000'), true);
 
   // --- per-mask-pixel land use (WorldCover where OSM is silent) ---
   const masksA = Buffer.alloc(MASK_N * MASK_N * 4), masksB = Buffer.alloc(MASK_N * MASK_N * 4), masksC = Buffer.alloc(MASK_N * MASK_N * 4);
@@ -629,18 +816,35 @@ async function buildCore({ worldcover, ctxAt }) {
     coreLake[i] = water > 128 ? 1 : 0;
   }
 
-  // --- core heights: LiDAR, context DEM outside it and at the edge band, lake bed ---
-  const lidar = loadLidar();
+  // --- core heights: the finest DTM at each vertex, Copernicus where there is none, the context at the edge ---
+  // PAT LiDAR > Veneto LiDAR 5 m > Lombardia 5 m: a source ramps in from its own edge over SEAM_BLEND where a
+  // coarser DTM lies under it. The DTMs ramp into Copernicus over FINE_BLEND.
+  const valid = new Uint8Array(CORE_N * CORE_N);
+  const ramp = (src, metres) => {
+    for (let i = 0; i < src.length; i++) valid[i] = Number.isNaN(src[i]) ? 0 : 1;
+    const d = distanceInside(valid, CORE_N, CORE_N);
+    for (let i = 0; i < d.length; i++) { const x = Math.min(1, d[i] * CORE_STEP / metres); d[i] = x * x * (3 - 2 * x); }
+    return d;
+  };
+  const coverage = src => `${(100 * src.reduce((n, v) => n + (Number.isNaN(v) ? 0 : 1), 0) / src.length).toFixed(1)}%`;
+  const fine = await loadLombardia();
+  console.log(`Core: Lombardia DTM ${coverage(fine)}`);
+  for (const [name, src] of [['Veneto LiDAR', loadVeneto()], ['PAT LiDAR', loadLidar()]]) {
+    console.log(`Core: ${name} ${coverage(src)}`);
+    const w = ramp(src, SEAM_BLEND);
+    for (let i = 0; i < src.length; i++)
+      if (!Number.isNaN(src[i])) fine[i] = Number.isNaN(fine[i]) ? src[i] : fine[i] + (src[i] - fine[i]) * w[i];
+  }
+  console.log(`Core: DTM coverage ${coverage(fine)}`);
+  const fineWeight = ramp(fine, FINE_BLEND);
   const core = new Float32Array(CORE_N * CORE_N);
-  let lidarCells = 0;
   for (let r = 0; r < CORE_N; r++) for (let c = 0; c < CORE_N; c++) {
     const x = -CORE_HALF + c * CORE_STEP, z = -CORE_HALF + r * CORE_STEP, i = r * CORE_N + c;
     const edge = Math.min(x + CORE_HALF, CORE_HALF - CORE_STEP - x, z + CORE_HALF, CORE_HALF - CORE_STEP - z);
     const w = Math.max(0, Math.min(1, edge / EDGE_BLEND)), s = w * w * (3 - 2 * w);
     const base = ctxAt(x, z);
-    const fine = lidar[i];
-    if (Number.isFinite(fine)) lidarCells++;
-    core[i] = Number.isFinite(fine) ? base + (fine - base) * s : base;
+    const h = Number.isNaN(fine[i]) ? base : base + (fine[i] - base) * fineWeight[i];
+    core[i] = base + (h - base) * s;
   }
   // The lake: no bathymetry in either DEM. Carve under the OSM/WorldCover water of Garda.
   const lakeDist = distanceInside(coreLake, MASK_N, MASK_N);
@@ -649,7 +853,6 @@ async function buildCore({ worldcover, ctxAt }) {
     if (!coreLake[mi] || core[i] > LAKE_LEVEL + 6) continue;
     core[i] = Math.min(core[i], LAKE_LEVEL - Math.min(LAKE_MAX_DEPTH, 1.5 + lakeDist[mi] * MASK_STEP * 0.35));
   }
-  console.log(`Core: LiDAR coverage ${(100 * lidarCells / core.length).toFixed(1)}%`);
 
   raw('core_height.r32', core);
   await png('masks_a.png', masksA, MASK_N);
@@ -667,12 +870,11 @@ const BUILDING_MIN_AREA = 12, DBM_TILE = 500, DBM_CELL = 0.5;
 // Gable roofs: footprint fills >= 85% of its rectangle and spans 4-20 m (wider: flat industrial roofs).
 const GABLE_FILL = 0.85, GABLE_MIN_SPAN = 4, GABLE_MAX_SPAN = 20;
 function osmBuildings() {
-  const osm = JSON.parse(fs.readFileSync(path.join(TILES, 'osm_core.json'), 'utf8'));
   const world = g => { const [e, n] = toUtm(g.lat, g.lon); return [e - CE, CN - n]; };
   const out = [];
-  for (const el of osm.elements) {
+  forEachOsm(el => {
     const tags = el.tags || {};
-    if (!tags.building || ['roof', 'ruins', 'construction'].includes(tags.building)) continue;
+    if (!tags.building || ['roof', 'ruins', 'construction'].includes(tags.building)) return;
     // ponytail: multipolygons keep their closed outer ways; outer rings split over several ways are skipped.
     const ways = el.type === 'way' ? [el.geometry] : (el.members || []).filter(m => m.role === 'outer').map(m => m.geometry);
     for (const g of ways) {
@@ -680,12 +882,12 @@ function osmBuildings() {
       const ring = g.map(world);
       const first = ring[0], last = ring.pop();
       if (Math.hypot(first[0] - last[0], first[1] - last[1]) > 0.01) continue;
-      if (ring.some(([x, z]) => Math.abs(x) > CORE_HALF - 2 || Math.abs(z) > CORE_HALF - 2)) continue;
+      if (ring.some(([x, z]) => Math.abs(x) > BUILDINGS_HALF - 2 || Math.abs(z) > BUILDINGS_HALF - 2)) continue;
       let area = 0;
       for (let i = 0; i < ring.length; i++) { const a = ring[i], b = ring[(i + 1) % ring.length]; area += a[0] * b[1] - b[0] * a[1]; }
       if (Math.abs(area) / 2 >= BUILDING_MIN_AREA) out.push({ ring, tags, area: Math.abs(area) / 2 });
     }
-  }
+  });
   return out;
 }
 const ringBounds = ring => ring.reduce((b, [x, z]) => [Math.min(b[0], x), Math.min(b[1], z), Math.max(b[2], x), Math.max(b[3], z)],
@@ -743,7 +945,7 @@ async function buildBuildings(buildings) {
       if (names.has(key) && fs.existsSync(file)) {
         const a = readAsc(file);
         assert(a.cols * a.cell === DBM_TILE && a.rows * a.cell === DBM_TILE, 'Unexpected DBM tile ' + file);
-        grid = Float32Array.from(a.values, v => +v === a.nodata ? NaN : +v);
+        grid = a.values;
       }
       cache.set(key, grid);
     }
@@ -752,7 +954,7 @@ async function buildBuildings(buildings) {
     const n0 = DBM_TILE / DBM_CELL, c = Math.floor((e % DBM_TILE) / DBM_CELL), r = n0 - 1 - Math.floor((n % DBM_TILE) / DBM_CELL);
     return grid[r * n0 + c];
   };
-  const n = Math.round(2 * CORE_HALF / PHOTO_CORE_STEP);
+  const n = Math.round(2 * PHOTO_CORE_HALF / PHOTO_CORE_STEP);
   const { data: photo } = await sharp(path.join(OUT, 'photo_core.jpg'), { limitInputPixels: false }).removeAlpha().raw().toBuffer({ resolveWithObject: true });
   const rowOf = b => Math.floor((CN - b.ring[0][1]) / DBM_TILE) * 1e6 + Math.floor((CE + b.ring[0][0]) / DBM_TILE);
   buildings.sort((a, b) => rowOf(a) - rowOf(b));
@@ -770,7 +972,7 @@ async function buildBuildings(buildings) {
         if (!insideRing(ring, x, z)) continue;
         const h = dbmAt(e, nn);
         if (Number.isFinite(h)) roofs.push(h);
-        const p = (Math.min(n - 1, Math.floor((z + CORE_HALF) / PHOTO_CORE_STEP)) * n + Math.min(n - 1, Math.floor((x + CORE_HALF) / PHOTO_CORE_STEP))) * 3;
+        const p = (Math.min(n - 1, Math.floor((z + PHOTO_CORE_HALF) / PHOTO_CORE_STEP)) * n + Math.min(n - 1, Math.floor((x + PHOTO_CORE_HALF) / PHOTO_CORE_STEP))) * 3;
         colour[0] += photo[p]; colour[1] += photo[p + 1]; colour[2] += photo[p + 2]; samples++;
       }
     roofs.sort((a, b) => a - b);
@@ -801,13 +1003,18 @@ async function buildBuildings(buildings) {
   }
   if (phase === 'fetch' || phase === 'all' || phase === 'photo') {
     await fetchSatellite();
-    await fetchOrtho('core', CORE_HALF, PHOTO_CORE_STEP);
-    await fetchOrtho('context', CTX_HALF, PHOTO_CTX_STEP);
+    await fetchOrtho('ortho_core', PHOTO_CORE_HALF, PHOTO_CORE_STEP);
+    await fetchOrtho('ortho_wide', CORE_HALF, PHOTO_WIDE_STEP);
+    await fetchOrtho('agea_wide', CORE_HALF, PHOTO_WIDE_STEP, 'agea');
+    await fetchOrtho('ortho_context', CTX_HALF, PHOTO_CTX_STEP);
   }
   if (phase === 'fetch' || phase === 'all') {
     await fetchOsm();
-    await fetchLidar();
+    await fetchLombardia();
+    await fetchVeneto();
   }
+  // lidar = the PAT DTM download alone (~6000 tiles, hours): fetch runs it too.
+  if (phase === 'fetch' || phase === 'all' || phase === 'lidar') await fetchLidar();
   if (phase === 'context') await buildContext();
   if (phase === 'build' || phase === 'all') await buildCore(await buildContext());
   if (phase === 'photo' || phase === 'build' || phase === 'all') await buildPhoto();

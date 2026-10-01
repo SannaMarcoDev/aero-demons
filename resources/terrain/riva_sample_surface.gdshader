@@ -42,16 +42,18 @@ uniform float rock_end : hint_range(0.0, 1.0) = 0.55;
 uniform float normal_strength : hint_range(0.0, 2.0) = 0.8;
 uniform vec3 rock_tint : source_color = vec3(0.70, 0.68, 0.62); // pale Garda limestone
 
-// PAT orthophoto 2015, 1 m per texel over the core.
+// Orthophotos (PAT 2015, AGEA 2024 in Veneto): 2.5 m per texel over the whole core, 1 m around Riva.
 uniform sampler2D photo : source_color, filter_linear_mipmap_anisotropic, repeat_disable;
-uniform vec4 photo_rect = vec4(-5120.0, -5120.0, 10240.0, 10240.0);
+uniform vec4 photo_rect = vec4(-20480.0, -20480.0, 40960.0, 40960.0);
+uniform sampler2D photo_core : source_color, filter_linear_mipmap_anisotropic, repeat_disable;
+uniform vec4 photo_core_rect = vec4(-5120.0, -5120.0, 10240.0, 10240.0);
 uniform float photo_saturation : hint_range(0.0, 2.0) = 1.0;
 uniform float photo_gain : hint_range(0.0, 2.0) = 1.0;
 uniform float detail_strength : hint_range(0.0, 1.0) = 0.6;
-// Real land use, 4 m per texel (OpenStreetMap + ESA WorldCover).
+// Real land use, 8 m per texel (OpenStreetMap + ESA WorldCover).
 uniform sampler2D masks_a : hint_default_black, filter_linear_mipmap, repeat_disable; // forest, vineyard/orchard, field, urban
 uniform sampler2D masks_b : hint_default_black, filter_linear_mipmap, repeat_disable; // building, road, rock, water
-uniform vec4 mask_rect = vec4(-5120.0, -5120.0, 10240.0, 10240.0);
+uniform vec4 mask_rect = vec4(-20480.0, -20480.0, 40960.0, 40960.0);
 uniform float lake_level = 65.0;
 
 varying float v_vertex_xz_dist;
@@ -173,6 +175,16 @@ Surface sample_scales(vec2 p, vec2 dx, vec2 dy, float id) {
 
 const vec3 LUMINANCE = vec3(0.2126, 0.7152, 0.0722);
 
+// The 2.5 m photo, handing over to the 1 m one over the last 4% of its half-width.
+vec3 photo_at(vec2 p, vec2 dx, vec2 dy) {
+	vec3 wide = textureGrad(photo, (p - photo_rect.xy) / photo_rect.zw, dx / photo_rect.zw, dy / photo_rect.zw).rgb;
+	vec2 q = abs(p - photo_core_rect.xy - photo_core_rect.zw * 0.5) / (photo_core_rect.zw * 0.5);
+	float core = 1.0 - smoothstep(0.96, 1.0, max(q.x, q.y));
+	if (core <= 0.0) { return wide; }
+	vec3 fine = textureGrad(photo_core, (p - photo_core_rect.xy) / photo_core_rect.zw, dx / photo_core_rect.zw, dy / photo_core_rect.zw).rgb;
+	return mix(wide, fine, core);
+}
+
 // detail: material luminance relative to its texture mean (the top mip), weighted like the normals.
 void add_surface(float id, float weight, vec3 n, vec3 dx, vec3 dy,
 		inout float detail, inout vec3 detail_normal, inout float roughness, inout float total) {
@@ -248,10 +260,9 @@ void fragment() {
 	NORMAL = normalize(mat3(VIEW_MATRIX) * normalize(n + perturbation));
 	float rough = roughness * inv_weight;
 
-	vec2 puv = (p - photo_rect.xy) / photo_rect.zw;
-	vec3 ground = textureGrad(photo, puv, dx.xz / photo_rect.zw, dy.xz / photo_rect.zw).rgb;
-	// A top-down photo streaks down cliffs: there, its ~30 m average turned towards bare limestone.
-	vec3 wall = textureLod(photo, puv, 5.0).rgb;
+	vec3 ground = photo_at(p, dx.xz, dy.xz);
+	// A top-down photo streaks down cliffs: there, its ~40 m average turned towards bare limestone.
+	vec3 wall = textureLod(photo, (p - photo_rect.xy) / photo_rect.zw, 4.0).rgb;
 	wall = mix(vec3(dot(wall, LUMINANCE)), wall, 0.3) * rock_tint * 1.6;
 	ground = mix(ground, wall, smoothstep(0.55, 0.8, slope) * (1.0 - snow));
 	ground = max(mix(vec3(dot(ground, LUMINANCE)), ground, photo_saturation), 0.0) * photo_gain;
