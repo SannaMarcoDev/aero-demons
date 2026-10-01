@@ -1,11 +1,11 @@
 // Riva del Garda sample: 10.24 km of real data + 61 km context, aligned in UTM 32N.
-// Phases: node tools/terrain/fetch_riva_sample.cjs fetch | build | all | context | photo
+// Phases: node tools/terrain/fetch_riva_sample.cjs fetch | build | all | context | photo | buildings
 // Requires `npm i --no-save sharp` in tools/. Download cache in tools/tiles/riva/,
 // outputs in terrain/source/riva_sample/ (both git-ignored). Godot import:
 // tools/terrain/build_riva_sample.gd.
 //
 // Sources (attribution required):
-//  - DTM LiDAR PAT 2014/2018 0.5 m, Provincia autonoma di Trento, CC BY 4.0
+//  - DTM/DBM LiDAR PAT 2014/2018 0.5 m, Provincia autonoma di Trento, CC BY 4.0
 //  - Copernicus DEM GLO-30, © DLR/Airbus, provided under COPERNICUS by the EU and ESA
 //  - ESA WorldCover 10 m 2021 v200, © ESA, CC BY 4.0
 //  - OpenStreetMap, © OpenStreetMap contributors, ODbL
@@ -87,16 +87,18 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 // ---------- fetch phase ----------
 const STEM = 'https://siat.provincia.tn.it';
-async function fetchLidar() {
+// kind: dtm (terrain, in lidar/) or dbm (terrain + buildings, in lidar_dbm/); want filters the 500 m tiles.
+async function fetchLidar(kind = 'dtm', want = () => true) {
   // Tile index from the province WFS; download through the public STEM merge service.
   const e0 = CE - CORE_HALF, n0 = CN - CORE_HALF;
+  const name = kind === 'dtm' ? 'lidar' : `lidar_${kind}`;
   const index = await get(`${STEM}/geoserver/stem/wfs?service=WFS&version=2.0.0&request=GetFeature`
-    + `&typeNames=stem:inqlid2014_dtm_asc&outputFormat=application/json`
-    + `&bbox=${e0 - 1},${n0 - 1},${e0 + 2 * CORE_HALF + 1},${n0 + 2 * CORE_HALF + 1},urn:ogc:def:crs:EPSG::25832`, 'lidar_index.json');
-  const features = JSON.parse(index).features;
-  const missing = features.filter(f => !fs.existsSync(path.join(TILES, 'lidar', `${f.properties.n_tavola}.asc`)));
-  console.log(`LiDAR: ${features.length} tiles, ${missing.length} to download`);
-  fs.mkdirSync(path.join(TILES, 'lidar'), { recursive: true });
+    + `&typeNames=stem:inqlid2014_${kind}_asc&outputFormat=application/json`
+    + `&bbox=${e0 - 1},${n0 - 1},${e0 + 2 * CORE_HALF + 1},${n0 + 2 * CORE_HALF + 1},urn:ogc:def:crs:EPSG::25832`, `${name}_index.json`);
+  const features = JSON.parse(index).features.filter(want);
+  const missing = features.filter(f => !fs.existsSync(path.join(TILES, name, `${f.properties.n_tavola}.asc`)));
+  console.log(`LiDAR ${kind}: ${features.length} tiles, ${missing.length} to download`);
+  fs.mkdirSync(path.join(TILES, name), { recursive: true });
   for (let i = 0; i < missing.length; i += 80) {
     const batch = missing.slice(i, i + 80);
     const r = await fetch(`${STEM}/stem/services/merge`, { method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -108,19 +110,19 @@ async function fetchLidar() {
       if (info.state !== 0) break;
       await sleep(5000);
     }
-    const zip = path.join(TILES, `lidar_batch_${i}.zip`);
+    const zip = path.join(TILES, `${name}_batch_${i}.zip`);
     fs.rmSync(zip, { force: true });
     await get(`${STEM}/stem/services/file?id=${job.id}&token=${job.token}`, path.basename(zip));
-    const dir = path.join(TILES, 'lidar');
+    const dir = path.join(TILES, name);
     execFileSync('unzip', ['-o', '-q', zip, '-d', dir]);
     for (const inner of fs.readdirSync(dir).filter(f => f.endsWith('.zip'))) {
       execFileSync('unzip', ['-o', '-q', path.join(dir, inner), '-d', dir]);
       fs.rmSync(path.join(dir, inner));
     }
-    for (const asc of fs.readdirSync(dir).filter(f => f.endsWith('_DTM.asc')))
-      fs.renameSync(path.join(dir, asc), path.join(dir, asc.replace('_DTM.asc', '.asc')));
+    for (const asc of fs.readdirSync(dir).filter(f => /_(DTM|DBM)\.asc$/.test(f)))
+      fs.renameSync(path.join(dir, asc), path.join(dir, asc.replace(/_(DTM|DBM)\.asc$/, '.asc')));
     fs.rmSync(zip);
-    console.log(`  LiDAR batch ${i / 80 + 1}/${Math.ceil(missing.length / 80)} done`);
+    console.log(`  LiDAR ${kind} batch ${i / 80 + 1}/${Math.ceil(missing.length / 80)} done`);
   }
   return features;
 }
@@ -273,6 +275,23 @@ async function loadSatellite() {
   };
 }
 
+// ESRI ASCII grid; values stay strings (row-major from the north edge), x0/y0 = south-west cell centre.
+function readAsc(file) {
+  const text = fs.readFileSync(file, 'latin1');
+  const header = {};
+  let pos = 0;
+  for (let line = 0; line < 6; line++) {
+    const end = text.indexOf('\n', pos);
+    const [k, v] = text.slice(pos, end).trim().split(/\s+/);
+    header[k.toLowerCase()] = +v;
+    pos = end + 1;
+  }
+  const cell = header.cellsize;
+  return { cols: header.ncols, rows: header.nrows, cell, nodata: header.nodata_value,
+    x0: header.xllcenter ?? header.xllcorner + cell / 2, y0: header.yllcenter ?? header.yllcorner + cell / 2,
+    values: text.slice(pos).trim().split(/\s+/) };
+}
+
 function loadLidar() {
   // 0.5 m cells averaged into the 2 m Terrain3D vertex grid (each cell to its nearest vertex).
   const sum = new Float64Array(CORE_N * CORE_N), count = new Uint16Array(CORE_N * CORE_N);
@@ -280,18 +299,7 @@ function loadLidar() {
   const dir = path.join(TILES, 'lidar');
   const files = fs.readdirSync(dir).filter(f => f.endsWith('.asc'));
   for (const f of files) {
-    const text = fs.readFileSync(path.join(dir, f), 'latin1');
-    const header = {};
-    let pos = 0;
-    for (let line = 0; line < 6; line++) {
-      const end = text.indexOf('\n', pos);
-      const [k, v] = text.slice(pos, end).trim().split(/\s+/);
-      header[k.toLowerCase()] = +v;
-      pos = end + 1;
-    }
-    const cols = header.ncols, rows = header.nrows, cell = header.cellsize, nodata = header.nodata_value;
-    const x0 = header.xllcenter ?? header.xllcorner + cell / 2, y0 = header.yllcenter ?? header.yllcorner + cell / 2;
-    const values = text.slice(pos).trim().split(/\s+/);
+    const { cols, rows, cell, nodata, x0, y0, values } = readAsc(path.join(dir, f));
     for (let r = 0; r < rows; r++) {
       const n = y0 + (rows - 1 - r) * cell;
       const vr = Math.round((north - n) / CORE_STEP);
@@ -650,6 +658,139 @@ async function buildCore({ worldcover, ctxAt }) {
   console.log('Core build complete:', OUT);
 }
 
+// ---------- buildings: OSM footprints as boxes, roof height from the PAT DBM ----------
+// buildings.json, one entry per building: ring (world x, z pairs, outer ring only), roof (DBM median
+// inside the footprint, null if none), height (OSM height/levels, 0 if untagged), colour (sRGB 0..1,
+// orthophoto mean), gable (centre x, z, ridge length, span, ridge angle in the xz plane) when the footprint
+// is close to its minimum-area rectangle, else null (flat roof). Bases come from Terrain3D in the Godot build.
+const BUILDING_MIN_AREA = 12, DBM_TILE = 500, DBM_CELL = 0.5;
+// Gable roofs: footprint fills >= 85% of its rectangle and spans 4-20 m (wider: flat industrial roofs).
+const GABLE_FILL = 0.85, GABLE_MIN_SPAN = 4, GABLE_MAX_SPAN = 20;
+function osmBuildings() {
+  const osm = JSON.parse(fs.readFileSync(path.join(TILES, 'osm_core.json'), 'utf8'));
+  const world = g => { const [e, n] = toUtm(g.lat, g.lon); return [e - CE, CN - n]; };
+  const out = [];
+  for (const el of osm.elements) {
+    const tags = el.tags || {};
+    if (!tags.building || ['roof', 'ruins', 'construction'].includes(tags.building)) continue;
+    // ponytail: multipolygons keep their closed outer ways; outer rings split over several ways are skipped.
+    const ways = el.type === 'way' ? [el.geometry] : (el.members || []).filter(m => m.role === 'outer').map(m => m.geometry);
+    for (const g of ways) {
+      if (!g || g.length < 4) continue;
+      const ring = g.map(world);
+      const first = ring[0], last = ring.pop();
+      if (Math.hypot(first[0] - last[0], first[1] - last[1]) > 0.01) continue;
+      if (ring.some(([x, z]) => Math.abs(x) > CORE_HALF - 2 || Math.abs(z) > CORE_HALF - 2)) continue;
+      let area = 0;
+      for (let i = 0; i < ring.length; i++) { const a = ring[i], b = ring[(i + 1) % ring.length]; area += a[0] * b[1] - b[0] * a[1]; }
+      if (Math.abs(area) / 2 >= BUILDING_MIN_AREA) out.push({ ring, tags, area: Math.abs(area) / 2 });
+    }
+  }
+  return out;
+}
+const ringBounds = ring => ring.reduce((b, [x, z]) => [Math.min(b[0], x), Math.min(b[1], z), Math.max(b[2], x), Math.max(b[3], z)],
+  [Infinity, Infinity, -Infinity, -Infinity]);
+function insideRing(ring, x, z) {
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [xi, zi] = ring[i], [xj, zj] = ring[j];
+    if ((zi > z) !== (zj > z) && x < (xj - xi) * (z - zi) / (zj - zi) + xi) inside = !inside;
+  }
+  return inside;
+}
+// Minimum-area rectangle: one side lies on a convex hull edge.
+function footprintBox(ring) {
+  const pts = ring.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const cross = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+  const half = list => list.reduce((h, p) => { while (h.length > 1 && cross(h[h.length - 2], h[h.length - 1], p) <= 0) h.pop(); h.push(p); return h; }, []);
+  const lower = half(pts), upper = half(pts.slice().reverse());
+  const hull = lower.slice(0, -1).concat(upper.slice(0, -1));
+  let best = null;
+  for (let i = 0; i < hull.length; i++) {
+    const [ax, az] = hull[i], [bx, bz] = hull[(i + 1) % hull.length];
+    const angle = Math.atan2(bz - az, bx - ax), c = Math.cos(angle), s = Math.sin(angle);
+    let u0 = Infinity, u1 = -Infinity, v0 = Infinity, v1 = -Infinity;
+    for (const [x, z] of hull) {
+      const u = x * c + z * s, v = z * c - x * s;
+      u0 = Math.min(u0, u); u1 = Math.max(u1, u); v0 = Math.min(v0, v); v1 = Math.max(v1, v);
+    }
+    if (!best || (u1 - u0) * (v1 - v0) < best.area)
+      best = { area: (u1 - u0) * (v1 - v0), angle, c, s, u: (u0 + u1) / 2, v: (v0 + v1) / 2, width: u1 - u0, depth: v1 - v0 };
+  }
+  return { x: best.u * best.c - best.v * best.s, z: best.u * best.s + best.v * best.c, width: best.width, depth: best.depth, angle: best.angle };
+}
+// 500 m DBM tiles (by south-west corner in UTM) touched by the footprints.
+function buildingTiles(buildings) {
+  const keys = new Set();
+  for (const { ring } of buildings) {
+    const [x0, z0, x1, z1] = ringBounds(ring);
+    for (let e = Math.floor((CE + x0) / DBM_TILE); e <= Math.floor((CE + x1) / DBM_TILE); e++)
+      for (let n = Math.floor((CN - z1) / DBM_TILE); n <= Math.floor((CN - z0) / DBM_TILE); n++) keys.add(`${e * DBM_TILE}_${n * DBM_TILE}`);
+  }
+  return keys;
+}
+const tileKey = f => `${f.properties.x_min}_${f.properties.y_min}`;
+
+async function buildBuildings(buildings) {
+  const names = new Map(JSON.parse(fs.readFileSync(path.join(TILES, 'lidar_dbm_index.json'))).features.map(f => [tileKey(f), f.properties.n_tavola]));
+  const cache = new Map(); // ponytail: FIFO of 24 tiles (~100 MB); buildings are sorted by tile row.
+  const dbmAt = (e, n) => {
+    const key = `${Math.floor(e / DBM_TILE) * DBM_TILE}_${Math.floor(n / DBM_TILE) * DBM_TILE}`;
+    if (!cache.has(key)) {
+      if (cache.size >= 24) cache.delete(cache.keys().next().value);
+      const file = path.join(TILES, 'lidar_dbm', `${names.get(key)}.asc`);
+      let grid = null;
+      if (names.has(key) && fs.existsSync(file)) {
+        const a = readAsc(file);
+        assert(a.cols * a.cell === DBM_TILE && a.rows * a.cell === DBM_TILE, 'Unexpected DBM tile ' + file);
+        grid = Float32Array.from(a.values, v => +v === a.nodata ? NaN : +v);
+      }
+      cache.set(key, grid);
+    }
+    const grid = cache.get(key);
+    if (!grid) return NaN;
+    const n0 = DBM_TILE / DBM_CELL, c = Math.floor((e % DBM_TILE) / DBM_CELL), r = n0 - 1 - Math.floor((n % DBM_TILE) / DBM_CELL);
+    return grid[r * n0 + c];
+  };
+  const n = Math.round(2 * CORE_HALF / PHOTO_CORE_STEP);
+  const { data: photo } = await sharp(path.join(OUT, 'photo_core.jpg'), { limitInputPixels: false }).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+  const rowOf = b => Math.floor((CN - b.ring[0][1]) / DBM_TILE) * 1e6 + Math.floor((CE + b.ring[0][0]) / DBM_TILE);
+  buildings.sort((a, b) => rowOf(a) - rowOf(b));
+  const out = [];
+  let withRoof = 0, gables = 0;
+  buildings.forEach(({ ring, tags, area }) => {
+    const box = footprintBox(ring);
+    const [x0, z0, x1, z1] = ringBounds(ring);
+    const roofs = [], colour = [0, 0, 0];
+    let samples = 0;
+    // DBM cell centres (UTM multiples of 0.5 m + 0.25) inside the footprint.
+    for (let e = Math.floor((CE + x0) / DBM_CELL) * DBM_CELL + DBM_CELL / 2; e < CE + x1; e += DBM_CELL)
+      for (let nn = Math.floor((CN - z1) / DBM_CELL) * DBM_CELL + DBM_CELL / 2; nn < CN - z0; nn += DBM_CELL) {
+        const x = e - CE, z = CN - nn;
+        if (!insideRing(ring, x, z)) continue;
+        const h = dbmAt(e, nn);
+        if (Number.isFinite(h)) roofs.push(h);
+        const p = (Math.min(n - 1, Math.floor((z + CORE_HALF) / PHOTO_CORE_STEP)) * n + Math.min(n - 1, Math.floor((x + CORE_HALF) / PHOTO_CORE_STEP))) * 3;
+        colour[0] += photo[p]; colour[1] += photo[p + 1]; colour[2] += photo[p + 2]; samples++;
+      }
+    roofs.sort((a, b) => a - b);
+    const roof = roofs.length >= 4 ? roofs[roofs.length >> 1] : NaN;
+    if (Number.isFinite(roof)) withRoof++;
+    const levels = parseFloat(tags['building:levels']);
+    const height = parseFloat(tags.height) || (levels > 0 ? levels * 3 + 1 : 0);
+    // Ridge along the long side.
+    const [ridge, span, angle] = box.width >= box.depth ? [box.width, box.depth, box.angle] : [box.depth, box.width, box.angle + Math.PI / 2];
+    const gable = area >= GABLE_FILL * box.width * box.depth && span >= GABLE_MIN_SPAN && span <= GABLE_MAX_SPAN;
+    if (gable) gables++;
+    const round = v => Math.round(v * 100) / 100;
+    out.push({ ring: ring.flat().map(round), roof: Number.isFinite(roof) ? round(roof) : null, height,
+      colour: colour.map(v => round(samples ? v / samples / 255 : 0.5)),
+      gable: gable ? [box.x, box.z, ridge, span, angle].map(v => Math.round(v * 1000) / 1000) : null });
+  });
+  fs.writeFileSync(path.join(OUT, 'buildings.json'), JSON.stringify(out));
+  console.log(`Buildings: ${buildings.length}, ${withRoof} with a DBM roof, ${gables} gabled`);
+}
+
 (async () => {
   const phase = process.argv[2] || 'all';
   // context = fetch + build of the context only (Copernicus, WorldCover).
@@ -670,4 +811,11 @@ async function buildCore({ worldcover, ctxAt }) {
   if (phase === 'context') await buildContext();
   if (phase === 'build' || phase === 'all') await buildCore(await buildContext());
   if (phase === 'photo' || phase === 'build' || phase === 'all') await buildPhoto();
+  // buildings = OSM + DBM tiles under the footprints, then boxes (after photo: roof colours).
+  if (phase === 'buildings' || phase === 'all') {
+    if (phase === 'buildings') await fetchOsm();
+    const buildings = osmBuildings(), tiles = buildingTiles(buildings);
+    await fetchLidar('dbm', f => tiles.has(tileKey(f)));
+    await buildBuildings(buildings);
+  }
 })().catch(e => { console.error(e); process.exit(1); });

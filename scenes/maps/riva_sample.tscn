@@ -24,6 +24,8 @@
 [ext_resource type="Shader" uid="uid://defbalsjhy5l1" path="res://resources/shaders/garda_water.gdshader" id="36_water_shader"]
 [ext_resource type="Texture2D" uid="uid://ban0efe0gbxeh" path="res://assets/BinbunWater/src/texture/wave/wave_03/wave_texture_03.tres" id="37_water_patches"]
 [ext_resource type="Script" uid="uid://lma00y4574p0" path="res://addons/clouds/cloud_layer_3d.gd" id="27_cloud_layer"]
+[ext_resource type="ArrayMesh" path="res://resources/terrain/riva_sample_buildings.res" id="42_buildings"]
+[ext_resource type="Shader" path="res://resources/terrain/riva_sample_buildings.gdshader" id="43_buildings_shader"]
 [ext_resource type="Script" uid="uid://b208wjrs5p207" path="res://scripts/maps/garda_cloud_shadows.gd" id="28_cloud_shadows"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_surface"]
@@ -212,6 +214,10 @@ shader_parameter/ground_albedo = ExtResource("41_ground")
 shader_parameter/photo = ExtResource("34_photo_context")
 shader_parameter/cover = ExtResource("38_cover")
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_buildings"]
+render_priority = 0
+shader = ExtResource("43_buildings_shader")
+
 [node name="RivaSample" type="Node3D" unique_id=1907416372]
 
 [node name="GardaTerrain" type="Terrain3D" parent="." unique_id=2125598487]
@@ -327,7 +333,12 @@ mesh = SubResource("PlaneMesh_garda_water")
 [node name="Forests" type="Node" parent="." unique_id=83992146]
 script = ExtResource("25_forests")
 forest_mask = ExtResource("30_masks_a")
+building_mask = ExtResource("31_masks_b")
 
 [node name="ContextTerrain" type="MeshInstance3D" parent="." unique_id=1402557931]
 mesh = ExtResource("35_context_mesh")
 material_override = SubResource("ShaderMaterial_context")
+
+[node name="Buildings" type="MeshInstance3D" parent="." unique_id=1650381127]
+mesh = ExtResource("42_buildings")
+material_override = SubResource("ShaderMaterial_buildings")

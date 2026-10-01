@@ -5,7 +5,10 @@ extends "res://scripts/maps/garda_forests.gd"
 const LAKE_LEVEL := 65.0
 
 @export var forest_mask: Texture2D
+## masks_b.r: OSM building footprints. No trees through the building meshes.
+@export var building_mask: Texture2D
 @export var mask_rect := Rect2(-5120, -5120, 10240, 10240)
+var buildings: MaskCover
 
 
 class MaskCover:
@@ -34,6 +37,8 @@ func _ready() -> void:
 	noise.frequency = 0.0025
 	noise.fractal_octaves = 3
 	landcover = MaskCover.new(forest_mask, mask_rect)
+	if building_mask != null:
+		buildings = MaskCover.new(building_mask, mask_rect)
 	terrain.visibility_changed.connect(func():
 		for tile: Node3D in tiles.values(): tile.visible = terrain.visible)
 	built = not enabled
@@ -42,4 +47,5 @@ func _ready() -> void:
 
 func suitable_position(position: Vector3, _check_development: bool = true) -> bool:
 	return position.is_finite() and position.y >= LAKE_LEVEL + 2.0 and position.y <= MAX_HEIGHT \
-		and mask_rect.has_point(Vector2(position.x, position.z))
+		and mask_rect.has_point(Vector2(position.x, position.z)) \
+		and (buildings == null or buildings.sample(position).r < 0.05)
