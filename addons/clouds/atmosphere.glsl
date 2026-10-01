@@ -16,44 +16,12 @@ layout(set = 0, binding = 3) uniform sampler2DArray shadow_tex;
 layout(push_constant, std430) uniform Frame { vec4 frame; } pc;
 #include "atmosphere.glslinc"
 
-const int SHADOW_STEPS = 16;
-const float SHADOW_RANGE = 80000.0;
+// Rays toward or just below the horizon are integrated this far.
+const float SKY_DISTANCE = 1e6;
 
-// Same lookup as cloud_shadow.gdshaderinc: sun transmittance at a world point.
-float sun_visibility(vec3 pos) {
-	if (pos.y >= p.deck.y) return 1.0;
-	vec2 foot = pos.xz - p.sun_dir.xz / max(p.sun_dir.y, 1e-5) * (pos.y - p.deck.x);
-	vec2 uv = foot / p.deck.w + 0.5;
-	float top = float(textureSize(shadow_tex, 0).z - 1);
-	float layer = clamp((pos.y - p.deck.x) / (p.deck.y - p.deck.x), 0.0, 1.0) * top;
-	float lower = floor(layer);
-	// One mip of horizontal blur keeps 16 jittered taps from sparkling.
-	float a = textureLod(shadow_tex, vec3(uv, lower), 1.0).r;
-	float b = textureLod(shadow_tex, vec3(uv, min(lower + 1.0, top)), 1.0).r;
-	return clamp(mix(a, b, fract(layer)), 0.0, 1.0);
-}
-
-// Scattering-weighted fraction of the first 80 km of the ray that sees the sun.
-float path_sun_visibility(vec3 ro, vec3 dir, float dist, ivec2 pix) {
-	if (pc.frame.y < 0.5 || p.atm_c.w <= 0.0 || p.sun_dir.y <= 0.0) return 1.0;
-	float len = min(dist, SHADOW_RANGE);
-	float jitter = fract(52.9829189 * fract(dot(vec2(pix) + pc.frame.x * 5.588238,
+float frame_jitter(ivec2 pix) {
+	return fract(52.9829189 * fract(dot(vec2(pix) + pc.frame.x * 5.588238,
 		vec2(0.06711056, 0.00583715))));
-	float h0 = ro.y - p.atm_a.w;
-	float total = 0.0;
-	float lit = 0.0;
-	for (int i = 0; i < SHADOW_STEPS; i++) {
-		// Quadratic spacing: dense near the camera where shafts are resolved.
-		float f = (float(i) + jitter) / float(SHADOW_STEPS);
-		float t = len * f * f;
-		float h = h0 + dir.y * t;
-		float density = p.atm_a.x * exp(-max(h, -2.0 * p.atm_a.y) / p.atm_a.y)
-			+ AIR_BETA.g * p.atm_a.z * exp(-max(h, -2.0 * AIR_HEIGHT) / AIR_HEIGHT);
-		float w = density * exp(-atm_optical_depth(h0, h, t).g) * f;
-		total += w;
-		lit += w * sun_visibility(ro + dir * t);
-	}
-	return mix(1.0, total > 0.0 ? lit / total : 1.0, p.atm_c.w);
 }
 
 void main() {
@@ -72,19 +40,32 @@ void main() {
 		if (dir.y >= 0.0) {
 			// Sky3D already contains the air's light; only remove what the
 			// clouds' shadows take away from it (shafts toward the horizon).
-			float vis = path_sun_visibility(ro, dir, SHADOW_RANGE, pix);
-			if (vis >= 1.0) return;
+			float vis = path_sun_visibility(ro, dir, SHADOW_RANGE, frame_jitter(pix), pc.frame.y > 0.5);
 			float h0 = ro.y - p.atm_a.w;
-			vec3 veil = 1.0 - exp(-atm_optical_depth(h0, h0 + dir.y * SHADOW_RANGE, SHADOW_RANGE));
-			vec3 loss = (atm_color(dir, 1.0) - atm_color(dir, vis)) * veil;
-			color.rgb = max(color.rgb - loss, color.rgb * 0.35);
+			vec3 near_transmittance = exp(-atm_optical_depth(h0, h0 + dir.y * SHADOW_RANGE, SHADOW_RANGE));
+			if (vis < 1.0) {
+				vec3 loss = (atm_color(dir, 1.0) - atm_color(dir, vis)) * (1.0 - near_transmittance);
+				color.rgb = max(color.rgb - loss, color.rgb * 0.35);
+			}
+			// Sky3D has no low haze: fade its horizon into the same air the
+			// ground below converges to, so both sides meet without a seam.
+			// Only air beyond a vertical ray's is added: the zenith stays Sky3D.
+			vec3 far_depth = atm_optical_depth(h0, h0 + dir.y * SKY_DISTANCE, SKY_DISTANCE);
+			vec3 zenith_depth = atm_optical_depth(h0, h0 + SKY_DISTANCE, SKY_DISTANCE);
+			float cover = 1.0 - exp(-p.atm_c.y * max(far_depth.g - zenith_depth.g, 0.0));
+			if (cover > 0.001) {
+				vec3 far_transmittance = exp(-far_depth);
+				vec3 shadowed = (1.0 - near_transmittance) / max(1.0 - far_transmittance, vec3(1e-4));
+				vec3 air = mix(atm_color(dir, 1.0), atm_color(dir, vis), clamp(shadowed, 0.0, 1.0));
+				color.rgb = mix(color.rgb, air, cover);
+			}
 			imageStore(color_image, pix, color);
 			return;
 		}
 		// Below the horizon, past the far plane, the dome shows its dark ground
 		// color: veil it like ground reached at the haze base, so far
 		// water/terrain meets the horizon.
-		dist = clamp((ro.y - p.atm_a.w) / -dir.y, 0.0, 1e6);
+		dist = clamp((ro.y - p.atm_a.w) / -dir.y, 0.0, SKY_DISTANCE);
 	} else {
 		vec4 vp = p.inv_proj * vec4(uv * 2.0 - 1.0, d, 1.0);
 		vec3 delta = (p.inv_view * vec4(vp.xyz / vp.w, 1.0)).xyz - ro;
@@ -93,7 +74,7 @@ void main() {
 	}
 	float h0 = ro.y - p.atm_a.w;
 	vec3 transmittance = exp(-atm_optical_depth(h0, h0 + dir.y * dist, dist));
-	float vis = path_sun_visibility(ro, dir, dist, pix);
+	float vis = path_sun_visibility(ro, dir, dist, frame_jitter(pix), pc.frame.y > 0.5);
 	// Shadows are only known for the first SHADOW_RANGE: air beyond it stays
 	// sunlit, so the sub-horizon fill does not converge to shadowed skylight.
 	float near = min(dist, SHADOW_RANGE);

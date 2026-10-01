@@ -1,9 +1,12 @@
 // Shared aerial perspective: the scene pass (atmosphere.glsl) and every cloud
 // sample (raymarch.glsl) see the same air, so distant ground and clouds match.
-// Needs Params p with sun_dir, sun_color, atm_a, atm_b, atm_c (CloudSystem._pack_ubo):
+// Needs Params p (CloudSystem._pack_ubo) and, declared first, a sampler2DArray
+// shadow_tex holding the CloudShadowPass cache (any valid texture when absent):
+// sun_color.w = share of skylight also removed in the clouds' shadow.
 // atm_a = haze extinction at base (1/m), haze scale height (m), air density, base Y.
 // atm_b = sky tint (linear, times sun color), forward scattering toward the sun.
-// atm_c = enabled, unused, share of haze light from the whole sky, cloud shadowing.
+// atm_c = enabled, haze over the sky near the horizon, share of haze light
+// from the whole sky, cloud shadowing.
 const vec3 AIR_BETA = vec3(5.8e-6, 13.5e-6, 33.1e-6); // sea-level Rayleigh
 const float AIR_HEIGHT = 8000.0;
 
@@ -23,11 +26,12 @@ vec3 atm_optical_depth(float h0, float h1, float dist) {
 }
 
 // Radiance the air converges to. sun_visibility is the fraction of the path's
-// scattering that still sees the sun past the clouds; skylight is unaffected.
+// scattering that still sees the sun past the clouds. sun_color.w removes that
+// share of the skylight too in the clouds' shadow: darker air under the deck.
 vec3 atm_color(vec3 dir, float sun_visibility) {
 	float mu = max(dot(dir, p.sun_dir.xyz), 0.0);
-	float sky = p.atm_c.z;
-	return p.sun_color.rgb * (p.atm_b.rgb * (sky + (1.0 - sky) * sun_visibility)
+	float sky = p.atm_c.z * (1.0 - p.sun_color.w * (1.0 - sun_visibility));
+	return p.sun_color.rgb * (p.atm_b.rgb * (sky + (1.0 - p.atm_c.z) * sun_visibility)
 		+ pow(mu, 8.0) * 3.14159265 * p.atm_b.w * sun_visibility);
 }
 
@@ -36,8 +40,47 @@ struct Aerial {
 	vec3 inscatter;
 };
 
-Aerial atm_aerial(vec3 ro, vec3 dir, float dist) {
+Aerial atm_aerial(vec3 ro, vec3 dir, float dist, float sun_visibility) {
 	float h0 = ro.y - p.atm_a.w;
 	vec3 transmittance = exp(-atm_optical_depth(h0, h0 + dir.y * dist, dist));
-	return Aerial(transmittance, atm_color(dir, 1.0) * (1.0 - transmittance));
+	return Aerial(transmittance, atm_color(dir, sun_visibility) * (1.0 - transmittance));
+}
+
+const int SHADOW_STEPS = 16;
+const float SHADOW_RANGE = 80000.0;
+
+// Same lookup as cloud_shadow.gdshaderinc: sun transmittance at a world point.
+float sun_visibility(vec3 pos) {
+	if (pos.y >= p.deck.y) return 1.0;
+	vec2 foot = pos.xz - p.sun_dir.xz / max(p.sun_dir.y, 1e-5) * (pos.y - p.deck.x);
+	vec2 uv = foot / p.deck.w + 0.5;
+	float top = float(textureSize(shadow_tex, 0).z - 1);
+	float layer = clamp((pos.y - p.deck.x) / (p.deck.y - p.deck.x), 0.0, 1.0) * top;
+	float lower = floor(layer);
+	// One mip of horizontal blur keeps 16 jittered taps from sparkling.
+	float a = textureLod(shadow_tex, vec3(uv, lower), 1.0).r;
+	float b = textureLod(shadow_tex, vec3(uv, min(lower + 1.0, top)), 1.0).r;
+	return clamp(mix(a, b, fract(layer)), 0.0, 1.0);
+}
+
+// Scattering-weighted fraction of the first 80 km of the ray that sees the sun.
+// live: shadow_tex holds the cloud shadows. jitter in [0, 1) offsets the taps.
+float path_sun_visibility(vec3 ro, vec3 dir, float dist, float jitter, bool live) {
+	if (!live || p.atm_c.w <= 0.0 || p.sun_dir.y <= 0.0) return 1.0;
+	float len = min(dist, SHADOW_RANGE);
+	float h0 = ro.y - p.atm_a.w;
+	float total = 0.0;
+	float lit = 0.0;
+	for (int i = 0; i < SHADOW_STEPS; i++) {
+		// Quadratic spacing: dense near the camera where shafts are resolved.
+		float f = (float(i) + jitter) / float(SHADOW_STEPS);
+		float t = len * f * f;
+		float h = h0 + dir.y * t;
+		float density = p.atm_a.x * exp(-max(h, -2.0 * p.atm_a.y) / p.atm_a.y)
+			+ AIR_BETA.g * p.atm_a.z * exp(-max(h, -2.0 * AIR_HEIGHT) / AIR_HEIGHT);
+		float w = density * exp(-atm_optical_depth(h0, h, t).g) * f;
+		total += w;
+		lit += w * sun_visibility(ro + dir * t);
+	}
+	return mix(1.0, total > 0.0 ? lit / total : 1.0, p.atm_c.w);
 }

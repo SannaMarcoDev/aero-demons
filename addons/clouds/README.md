@@ -18,6 +18,11 @@ esistenti non sono modificati; i cumuli 2D erano già disattivati.
 - Il campo è globale, statico e periodico ogni **100 km**. Il transform del nodo
   non lo sposta; le quote sono Y assolute in metri, non altezza sul terreno.
 - L'Inspector espone quattro preset, quote, copertura, densità e `Clouds Enabled`.
+- `base_darkening` (gruppo Clouds) scurisce la base delle nuvole: la nuvola
+  sopra nasconde il cielo e la luce diffusa cala più in fretta in profondità.
+  0 = aspetto originale, 1 = occlusione fisica, oltre 1 = stilizzato. Non
+  richiede bake. Garda **1.0**. Per l'aria e il terreno sotto le nuvole vedere
+  `shadow_darkness`.
 - `Editor Preview` è disattivato: abilitarlo per vedere le nuvole nell'editor.
   La prima generazione richiede qualche secondo; cambiare sole o formazione
   ricostruisce le cache. Non animare questi parametri ogni frame.
@@ -48,12 +53,16 @@ un'integrazione specifica prima di introdurre nuovi asset con quelle funzioni.
 
 Sono attenuati **diffuso, speculare e backlight diretti del sole assegnato**:
 emissione e ombre delle mesh non sono moltiplicate per la trasmissione delle
-nuvole. `shadow_ambient_dimming` (gruppo Cloud Shadows, 0–1) toglie anche quella
-quota di luce ambientale e riflessi sotto le nuvole tramite `AO`
-(`cloud_ambient_occlusion()` in `cloud_shadow.gdshaderinc`): con l'ambientale
-alto di Garda rende leggibili le zone in ombra. Default 0, Garda **0.7**. Agisce
-solo a runtime: regolarlo dal Remote inspector col gioco avviato. Il collegamento dei materiali è runtime-only;
-il solo `Editor Preview` del layer mostra le nuvole ma non converte i ricevitori.
+nuvole. `shadow_darkness` (gruppo Cloud Shadows, 0–1) è lo slider unico per
+quanto è più buio tutto ciò che sta sotto le nuvole rispetto alle zone aperte:
+la nuvola nasconde anche il cielo, quindi l'ombra toglie quella quota di luce
+ambientale e riflessi ai ricevitori (`AO`, `cloud_ambient_occlusion()` in
+`cloud_shadow.gdshaderinc`) e di luce del cielo all'aria, sia davanti al
+terreno sia davanti alle nuvole. 0 = solo il sole diretto è in ombra, 1 = il
+massimo. Default 0, Garda **0.85**. Sui ricevitori agisce solo a runtime:
+regolarlo dal Remote inspector col gioco avviato. Il collegamento dei materiali
+è runtime-only; il solo `Editor Preview` del layer mostra le nuvole ma non
+converte i ricevitori.
 
 ### Controllo rapido tramite Godot AI
 
@@ -91,9 +100,16 @@ aria Rayleigh (`air_density`, tinta blu in distanza). Il colore è
 - `CloudAtmosphere` è un secondo CompositorEffect creato da `CloudLayer3D` nello
   stesso compositor, dopo il cielo e prima dei trasparenti: scie e particelle
   non vengono velate con la profondità del terreno dietro di loro.
-- Il cielo sopra l'orizzonte resta a Sky3D. Sotto l'orizzonte, oltre il far
-  plane, la cupola mostrerebbe il suo `ground_color` scuro: viene velato come
-  terreno alla quota base, così acqua e terreno lontani si fondono con l'orizzonte.
+- Il cielo resta a Sky3D. Sotto l'orizzonte, oltre il far plane, la cupola
+  mostrerebbe il suo `ground_color` scuro: viene velato come terreno alla quota
+  base, così acqua e terreno lontani si fondono con l'orizzonte.
+- Raccordo dell'orizzonte: appena sopra l'orizzonte il cielo Sky3D sfuma verso
+  la stessa aria che il terreno sotto raggiunge, quindi i due lati coincidono
+  senza linea (prima restava una fascia turchese di Sky3D). Conta solo l'aria in
+  più rispetto a un raggio verticale: lo zenit resta quello di Sky3D. Funziona
+  anche in quota sopra la foschia. `horizon_haze` regola l'altezza della
+  sfumatura: 0 = cielo intatto, 1 = default fisico (usato su Garda), più alto =
+  più ampia.
 - Indipendente da `clouds_enabled`. Con `atmosphere_enabled = false` il terreno
   torna nitido e le nuvole riprendono la foschia originale della demo.
 - Nessun bake: i parametri si possono cambiare a runtime.
@@ -104,8 +120,13 @@ aria Rayleigh (`air_density`, tinta blu in distanza). Il colore è
   l'intensità (0 = foschia uniforme). Richiede `shadows_enabled` e almeno un
   ricevitore registrato; il jitter dei campioni è risolto dal TAA. Le ombre
   sono campionate nei primi 80 km del raggio; l'aria oltre resta al sole.
+- La foschia davanti alle nuvole usa la stessa ombra: la visibilità del sole
+  è calcolata una volta per pixel, dalla camera alla prima nuvola, quindi le
+  basi lontane viste attraverso l'aria sotto il banco escono scure invece che
+  velate di foschia al sole. Con `shadow_darkness` alto la foschia in ombra
+  vira verso il caldo: resta soprattutto la diffusione in avanti del sole.
 - Garda: `haze_base_altitude = 185` (livello del lago), `haze_sky_light = 0.45`,
-  altri valori di default.
+  `shadow_darkness = 0.85`, `base_darkening = 1.0`, altri valori di default.
 
 ### Luce del mondo su Garda
 

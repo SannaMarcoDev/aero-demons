@@ -11,6 +11,8 @@ layout(set = 0, binding = 3) uniform sampler2D weather_tex;
 layout(set = 0, binding = 4) uniform sampler2D depth_tex;
 layout(set = 0, binding = 5) uniform sampler3D shape_tex;
 layout(set = 0, binding = 6) uniform sampler3D light_tex;
+// Cloud shadow cache; p.cam_pos.w = 1 when it holds live shadows.
+layout(set = 0, binding = 7) uniform sampler2DArray shadow_tex;
 #include "density.glslinc"
 #include "atmosphere.glslinc"
 
@@ -47,6 +49,9 @@ void main() {
 	vec3 haze = vec3(0.263, 0.380, 0.604) + p.sun_color.rgb
 		* (pow(max(mu, 0.0), 8.0) * 3.14159265 * 0.30);
 	vec4 acc = vec4(0.0, 0.0, 0.0, 1.0);
+	// Sun seen by the air between the camera and the first cloud: computed
+	// once, so distant bases are veiled by shadowed haze under the deck.
+	float air_vis = -1.0;
 	float t = t0;
 	for (int i = 0; i < int(p.misc.y) && t < t1 && acc.a > 0.01; i++) {
 		float dt = min(clamp(45.0 + t * 0.005, 45.0, 200.0), t1 - t);
@@ -66,12 +71,17 @@ void main() {
 		d *= 1.0 - smoothstep(70000.0, 110000.0, tm);
 		if (d > 0.000001) {
 			vec2 tau = textureLod(light_tex, field_uv(pos), 0.0).rg;
-			float sky_access = exp(-tau.y * 0.30);
+			// deck.z darkens the inside: the cloud above hides the sky and
+			// multiple scattering fades faster with depth (0.30 = original).
+			float occlusion = mix(0.30, 1.0, p.deck.z);
+			float sky_access = exp(-tau.y * occlusion);
 			vec3 ambient = mix(vec3(0.025, 0.040, 0.075), vec3(0.22, 0.30, 0.44), sky_access);
-			float sun = exp(-tau.x) * phase * 1.4 + 0.22 * exp(-tau.x * 0.30);
+			float sun = exp(-tau.x) * phase * 1.4 + 0.22 * exp(-tau.x * occlusion);
 			vec3 light = ambient + p.sun_color.rgb * sun;
 			if (p.atm_c.x > 0.5) {
-				Aerial air = atm_aerial(ro, rd, tm);
+				if (air_vis < 0.0)
+					air_vis = path_sun_visibility(ro, rd, tm, 0.5, p.cam_pos.w > 0.5);
+				Aerial air = atm_aerial(ro, rd, tm, air_vis);
 				light = light * air.transmittance + air.inscatter;
 			} else {
 				light = mix(haze, light, exp(-tm * 0.000018));

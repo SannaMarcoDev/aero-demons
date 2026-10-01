@@ -257,9 +257,10 @@ utc = 2.0
 script = ExtResource("27_cloud_layer")
 world_environment = NodePath("../Sky3D")
 sun = NodePath("../Sky3D/SunLight")
+base_darkening = 1.0
 haze_base_altitude = 185.0
 haze_sky_light = 0.45
-shadow_ambient_dimming = 0.7
+shadow_darkness = 0.85
 
 [node name="CloudShadowReceivers" type="Node" parent="." unique_id=327436645]
 script = ExtResource("28_cloud_shadows")

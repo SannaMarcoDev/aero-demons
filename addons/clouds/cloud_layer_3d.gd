@@ -54,6 +54,13 @@ extends Node3D
 	set(value):
 		density_scale = maxf(0.0, value)
 		_apply_settings()
+## Darker, more contrasted cloud bases: the cloud above hides the sky and
+## scattered sunlight fades faster with depth. 0 = original look, 1 = physical
+## occlusion, above 1 = stylized. Runtime and editor preview.
+@export_range(0.0, 1.0, 0.01, "or_greater") var base_darkening := 0.0:
+	set(value):
+		base_darkening = maxf(0.0, value)
+		_apply_settings()
 @export_range(1, 4096, 1, "or_greater") var max_steps := 1024:
 	set(value):
 		max_steps = maxi(1, value)
@@ -109,6 +116,12 @@ extends Node3D
 	set(value):
 		haze_cloud_shadows = clampf(value, 0.0, 1.0)
 		_apply_settings()
+## How high the haze climbs over the sky above the horizon, blending it into
+## the ground haze below. 0 = sky untouched, 1 = physical haze, higher = wider.
+@export_range(0.0, 8.0, 0.01, "or_greater") var horizon_haze := 1.0:
+	set(value):
+		horizon_haze = maxf(0.0, value)
+		_apply_settings()
 
 @export_group("Cloud Shadows")
 ## Receivers must use cloud_receiver.gdshader or include cloud_shadow.gdshaderinc.
@@ -126,12 +139,15 @@ extends Node3D
 	set(value):
 		shadow_resolution = value if value in [256, 512, 1024] else 512
 		_sync_shadows()
-## How much cloud shadows also dim ambient light and reflections: the cloud
-## hides part of the sky too. 0 = only direct sun is shadowed. Runtime only.
-@export_range(0.0, 1.0, 0.01) var shadow_ambient_dimming := 0.0:
+## How much darker everything under the clouds is than in the open: the
+## cloud also hides the sky, so the shadow removes that share of ambient light
+## and reflections on receivers and of skylight in the air (haze in front of
+## terrain and clouds). 0 = only direct sun is shadowed, 1 = darkest.
+@export_range(0.0, 1.0, 0.01) var shadow_darkness := 0.0:
 	set(value):
-		shadow_ambient_dimming = clampf(value, 0.0, 1.0)
+		shadow_darkness = clampf(value, 0.0, 1.0)
 		_sync_shadows()
+		_apply_settings()
 
 var _shadow_pass: CloudShadowPass
 var _runtime_shadow_materials: Array[Resource] = []
@@ -187,16 +203,18 @@ func _sync_shadows() -> void:
 		_shadow_pass = null # No receivers: release the cache, not just its bindings.
 		if _atmosphere != null:
 			_atmosphere.shadows = null
+		effect.shadows = null
 		return
 	if _shadow_pass == null:
 		_shadow_pass = CloudShadowPass.new()
 		_shadow_pass.source = effect
 	if _atmosphere != null:
 		_atmosphere.shadows = _shadow_pass # the air reuses the receivers' cache
+	effect.shadows = _shadow_pass # and so does the haze in front of the clouds
 	_shadow_pass.materials = receivers
 	_shadow_pass.shadows_enabled = shadows_enabled
 	_shadow_pass.resolution = shadow_resolution
-	_shadow_pass.ambient_dimming = shadow_ambient_dimming
+	_shadow_pass.ambient_dimming = shadow_darkness
 
 
 func _process(_delta: float) -> void:
@@ -282,6 +300,7 @@ func _apply_settings() -> void:
 	effect.coverage = coverage
 	effect.preset = preset
 	effect.density_scale = density_scale
+	effect.base_darkening = base_darkening
 	effect.max_steps = max_steps
 	effect.sun = sun
 	effect.atmosphere_enabled = atmosphere_enabled
@@ -294,6 +313,8 @@ func _apply_settings() -> void:
 	effect.haze_sun_scattering = haze_sun_scattering
 	effect.haze_sky_light = haze_sky_light
 	effect.haze_cloud_shadows = haze_cloud_shadows
+	effect.horizon_haze = horizon_haze
+	effect.shadow_darkness = shadow_darkness
 
 
 func _ready() -> void:
@@ -343,6 +364,7 @@ func _stop_effect() -> void:
 	if effect != null:
 		effect.enabled = false
 		effect.cancel_density_sample()
+		effect.shadows = null
 	if _atmosphere != null:
 		_atmosphere.enabled = false
 		_atmosphere.shadows = null

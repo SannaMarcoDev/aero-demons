@@ -10,7 +10,8 @@ var source: CloudSystem
 var resolution := 512
 var materials: Array[Resource] = []
 var shadows_enabled := true
-## Share of ambient light and reflections also removed in cloud shadows.
+## Share of ambient light and reflections also removed in cloud shadows
+## (CloudLayer3D.shadow_darkness).
 var ambient_dimming := 0.0
 var bake_count := 0
 var texture := Texture2DArrayRD.new()

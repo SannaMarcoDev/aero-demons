@@ -19,6 +19,8 @@ var sun: DirectionalLight3D
 @export var light_steps := 8
 @export var coverage := 1.18
 @export var preset: CloudNoiseGen.Preset = CloudNoiseGen.Preset.ORIGINAL
+# Darker cloud bases (raymarch only, no rebake). 0 = original.
+var base_darkening := 0.0
 # Shared aerial perspective (atmosphere.glslinc). Not part of the field bake key.
 var atmosphere_enabled := true
 var haze_extinction := 1.0 / 45000.0
@@ -29,6 +31,10 @@ var haze_tint := Vector3(0.214, 0.284, 0.367) # linear, multiplied by sun color
 var haze_sun_scattering := 0.30
 var haze_sky_light := 0.35 # share of haze light from the whole sky, not cloud-shadowed
 var haze_cloud_shadows := 1.0
+var horizon_haze := 1.0 # haze over the sky near the horizon, 0 = sky untouched
+var shadow_darkness := 0.0 # skylight also removed from the air in cloud shadow
+## Render-thread read. Null or inactive: haze in front of clouds is unshadowed.
+var shadows: CloudShadowPass
 
 var rd: RenderingDevice
 var _raymarch_shader: RID
@@ -38,6 +44,7 @@ var _composite_pipe: RID
 var _ubo: RID
 var _sampler: RID
 var _screen_sampler: RID
+var _no_shadow: RID
 var _cloud_tex: RID
 var _cloud_size := Vector2i.ZERO
 var _noise3d: RID
@@ -83,7 +90,7 @@ func _notification(what: int) -> void:
 			if rid.is_valid():
 				rd.free_rid(rid)
 		for rid in [_raymarch_pipe, _composite_pipe, _raymarch_shader,
-				_composite_shader, _ubo, _sampler, _screen_sampler,
+				_composite_shader, _ubo, _sampler, _screen_sampler, _no_shadow,
 				_cloud_tex, _noise3d, _noise3d_lo, _weather, _weather_lo,
 				_density_pipe, _density_shader, _density_buffer]:
 			if rid.is_valid():
@@ -157,6 +164,14 @@ func _build_pipelines() -> void:
 	scs.repeat_v = RenderingDevice.SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE
 	scs.repeat_w = RenderingDevice.SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE
 	_screen_sampler = rd.sampler_create(scs)
+	# Valid shadow binding while the cache is absent; cam_pos.w ignores it.
+	var shadow_format := RDTextureFormat.new()
+	shadow_format.texture_type = RenderingDevice.TEXTURE_TYPE_2D_ARRAY
+	shadow_format.format = RenderingDevice.DATA_FORMAT_R8_UNORM
+	shadow_format.width = 1
+	shadow_format.height = 1
+	shadow_format.usage_bits = RenderingDevice.TEXTURE_USAGE_SAMPLING_BIT
+	_no_shadow = rd.texture_create(shadow_format, RDTextureView.new(), [PackedByteArray([255])])
 
 	# Placeholder textures until noise_gen wires real ones.
 	_noise3d = _make_volume_tex(2)
@@ -351,13 +366,13 @@ func _pack_ubo(cam_xf: Transform3D, inv_proj: Projection,
 	])
 	f.append_array([cam_xf.origin.x, cam_xf.origin.y, cam_xf.origin.z, 0.0])
 	f.append_array([sun_dir.x, sun_dir.y, sun_dir.z, 0.0])
-	f.append_array([sun_col.x, sun_col.y, sun_col.z, 0.0])
-	f.append_array([deck_base, deck_top, 0.0, weather_world_m])
+	f.append_array([sun_col.x, sun_col.y, sun_col.z, shadow_darkness])
+	f.append_array([deck_base, deck_top, base_darkening, weather_world_m])
 	f.append_array([density_scale, float(max_steps), float(light_steps), coverage])
 	# Appended after the bake prefix: bake/sample shaders keep their shorter block.
 	f.append_array([haze_extinction, haze_height, air_density, haze_base])
 	f.append_array([haze_tint.x, haze_tint.y, haze_tint.z, haze_sun_scattering])
-	f.append_array([1.0 if atmosphere_enabled else 0.0, 0.0, haze_sky_light, haze_cloud_shadows])
+	f.append_array([1.0 if atmosphere_enabled else 0.0, horizon_haze, haze_sky_light, haze_cloud_shadows])
 	return f
 
 
@@ -435,6 +450,10 @@ func _render_view(sb: RenderSceneBuffersRD, sd: RenderSceneData,
 		_complete_pending_density()
 		return
 	var f := _pack_ubo(cam_xf, inv_proj, sun_dir, sun_col)
+	# The pass refreshes its cache before frame rendering, on this same thread.
+	var pass_ := shadows # main thread may swap it; read once
+	var shadow_live := pass_ != null and pass_._active and pass_._volume.is_valid()
+	f[35] = 1.0 if shadow_live else 0.0 # cam_pos.w
 	var bytes := f.to_byte_array()
 	if not ensure_field(sun_dir):
 		_complete_pending_density()
@@ -475,10 +494,15 @@ func _render_view(sb: RenderSceneBuffersRD, sd: RenderSceneData,
 	u_weather_lo.binding = 6
 	u_weather_lo.add_id(_field_sampler)
 	u_weather_lo.add_id(_light_tex)
+	var u_shadow := RDUniform.new()
+	u_shadow.uniform_type = RenderingDevice.UNIFORM_TYPE_SAMPLER_WITH_TEXTURE
+	u_shadow.binding = 7
+	u_shadow.add_id(_sampler)
+	u_shadow.add_id(pass_._volume if shadow_live else _no_shadow)
 
 	var rm_shader: RID = _raymarch_shader
 	var rm_set := UniformSetCacheRD.get_cache(rm_shader, 0,
-			[u_ubo, u_img, u_noise, u_weather, u_depth, u_noise_lo, u_weather_lo])
+			[u_ubo, u_img, u_noise, u_weather, u_depth, u_noise_lo, u_weather_lo, u_shadow])
 
 	rd.capture_timestamp("clouds_begin")
 	var cl := rd.compute_list_begin()
