@@ -10,8 +10,7 @@
 [node name="GardaLake" parent="." unique_id=51425002 instance=ExtResource("1_map")]
 
 [node name="Player" parent="." unique_id=1784232784 instance=ExtResource("2_player")]
-transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -36793.398, 239.572, 463.334)
-start_on_ground = true
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -36793.4, 1800, 463.334)
 
 [node name="CombatHUD" parent="." unique_id=1819556815 instance=ExtResource("7_hud")]
 player_path = NodePath("../Player")
