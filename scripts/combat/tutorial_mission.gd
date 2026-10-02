@@ -1,6 +1,6 @@
 extends "res://scripts/combat/sortie_controller.gd"
 class_name TutorialMission
-## Formation showcase → controls popup → collaudo → radio banter → convoy reveal → four interceptors.
+## Formation showcase → controls popup → collaudo → radio banter → sphere reveal → four interceptors.
 signal flight_training_completed
 
 enum Phase { OPENING, CONTROLS_READING, FLIGHT, BANTER, REVEAL, TARGET_READING, MISSILE_READING, GUN_READING, COMBAT }
@@ -156,12 +156,6 @@ func _reveal() -> void:
 	await cinematic.play_reveal(radio, dialogue, enemy_scene)
 	if terminal:
 		return
-	for i in wings.size():
-		var side := -1.0 if i == 0 else 1.0
-		wings[i].global_position = player.global_position + player.global_basis.x * (side * wings[i].formation_spacing) - player.global_basis.z * wings[i].formation_forward
-		wings[i].global_basis = player.global_basis
-		wings[i].speed = player.speed
-		wings[i].reset_physics_interpolation()
 	active_enemies = cinematic.release_interceptors(spawn_root)
 	remaining = active_enemies.size()
 	for enemy in active_enemies:

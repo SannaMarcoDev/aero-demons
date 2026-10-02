@@ -34,16 +34,21 @@ Ubris: ...Okay. Great. Both of you shut up and fly.
 => END
 
 ~ sphere
-Aegis: Hold on. Sensors just spiked. Something big is crossing the sector. Really big.
-Ubris: Tally... what the hell is THAT? Aegis, tell me you see it too, or I'm landing and quitting.
-Aegis: I see it. The sensors refuse to classify it. Some kind of energy sphere. Ten fighters flying escort.
+Aegis: ...Huh. Sensors just spiked. Something big, crossing the sector. One o'clock high.
+Ubris: Big like a cargo plane, or big like "Aegis, don't panic"?
+Aegis: Big like I'm panicking. [next=2.2]
+Ubris: Tally... okay. What the hell is THAT?
+Aegis: No return I can classify. Some kind of energy sphere. Five hundred meters across, ten fighters babysitting it.
 Ubris: No IFF, no flag, no manners. Who hauls a glowing marble across our lake?
+Aegis: My displays are crawling. Same kind of noise as... [next=3.4]
+Ubris: Aegis. [next=1.4]
+Aegis: ...Never mind. [next=2.0]
 => END
 
 ~ interceptors
-Aegis: Four bandits breaking off the escort. Turning in hot. On us!
+Aegis: Four of them just peeled off. Turning in hot. On us!
 Ubris: Oh, they're shy. Can't even let us ask a question first.
-Aegis: Nova, fire control is live, missiles are hot. Don't let them get the first word.
+Aegis: Fire control's live. Nova, missiles are hot. Don't let them get the first word.
 Ubris: Test flight's over. Nova, let's give them the full Aero Demon welcome package!
 => END
 
