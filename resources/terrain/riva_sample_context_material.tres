@@ -1,11 +1,11 @@
-[gd_resource type="ShaderMaterial" format=3]
+[gd_resource type="ShaderMaterial" format=3 uid="uid://gabtd8a7w1jc"]
 
-[ext_resource type="Shader" path="res://resources/terrain/riva_sample_context.gdshader" id="1_shader"]
+[ext_resource type="Shader" uid="uid://d2dk1oh6vemw6" path="res://resources/terrain/riva_sample_context.gdshader" id="1_shader"]
 [ext_resource type="Texture2D" uid="uid://bhfkenjrdvcn0" path="res://textures/terrain/garda/aerial_rocks_02_albedo_packed.png" id="2_rock"]
 [ext_resource type="Texture2D" uid="uid://in365pmsuiux" path="res://textures/terrain/rocky_terrain_02_albedo_packed.png" id="3_ground"]
-[ext_resource type="Texture2D" path="res://textures/terrain/riva_sample/photo_context.jpg" id="4_photo"]
-[ext_resource type="Texture2D" path="res://textures/terrain/riva_sample/photo_far.jpg" id="5_photo_far"]
-[ext_resource type="Texture2D" path="res://textures/terrain/riva_sample/context_cover.png" id="6_cover"]
+[ext_resource type="Texture2D" uid="uid://cl8ievg2rvc6o" path="res://textures/terrain/riva_sample/photo_context.jpg" id="4_photo"]
+[ext_resource type="Texture2D" uid="uid://ddru3g0jnfmvt" path="res://textures/terrain/riva_sample/photo_far.jpg" id="5_photo_far"]
+[ext_resource type="Texture2D" uid="uid://y85wgsh3vu5q" path="res://textures/terrain/riva_sample/context_cover.png" id="6_cover"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_surface"]
 seed = 7319
@@ -19,9 +19,25 @@ seamless = true
 [resource]
 render_priority = 0
 shader = ExtResource("1_shader")
+shader_parameter/cloud_shadow_enabled = false
+shader_parameter/cloud_shadow_deck = Vector3(2000, 15000, 100000)
+shader_parameter/cloud_shadow_sun_direction = Vector3(0, 1, 0)
+shader_parameter/cloud_shadow_ambient = 0.0
+shader_parameter/earth_radius = 0.0
+shader_parameter/curvature_origin = Vector3(0, 0, 0)
 shader_parameter/surface_noise = SubResource("NoiseTexture2D_surface")
 shader_parameter/rock_albedo = ExtResource("2_rock")
 shader_parameter/ground_albedo = ExtResource("3_ground")
+shader_parameter/meso_size = 72.0
+shader_parameter/rock_start = 0.18
+shader_parameter/rock_end = 0.45
 shader_parameter/photo = ExtResource("4_photo")
+shader_parameter/photo_rect = Vector4(-30720, -30720, 61440, 61440)
 shader_parameter/photo_far = ExtResource("5_photo_far")
+shader_parameter/photo_far_rect = Vector4(-99840, -99840, 199680, 199680)
+shader_parameter/photo_saturation = 1.0
+shader_parameter/photo_gain = 1.0
+shader_parameter/detail_strength = 0.6
 shader_parameter/cover = ExtResource("6_cover")
+shader_parameter/cover_rect = Vector4(-99880, -99880, 199760, 199760)
+shader_parameter/lake_level = 65.0

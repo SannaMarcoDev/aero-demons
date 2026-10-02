@@ -232,6 +232,7 @@ void add_surface(float id, float weight, vec3 n, vec3 dx, vec3 dy,
 void fragment() {
 	vec2 uv = UV; // Terrain3D editor/checker overlay injection expects this local.
 	vec3 n = terrain_normal(uv);
+	float mesh_slope = 1.0 - n.y; // LiDAR saw the lake flat, also where the DEM rises out of it
 	vec3 dx = dFdxCoarse(v_vertex);
 	vec3 dy = dFdyCoarse(v_vertex);
 	vec2 p = v_vertex.xz;
@@ -282,8 +283,10 @@ void fragment() {
 	rough = mix(rough, 0.85, smoothstep(0.3, 0.7, ma.a + edge_noise * 0.5));
 	rough = mix(rough, 0.8, smoothstep(0.25, 0.65, mb.g));
 	rough = mix(rough, 0.7, smoothstep(0.35, 0.65, mb.r));
-	// Rivers and ponds above the lake (Sarca, Varone): the lake itself is the water plane.
-	float water = smoothstep(0.4, 0.6, mb.a) * step(lake_level + 0.5, v_vertex.y);
+	// Rivers and ponds above the lake (Sarca, Varone): the lake itself is the water plane. They are flat and
+	// clear of its shore: the 8 m mask spills onto it, which must not turn into a mirror.
+	float water = smoothstep(0.4, 0.6, mb.a) * step(lake_level + 3.0, v_vertex.y)
+		* (1.0 - smoothstep(0.04, 0.15, max(slope, mesh_slope)));
 	rough = mix(rough, 0.12, water);
 
 	ALBEDO = ground;

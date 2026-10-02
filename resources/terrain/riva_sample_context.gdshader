@@ -85,7 +85,7 @@ void fragment() {
 	albedo *= mix(1.0, detail, detail_strength * (1.0 - smoothstep(4.0, 16.0, footprint)));
 
 	// Inland lakes and rivers above Garda (Ledro, Cavedine, Toblino, Adige); Garda is the water plane.
-	float water = smoothstep(0.4, 0.6, cb.b) * step(lake_level + 0.5, v_world.y);
+	float water = smoothstep(0.4, 0.6, cb.b) * step(lake_level + 3.0, v_world.y) * (1.0 - smoothstep(0.04, 0.15, 1.0 - n.y));
 	ALBEDO = albedo;
 	ROUGHNESS = mix(0.92, 0.12, water);
 	SPECULAR = mix(0.25, 0.5, water);
