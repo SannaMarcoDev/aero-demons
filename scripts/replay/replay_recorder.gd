@@ -105,7 +105,7 @@ func _register(node) -> void:
 	var model: Node = node.get_node_or_null("AircraftModel")
 	if model != null and model.scene_file_path in Data.MODELS:
 		actor.model = model.scene_file_path
-	for property in ["missile_id", "overall_scale", "intensity", "smoke_amount", "sparks_amount", "effect_seed", "autoplay", "local_coords", "light_enable"]:
+	for property in ["missile_id", "overall_scale", "intensity", "smoke_amount", "sparks_amount", "effect_seed", "blast_kind", "drift_velocity", "autoplay", "local_coords", "light_enable"]:
 		var value: Variant = node.get(property)
 		if value != null:
 			actor.settings[property] = value

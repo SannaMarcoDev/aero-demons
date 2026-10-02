@@ -1,0 +1,40 @@
+[gd_scene format=3 uid="uid://bf4237fcbayej"]
+
+[ext_resource type="PackedScene" uid="uid://b7rchxde2ync" path="res://scenes/maps/riva_sample.tscn" id="1_tu7l3"]
+[ext_resource type="Script" uid="uid://b4fmxjw30cfh4" path="res://tools/preview/vfx/explosion_preview.gd" id="2_30dqn"]
+
+[node name="ExplosionPreview" type="Node3D" unique_id=327936577]
+
+[node name="Riva" parent="." unique_id=1907416372 instance=ExtResource("1_tu7l3")]
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=614636405]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1200, 4500)
+current = true
+fov = 60.0
+near = 0.5
+far = 40000.0
+script = ExtResource("2_30dqn")
+move_speed = 120.0
+mouse_look_enabled = false
+
+[node name="HUD" type="CanvasLayer" parent="." unique_id=2118866586]
+
+[node name="Caption" type="Label" parent="HUD" unique_id=1221889055]
+offset_left = 24.0
+offset_top = 20.0
+offset_right = 25.0
+offset_bottom = 43.0
+theme_override_colors/font_shadow_color = Color(0.005, 0.005, 0.015, 1)
+theme_override_font_sizes/font_size = 20
+text = "AERIAL EXPLOSIONS
+1 missile · 2 heavy · 3 napalm · 4 aircraft · 5 cook-off · R repeat
+G all variants · T timeline · V drift 220 m/s · P pause · B sky/terrain · H hide UI
+WASD / QE move · Shift boost"
+
+[node name="Status" type="Label" parent="HUD" unique_id=1739484503]
+offset_left = 24.0
+offset_top = 140.0
+offset_right = 25.0
+offset_bottom = 163.0
+theme_override_colors/font_shadow_color = Color(0.005, 0.005, 0.015, 1)
+theme_override_font_sizes/font_size = 20

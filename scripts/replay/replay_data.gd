@@ -171,6 +171,12 @@ static func validate(value: Variant) -> String:
 					if not setting is bool: return "Opzione effetto non valida."
 				"effect_seed":
 					if not setting is int: return "Seed non valido."
+				"blast_kind":
+					# Explosion.Kind: MISSILE, HEAVY, NAPALM, AIRCRAFT, COOK_OFF.
+					if not setting is int or setting < 0 or setting > 4: return "Tipo esplosione non valido."
+				"drift_velocity":
+					if not setting is Vector3 or not setting.is_finite() or setting.length() > 2000.0:
+						return "Velocità esplosione non valida."
 				"overall_scale", "intensity", "smoke_amount", "sparks_amount":
 					if not setting is float or not is_finite(setting) or setting < 0.0 or setting > 8.0:
 						return "Scala effetto non valida."

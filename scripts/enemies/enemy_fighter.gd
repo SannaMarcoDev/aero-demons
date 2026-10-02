@@ -636,7 +636,7 @@ func _fall(delta: float) -> void:
 	if _wreck_time >= _wreck_next_explosion:
 		_wreck_next_explosion += wreck_explosion_interval
 		wreck_cook_offs += 1
-		Explosion.spawn(get_parent(), global_position, wreck_explosion_scale)
+		Explosion.spawn(get_parent(), global_position, wreck_explosion_scale, Explosion.Kind.COOK_OFF, _wreck_velocity)
 
 	if _reached_ground():
 		Explosion.spawn_aircraft(get_parent(), global_position, 3.0)

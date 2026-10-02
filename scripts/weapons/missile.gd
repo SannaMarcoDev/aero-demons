@@ -346,11 +346,15 @@ func _detonate() -> void:
 	_stop_thruster()
 	_play_spatial_audio(&"play_missile_hit")
 	var scale := 0.35 if missile_id == "MTSM" else 1.0
+	var kind := Explosion.Kind.MISSILE
 	if missile_id == "BAHM":
 		scale = 1.7
+		kind = Explosion.Kind.HEAVY
 	elif missile_id == "NCGBM":
 		scale = 1.25
-	Explosion.spawn(get_parent(), global_position, scale)
+		kind = Explosion.Kind.NAPALM
+	# The warhead bursts around the target, so only a little of the missile's own speed carries.
+	Explosion.spawn(get_parent(), global_position, scale, kind, velocity * 0.15)
 	_clear_threat()
 	queue_free()
 
