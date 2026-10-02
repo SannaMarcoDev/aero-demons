@@ -13,8 +13,8 @@
 [node name="GardaLake" parent="." unique_id=51425002 instance=ExtResource("1_map")]
 
 [node name="Player" parent="." unique_id=1784232784 instance=ExtResource("2_player")]
-position = Vector3(-1500, 2500, 1500)
-rotation_degrees = Vector3(0, 153, 0)
+position = Vector3(-5010, 2500, 12975)
+rotation_degrees = Vector3(0, 343, 0)
 invulnerable = true
 
 [node name="Wingman1" parent="." unique_id=1943898831 instance=ExtResource("6_enemy")]

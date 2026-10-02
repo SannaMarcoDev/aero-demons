@@ -7,7 +7,7 @@
 script = ExtResource("2_controls")
 
 [node name="Model" parent="." instance=ExtResource("1_model")]
-transform = Transform3D(100, 0, 0, 0, 100, 0, 0, 0, 100, 0, 0, 0)
+transform = Transform3D(-100, 0, 0, 0, 100, 0, 0, 0, -100, 0, 0, 0)
 
 [node name="GunNozzle" type="Marker3D" parent="." unique_id=1535207843]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.22214937, 3.167335, -7.5053997)

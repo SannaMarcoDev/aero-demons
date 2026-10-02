@@ -102,6 +102,7 @@ func _ready() -> void:
 		remove_child(old_model)
 		old_model.queue_free()
 		add_child(replacement)
+		replacement.set_gear(0.0) # Allies always spawn airborne; the Su-27 rig defaults to gear down.
 		$Afterburners/Left.position = Vector3(-0.9, 0.3, 4.9)
 		$Afterburners/Right.position = Vector3(0.9, 0.3, 4.9)
 		$WingDamage/Left.position.x = -3.3

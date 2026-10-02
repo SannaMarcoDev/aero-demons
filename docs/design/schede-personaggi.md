@@ -52,6 +52,19 @@ Età indicativa: 27–29 anni
 Status: Ex pilota militare regolare; dimissionaria volontaria per seguire Aurelius
 ```
 
+### Personalità (riferimento per i dialoghi)
+È una persona molto diretta, impulsiva e orientata all'azione. Non ama perdere tempo con giri di parole, analisi infinite o formalità: se c'è un problema, preferisce affrontarlo subito.
+
+È molto sicura di sé, soprattutto in combattimento. Sa di essere forte e lo mostra senza troppi filtri, ma non dà l'impressione di essere vanitosa. La sua sicurezza è più pratica che egoica: si fida del proprio corpo, del proprio istinto e della propria capacità di proteggere gli altri.
+
+Ha anche un forte lato competitivo e giocoso. Le piace combattere, allenarsi, provocare e scherzare, spesso con un tono da "compagna di squadra rumorosa" più che da guerriera austera. Il suo modo di parlare è informale, ruvido e spesso molto breve.
+
+La parte più importante, però, è che è estremamente leale e protettiva. Tiene tantissimo alle persone che considera "della sua squadra" e dimostra affetto soprattutto attraverso le azioni: difende, accompagna, aiuta, si mette davanti al pericolo. Non è molto portata per i discorsi emotivi.
+
+In situazioni intime o apertamente sentimentali può diventare un po' impacciata. In battaglia è perfettamente a suo agio; quando invece qualcuno la mette davanti ai propri sentimenti, tende a perdere un po' della sicurezza abituale.
+
+**In sintesi:** forte, impulsiva, schietta, competitiva, giocosa, molto protettiva e sorprendentemente tenera sotto la corazza, anche se preferisce dimostrarlo con i fatti invece che dirlo.
+
 ### Concetto & Filosofia
 *Hybris* è l'arroganza che nell'antica Grecia sfidava il volere divino; per lei è il principio vitale del volo: se una cosa sembra fisicamente impossibile o suicida, vale la pena provarla con il postbruciatore al massimo.  
 Ubris è sarcastica, impulsiva, viscerale, ma sotto la maschera di spacconeria è un pilota eccezionale e un'amica dalla lealtà incrollabile. Quando Aurelius è stato cacciato dall'esercito con l'accusa infamante di errore del pilota, lei ha sbattuto il tesserino sul tavolo del comando e lo ha seguito senza un secondo di esitazione. Non per pietà o romanticismo melodrammatico, ma con la sua logica limpida: *"Se quel muto va a volare per conto proprio, chi gli guarda la coda?"*.

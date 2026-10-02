@@ -1,34 +1,57 @@
 ~ collaudo
-Demon 3: Telemetria agganciata. Pressione idraulica perfetta, flussi del carburante regolari... Demon 1, i controlli rispondono persino meglio dei dati di fabbrica.
-Demon 2: Te l'avevo detto di fidarti, Tre. Guarda come fila liscio sopra il lago.
-Demon 3: Sì, ma... dimmi una cosa, Demon 1. Ora che sei di nuovo lassù a stringere quella barra... ti ricordi qualcosa di quell'incidente? Qualsiasi dettaglio che la scatola nera non ha registrato?
-Demon 2: Demon 3, lascialo in pace. Te l'ho già detto cinquanta volte: un secondo prima era a velocità di crociera, il secondo dopo tutti i sistemi erano morti e veniva giù come una pietra.
-Demon 3: Lo so, Due, lo so! Ma nessun impulso convenzionale può friggere un'avionica blindata in quel modo. Volevo solo capire se avesse visto qualcosa... un lampo, una scia anomala...
-Demon 2: Ha visto solo la commissione militare che gli dava la colpa per salvarsi la faccia e coprire il costo del velivolo.
-Demon 3: Quei burocrati non capiscono nulla di fisica dei circuiti. La versione dell'"errore del pilota" era una farsa dal primo giorno.
-Demon 2: Appunto. Quella storia è chiusa: l'aereo è intero, Demon 1 è di nuovo in aria, e stavolta gli copro la coda io.
-Demon 2: Goditi un po' la vista ogni tanto, Tre. La vita è molto di più che matite e schemi insensati.
+Ubris: Nova! About damn time. Show me you still know how to fly. [next=5.2]
+Ubris: Still quiet? Hah. Save it for the climb. [next=2.6]
+Aegis: Smooth inputs! SMOOTH! Every rivet on that wing has my fingerprints on it! [next=4.2]
+Ubris: Aegis lived in that cockpit for weeks. Trusts it more than people. [next=3.8]
+Aegis: Gertrude never lied to me. She's a hydraulic pump. [next=3.4]
+Ubris: Forget the hardware. Nova's flying again. That's... yeah. That's what matters. [next=4.6]
+Aegis: Nova. Before the lake gets too pretty... I have to ask about that day. [next=5.6]
+Aegis: I opened the avionics. Everything melted from the inside out. Like lightning that had somewhere to be. [next=6.0]
+Ubris: Aegis. Drop it. He's here. [next=2.2]
+Aegis: Nothing on this planet cooks a shielded bus like that, Ubris. NOTHING. [next=4.2]
+Ubris: I watched him drop off the scope too. I don't need you tearing him apart to prove it. [next=5.6]
+Ubris: Board stamped it pilot error. Machines break, sensors lie. None of that decides who Nova is. [next=5.6]
+Aegis: A stamp is not a diagnosis. [next=3.6]
+Ubris: Then diagnose it later. Anything that comes for him goes through me first. [next=4.4]
+Ubris: Enough ghosts. Nova, punch it! I wanna see what she can really do! [next=4.2]
+Aegis: ...Fine. She's gorgeous. Now burners OFF. All of you. [next=3.4]
+=> collaudo_comandi
+
+~ collaudo_comandi
+Aegis: Nova, she's yours. Pitch, roll, yaw. Make her sing, don't make her scream.
+=> END
+
+~ banter
+Ubris: Hey, Nova. If I bailed out right now... you'd come catch me, right?
+=> END
+
+~ banter_reply
+Ubris: ...That silence better be a yes.
+Aegis: Catch you with WHAT? He's flying a fighter, not a butterfly net.
+Ubris: Didn't ask you, Aegis.
+Aegis: For the record, I'd catch you. Then bill you for the canopy.
+Ubris: ...Okay. Great. Both of you shut up and fly.
 => END
 
 ~ sphere
-Demon 3: Aspettate... ho un'anomalia sui sensori. Qualcosa di enorme sta attraversando il settore.
-Demon 2: Contatto visivo. Ma che diavolo... Tre, vedi anche tu quello che vedo io?!
-Demon 3: Lo vedo. I sensori non riescono a classificarlo... sembra una sfera di energia. E ci sono dieci aerei che le fanno da scorta.
-Demon 2: Nessun segnale IFF conosciuto. Chi è quella gente? E cosa diavolo stanno trasportando?
+Aegis: Hold on. Sensors just spiked. Something big is crossing the sector. Really big.
+Ubris: Tally... what the hell is THAT? Aegis, tell me you see it too, or I'm landing and quitting.
+Aegis: I see it. The sensors refuse to classify it. Some kind of energy sphere. Ten fighters flying escort.
+Ubris: No IFF, no flag, no manners. Who hauls a glowing marble across our lake?
 => END
 
 ~ interceptors
-Demon 3: Quattro contatti si staccano dalla scorta. Stanno virando verso di noi!
-Demon 2: Li vedo! Vengono a chiuderci la bocca prima ancora che possiamo fare domande!
-Demon 3: Demon 1, l'avionica di tiro è in linea. Hai i missili pronti: non farti sorprendere.
-Demon 2: Ricevuto, Tre. A quanto pare il collaudo è finito prima del previsto. Demon 1... facciamogli vedere cosa fa Aero Demon!
+Aegis: Four bandits breaking off the escort. Turning in hot. On us!
+Ubris: Oh, they're shy. Can't even let us ask a question first.
+Aegis: Nova, fire control is live, missiles are hot. Don't let them get the first word.
+Ubris: Test flight's over. Nova, let's give them the full Aero Demon welcome package!
 => END
 
 ~ combat
-Demon 2: Demon 1, prendi l'iniziativa. Ti copro la coda!
-Demon 3: Tengo d'occhio gli altri due. Tutti i dati sono in registrazione.
+Ubris: Nova, you lead, I make noise. Your six is mine!
+Aegis: Eyes on the other two. Everything's recording, so fly pretty.
 => END
 
 ~ half
-Demon 3: Due contatti rimasti. Restiamo uniti!
+Aegis: Two bandits left. Keep it tight!
 => END

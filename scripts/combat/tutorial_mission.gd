@@ -1,10 +1,11 @@
 extends "res://scripts/combat/sortie_controller.gd"
 class_name TutorialMission
-## Airborne protected collaudo → convoy reveal → four interceptors.
+## Formation showcase → controls popup → collaudo → radio banter → convoy reveal → four interceptors.
 signal flight_training_completed
 
-enum Phase { OPENING, FLIGHT, REVEAL, TARGET_READING, MISSILE_READING, GUN_READING, COMBAT }
+enum Phase { OPENING, CONTROLS_READING, FLIGHT, BANTER, REVEAL, TARGET_READING, MISSILE_READING, GUN_READING, COMBAT }
 const PRACTICE_SECONDS := 0.35
+const BANTER_SILENCE := 3.0 # Nova's non-answer to Ubris's question.
 const Bindings = preload("res://scripts/input/controller_bindings.gd")
 const Cinematic = preload("res://scripts/combat/tutorial_cinematic.gd")
 
@@ -14,7 +15,6 @@ const Cinematic = preload("res://scripts/combat/tutorial_cinematic.gd")
 var active_enemies: Array[EnemyFighter] = []
 var phase := Phase.OPENING
 var movement_practice := Vector3.ZERO
-var _conversation_finished := false
 var _formation_time := 0.0
 var _wings_joined := false
 var _half_call_pending := false
@@ -44,12 +44,11 @@ func _ready() -> void:
 		wing.hide()
 		wing.set_physics_process(false)
 		wing.get_node("WeaponController").firing_enabled = false
-	radio.finished.connect(_on_radio_finished)
 	_start.call_deferred()
 
 
 func _start() -> void:
-	for cue in ["collaudo", "sphere", "interceptors", "combat", "half"]:
+	for cue in ["collaudo", "collaudo_comandi", "banter", "banter_reply", "sphere", "interceptors", "combat", "half"]:
 		if dialogue == null or not dialogue.cues.has(cue):
 			push_error("Tutorial mission: missing dialogue " + cue)
 			_finish("ERRORE MISSIONE", "Dialogo tutorial mancante: " + cue)
@@ -58,7 +57,6 @@ func _start() -> void:
 	cinematic = Cinematic.new()
 	cinematic.name = "TutorialCinematic"
 	hud.get_parent().add_child(cinematic)
-	player.controls_enabled = true
 	_begin_flight()
 
 
@@ -66,7 +64,7 @@ func objectives_text() -> String:
 	if terminal:
 		return ">MISSIONE TERMINATA"
 	match phase:
-		Phase.OPENING, Phase.REVEAL:
+		Phase.OPENING, Phase.CONTROLS_READING, Phase.REVEAL:
 			return ""
 		Phase.FLIGHT:
 			var todo: Array[String] = []
@@ -80,33 +78,34 @@ func objectives_text() -> String:
 				todo.append("Retrai il carrello [%s]" % Bindings.action_label("landing_gear"))
 			if not todo.is_empty():
 				return ">COLLAUDO · PROVA I COMANDI\n" + "\n".join(todo)
-			return ">COLLAUDO · ASCOLTA LA RADIO\nVolo livellato: tieni [%s + %s]" % [Bindings.action_label("accelerate"), Bindings.action_label("brake")]
+			return ">COLLAUDO · RISALI IN QUOTA\nVolo livellato: tieni [%s + %s]" % [Bindings.action_label("accelerate"), Bindings.action_label("brake")]
+		Phase.BANTER:
+			return ">COLLAUDO COMPLETATO"
 		Phase.COMBAT:
 			return ">INTERCETTORI RIMASTI: %d / 4" % remaining
 	return ">LEGGI LE ISTRUZIONI ARMI"
 
 
 func _begin_flight() -> void:
-	phase = Phase.FLIGHT
 	director.player = player
-	var forward := -player.global_basis.z
-	var right := player.global_basis.x
-	for i in wings.size():
-		var wing := wings[i]
-		var side := -1.0 if i == 0 else 1.0
+	for wing in wings:
 		wing.director = director
 		wing.formation_spacing = 40.0
 		wing.formation_forward = 30.0
 		wing.invulnerable = true
 		wing.get_node("WeaponController").firing_enabled = false
-		wing.global_position = player.global_position - forward * 50.0 + right * (side * 40.0) + Vector3.UP * 8.0
-		wing.global_basis = player.global_basis
-		wing.speed = player.speed * 1.25
-		wing.reset_physics_interpolation()
-		wing.show()
-		wing.set_physics_process(true)
 	_wings_joined = true
-	radio.play(dialogue, "collaudo")
+	# The showcase plays `collaudo` and hands over in close formation while `collaudo_comandi` asks for the controls.
+	await cinematic.play_formation(radio, dialogue, wings)
+	if terminal:
+		return
+	# Let Aegis finish handing over before the controls popup pauses the game.
+	if radio.playing:
+		await radio.finished
+	if terminal:
+		return
+	phase = Phase.CONTROLS_READING
+	hud.tutorial_panel.open("VOLO · COMANDI DI BASE", "Il gioco è in pausa: puoi leggere senza pericolo.\n\nBeccheggio [{pitch_up} / {pitch_down}]: alza o abbassa il muso.\nRollio [{roll_left} / {roll_right}]: inclina le ali. Per virare, inclina e poi alza il muso.\nImbardata [{yaw_left} / {yaw_right}]: piccole correzioni di direzione.\n\nSpinta [{accelerate}] · Freno [{brake}]\nCarrello [{landing_gear}]: retrailo per volare pulito.")
 
 
 func _physics_process(delta: float) -> void:
@@ -123,9 +122,9 @@ func _physics_process(delta: float) -> void:
 				for axis in 3:
 					if absf(axes[axis]) > 0.2:
 						movement_practice[axis] += delta
-			if _conversation_finished and _safe_airborne() and player.landing_gear_retracted() and movement_practice.x >= PRACTICE_SECONDS and movement_practice.y >= PRACTICE_SECONDS and movement_practice.z >= PRACTICE_SECONDS:
-				phase = Phase.REVEAL
-				_reveal.call_deferred()
+			if _safe_airborne() and player.landing_gear_retracted() and movement_practice.x >= PRACTICE_SECONDS and movement_practice.y >= PRACTICE_SECONDS and movement_practice.z >= PRACTICE_SECONDS:
+				phase = Phase.BANTER
+				_banter.call_deferred()
 		Phase.COMBAT:
 			if _half_call_pending and not radio.playing:
 				_half_call_pending = false
@@ -137,9 +136,20 @@ func _safe_airborne() -> bool:
 	return not player.grounded and player.global_position.y >= player.min_altitude + safety_height
 
 
-func _on_radio_finished() -> void:
-	if phase == Phase.FLIGHT:
-		_conversation_finished = true
+func _banter() -> void:
+	radio.play(dialogue, "banter")
+	await radio.finished
+	if terminal:
+		return
+	await get_tree().create_timer(BANTER_SILENCE, false).timeout
+	if terminal:
+		return
+	radio.play(dialogue, "banter_reply")
+	await radio.finished
+	if terminal:
+		return
+	phase = Phase.REVEAL
+	_reveal()
 
 
 func _reveal() -> void:
@@ -165,6 +175,8 @@ func _on_tutorial_confirmed() -> void:
 	if terminal:
 		return
 	match phase:
+		Phase.CONTROLS_READING:
+			phase = Phase.FLIGHT
 		Phase.TARGET_READING:
 			phase = Phase.MISSILE_READING
 			hud.tutorial_panel.open("ARMI · MISSILI", "Lancia con [{fire_missile}] dopo l'aggancio.\nCambia armamento con [{switch_missile}]; il tipo attivo è indicato nell'HUD.\n\nMTSM aggancia più contatti validi a schermo. Gli altri missili richiedono un aggancio sul bersaglio selezionato.")
