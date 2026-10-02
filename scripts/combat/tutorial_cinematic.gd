@@ -571,6 +571,7 @@ func _spawn_convoy(enemy_scene: PackedScene) -> void:
 	_sphere = SPHERE.instantiate()
 	_sphere.collision_layer = 0
 	_sphere.collision_mask = 0
+	_sphere.travel_velocity = _convoy_direction * CONVOY_SPEED
 	add_child(_sphere)
 	for i in ESCORT_SLOTS.size():
 		var fighter := enemy_scene.instantiate() as EnemyFighter

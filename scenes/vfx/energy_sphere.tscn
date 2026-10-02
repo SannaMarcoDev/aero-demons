@@ -1,8 +1,11 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=20 format=3]
 
 [ext_resource type="Script" path="res://scripts/vfx/energy_sphere.gd" id="1_script"]
 [ext_resource type="Shader" path="res://resources/shaders/vfx/energy_sphere.gdshader" id="2_surface"]
-[ext_resource type="Shader" path="res://resources/shaders/vfx/energy_sphere_halo.gdshader" id="3_halo"]
+[ext_resource type="Shader" path="res://resources/shaders/vfx/energy_sphere_corona.gdshader" id="3_corona"]
+[ext_resource type="Shader" path="res://resources/shaders/vfx/energy_sphere_tendrils.gdshader" id="4_tendrils"]
+[ext_resource type="Shader" path="res://resources/shaders/vfx/energy_sphere_arcs.gdshader" id="5_arcs"]
+[ext_resource type="Shader" path="res://resources/shaders/vfx/energy_sphere_lens.gdshader" id="6_lens"]
 
 [sub_resource type="FastNoiseLite" id="FastNoise_energy"]
 seed = 71
@@ -21,15 +24,54 @@ resource_local_to_scene = true
 shader = ExtResource("2_surface")
 shader_parameter/energy_noise = SubResource("Noise_energy")
 
-[sub_resource type="ShaderMaterial" id="Material_halo"]
+[sub_resource type="ShaderMaterial" id="Material_corona"]
 resource_local_to_scene = true
-shader = ExtResource("3_halo")
+shader = ExtResource("3_corona")
+shader_parameter/energy_noise = SubResource("Noise_energy")
+
+[sub_resource type="ShaderMaterial" id="Material_tendrils"]
+resource_local_to_scene = true
+shader = ExtResource("4_tendrils")
+shader_parameter/energy_noise = SubResource("Noise_energy")
+
+[sub_resource type="ShaderMaterial" id="Material_arcs"]
+resource_local_to_scene = true
+shader = ExtResource("5_arcs")
+
+[sub_resource type="ShaderMaterial" id="Material_lens"]
+resource_local_to_scene = true
+render_priority = -1
+shader = ExtResource("6_lens")
 
 [sub_resource type="SphereMesh" id="Mesh_sphere"]
 radius = 1.0
 height = 2.0
 radial_segments = 128
 rings = 64
+
+[sub_resource type="SphereMesh" id="Mesh_shell"]
+radius = 1.0
+height = 2.0
+radial_segments = 64
+rings = 32
+
+[sub_resource type="QuadMesh" id="Strip_arcs"]
+subdivide_width = 32
+
+[sub_resource type="QuadMesh" id="Strip_tendrils"]
+subdivide_width = 64
+
+[sub_resource type="MultiMesh" id="Multi_arcs"]
+transform_format = 1
+instance_count = 18
+mesh = SubResource("Strip_arcs")
+buffer = PackedFloat32Array(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0)
+
+[sub_resource type="MultiMesh" id="Multi_tendrils"]
+transform_format = 1
+instance_count = 8
+mesh = SubResource("Strip_tendrils")
+buffer = PackedFloat32Array(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0)
 
 [sub_resource type="SphereShape3D" id="Shape_sphere"]
 resource_local_to_scene = true
@@ -46,11 +88,40 @@ cast_shadow = 0
 mesh = SubResource("Mesh_sphere")
 material_override = SubResource("Material_surface")
 
-[node name="Halo" type="MeshInstance3D" parent="."]
-scale = Vector3(282.5, 282.5, 282.5)
+[node name="Lens" type="MeshInstance3D" parent="."]
+scale = Vector3(850, 850, 850)
 cast_shadow = 0
-mesh = SubResource("Mesh_sphere")
-material_override = SubResource("Material_halo")
+mesh = SubResource("Mesh_shell")
+material_override = SubResource("Material_lens")
+
+[node name="Corona" type="MeshInstance3D" parent="."]
+scale = Vector3(402, 402, 402)
+cast_shadow = 0
+mesh = SubResource("Mesh_shell")
+material_override = SubResource("Material_corona")
+
+[node name="Tendrils" type="MultiMeshInstance3D" parent="."]
+scale = Vector3(250, 250, 250)
+sorting_offset = 1.0
+cast_shadow = 0
+custom_aabb = AABB(-2.2, -2.2, -2.2, 4.4, 4.4, 4.4)
+multimesh = SubResource("Multi_tendrils")
+material_override = SubResource("Material_tendrils")
+
+[node name="Arcs" type="MultiMeshInstance3D" parent="."]
+scale = Vector3(250, 250, 250)
+sorting_offset = 2.0
+cast_shadow = 0
+custom_aabb = AABB(-2.2, -2.2, -2.2, 4.4, 4.4, 4.4)
+multimesh = SubResource("Multi_arcs")
+material_override = SubResource("Material_arcs")
+
+[node name="Light" type="OmniLight3D" parent="."]
+light_color = Color(0.6168, 0.2224, 0.8472, 1)
+light_energy = 16.0
+light_specular = 0.6
+omni_range = 1500.0
+omni_attenuation = 0.5
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("Shape_sphere")

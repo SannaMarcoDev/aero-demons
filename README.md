@@ -78,7 +78,7 @@ I test del dogfight ordinario usano `tests/combat/dogfight_arena.tscn`, una scen
 
 ## Sfera energetica viola
 
-Scena pronta all'uso: `scenes/vfx/energy_sphere.tscn`, sfera 3D solida da 500 m con nucleo scuro, energia animata, archi e alone. Anteprima F6: `tools/preview/vfx/energy_sphere_preview.tscn`. Parametri sull'Inspector del nodo radice; [uso, controlli e limiti](docs/features/energy-sphere.md). Nessuna mappa o missione modificata.
+Scena pronta all'uso: `scenes/vfx/energy_sphere.tscn`, sfera 3D solida da 500 m ispirata alla Shadow Ball: vortice scuro, fiamme d'inchiostro volumetriche, filamenti, scariche e impulso con distorsione. Anteprima F6: `tools/preview/vfx/energy_sphere_preview.tscn`. Parametri sull'Inspector del nodo radice; [uso, controlli e limiti](docs/features/energy-sphere.md). Nessuna mappa o missione modificata.
 
 ## Convenzioni
 
