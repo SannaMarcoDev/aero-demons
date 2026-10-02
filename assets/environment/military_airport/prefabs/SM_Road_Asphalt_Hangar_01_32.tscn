@@ -1,7 +1,0 @@
-[gd_scene load_steps=2 format=3]
-
-[ext_resource type="PackedScene" path="res://assets/environment/military_airport/models/Roads_Runway/SM_Road_Hangar_01@000006642B469A00.glb" id="1"]
-
-[node name="SM_Road_Asphalt_Hangar_01_32" type="Node3D"]
-
-[node name="Model" parent="." instance=ExtResource("1")]

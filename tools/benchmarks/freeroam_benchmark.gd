@@ -22,14 +22,14 @@ var world_env: WorldEnvironment
 var viewport_rid: RID
 
 var LOCATIONS := [
-	{"id": "spawn_orizzonte", "pos": Vector3(0, 7114, 0), "pitch": -6.0, "yaw": 15.0},
-	{"id": "crociera", "pos": Vector3(-60000, 3800, -10000), "pitch": -3.0, "yaw": 0.0},
-	{"id": "lago", "pos": Vector3(-60000, 1200, 30000), "pitch": 2.0, "yaw": -55.0},
-	{"id": "raso_acqua", "pos": Vector3(-70000, 650, 50000), "pitch": -1.0, "yaw": 25.0},
-	{"id": "costa_monti", "pos": Vector3(-10000, 1000, -20000), "pitch": 1.0, "yaw": -75.0},
-	{"id": "cime_alte", "pos": Vector3(25000, 7000, -5000), "pitch": -5.0, "yaw": -120.0},
-	{"id": "nadir_terreno", "pos": Vector3(0, 1200, -10000), "pitch": -90.0, "yaw": 0.0},
-	{"id": "volo_radente", "path_from": Vector3(-80000, 900, 60000), "path_to": Vector3(-74000, 900, 54000), "pitch": -3.0, "yaw": 0.0},
+	{"id": "spawn_orizzonte", "pos": Vector3(0, 1200, 4500), "pitch": -6.0, "yaw": 0.0},
+	{"id": "crociera", "pos": Vector3(-8000, 3800, 16000), "pitch": -3.0, "yaw": -27.0},
+	{"id": "lago", "pos": Vector3(-4000, 600, 7000), "pitch": 2.0, "yaw": 153.0},
+	{"id": "raso_acqua", "pos": Vector3(-6000, 250, 12000), "pitch": -1.0, "yaw": -27.0},
+	{"id": "costa_monti", "pos": Vector3(-1000, 1100, 2000), "pitch": 1.0, "yaw": -75.0},
+	{"id": "cime_alte", "pos": Vector3(15000, 3400, 0), "pitch": -5.0, "yaw": 90.0},
+	{"id": "nadir_terreno", "pos": Vector3(0, 1200, -6000), "pitch": -90.0, "yaw": 0.0},
+	{"id": "volo_radente", "path_from": Vector3(-3000, 500, 6000), "path_to": Vector3(-6000, 500, 12000), "pitch": -3.0, "yaw": 0.0},
 ]
 
 func presets() -> Array:

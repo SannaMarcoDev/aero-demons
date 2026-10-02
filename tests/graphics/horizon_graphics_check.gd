@@ -34,7 +34,6 @@ func check() -> void:
 		player.reset_flight(pose)
 		camera.snap_to_target()
 		var map = scene.get_node("GardaLake")
-		map.get_node("TutorialBoundaryController").set_physics_process(false)
 		map.get_node("GardaTerrain").set_camera(camera)
 		var environment_attributes = map.get_node("Sky3D").camera_attributes
 		var viewport_state := [root.msaa_3d, root.use_taa, root.scaling_3d_mode, root.scaling_3d_scale, root.screen_space_aa]

@@ -1,6 +1,6 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene format=3]
 
-[ext_resource type="PackedScene" path="res://scenes/maps/garda_final.tscn" id="1_map"]
+[ext_resource type="PackedScene" path="res://scenes/maps/riva_sample.tscn" id="1_map"]
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2_player"]
 [ext_resource type="PackedScene" path="res://scenes/ui/combat_hud.tscn" id="3_hud"]
 [ext_resource type="Script" path="res://scripts/combat/combat_director.gd" id="4_director"]
@@ -11,9 +11,8 @@
 [node name="GardaLake" parent="." instance=ExtResource("1_map")]
 
 [node name="Player" parent="." instance=ExtResource("2_player")]
-position = Vector3(-34000, 1800, -500)
-rotation_degrees = Vector3(0, -90, 0)
-start_on_ground = false
+position = Vector3(-1500, 1800, 1500)
+rotation_degrees = Vector3(0, 153, 0)
 
 [node name="SpawnedEnemies" type="Node3D" parent="."]
 

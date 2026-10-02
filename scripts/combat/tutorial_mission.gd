@@ -1,12 +1,12 @@
 extends "res://scripts/combat/sortie_controller.gd"
 class_name TutorialMission
-## Parked aircraft intro → protected collaudo → convoy reveal → four interceptors.
+## Airborne protected collaudo → convoy reveal → four interceptors.
 signal flight_training_completed
 
-enum Phase { OPENING, TAKEOFF, CLIMB, GEAR, FLIGHT, REVEAL,
-	TARGET_READING, MISSILE_READING, GUN_READING, COMBAT }
+enum Phase { OPENING, FLIGHT, REVEAL, TARGET_READING, MISSILE_READING, GUN_READING, COMBAT }
 const PRACTICE_SECONDS := 0.35
 const Bindings = preload("res://scripts/input/controller_bindings.gd")
+const Cinematic = preload("res://scripts/combat/tutorial_cinematic.gd")
 
 @export var safety_height := 120.0
 @export var dialogue: DialogueResource
@@ -19,16 +19,13 @@ var _formation_time := 0.0
 var _wings_joined := false
 var _half_call_pending := false
 var _movement_armed := false
+var cinematic: Cinematic
 
 @onready var radio: RadioDialogue = get_node_or_null("../HudText/RadioDialogue")
-@onready var runway: Marker3D = get_node_or_null("../../TaxiRunway")
-@onready var takeoff: Marker3D = get_node_or_null("../../TaxiTakeoff")
-@onready var runway_spot: Marker3D = get_node_or_null("../../Player2")
 @onready var director: CombatDirector = get_node("../../CombatDirector")
 @onready var spawn_root: Node3D = get_node("../../SpawnedEnemies")
 @onready var targeting: TargetLock = player.get_node("TargetLock")
 @onready var weapons: WeaponController = player.get_node("WeaponController")
-@onready var cinematic = get_node_or_null("../../HangarArrival")
 @onready var wings: Array[EnemyFighter] = [get_node("../../Wingman1"), get_node("../../Wingman2")]
 
 
@@ -39,8 +36,6 @@ func _ready() -> void:
 		hud.get_node("HudText").add_child(radio)
 	process_mode = Node.PROCESS_MODE_PAUSABLE
 	player.controls_enabled = false
-	if player.start_on_ground and runway_spot != null:
-		player.set_physics_process(false)
 	player.invulnerable = true
 	weapons.firing_enabled = false
 	targeting.auto_acquire = false
@@ -54,40 +49,17 @@ func _ready() -> void:
 
 
 func _start() -> void:
-	for cue in ["intro", "collaudo", "sphere", "interceptors", "combat", "half"]:
+	for cue in ["collaudo", "sphere", "interceptors", "combat", "half"]:
 		if dialogue == null or not dialogue.cues.has(cue):
 			push_error("Tutorial mission: missing dialogue " + cue)
 			_finish("ERRORE MISSIONE", "Dialogo tutorial mancante: " + cue)
 			return
 	hud.tutorial_panel.confirmed.connect(_on_tutorial_confirmed)
-	# Utah shares this mission controller but starts airborne, without the hangar rig.
-	if cinematic == null:
-		cinematic = Node3D.new()
-		cinematic.name = "HangarArrival"
-		cinematic.set_script(preload("res://scripts/maps/hangar_arrival.gd"))
-		hud.get_parent().add_child(cinematic)
-	if player.start_on_ground:
-		cinematic.intro_skipped.connect(func():
-			if phase == Phase.OPENING or phase == Phase.TAKEOFF:
-				if hud.tutorial_panel.visible:
-					hud.tutorial_panel.hide()
-					get_tree().paused = false
-				player.controls_enabled = true
-				player.set_physics_process(true)
-		)
-		radio.play(dialogue, "intro")
-		if runway_spot != null:
-			await cinematic.play_intro(runway_spot, radio, dialogue)
-		if radio.playing:
-			await radio.finished
-		phase = Phase.TAKEOFF
-		if runway_spot != null and not cinematic.intro_was_skipped:
-			hud.tutorial_panel.open("DECOLLO", "Accelera con [{accelerate}] fino alla velocità di rotazione. Poi alza dolcemente il muso con [{pitch_up}] per decollare.\n\nConferma per prendere i comandi.")
-		else:
-			player.controls_enabled = true
-	else:
-		player.controls_enabled = true
-		_begin_flight()
+	cinematic = Cinematic.new()
+	cinematic.name = "TutorialCinematic"
+	hud.get_parent().add_child(cinematic)
+	player.controls_enabled = true
+	_begin_flight()
 
 
 func objectives_text() -> String:
@@ -96,14 +68,6 @@ func objectives_text() -> String:
 	match phase:
 		Phase.OPENING, Phase.REVEAL:
 			return ""
-		Phase.TAKEOFF:
-			if player.speed >= player.rotation_speed:
-				return ">ALZA DOLCEMENTE IL MUSO [%s] · DECOLLA" % Bindings.action_label("pitch_up")
-			return ">ACCELERA [%s] · ROTAZIONE A %.0f KM/H" % [Bindings.action_label("accelerate"), player.rotation_speed * 3.6]
-		Phase.CLIMB:
-			return ">SALI A %.0f M SOPRA LA PISTA · ALZA IL MUSO [%s]" % [safety_height, Bindings.action_label("pitch_up")]
-		Phase.GEAR:
-			return ">RETRAI IL CARRELLO [%s] · MANTIENI QUOTA SICURA" % Bindings.action_label("landing_gear")
 		Phase.FLIGHT:
 			var todo: Array[String] = []
 			if movement_practice.x < PRACTICE_SECONDS:
@@ -122,19 +86,8 @@ func objectives_text() -> String:
 	return ">LEGGI LE ISTRUZIONI ARMI"
 
 
-func tutorial_contact_label() -> String:
-	return "DECOLLO"
-
-
-func tutorial_contact() -> Node3D:
-	return takeoff if phase == Phase.TAKEOFF and not terminal else null
-
-
 func _begin_flight() -> void:
 	phase = Phase.FLIGHT
-	# Pitch was necessary for departure; roll and rudder remain explicit exercises.
-	if player.start_on_ground:
-		movement_practice.x = 1.0
 	director.player = player
 	var forward := -player.global_basis.z
 	var right := player.global_basis.x
@@ -162,15 +115,6 @@ func _physics_process(delta: float) -> void:
 	if _wings_joined and phase != Phase.COMBAT:
 		_formation_time += delta
 	match phase:
-		Phase.TAKEOFF:
-			if not player.grounded and player.global_position.y > runway.global_position.y + 8.0:
-				phase = Phase.CLIMB
-		Phase.CLIMB:
-			if not player.grounded and player.global_position.y >= runway.global_position.y + safety_height:
-				phase = Phase.GEAR
-		Phase.GEAR:
-			if _safe_airborne() and player.landing_gear_retracted():
-				_begin_flight()
 		Phase.FLIGHT:
 			var axes := Vector3(Input.get_axis("pitch_up", "pitch_down"), Input.get_axis("roll_left", "roll_right"), Input.get_axis("yaw_left", "yaw_right"))
 			if not _movement_armed:
@@ -190,8 +134,7 @@ func _physics_process(delta: float) -> void:
 
 
 func _safe_airborne() -> bool:
-	var reference_height := runway.global_position.y if runway != null else player.min_altitude
-	return not player.grounded and player.global_position.y >= reference_height + safety_height
+	return not player.grounded and player.global_position.y >= player.min_altitude + safety_height
 
 
 func _on_radio_finished() -> void:
@@ -222,9 +165,6 @@ func _on_tutorial_confirmed() -> void:
 	if terminal:
 		return
 	match phase:
-		Phase.TAKEOFF:
-			if runway_spot != null:
-				cinematic.finish_intro()
 		Phase.TARGET_READING:
 			phase = Phase.MISSILE_READING
 			hud.tutorial_panel.open("ARMI · MISSILI", "Lancia con [{fire_missile}] dopo l'aggancio.\nCambia armamento con [{switch_missile}]; il tipo attivo è indicato nell'HUD.\n\nMTSM aggancia più contatti validi a schermo. Gli altri missili richiedono un aggancio sul bersaglio selezionato.")

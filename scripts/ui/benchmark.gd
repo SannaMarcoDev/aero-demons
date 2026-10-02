@@ -1,5 +1,5 @@
 extends Node3D
-## Player-facing, repeatable 1080p Ultra Garda benchmark. Never saves user settings.
+## Player-facing, repeatable 1080p Ultra Riva benchmark. Never saves user settings.
 const Session = preload("res://scripts/core/game_session.gd")
 const Settings = preload("res://scripts/core/settings_manager.gd")
 const Sampler = preload("res://scripts/performance/benchmark_sampler.gd")
@@ -32,14 +32,13 @@ func _run() -> void:
 			or DisplayServer.screen_get_size(DisplayServer.window_get_current_screen()).y < 1080:
 		_show_result("Serve uno schermo di almeno 1920×1080 per un confronto valido.", "")
 		return
-	progress_label.text = "BENCHMARK  •  CARICAMENTO SCENARIO GARDA"
+	progress_label.text = "BENCHMARK  •  CARICAMENTO SCENARIO RIVA"
 	_level = load(Session.FREE_FLIGHT).instantiate()
 	add_child(_level)
 	var player: Node3D = _level.get_node("Player")
 	var camera: Camera3D = player.get_node("FlightCamera")
 	var forest: Node = _level.get_node("GardaLake/Forests")
 	player.set_physics_process(false)
-	_level.get_node("GardaLake/TutorialBoundaryController").set_physics_process(false)
 	_level.get_node("GardaLake/Sky3D/SkyDome").process_method = 2
 	_level.get_node("CombatHUD").set_process_unhandled_input(false) # No pause during capture.
 	var settings := _saved_settings.duplicate(true)
@@ -53,7 +52,7 @@ func _run() -> void:
 	viewport.size = Vector2i(1920, 1080)
 	viewport.content_scale_size = viewport.size
 	RenderingServer.viewport_set_measure_render_time(viewport.get_viewport_rid(), true)
-	Sampler.place_aircraft(player, camera, Sampler.GARDA_LOCATIONS[0], 0.0)
+	Sampler.place_aircraft(player, camera, Sampler.RIVA_LOCATIONS[0], 0.0)
 	while not forest.built:
 		await get_tree().process_frame
 	await get_tree().create_timer(8.0).timeout
@@ -63,7 +62,7 @@ func _run() -> void:
 	for round_index in 3:
 		var frame_count := 0
 		var elapsed_ms := 0.0
-		for loc in Sampler.GARDA_LOCATIONS:
+		for loc in Sampler.RIVA_LOCATIONS:
 			progress_label.text = "BENCHMARK  •  PASSAGGIO %d/3  •  %s" % [round_index + 1, loc.id.to_upper()]
 			var result: Dictionary = await Sampler.measure(get_tree(), viewport, player, camera, forest, loc, 3.5, 6.0)
 			result["location"] = loc.id

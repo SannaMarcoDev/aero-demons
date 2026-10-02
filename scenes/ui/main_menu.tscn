@@ -296,7 +296,7 @@ focus_neighbor_left = NodePath(".")
 focus_neighbor_right = NodePath("../StoriaBackButton")
 focus_next = NodePath("../StoriaBackButton")
 focus_previous = NodePath("../StoriaBackButton")
-title = "GARDA"
+title = "RIVA"
 photo = ExtResource("6")
 title_size = 76
 

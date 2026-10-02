@@ -19,17 +19,10 @@ Questa cartella è esclusa dall'import Godot; immagini e misure condivise restan
 
 ## Ambiente e pipeline
 
-- [Paesaggio Garda](environment/landscape-lookdev.md)
-- [Acqua](environment/water-lookdev.md)
-- [Superficie Garda](environment/garda-surface-review.md)
-- [Boschi Garda — baseline storica](environment/garda-forest-review.md)
-- [Scala Garda](environment/garda-scale-correction.md)
-- [Editor strade](environment/roads-editor.md)
-- [Anti-tiling del terreno](environment/terrain-antitile-review.md)
-- [Import Utah / landcover](environment/utah-landcover-250km.md)
+- [Mappa Riva del Garda: fonti e ricostruzione](../textures/terrain/riva_sample/SOURCES.md)
 
 Sorgenti, licenze e istruzioni specifiche degli asset restano accanto agli asset,
-in `assets/`, `terrain/` e `textures/`. I dati Terrain3D e `wc_data/` non sono cache.
+in `assets/`, `terrain/` e `textures/`. I dati Terrain3D non sono cache.
 
 ## Resoconti di sviluppo
 

@@ -1,6 +1,6 @@
 # Riva del Garda sample — data sources
 
-Prototype map (`scenes/levels/riva_sample.tscn`): 40.96 × 40.96 km of Terrain3D at 4 m around Riva, Torbole
+Game map (`scenes/maps/riva_sample.tscn`, played by `scenes/levels/`): 40.96 × 40.96 km of Terrain3D at 4 m around Riva, Torbole
 and Arco (UTM 32N centre 645120 E, 5082880 N; Rovereto, Ledro, Malcesine, Tremosine), inside a 199.68 km context (Adamello,
 Brenta, Verona, Brescia, the plain to the Po). World axes:
 x = east, z = south, y = metres above sea level; lake surface at 65 m.

@@ -93,7 +93,7 @@ Le istanze MultiMesh del forest streamer usano il materiale condiviso
 `resources/terrain/garda_tree_material.tres`: ShaderMaterial con alpha scissor 0,4,
 chiome bifacciali, normali dell'atlas lontano, occlusione vertex e vento leggero.
 Punta all'atlas originale; non richiede texture aggiuntive di terzi.
-Non istanziare insieme le tre mesh sovrapposte: `scripts/maps/garda_forests.gd`
+Non istanziare insieme le tre mesh sovrapposte: `scripts/maps/riva_sample_forests.gd`
 legge le mesh dallo slot Terrain3D **1** in `garda_surface_assets.tres` e crea
 batch locali con visibilità LOD 140/650 m, proxy ombre LOD2 e dissolvenza 6–7 km.
 Lo streaming non scrive istanze nelle regioni Terrain3D.
@@ -140,6 +140,3 @@ SHA-256 degli output:
 - `garda_fir_far.res`: `fda322245246c9bed150edeaee13b8dfc8bf28ad73b60e16e20c2074fd692c91`
 - `garda_fir_atlas.png`: `0c4f53acd8be11d2a9ccec68e15b0ca0f139213a7f893f95e34a898868f62fbf`
 - `garda_fir_normals.png`: `9f7d5d660433ead5c2886d073f0bbbc945a2b3a51d9f3f119cd924887debe37e`
-
-Prestazioni, esperimenti e limiti: [report corrente](../../../docs/environment/landscape-lookdev.md).
-Il [report precedente](../../../docs/environment/garda-forest-review.md) resta una baseline storica.

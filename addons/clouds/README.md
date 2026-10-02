@@ -7,9 +7,9 @@ Nessun EditorPlugin da abilitare: `class_name CloudLayer3D` registra il nodo.
 
 ## Utilizzo
 
-In `scenes/maps/garda_final.tscn`, `CloudLayer3D` usa `Sky3D` come
+In `scenes/maps/riva_sample.tscn`, `CloudLayer3D` usa `Sky3D` come
 WorldEnvironment e `Sky3D/SunLight` come sole. Freeroam, tutorial, arena e replay
-che caricano Garda ereditano il layer. Cielo, cirri, terreno, acqua e luci
+che caricano la mappa ereditano il layer. Cielo, cirri, terreno, acqua e luci
 esistenti non sono modificati; i cumuli 2D erano già disattivati.
 
 - Richiede **Forward+**. In headless non alloca risorse né modifica il compositor.
@@ -26,8 +26,6 @@ esistenti non sono modificati; i cumuli 2D erano già disattivati.
 - La luce del cielo dentro/sotto le nuvole usa lo stesso modello dell'aria
   (colore × energia del sole × `haze_color`), non più un blu fisso di mezzogiorno:
   all'alba o al tramonto basi e interni seguono la luce reale.
-- Preset di luce per missione: `MapLighting` + `MapLightingPreset`
-  (`scripts/maps/`), es. `resources/lighting/garda_dawn.tres` nel freeroam.
 - `Editor Preview` è disattivato: abilitarlo per vedere le nuvole nell'editor.
   La prima generazione richiede qualche secondo; cambiare sole o formazione
   ricostruisce le cache. Non animare questi parametri ogni frame.
@@ -42,7 +40,7 @@ ricostruita soltanto quando cambiano sole/formazione/risoluzione, non al movimen
 della camera o dell'aereo.
 
 `CloudShadowReceivers` (`scripts/maps/garda_cloud_shadows.gd`) collega a runtime
-terreno, acqua, boschi/erba, aeroporto, player e oggetti aggiunti successivamente
+terreno, contesto, edifici, acqua, boschi, player e oggetti aggiunti successivamente
 (compresi AI e attori replay). Le copie di materiali/mesh sono locali al mondo:
 nessun GLB, materiale importato o asset Terrain3D viene riscritto. I viewport di
 anteprima separati e gli effetti unshaded non vengono convertiti.

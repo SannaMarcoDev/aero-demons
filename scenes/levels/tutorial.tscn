@@ -1,28 +1,24 @@
 [gd_scene format=3 uid="uid://7y2kn8uue1dr"]
 
-[ext_resource type="PackedScene" uid="uid://bckioquhk2auh" path="res://scenes/maps/garda_final.tscn" id="1_map"]
+[ext_resource type="PackedScene" path="res://scenes/maps/riva_sample.tscn" id="1_map"]
 [ext_resource type="PackedScene" uid="uid://dgqm8ooyeb3c6" path="res://scenes/player/player.tscn" id="2_player"]
 [ext_resource type="PackedScene" path="res://scenes/ui/combat_hud.tscn" id="4_hud"]
 [ext_resource type="PackedScene" uid="uid://77kpjg3t4f0w" path="res://scenes/enemies/enemy_fighter.tscn" id="6_enemy"]
 [ext_resource type="Script" uid="uid://7erqguvfj2as" path="res://scripts/combat/combat_director.gd" id="7_director"]
 [ext_resource type="Script" uid="uid://d3hxrtrcwcyoh" path="res://scripts/combat/tutorial_mission.gd" id="9_mission"]
 [ext_resource type="Resource" uid="uid://cpaikkcm43m27" path="res://resources/dialogues/tutorial.dialogue" id="11_dialogue"]
-[ext_resource type="Script" uid="uid://corsjofo2fl7s" path="res://scripts/maps/hangar_arrival.gd" id="12_arrival"]
 
 [node name="Tutorial" type="Node3D" unique_id=1151233576]
 
 [node name="GardaLake" parent="." unique_id=51425002 instance=ExtResource("1_map")]
 
 [node name="Player" parent="." unique_id=1784232784 instance=ExtResource("2_player")]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -36792.402, 239.54259, 464.62555)
-start_on_ground = true
+position = Vector3(-1500, 2500, 1500)
+rotation_degrees = Vector3(0, 153, 0)
 invulnerable = true
 
-[node name="Player2" type="Marker3D" parent="." unique_id=1474501909]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36642.043, 239.55763, 650.5814)
-
 [node name="Wingman1" parent="." unique_id=1943898831 instance=ExtResource("6_enemy")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36700, 350, 660)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1600, 2500, 1300)
 policy = 1
 burst_interval = 5.5
 aim_accuracy = 0.7
@@ -31,7 +27,7 @@ faction_group = "allies"
 label = "DEMON 2 · UBRIS"
 
 [node name="Wingman2" parent="." unique_id=79740025 instance=ExtResource("6_enemy")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36600, 350, 660)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1400, 2500, 1300)
 policy = 2
 burst_interval = 5.5
 aim_accuracy = 0.7
@@ -56,16 +52,3 @@ script = ExtResource("9_mission")
 dialogue = ExtResource("11_dialogue")
 
 [node name="SpawnedEnemies" type="Node3D" parent="." unique_id=1917299753]
-
-[node name="TaxiRunway" type="Marker3D" parent="." unique_id=520838330]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36644, 234.52, 663.43)
-
-[node name="TaxiTakeoff" type="Marker3D" parent="." unique_id=1179133724]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36644, 234.52, 100)
-
-[node name="HangarArrival" type="Node3D" parent="." unique_id=769979750]
-script = ExtResource("12_arrival")
-
-[node name="Camera3D-1" type="Camera3D" parent="HangarArrival" unique_id=1066686676]
-transform = Transform3D(0.5745226, -0.092655264, -0.81322736, 0, 0.9935719, -0.11320286, 0.8184887, 0.06503761, 0.5708295, -36794.65, 235.99112, 475.98032)
-current = true

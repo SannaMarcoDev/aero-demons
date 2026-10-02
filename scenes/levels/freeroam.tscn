@@ -1,23 +1,16 @@
 [gd_scene format=3 uid="uid://c6xk4m8u2p0vl"]
 
-[ext_resource type="PackedScene" uid="uid://bckioquhk2auh" path="res://scenes/maps/garda_final.tscn" id="1_map"]
+[ext_resource type="PackedScene" path="res://scenes/maps/riva_sample.tscn" id="1_map"]
 [ext_resource type="PackedScene" uid="uid://dgqm8ooyeb3c6" path="res://scenes/player/player.tscn" id="2_player"]
 [ext_resource type="PackedScene" path="res://scenes/ui/combat_hud.tscn" id="7_hud"]
 [ext_resource type="Script" uid="uid://xj5o3oegucop" path="res://scripts/combat/sortie_controller.gd" id="8_sortie"]
-[ext_resource type="Script" path="res://scripts/maps/map_lighting.gd" id="9_lighting"]
-[ext_resource type="Resource" path="res://resources/lighting/garda_dawn.tres" id="10_dawn"]
 
 [node name="Freeroam" type="Node3D" unique_id=1151233576]
 
 [node name="GardaLake" parent="." unique_id=51425002 instance=ExtResource("1_map")]
 
-[node name="MapLighting" type="Node" parent="." unique_id=640219337 node_paths=PackedStringArray("map")]
-script = ExtResource("9_lighting")
-map = NodePath("../GardaLake")
-preset = ExtResource("10_dawn")
-
 [node name="Player" parent="." unique_id=1784232784 instance=ExtResource("2_player")]
-transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -36793.4, 1800, 463.334)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1200, 4500)
 
 [node name="CombatHUD" parent="." unique_id=1819556815 instance=ExtResource("7_hud")]
 player_path = NodePath("../Player")

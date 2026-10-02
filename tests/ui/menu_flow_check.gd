@@ -1,6 +1,6 @@
 extends SceneTree
 ## godot --headless --path . --script tests/ui/menu_flow_check.gd
-## Omit --headless for screenshots in user://menu_port_check (uses the real Garda levels).
+## Omit --headless for screenshots in user://menu_port_check (uses the real Riva levels).
 
 const Session = preload("res://scripts/core/game_session.gd")
 const Settings = preload("res://scripts/core/settings_manager.gd")

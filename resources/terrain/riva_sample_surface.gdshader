@@ -1,6 +1,6 @@
 // Riva sample surface: orthophoto albedo; the Garda material system adds relief normals and,
 // where the photo's 1 m texels magnify, luminance detail. Photo/masks: tools/terrain/fetch_riva_sample.cjs. Terrain3D 1.0.2 geometry/geomorph contract from
-// extras/shaders/minimum, shared with garda_surface.gdshader.
+// extras/shaders/minimum.
 // Copyright © 2023-2026 Cory Petkovsek, Roope Palmroos, and Contributors (MIT).
 // Material coordinates are world metres, never height/control/color-map texels.
 shader_type spatial;

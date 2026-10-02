@@ -374,9 +374,6 @@ func open_replay(path: String) -> void:
 	for node in _world.find_children("*", "Camera3D", true, false):
 		node.get_parent().remove_child(node)
 		node.free()
-	for node in _world.find_children("*", "Node", true, false):
-		if Data.script_path(node) == "res://scripts/maps/tutorial_boundary_controller.gd":
-			node.set_script(null)
 	_world.transform = data.map_transform
 	add_child(_world)
 	camera.make_current()

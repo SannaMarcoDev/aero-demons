@@ -25,9 +25,9 @@ func _ready() -> void:
 	initial_override = terrain_material.shader_override_enabled
 	var blur = terrain_material.get_shader_param("depth_blur")
 	initial_blur = float(blur) if blur != null else 0.0
-	# Garda's continuous surface has no control-map minification cutoff to remove.
+	# Riva's continuous surface has no control-map minification cutoff to remove.
 	terrain_filter = initial_shader
-	var continuous_surface := initial_override and initial_shader and initial_shader.resource_path == "res://resources/terrain/garda_surface.gdshader"
+	var continuous_surface := initial_override and initial_shader and initial_shader.resource_path == "res://resources/terrain/riva_sample_surface.gdshader"
 	if DisplayServer.get_name() != "headless" and not continuous_surface:
 		var code := initial_shader.code if initial_override and initial_shader else RenderingServer.shader_get_code(terrain_material.get_shader_rid())
 		var condition := "region_mip < 0.0 && region_uv.z > -1."

@@ -1,10 +1,8 @@
 # Normalize EOL for all files that Git considers text files.
 * text=auto eol=lf
 # Git LFS for Terrain & Large Datasets
-wc_data/**/*.res filter=lfs diff=lfs merge=lfs -text
 terrain/**/*.res filter=lfs diff=lfs merge=lfs -text
-# Baked Garda land cover and forest meshes
-resources/terrain/garda_landcover.res filter=lfs diff=lfs merge=lfs -text
+# Baked Riva context, buildings and forest meshes
 resources/terrain/riva_sample_context.scn filter=lfs diff=lfs merge=lfs -text
 resources/terrain/riva_sample_buildings.scn filter=lfs diff=lfs merge=lfs -text
 assets/environment/garda_forest/garda_fir_*.res filter=lfs diff=lfs merge=lfs -text
@@ -15,13 +13,8 @@ assets/audio/music/*.wav filter=lfs diff=lfs merge=lfs -text
 terrain/**/baked_*.tres filter=lfs diff=lfs merge=lfs -text
 # Blender source files
 *.blend filter=lfs diff=lfs merge=lfs -text
-# Large authored airport/city exports
-assets/environment/airport/*.glb filter=lfs diff=lfs merge=lfs -text
-assets/environment/airport/library/*.glb filter=lfs diff=lfs merge=lfs -text
+# Menu hangar export
 assets/environment/small_hangar/*.glb filter=lfs diff=lfs merge=lfs -text
-# Converted MilitaryAirport package (models and optimized source textures)
-assets/environment/military_airport/**/*.glb filter=lfs diff=lfs merge=lfs -text
-assets/environment/military_airport/**/*.png filter=lfs diff=lfs merge=lfs -text
 
 # Riva sample albedo photos (orthophoto mosaics)
 textures/terrain/riva_sample/*.jpg filter=lfs diff=lfs merge=lfs -text

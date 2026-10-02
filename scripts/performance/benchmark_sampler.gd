@@ -1,13 +1,14 @@
 extends RefCounted
-## Shared sampling for the standalone and in-game Garda benchmarks.
+## Shared sampling for the standalone and in-game Riva benchmarks.
 const FLIGHT_SPEED := 900.0
-const GARDA_LOCATIONS := [
-	{"id": "spawn", "pos": Vector3(0, 7114, 0), "pitch": -6.0, "yaw": 15.0},
-	{"id": "cruise", "pos": Vector3(-60000, 3800, -10000), "pitch": -3.0, "yaw": 0.0},
-	{"id": "lake", "pos": Vector3(-60000, 1200, 30000), "pitch": 2.0, "yaw": -55.0},
-	{"id": "alpine", "pos": Vector3(-119420, 3400, -115080), "pitch": -24.0, "yaw": 80.0},
-	{"id": "airport", "pos": Vector3(-36418, 275, 1500), "pitch": -2.0, "yaw": 0.0},
-	{"id": "flight", "path_from": Vector3(-80000, 900, 60000), "path_to": Vector3(-74000, 900, 54000), "pitch": -3.0, "yaw": 0.0},
+# x = east, z = south; Riva at the origin, the lake runs south-south-west (yaw 153).
+const RIVA_LOCATIONS := [
+	{"id": "spawn", "pos": Vector3(0, 1200, 4500), "pitch": -6.0, "yaw": 0.0},
+	{"id": "cruise", "pos": Vector3(-8000, 3800, 16000), "pitch": -3.0, "yaw": -27.0},
+	{"id": "lake", "pos": Vector3(-4000, 600, 7000), "pitch": 2.0, "yaw": 153.0},
+	{"id": "alpine", "pos": Vector3(15000, 3400, 0), "pitch": -12.0, "yaw": 90.0},
+	{"id": "town", "pos": Vector3(-1000, 450, 4000), "pitch": -5.0, "yaw": 0.0},
+	{"id": "flight", "path_from": Vector3(-3000, 500, 6000), "path_to": Vector3(-6000, 500, 12000), "pitch": -3.0, "yaw": 0.0},
 ]
 
 

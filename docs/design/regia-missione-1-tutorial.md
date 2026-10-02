@@ -116,7 +116,7 @@ All'ultimo abbattimento: **MISSIONE COMPLETATA — QUATTRO INTERCETTORI ABBATTUT
 
 ## File di implementazione
 
-- `scripts/maps/hangar_arrival.gd`: inquadrature, fade, convoglio e volo cinematografico.
+- `scripts/combat/tutorial_cinematic.gd`: fade, convoglio e volo cinematografico (l'intro in hangar non è più presente: il tutorial parte in volo su Riva).
 - `scripts/combat/tutorial_mission.gd`: progressione, formazione, suggerimenti, pannelli armi e vittoria.
 - `resources/dialogues/tutorial.dialogue`: fonte dei testi effettivamente mostrati.
 - `scenes/levels/tutorial.tscn`: scena giocabile.

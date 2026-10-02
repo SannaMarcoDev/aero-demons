@@ -49,9 +49,6 @@ func benchmark() -> void:
 		quit(1)
 		return
 	scene = load("res://scenes/levels/tutorial.tscn" if combat else "res://scenes/levels/freeroam.tscn").instantiate()
-	if combat:
-		# Skip the parked intro before _ready schedules it; use the real combat reveal below.
-		scene.get_node("Player").start_on_ground = false
 	root.add_child(scene)
 	current_scene = scene
 	player = scene.get_node("Player")
@@ -60,7 +57,6 @@ func benchmark() -> void:
 	sun = scene.get_node("GardaLake/Sky3D/SunLight")
 	world_env = scene.get_node("GardaLake/Sky3D")
 	player.set_physics_process(false)
-	scene.get_node("GardaLake/TutorialBoundaryController").set_physics_process(false)
 	var settings := Settings.load_settings("user://performance_nonexistent.cfg")
 	var quality := PRESET_NAMES.find(preset_name)
 	settings.quality_preset = quality
@@ -74,21 +70,17 @@ func benchmark() -> void:
 	RenderingServer.viewport_set_measure_render_time(viewport_rid, true)
 	# Freeze the sky for repeatable A/B captures.
 	world_env.get_node("SkyDome").process_method = 2
-	var locations: Array = Sampler.GARDA_LOCATIONS.duplicate(true)
+	var locations: Array = Sampler.RIVA_LOCATIONS.duplicate(true)
 	if gameplay:
-		locations = locations.filter(func(loc): return loc.id in ["spawn", "cruise", "airport"])
-		# The static runway pose would fly into airport buildings; use an actual flyover.
-		for loc in locations:
-			if loc.id == "airport": loc.pos.y = 500.0
+		locations = locations.filter(func(loc): return loc.id in ["spawn", "cruise", "town"])
 	if combat:
 		locations = [{"id": "combat", "pos": Vector3(-5000, 8000, 0), "pitch": 0.0, "yaw": 0.0}]
-		player.start_on_ground = false
 	place_aircraft(locations[0], 0.0)
 	while not scene.get_node("GardaLake/Forests").built:
 		await process_frame
 	await create_timer(8.0).timeout
 	var startup_ms := Time.get_ticks_msec()
-	var variants := ["base", "terrain_off", "shadows_off", "hud_off", "water_off", "airport_off", "effects_off"] if diagnose else ["base"]
+	var variants := ["base", "terrain_off", "shadows_off", "hud_off", "water_off", "buildings_off", "effects_off"] if diagnose else ["base"]
 	for round_index in range(1 if quick else 3):
 		for loc in locations:
 			if not view_filter.is_empty() and loc.id not in view_filter: continue
@@ -97,12 +89,11 @@ func benchmark() -> void:
 				sun.shadow_enabled = variant != "shadows_off" and settings.shadows != Settings.SHADOWS_OFF
 				scene.get_node("CombatHUD").visible = variant != "hud_off"
 				scene.get_node("GardaLake/Water").visible = variant != "water_off"
-				scene.get_node("GardaLake/Airport").visible = variant != "airport_off"
+				scene.get_node("GardaLake/Buildings").visible = variant != "buildings_off"
 				world_env.environment.ssao_enabled = settings.ssao and variant != "effects_off"
 				world_env.environment.glow_enabled = settings.glow and variant != "effects_off"
 				player.set_physics_process(gameplay)
 				player.controls_enabled = not gameplay # Repeatable neutral input; flight physics still run.
-				scene.get_node("GardaLake/TutorialBoundaryController").set_physics_process(gameplay)
 				if gameplay:
 					place_aircraft(loc, 0.0)
 					player.reset_flight(player.global_transform)
@@ -145,7 +136,7 @@ func benchmark() -> void:
 		player.set_physics_process(false)
 		Engine.max_fps = 60 # Only visual acquisition, never the measured windows above.
 		for loc in locations:
-			if loc.id not in ["cruise", "alpine", "airport"]: continue
+			if loc.id not in ["cruise", "alpine", "town"]: continue
 			place_aircraft(loc, 0.0)
 			await create_timer(1.0).timeout
 			var start := player.global_transform
