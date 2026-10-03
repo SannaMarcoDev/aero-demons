@@ -1,14 +1,14 @@
 extends Node3D
 class_name Explosion
-## Aerial explosion assembled from layered particle emitters. `blast_kind` picks the family
-## (warhead, heavy warhead, napalm, aircraft kill, wreck cook-off) and `effect_seed` one of that
-## family's hand-tuned variants plus a jitter on every layer, so no two blasts look the same.
+## Explosion assembled from layered particle emitters. `blast_kind` picks the family (warhead,
+## heavy warhead, napalm, aircraft kill, wreck cook-off in the air; ground impact) and `effect_seed`
+## one of that family's hand-tuned variants plus a jitter on every layer, so no two blasts look the same.
 ## The replay records both (with `drift_velocity`) and rebuilds the identical blast from them.
 
 signal finished
 
 enum QualityLevel { LOW, MEDIUM, HIGH }
-enum Kind { MISSILE, HEAVY, NAPALM, AIRCRAFT, COOK_OFF }
+enum Kind { MISSILE, HEAVY, NAPALM, AIRCRAFT, COOK_OFF, GROUND }
 
 const FIRE_SHADER := preload("res://resources/shaders/vfx/explosion_fire.gdshader")
 const BILLOW_SHADER := preload("res://resources/shaders/vfx/explosion_smoke.gdshader")
@@ -24,6 +24,7 @@ const BASE_LOOK := {
 	"smoke": 1.0, "smoke_life": 1.0, "soot": 0.55, "sparks": 1.0, "shock": 0.0,
 	"fragments": Vector2i(0, 0), "frag_speed": 1.0, "frag_fire": 0.2, "frag_trail": 1.0, "frag_drop": 1.0,
 	"chain": Vector2i(0, 0), "volume_db": -3.0,
+	"dust": 0.0, "scorch": 0.0,
 }
 const FAMILIES := {
 	Kind.MISSILE: {},
@@ -34,6 +35,13 @@ const FAMILIES := {
 	Kind.AIRCRAFT: {"soot": 0.9, "smoke": 1.3, "smoke_life": 1.8, "shock": 0.6, "light": 1.3,
 		"fragments": Vector2i(4, 7), "frag_fire": 0.25, "volume_db": -1.0},
 	Kind.COOK_OFF: {"fire": 0.8, "flash": 0.7, "smoke_life": 0.6, "sparks": 0.8, "soot": 0.75, "volume_db": -9.0},
+	# Off the ground: a blinding dome of fire that shoots up into a tall burning pillar under a
+	# rolling head, a black column behind it, smoking debris and sparks flung high, a low dust
+	# skirt and a scorch mark that outlives the smoke.
+	Kind.GROUND: {"fire": 1.4, "burn": 1.5, "heat": 0.7, "flash": 2.0, "light": 2.0, "smoke": 1.3,
+		"smoke_life": 2.4, "soot": 0.95, "sparks": 1.8, "shock": 1.0, "fragments": Vector2i(8, 11),
+		"frag_speed": 2.0, "frag_fire": 0.3, "frag_trail": 1.0, "frag_drop": 1.5, "volume_db": -1.0,
+		"dust": 1.0, "scorch": 1.0},
 }
 const VARIANTS := {
 	Kind.MISSILE: [
@@ -61,6 +69,9 @@ const VARIANTS := {
 		{"name": "sputter", "weight": 2.0, "fire": 0.6, "smoke": 1.5, "soot": 1.0, "sparks": 0.4},
 		{"name": "sparkle", "weight": 1.5, "fire": 0.7, "heat": 0.8, "sparks": 2.0},
 	],
+	Kind.GROUND: [
+		{"name": "strike", "weight": 1.0},
+	],
 }
 const JITTER_KEYS := ["fire", "lobes", "burn", "flash", "light", "smoke", "smoke_life", "sparks", "shock", "frag_speed", "frag_trail"]
 
@@ -71,6 +82,9 @@ const DRIFT_SMOKE := [Vector2(0.0, 1.0), Vector2(0.1, 0.5), Vector2(0.35, 0.12),
 const DRIFT_FRAGMENT := [Vector2(0.0, 1.0), Vector2(0.4, 0.75), Vector2(1.0, 0.45)]
 # Smoke puffs per second each burning fragment leaves behind (capped by its 60 Hz process rate).
 const TRAIL_PUFF_RATE := 40.0
+# Seconds the scorch mark stays before fading, and how long the fade takes.
+const SCORCH_HOLD := 20.0
+const SCORCH_FADE := 8.0
 
 const SCENE: PackedScene = preload("res://scenes/vfx/explosion_fx.tscn")
 
@@ -140,7 +154,11 @@ const SCENE: PackedScene = preload("res://scenes/vfx/explosion_fx.tscn")
 var variant_name := ""
 
 @onready var _emitters: Array[GPUParticles3D] = [
-	$Flash, $Glare, $FireCore, $FireLobes, $SecondaryLobes, $Smoke, $Sparks, $Fragments, $FragmentSmoke, $Shockwave,
+	$Flash, $Glare, $FireCore, $FireLobes, $SecondaryLobes, $Smoke, $Pillar, $Cap, $DustRing, $Sparks,
+	$Fragments, $FragmentSmoke, $Shockwave,
+]
+@onready var _billows: Array[GPUParticles3D] = [
+	$FireLobes, $SecondaryLobes, $Smoke, $Pillar, $Cap, $DustRing, $FragmentSmoke,
 ]
 
 static var _last_variant := {}
@@ -156,6 +174,7 @@ var _delays := {}
 var _duration := 5.0
 var _light_gain := 1.0
 var _light_decay := 10.0
+var _scorch_glow := 0.0
 var _elapsed := 0.0
 var _generation := 0
 var _playing := false
@@ -172,6 +191,9 @@ const _LAYERS := {
 	"FireLobes": [BILLOW_SHADER, {}, 0.5],
 	"SecondaryLobes": [BILLOW_SHADER, {}, 0.3],
 	"Smoke": [BILLOW_SHADER, {}, 0.0],
+	"Pillar": [BILLOW_SHADER, {}, 0.6],
+	"Cap": [BILLOW_SHADER, {}, 0.2],
+	"DustRing": [BILLOW_SHADER, {}, -0.2],
 	"Sparks": [STREAK_SHADER, {}, 2.0],
 	"Fragments": [FIRE_SHADER, {"flash_mode": 0.0}, 1.0],
 	"FragmentSmoke": [BILLOW_SHADER, {}, 0.2],
@@ -235,6 +257,7 @@ func _ready() -> void:
 	_apply_scale()
 	_configure()
 	$BlastLight.visible = false
+	$Scorch.visible = false
 
 
 func play() -> void:
@@ -243,6 +266,8 @@ func play() -> void:
 	_playing = true
 	_elapsed = 0.0
 	$BlastLight.visible = light_energy > 0.0 and intensity > 0.0
+	$Scorch.visible = _scorch_glow > 0.0
+	$Scorch.modulate.a = 1.0
 	$AudioPlayer.play()
 	for emitter in _emitters:
 		var delay: float = _delays.get(emitter, 0.0)
@@ -261,6 +286,7 @@ func stop_immediately() -> void:
 	$LifetimeTimer.stop()
 	$AudioPlayer.stop()
 	$BlastLight.visible = false
+	$Scorch.visible = false
 	for emitter in _emitters:
 		# restart clears particles already in flight; disabling immediately prevents a new burst.
 		emitter.restart()
@@ -280,6 +306,9 @@ func _process(delta: float) -> void:
 	$BlastLight.light_energy = light_energy * intensity * _light_gain * pulse
 	$BlastLight.light_color = Color(1.0, 0.86, 0.62).lerp(Color(1.0, 0.42, 0.14), 1.0 - exp(-_elapsed * 4.0))
 	$BlastLight.visible = $BlastLight.light_energy > 0.01
+	if $Scorch.visible:
+		$Scorch.emission_energy = _scorch_glow * exp(-_elapsed * 0.45)
+		$Scorch.modulate.a = 1.0 - smoothstep(SCORCH_HOLD, SCORCH_HOLD + SCORCH_FADE, _elapsed)
 
 
 func _on_lifetime_timer_timeout() -> void:
@@ -287,6 +316,7 @@ func _on_lifetime_timer_timeout() -> void:
 		return
 	_playing = false
 	$BlastLight.visible = false
+	$Scorch.visible = false
 	for emitter in _emitters:
 		emitter.emitting = false
 	finished.emit()
@@ -348,15 +378,22 @@ func _configure() -> void:
 	# Fireball size in local units: about 15 m across at overall_scale 1.
 	var fire: float = 1.5 * look.fire
 	var burn_scale := sqrt(look.burn)
+	# Off the ground everything launches upwards from just above the impact instead of all round.
+	var ground := blast_kind == Kind.GROUND
+	if ground:
+		look.dust *= rng.randf_range(0.85, 1.15)
+	var lift := fire if ground else 0.0
 	_delays.clear()
 
 	# Flash and glare: the first frames, readable from far away.
 	_set_amount($Flash, 1)
 	$Flash.lifetime = 0.09 * rng.randf_range(0.85, 1.2)
 	_shape($Flash, 4.6 * look.flash, 5.8 * look.flash, [Vector2(0.0, 0.3), Vector2(0.25, 1.0), Vector2(1.0, 1.2)])
+	_aim($Flash, 180.0, lift)
 	_set_amount($Glare, 1)
 	$Glare.lifetime = 0.5 * sqrt(look.flash)
 	_shape($Glare, 12.0 * look.flash, 14.0 * look.flash, [Vector2(0.0, 0.6), Vector2(0.15, 1.0), Vector2(1.0, 1.3)])
+	_aim($Glare, 180.0, lift)
 
 	# White-hot core.
 	_set_amount($FireCore, maxi(roundi(7.0 * q * look.lobes), 3))
@@ -364,57 +401,104 @@ func _configure() -> void:
 	_motion($FireCore, 0.45 * fire, 1.0 * fire, 3.5 * fire, 6.0, 0.0)
 	_shape($FireCore, 2.0 * fire, 3.4 * fire, [Vector2(0.0, 0.25), Vector2(0.15, 1.0), Vector2(0.6, 1.2), Vector2(1.0, 0.75)])
 	_drift($FireCore, 0.15, 0.5, DRIFT_FIRE)
+	_aim($FireCore, 70.0 if ground else 180.0, 0.3 * lift)
 
-	# Main fireball: lobes born as fire that roll over into smoke.
+	# Main fireball: lobes born as fire that roll over into smoke; a dome on the ground.
 	_set_amount($FireLobes, maxi(roundi(22.0 * q * look.lobes), 6))
 	$FireLobes.lifetime = 1.9 * burn_scale
-	_motion($FireLobes, 0.6 * fire, 5.0 * fire, 13.0 * fire, 8.0, 1.2)
+	_motion($FireLobes, 0.6 * fire, 5.0 * fire, 13.0 * fire, 8.0, 2.2 if ground else 1.2)
+	_aim($FireLobes, 75.0 if ground else 180.0, 0.5 * lift)
 	_shape($FireLobes, 2.4 * fire, 4.8 * fire, [Vector2(0.0, 0.3), Vector2(0.1, 0.85), Vector2(0.4, 1.2), Vector2(1.0, 1.7)])
 	_spin($FireLobes, 35.0)
 	_drift($FireLobes, 0.15, 0.6, DRIFT_FIRE)
 	_billow($FireLobes, 0.45 * burn_scale, 1.0, 1.15)
 
+	# In the air a second, later burst; on the ground a skirt of fire racing out along the surface.
 	_set_amount($SecondaryLobes, roundi(12.0 * look.lobes) if quality_level != QualityLevel.LOW else 0)
 	$SecondaryLobes.lifetime = 1.4 * burn_scale
-	_motion($SecondaryLobes, 0.8 * fire, 2.0 * fire, 6.0 * fire, 8.0, 1.0)
+	if ground:
+		_motion($SecondaryLobes, 0.5 * fire, 8.0 * fire, 16.0 * fire, 9.0, 1.0)
+		_aim($SecondaryLobes, 180.0, 0.3 * lift, Vector3.BACK, 0.85)
+	else:
+		_motion($SecondaryLobes, 0.8 * fire, 2.0 * fire, 6.0 * fire, 8.0, 1.0)
+		_aim($SecondaryLobes, 180.0, 0.0)
 	_shape($SecondaryLobes, 1.8 * fire, 3.4 * fire, [Vector2(0.0, 0.3), Vector2(0.12, 0.9), Vector2(1.0, 1.5)])
 	_spin($SecondaryLobes, 45.0)
 	_drift($SecondaryLobes, 0.2, 0.65, DRIFT_FIRE)
 	_billow($SecondaryLobes, 0.42 * burn_scale, 0.9, 1.15)
-	_delays[$SecondaryLobes] = 0.07 * rng.randf_range(0.7, 1.4)
+	_delays[$SecondaryLobes] = 0.0 if ground else 0.07 * rng.randf_range(0.7, 1.4)
 
-	# The cloud the blast leaves hanging in the sky.
+	# The ground blast's pillar: burning lobes shot straight up at a wide range of speeds, so they
+	# string out into a column from the dome to the head, then keep climbing on their own heat.
+	_set_amount($Pillar, roundi(44.0 * q * look.lobes) if ground else 0)
+	$Pillar.lifetime = 3.4 * burn_scale
+	_motion($Pillar, 0.5 * fire, 1.5 * fire, 24.0 * fire, 1.0, 2.5)
+	_aim($Pillar, 9.0, 0.5 * lift)
+	_shape($Pillar, 2.4 * fire, 4.0 * fire, [Vector2(0.0, 0.4), Vector2(0.12, 1.0), Vector2(1.0, 1.7)])
+	_spin($Pillar, 30.0)
+	_drift($Pillar, 0.0, 0.1, DRIFT_FIRE)
+	_billow($Pillar, 0.7, 1.6, 1.4)
+
+	# Its head: big lobes thrown up hardest, slowed by the air into a rolling, burning cap.
+	_set_amount($Cap, roundi(20.0 * q * look.lobes) if ground else 0)
+	$Cap.lifetime = 3.6 * burn_scale
+	_motion($Cap, 0.6 * fire, 21.0 * fire, 26.0 * fire, 1.3, 3.0)
+	_aim($Cap, 22.0, 0.5 * lift)
+	_shape($Cap, 4.0 * fire, 6.0 * fire, [Vector2(0.0, 0.3), Vector2(0.15, 0.9), Vector2(1.0, 2.0)])
+	_spin($Cap, 20.0)
+	_drift($Cap, 0.0, 0.1, DRIFT_SMOKE)
+	_billow($Cap, 0.7, 1.4, 1.3)
+
+	# The cloud the blast leaves hanging in the sky, or the black column climbing off the ground.
 	var smoke_size := fire * sqrt(look.smoke)
 	_set_amount($Smoke, roundi(30.0 * q * look.smoke * smoke_amount))
 	$Smoke.lifetime = 4.2 * look.smoke_life
-	_motion($Smoke, 2.0 * fire, 1.5 * fire, 5.0 * fire, 3.0, 0.4)
+	if ground:
+		_motion($Smoke, 0.8 * fire, 0.5 * fire, 16.0 * fire, 1.3, 1.0)
+		_aim($Smoke, 14.0, 0.3 * lift)
+	else:
+		_motion($Smoke, 2.0 * fire, 1.5 * fire, 5.0 * fire, 3.0, 0.4)
+		_aim($Smoke, 180.0, 0.0)
 	_shape($Smoke, 2.2 * smoke_size, 4.6 * smoke_size, [Vector2(0.0, 0.45), Vector2(0.15, 1.0), Vector2(0.6, 1.7), Vector2(1.0, 2.3)])
 	_spin($Smoke, 18.0)
 	_drift($Smoke, 0.04, 0.25, DRIFT_SMOKE)
-	_billow($Smoke, 0.07, 0.6, 1.1)
+	_billow($Smoke, 0.07, 0.6, 1.6 if ground else 1.1)
 	_delays[$Smoke] = 0.16 * rng.randf_range(0.8, 1.3)
 
-	# Incandescent streaks.
+	# Dust skirt: a thin, fast ring the shock kicks up along the ground, gone in seconds.
+	_set_amount($DustRing, roundi(16.0 * q * look.dust * smoke_amount) if ground else 0)
+	$DustRing.lifetime = 3.0
+	_motion($DustRing, 0.6 * fire, 10.0 * fire, 24.0 * fire, 4.0, 0.4)
+	_shape($DustRing, 1.0 * fire, 1.8 * fire, [Vector2(0.0, 0.4), Vector2(0.2, 1.0), Vector2(1.0, 2.2)])
+	_spin($DustRing, 15.0)
+	_aim($DustRing, 180.0, 0.3 * lift, Vector3.BACK, 0.92)
+	_drift($DustRing, 0.0, 0.1, DRIFT_SMOKE)
+	_billow($DustRing, 0.0, 0.0, 0.5)
+	_delays[$DustRing] = 0.03
+
+	# Incandescent streaks; off the ground they arc high and rain back down.
 	_set_amount($Sparks, roundi(56.0 * q * look.sparks * sparks_amount))
-	$Sparks.lifetime = 0.85
+	$Sparks.lifetime = 1.6 if ground else 0.85
 	var sparks: ParticleProcessMaterial = $Sparks.process_material
-	sparks.initial_velocity_min = 16.0 * sqrt(fire)
-	sparks.initial_velocity_max = 40.0 * sqrt(fire)
+	sparks.initial_velocity_min = (24.0 if ground else 16.0) * sqrt(fire)
+	sparks.initial_velocity_max = (60.0 if ground else 40.0) * sqrt(fire)
 	sparks.particle_flag_damping_as_friction = false
-	sparks.damping_min = 10.0 * s
-	sparks.damping_max = 18.0 * s
+	sparks.damping_min = (5.0 if ground else 10.0) * s
+	sparks.damping_max = (9.0 if ground else 18.0) * s
 	sparks.gravity = Vector3(0.0, -9.8, 0.0)
+	_aim($Sparks, 45.0 if ground else 180.0, 0.3 * lift)
 	_shape($Sparks, 0.5, 1.1, [Vector2(0.0, 1.0), Vector2(1.0, 0.6)])
 	_drift($Sparks, 0.1, 0.5, DRIFT_SMOKE)
 
-	# Burning fragments (aircraft kills) or napalm gel flung out of the blast. Each one is a small
-	# fire that drops puffs into FragmentSmoke as it flies: born burning, cooling into its trail.
+	# Burning fragments (aircraft kills), napalm gel or, off the ground, debris flung out of the
+	# blast. Each one is a small fire that drops puffs into FragmentSmoke as it flies: born burning,
+	# cooling into its trail.
 	var fragment_count := roundi(rng.randi_range(look.fragments.x, look.fragments.y) * (1.0 if quality_level == QualityLevel.HIGH else q))
 	_set_amount($Fragments, fragment_count)
 	$Fragments.lifetime = 1.6 + 1.8 * look.frag_trail
 	var fragments: ParticleProcessMaterial = $Fragments.process_material
 	fragments.direction = Vector3.UP
-	fragments.spread = 100.0
+	fragments.spread = 50.0 if ground else 100.0
 	fragments.initial_velocity_min = 10.0 * look.frag_speed
 	fragments.initial_velocity_max = 22.0 * look.frag_speed
 	fragments.particle_flag_damping_as_friction = true
@@ -422,14 +506,15 @@ func _configure() -> void:
 	fragments.damping_max = 0.2
 	fragments.gravity = Vector3(0.0, -9.8 * look.frag_drop, 0.0)
 	fragments.sub_emitter_frequency = TRAIL_PUFF_RATE
-	_shape($Fragments, 1.6, 2.6, [Vector2(0.0, 1.0), Vector2(0.7, 0.8), Vector2(1.0, 0.0)])
+	var debris := 0.8 if ground else 1.0
+	_shape($Fragments, 1.6 * debris, 2.6 * debris, [Vector2(0.0, 1.0), Vector2(0.7, 0.8), Vector2(1.0, 0.0)])
 	_drift($Fragments, 0.25, 0.6, DRIFT_FRAGMENT)
 
 	_set_amount($FragmentSmoke, ceili(fragment_count * TRAIL_PUFF_RATE * 1.8 * look.frag_trail * 1.15) if fragment_count > 0 else 0)
 	$FragmentSmoke.lifetime = 1.8 * look.frag_trail
 	# Puffs are emitted from each fragment's own transform, so they take explicit world sizes.
 	_motion($FragmentSmoke, 0.05, 0.1, 0.4, 2.0, 0.3)
-	_shape($FragmentSmoke, 1.2 * s, 2.0 * s, [Vector2(0.0, 0.5), Vector2(0.2, 1.0), Vector2(1.0, 2.2)])
+	_shape($FragmentSmoke, 1.2 * s * debris, 2.0 * s * debris, [Vector2(0.0, 0.5), Vector2(0.2, 1.0), Vector2(1.0, 2.2)])
 	_spin($FragmentSmoke, 25.0)
 	_drift($FragmentSmoke, 0.0, 0.0, DRIFT_SMOKE)
 	_billow($FragmentSmoke, 0.12 + 0.5 * look.frag_fire, 1.2, 1.2)
@@ -443,7 +528,21 @@ func _configure() -> void:
 	for material in _materials:
 		if material.shader != SHOCKWAVE_SHADER:
 			material.set_shader_parameter("heat_bias", look.heat)
-	_billow_soot(look.soot)
+	for emitter in _billows:
+		_billow_set(emitter, "soot", look.soot)
+		_billow_set(emitter, "dirt", 0.0)
+	# The dust skirt is soil; a ground blast's column picks up a little of it.
+	_billow_set($DustRing, "dirt", 1.0)
+	_billow_set($DustRing, "soot", 0.5)
+	_billow_set($Smoke, "dirt", 0.12 if ground else 0.0)
+
+	# Scorch mark burnt into the ground, glowing with embers before it cools.
+	_scorch_glow = 3.0 * look.scorch
+	var scorch_size := 13.0 * fire * maxf(look.scorch, 0.1)
+	$Scorch.size = Vector3(scorch_size, 8.0 * fire, scorch_size)
+	$Scorch.rotation.y = rng.randf() * TAU if ground else 0.0
+	$Scorch.emission_energy = _scorch_glow
+	$BlastLight.position = Vector3(0.0, 3.0 * lift, 0.0)
 
 	# Light, sound and the secondary detonations.
 	_light_gain = look.light * look.fire * _QUALITY_LIGHT[quality_level]
@@ -473,6 +572,10 @@ func _configure() -> void:
 		maxf(_delays[$Smoke] + $Smoke.lifetime, $FireLobes.lifetime),
 		maxf($Fragments.lifetime + $FragmentSmoke.lifetime if $Fragments.visible else 0.0, chain_time)
 	) + 0.3
+	if ground:
+		_duration = maxf(_duration, maxf($Cap.lifetime, $Pillar.lifetime) + 0.3)
+	if _scorch_glow > 0.0:
+		_duration = maxf(_duration, SCORCH_HOLD + SCORCH_FADE)
 	_apply_appearance()
 	_apply_visibility()
 
@@ -510,16 +613,24 @@ func _spin(emitter: GPUParticles3D, degrees_per_second: float) -> void:
 	process.angular_velocity_max = degrees_per_second
 
 
+# Launch direction (local, UP unless given), spread cone and the height above the blast origin
+# particles start from: a sphere in the air, a dome or a column off the ground.
+func _aim(emitter: GPUParticles3D, spread: float, lift: float, direction := Vector3.UP, flatness := 0.0) -> void:
+	var process: ParticleProcessMaterial = emitter.process_material
+	process.direction = direction
+	process.spread = spread
+	process.flatness = flatness
+	process.emission_shape_offset = Vector3(0.0, lift, 0.0)
+
+
 func _billow(emitter: GPUParticles3D, burn: float, glow: float, density: float) -> void:
-	var material := (emitter.draw_pass_1 as Mesh).surface_get_material(0) as ShaderMaterial
-	material.set_shader_parameter("burn", burn)
-	material.set_shader_parameter("glow", glow)
-	material.set_shader_parameter("density", density)
+	_billow_set(emitter, "burn", burn)
+	_billow_set(emitter, "glow", glow)
+	_billow_set(emitter, "density", density)
 
 
-func _billow_soot(soot: float) -> void:
-	for emitter in [$FireLobes, $SecondaryLobes, $Smoke, $FragmentSmoke]:
-		((emitter.draw_pass_1 as Mesh).surface_get_material(0) as ShaderMaterial).set_shader_parameter("soot", soot)
+func _billow_set(emitter: GPUParticles3D, parameter: StringName, value: float) -> void:
+	((emitter.draw_pass_1 as Mesh).surface_get_material(0) as ShaderMaterial).set_shader_parameter(parameter, value)
 
 
 # Directional velocity is applied in world space by ParticleProcessMaterial, so the curve carries
@@ -559,8 +670,9 @@ func _build_resources() -> void:
 		emitter.one_shot = true
 		emitter.explosiveness = 1.0
 		emitter.sorting_offset = _LAYERS[emitter.name][2]
-	for emitter in [$FireLobes, $SecondaryLobes, $Smoke, $FragmentSmoke]:
+	for emitter in _billows:
 		emitter.draw_order = GPUParticles3D.DRAW_ORDER_VIEW_DEPTH
+	$Scorch.normal_fade = 0.35
 	# Fragments feed their trail through the sub-emitter; it must stay active (emitting, not
 	# one-shot) to take the puffs, but never emits on its own while it is a sub-emitter.
 	$Fragments.sub_emitter = $Fragments.get_path_to($FragmentSmoke)

@@ -53,6 +53,8 @@ var gear_extension := 0.0
 var ground_brake_input := 0.0
 var _ground_body: CharacterBody3D
 var _ground_contact_seen := false
+# Set by a collision with terrain or a structure, so the death blast is a ground impact.
+var _crashed := false
 
 @export_category("High-G")
 ## Both analog triggers held: brake and increase pitch/yaw authority; inertia still applies.
@@ -740,8 +742,10 @@ func _setup_collision_detection() -> void:
 		_hitbox.body_entered.connect(_on_solid_collision)
 
 
-func _on_solid_collision(_body: Node3D) -> void:
+func _on_solid_collision(body: Node3D) -> void:
 	if is_alive():
+		# Terrain and structures take no damage themselves; anything that does is another aircraft.
+		_crashed = not body.has_method("apply_damage")
 		apply_damage(max_health)
 
 
@@ -796,7 +800,11 @@ func _die() -> void:
 	var explosion_parent := get_parent()
 	if explosion_parent == null:
 		explosion_parent = get_tree().current_scene
-	Explosion.spawn_aircraft(explosion_parent, global_position, 3.0, -global_basis.z * speed)
+	if _crashed:
+		Explosion.spawn(explosion_parent, global_position, 2.4, Explosion.Kind.GROUND)
+	else:
+		Explosion.spawn_aircraft(explosion_parent, global_position, 3.0, -global_basis.z * speed)
+	_crashed = false
 	if _engine_audio != null:
 		_engine_audio.stop()
 	if _accelerating_audio != null:

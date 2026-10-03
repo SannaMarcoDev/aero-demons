@@ -639,7 +639,9 @@ func _fall(delta: float) -> void:
 		Explosion.spawn(get_parent(), global_position, wreck_explosion_scale, Explosion.Kind.COOK_OFF, _wreck_velocity)
 
 	if _reached_ground():
-		Explosion.spawn_aircraft(get_parent(), global_position, 3.0)
+		var impact := global_position
+		impact.y = _terrain_data.get_height(global_position)
+		Explosion.spawn(get_parent(), impact, 2.4, Explosion.Kind.GROUND)
 		queue_free()
 	elif _wreck_time >= wreck_max_fall_time:
 		# No terrain under it, so nobody is watching it land either.

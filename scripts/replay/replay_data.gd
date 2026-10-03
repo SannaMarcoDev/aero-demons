@@ -28,7 +28,7 @@ const VISUAL_SCRIPTS := [
 	"res://assets/BinbunVFX/shared/script/vfx_controller.gd",
 	"res://assets/BinbunVFX/shared/script/vfx_light.gd",
 ]
-const PROPERTIES := ["transform", "visible", "emitting", "amount_ratio", "light_energy", "light_color", "omni_range", "_power", "_clock", "throttle", "intensity", "_ballistic", "_flame_emission_scale", "_smoke_intensity", "playing", "pitch_scale", "volume_db", "playback", "alpha_multiplier"]
+const PROPERTIES := ["transform", "visible", "emitting", "amount_ratio", "light_energy", "light_color", "omni_range", "_power", "_clock", "throttle", "intensity", "_ballistic", "_flame_emission_scale", "_smoke_intensity", "playing", "pitch_scale", "volume_db", "playback", "alpha_multiplier", "modulate", "emission_energy"]
 
 static func script_path(node: Node) -> String:
 	var script: Script = node.get_script()
@@ -172,8 +172,8 @@ static func validate(value: Variant) -> String:
 				"effect_seed":
 					if not setting is int: return "Seed non valido."
 				"blast_kind":
-					# Explosion.Kind: MISSILE, HEAVY, NAPALM, AIRCRAFT, COOK_OFF.
-					if not setting is int or setting < 0 or setting > 4: return "Tipo esplosione non valido."
+					# Explosion.Kind: MISSILE, HEAVY, NAPALM, AIRCRAFT, COOK_OFF, GROUND.
+					if not setting is int or setting < 0 or setting > 5: return "Tipo esplosione non valido."
 				"drift_velocity":
 					if not setting is Vector3 or not setting.is_finite() or setting.length() > 2000.0:
 						return "Velocità esplosione non valida."
@@ -194,7 +194,7 @@ static func validate(value: Variant) -> String:
 			match channel.property:
 				"transform": type = TYPE_TRANSFORM3D
 				"visible", "emitting", "_ballistic", "playing": type = TYPE_BOOL
-				"light_color": type = TYPE_COLOR
+				"light_color", "modulate": type = TYPE_COLOR
 			var path: String = channel.path
 			if path.begins_with("/") or ":" in path or ".." in path or not valid_keys(channel.get("keys", []), duration, type):
 				return "Traccia proprietà non valida."

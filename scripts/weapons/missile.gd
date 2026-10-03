@@ -108,10 +108,10 @@ func _physics_process(delta: float) -> void:
 			var hit := space_state.intersect_ray(query)
 			if not hit.is_empty():
 				global_position = hit.get("position", global_position)
-				_detonate()
+				_detonate(true)
 				return
 		if global_position.y <= 0.0 or _fall_time >= 5.0 or _age >= 25.0:
-			_detonate()
+			_detonate(global_position.y <= 0.0)
 			return
 		return
 
@@ -152,7 +152,7 @@ func _physics_process(delta: float) -> void:
 		var hit := space_state.intersect_ray(query)
 		if not hit.is_empty():
 			global_position = hit.get("position", global_position)
-			_detonate()
+			_detonate(true)
 			return
 
 
@@ -339,22 +339,24 @@ func _clear_threat() -> void:
 	_payload_targets.clear()
 
 
-func _detonate() -> void:
+## `on_ground` when the missile struck the terrain or a structure rather than bursting in the air.
+func _detonate(on_ground := false) -> void:
 	if _detonated:
 		return
 	_detonated = true
 	_stop_thruster()
 	_play_spatial_audio(&"play_missile_hit")
 	var scale := 0.35 if missile_id == "MTSM" else 1.0
-	var kind := Explosion.Kind.MISSILE
+	var kind := Explosion.Kind.GROUND if on_ground else Explosion.Kind.MISSILE
 	if missile_id == "BAHM":
 		scale = 1.7
-		kind = Explosion.Kind.HEAVY
+		kind = Explosion.Kind.GROUND if on_ground else Explosion.Kind.HEAVY
 	elif missile_id == "NCGBM":
 		scale = 1.25
 		kind = Explosion.Kind.NAPALM
-	# The warhead bursts around the target, so only a little of the missile's own speed carries.
-	Explosion.spawn(get_parent(), global_position, scale, kind, velocity * 0.15)
+	# The warhead bursts around the target, so only a little of the missile's own speed carries;
+	# the ground stops all of it.
+	Explosion.spawn(get_parent(), global_position, scale, kind, Vector3.ZERO if on_ground else velocity * 0.15)
 	_clear_threat()
 	queue_free()
 

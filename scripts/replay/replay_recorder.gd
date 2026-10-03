@@ -136,6 +136,8 @@ func _collect_channels(root: Node, node: Node, channels: Array, bindings: Array)
 		properties.append_array(["light_energy", "light_color"])
 		if node is OmniLight3D:
 			properties.append("omni_range")
+	if node is Decal:
+		properties.append_array(["modulate", "emission_energy"])
 	var script := Data.script_path(node)
 	if script == "res://scripts/vfx/jet_exhaust.gd":
 		properties.append_array(["_power", "_clock", "throttle"])

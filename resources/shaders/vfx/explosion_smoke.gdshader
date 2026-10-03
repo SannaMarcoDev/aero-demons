@@ -14,6 +14,8 @@ uniform float glow : hint_range(0.0, 4.0) = 1.0;
 uniform float heat_bias : hint_range(0.0, 1.0) = 0.5;
 // 0 = pale grey warhead smoke, 1 = black oily fuel smoke.
 uniform float soot : hint_range(0.0, 1.0) = 0.6;
+// 0 = combustion smoke, 1 = soil and dust thrown up by a ground blast (soot then darkens the soil).
+uniform float dirt : hint_range(0.0, 1.0) = 0.0;
 uniform float density : hint_range(0.0, 2.0) = 1.0;
 
 #include "res://resources/shaders/vfx/explosion_common.gdshaderinc"
@@ -62,6 +64,9 @@ void fragment() {
 
 	vec3 smoke = mix(vec3(0.21, 0.2, 0.19), vec3(0.04, 0.037, 0.034), soot);
 	vec3 scorched = mix(vec3(0.13, 0.075, 0.04), vec3(0.045, 0.025, 0.014), soot);
+	vec3 soil = mix(vec3(0.24, 0.19, 0.14), vec3(0.07, 0.055, 0.04), soot);
+	smoke = mix(smoke, soil, dirt);
+	scorched = mix(scorched, soil * 0.55, dirt);
 	smoke = mix(scorched, smoke, smoothstep(0.0, 1.8, v_age / burn_time));
 	ALBEDO = smoke * (0.65 + 0.7 * n) * (0.85 + 0.3 * v_seed);
 	ROUGHNESS = 1.0;

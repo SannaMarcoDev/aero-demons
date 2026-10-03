@@ -1,6 +1,8 @@
 [gd_scene format=3 uid="uid://jmqldho2eid3"]
 
 [ext_resource type="Script" uid="uid://fwuamwllrp7t" path="res://scripts/vfx/explosion_fx.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://dfdq7cqyvoui8" path="res://assets/vfx/explosions/scorch_albedo.png" id="2_3wy1l"]
+[ext_resource type="Texture2D" uid="uid://moer8suyx1l5" path="res://assets/vfx/explosions/scorch_embers.png" id="3_j6en6"]
 
 [node name="ExplosionFX" type="Node3D" unique_id=222310513]
 script = ExtResource("1_script")
@@ -23,6 +25,15 @@ emitting = false
 [node name="Smoke" type="GPUParticles3D" parent="." unique_id=336188136]
 emitting = false
 
+[node name="Pillar" type="GPUParticles3D" parent="." unique_id=1401354038]
+emitting = false
+
+[node name="Cap" type="GPUParticles3D" parent="." unique_id=103275406]
+emitting = false
+
+[node name="DustRing" type="GPUParticles3D" parent="." unique_id=2069035242]
+emitting = false
+
 [node name="Sparks" type="GPUParticles3D" parent="." unique_id=344976547]
 emitting = false
 
@@ -38,6 +49,11 @@ emitting = false
 [node name="BlastLight" type="OmniLight3D" parent="." unique_id=687328293]
 light_color = Color(1, 0.72, 0.38, 1)
 light_specular = 0.6
+
+[node name="Scorch" type="Decal" parent="." unique_id=1845437256]
+visible = false
+texture_albedo = ExtResource("2_3wy1l")
+texture_emission = ExtResource("3_j6en6")
 
 [node name="AudioPlayer" type="AudioStreamPlayer3D" parent="." unique_id=1489926148]
 
