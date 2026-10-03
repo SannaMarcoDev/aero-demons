@@ -151,6 +151,67 @@ extends Node3D
 
 var _shadow_pass: CloudShadowPass
 var _runtime_shadow_materials: Array[Resource] = []
+var _transparency: CloudTransparency
+var _msaa_copy: MeshInstance3D
+
+
+# Godot's later MSAA resolve otherwise overwrites compute edits made POST_SKY.
+# Restore the resolved back buffer before VFX, not their rendering priorities.
+func _create_msaa_copy() -> void:
+	_msaa_copy = MeshInstance3D.new()
+	_msaa_copy.name = "CloudMSAAResolve"
+	_msaa_copy.visible = false
+	_msaa_copy.extra_cull_margin = 1000000.0
+	_msaa_copy.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var quad := QuadMesh.new()
+	quad.size = Vector2(2, 2)
+	_msaa_copy.mesh = quad
+	var shader := Shader.new()
+	shader.code = """shader_type spatial;
+render_mode unshaded, fog_disabled, depth_draw_never, depth_test_disabled, cull_disabled;
+uniform sampler2D scene_color : hint_screen_texture, filter_nearest;
+void vertex() { POSITION = vec4(VERTEX.xy, 1.0, 1.0); }
+void fragment() {
+	ALBEDO = textureLod(scene_color, SCREEN_UV, 0.0).rgb;
+	ALPHA = 1.0;
+}
+"""
+	var material := ShaderMaterial.new()
+	material.shader = shader
+	material.render_priority = -128
+	_msaa_copy.material_override = material
+	add_child(_msaa_copy)
+
+
+## Optional hook for materials assigned after a node's initial setup.
+## Returns a viewport-local copy for shared assets; keep the returned material.
+func register_transparent_material(material: Material) -> Material:
+	return _transparency.register_material(material) if _transparency != null else material
+
+
+func _queue_transparent_bind(node: Node) -> void:
+	if node is GeometryInstance3D:
+		# One extra deferred turn lets existing material/clock/shadow adapters finish.
+		_bind_transparent_geometry.call_deferred(node)
+
+
+func _bind_transparent_geometry(node: GeometryInstance3D) -> void:
+	if _transparency != null and is_instance_valid(node) and node.is_inside_tree() and node.get_viewport() == get_viewport():
+		_transparency.bind_geometry(node)
+
+
+func _queue_transparent_scan() -> void:
+	_bind_transparents.call_deferred()
+
+
+func _bind_transparents() -> void:
+	if _transparency == null or not is_inside_tree():
+		return
+	var scene := get_tree().current_scene
+	if scene == null:
+		scene = get_tree().root
+	for node in scene.find_children("*", "GeometryInstance3D", true, false):
+		_bind_transparent_geometry(node)
 
 
 ## Opt-in binding for a spawned receiver. Do not share a material across layers.
@@ -218,6 +279,10 @@ func _sync_shadows() -> void:
 
 
 func _process(_delta: float) -> void:
+	if _msaa_copy != null:
+		_msaa_copy.visible = get_viewport().msaa_3d != Viewport.MSAA_DISABLED and effect != null and (effect.enabled or _atmosphere.enabled)
+	if _transparency != null and effect != null:
+		_transparency.set_active(effect.enabled and effect.clouds_enabled and effect.view_ready)
 	if _shadow_pass != null:
 		# Runs before RenderingServer prepares material descriptor sets. WeakRef
 		# prevents queued updates from retaining a detached scene at shutdown.
@@ -321,6 +386,8 @@ func _ready() -> void:
 	if Engine.is_editor_hint():
 		_update_editor_preview()
 	else:
+		# Rendering continues while gameplay is paused, including receiver toggles.
+		process_mode = Node.PROCESS_MODE_ALWAYS
 		_start_effect()
 
 
@@ -350,17 +417,32 @@ func _start_effect() -> void:
 	var effects: Array[CompositorEffect] = []
 	if _previous_compositor != null:
 		effects.assign(_previous_compositor.compositor_effects)
-	effects.append(effect)
 	_atmosphere = CloudAtmosphere.new()
 	_atmosphere.source = effect
 	effects.append(_atmosphere)
+	effects.append(effect) # same POST_SKY stage: atmosphere first, then clouds
 	_compositor.compositor_effects = effects
 	world_environment.compositor = _compositor
 	_sync_shadows()
+	if not Engine.is_editor_hint():
+		_create_msaa_copy()
+		_transparency = CloudTransparency.new()
+		_transparency.texture = effect.view_texture
+		get_tree().node_added.connect(_queue_transparent_bind, CONNECT_DEFERRED)
+		_queue_transparent_scan.call_deferred()
 
 
 func _stop_effect() -> void:
 	_density_revision += 1
+	if _msaa_copy != null:
+		_msaa_copy.visible = false
+		_msaa_copy.queue_free()
+		_msaa_copy = null
+	if get_tree() != null and get_tree().node_added.is_connected(_queue_transparent_bind):
+		get_tree().node_added.disconnect(_queue_transparent_bind)
+	if _transparency != null:
+		_transparency.clear()
+		_transparency = null
 	if effect != null:
 		effect.enabled = false
 		effect.cancel_density_sample()

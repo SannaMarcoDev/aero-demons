@@ -32,6 +32,76 @@ esistenti non sono modificati; i cumuli 2D erano già disattivati.
 - Non aggiungere più layer allo stesso WorldEnvironment. Il compositor
   preesistente viene preservato e ripristinato all'uscita.
 
+## Trasparenze e scie
+
+Le nuvole vengono composte in **POST_SKY**, dopo `CloudAtmosphere` e prima della
+copia del back buffer e dei trasparenti. Non basta invertire l'ordine: un secondo
+raymarch scrive la luce accumulata e la trasmissione **fino a ogni distanza** in
+una cache 3D 240×135×128, circa **32 MiB**. Le 128 distanze sono logaritmiche da
+0 a 110 km; campo, densità, illuminazione e atmosfera sono gli stessi del
+raymarch visibile (`cloud_march.glslinc`). L'immagine delle nuvole resta half-res.
+Con MSAA, una copia fullscreen nativa ripristina il back buffer già composto
+all'inizio del pass trasparente: altrimenti il resolve MSAA successivo cancellerebbe
+nuvole e atmosfera. Non cambia le priorità delle scie; senza MSAA non viene disegnata.
+
+`CloudTransparency`, interamente dentro questo addon, collega a runtime i
+materiali trasparenti dello stesso viewport, anche sulle particelle e sugli
+oggetti aggiunti dopo l'avvio. Gli shader/materiali importati non vengono
+riscritti: i materiali asset vengono copiati, quelli runtime mantengono la loro
+identità per non interrompere animazioni, parametri dei missili o clock replay.
+Nessuna dipendenza da aerei, armi o mappe. I viewport di anteprima separati non
+vengono collegati. Per materiali assegnati **dopo** il setup iniziale del nodo:
+
+```gdscript
+mesh.material_override = layer.register_transparent_material(mesh.material_override)
+```
+
+- Alpha blending: `cloud_view.gdshaderinc` viene inserito nella copia dello shader;
+  `FOG` applica luce e trasmissione campionate alla distanza del frammento. Le
+  nuvole dietro al fumo restano dietro; quelle davanti lo velano. Non si forza
+  la scrittura di profondità e non si ritagliano le nuvole con i billboard.
+- Additivi (fuoco, scie luminose): si attenua soltanto l'emissione. Rifrazione:
+  si attenua l'alpha, perché il back buffer contiene già le nuvole.
+- Opaqui, alpha scissor/hash e overlay che scrivono `POSITION` non campionano
+  questa cache. Il loro occultamento resta al raymarch/depth test ordinario.
+- Sono coperti ShaderMaterial spatial con `fragment()` senza uscite anticipate
+  e i materiali nativi unshaded semplici mix/add delle particelle/alone. I
+  materiali nativi PBR su Garda sono già convertiti dall'adattatore delle ombre.
+  Shader con un proprio `FOG`, altri blend mode o volumi raymarched che vogliono
+  una profondità diversa dal proxy richiedono un adattamento specifico.
+- Una sola camera/viewport mono per layer; niente condivisione dei materiali
+  adattati fra layer. La griglia filtrata è un'approssimazione spaziale, non OIT:
+  non risolve l'ordinamento reciproco di trasparenti intersecanti di Godot.
+- Disattivando nuvole/effetto, o scaricando il layer, i ricevitori smettono di
+  usare la cache. I toggle funzionano anche con il gameplay in pausa.
+
+Controllo ripetibile tramite Godot AI, con una scena Garda attiva:
+
+```gdscript
+var layer = get_tree().current_scene.find_child("CloudLayer3D", true, false)
+assert(layer != null and layer.effect.view_ready)
+assert(layer.effect.effect_callback_type == CompositorEffect.EFFECT_CALLBACK_TYPE_POST_SKY)
+assert(not layer._transparency._receivers.is_empty())
+var previous = layer.clouds_enabled
+layer.clouds_enabled = false
+for frame in 3:
+	await get_tree().process_frame
+for material in layer._transparency._receivers:
+	assert(not material.get_shader_parameter("cloud_view_enabled"))
+layer.clouds_enabled = previous
+for frame in 3:
+	await get_tree().process_frame
+assert(not "cloud_view.gdshaderinc" in load("res://resources/shaders/damage_smoke.gdshader").code)
+return "PASS: CLOUD TRANSPARENCY BINDINGS AND TOGGLE"
+```
+
+Per la verifica visiva mantenere camera e dimensioni proiettate fisse e spostare
+lo stesso materiale del fumo lungo un raggio: davanti al banco deve restare
+visibile, dentro attenuarsi, dietro un banco denso sparire. Provare anche il
+toggle OFF/ON e un missile creato dopo l'avvio. Il renderer è disattivato in
+headless: la sola compilazione o il caricamento di una scena non verifica questi
+risultati visivi.
+
 ## Ombre su Garda
 
 Le ombre volumetriche sono attive a **512²**, circa **86 MiB** aggiuntivi di VRAM.
@@ -101,8 +171,8 @@ aria Rayleigh (`air_density`, tinta blu in distanza). Il colore è
 `haze_color` × colore/energia del sole, più `haze_sun_scattering` verso il sole.
 
 - `CloudAtmosphere` è un secondo CompositorEffect creato da `CloudLayer3D` nello
-  stesso compositor, dopo il cielo e prima dei trasparenti: scie e particelle
-  non vengono velate con la profondità del terreno dietro di loro.
+  stesso compositor, dopo il cielo e prima delle nuvole e dei trasparenti: scie
+  e particelle non vengono velate con la profondità del terreno dietro di loro.
 - Il cielo resta a Sky3D. Sotto l'orizzonte, oltre il far plane, la cupola
   mostrerebbe il suo `ground_color` scuro: viene velato come terreno alla quota
   base, così acqua e terreno lontani si fondono con l'orizzonte.

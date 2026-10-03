@@ -1,0 +1,64 @@
+// Shared cloud integration for the visible image and depth-indexed transparency cache.
+#include "density.glslinc"
+#include "atmosphere.glslinc"
+
+vec2 cloud_ray_range(vec3 ro, vec3 rd, float far_distance) {
+	vec2 range = vec2(0.0, min(far_distance, 110000.0));
+	if (abs(rd.y) < 1e-5) {
+		if (ro.y <= p.deck.x || ro.y >= p.deck.y) range.y = 0.0;
+	} else {
+		float a = (p.deck.x - ro.y) / rd.y;
+		float b = (p.deck.y - ro.y) / rd.y;
+		range.x = max(0.0, min(a, b));
+		range.y = min(range.y, max(a, b));
+	}
+	return range;
+}
+
+float hg(float mu, float g) {
+	float d = 1.0 + g * g - 2.0 * g * mu;
+	return (1.0 - g * g) / (d * sqrt(d));
+}
+
+void march_cloud_segment(vec3 ro, vec3 rd, float end,
+		inout float t, inout vec4 acc, inout int steps, inout float air_vis) {
+	float mu = dot(rd, p.sun_dir.xyz);
+	float phase = 0.35 + 0.24 * mix(hg(mu, -0.2), hg(mu, 0.65), 0.8);
+	vec3 haze = vec3(0.263, 0.380, 0.604) + p.sun_color.rgb
+		* (pow(max(mu, 0.0), 8.0) * 3.14159265 * 0.30);
+	vec3 sky_light = p.sun_color.rgb * p.atm_b.rgb * 0.55;
+	for (; steps < int(p.misc.y) && t < end && acc.a > 0.01; steps++) {
+		float dt = min(clamp(45.0 + t * 0.005, 45.0, 200.0), end - t);
+		float tm = t + dt * 0.5;
+		vec3 pos = ro + rd * tm;
+		vec2 shape = textureLod(shape_tex, field_uv(pos), 0.0).rg;
+		float sdf = shape.g;
+		// Conservative skip, including detail support and half a field voxel.
+		if (sdf > 590.0) {
+			t = min(end, tm + max(dt * 0.5, max(40.0, (sdf - 490.0) * 0.9)));
+			continue;
+		}
+		float d = density_at(pos, shape.r);
+		d *= 1.0 - smoothstep(70000.0, 110000.0, tm);
+		if (d > 0.000001) {
+			vec2 tau = textureLod(light_tex, field_uv(pos), 0.0).rg;
+			float occlusion = mix(0.30, 1.0, p.deck.z);
+			float sky_access = exp(-tau.y * occlusion);
+			vec3 ambient = sky_light * mix(0.12, 1.0, sky_access);
+			float sun = exp(-tau.x) * phase * 1.4 + 0.22 * exp(-tau.x * occlusion);
+			vec3 light = ambient + p.sun_color.rgb * sun;
+			if (p.atm_c.x > 0.5) {
+				if (air_vis < 0.0)
+					air_vis = path_sun_visibility(ro, rd, tm, 0.5, p.cam_pos.w > 0.5);
+				Aerial air = atm_aerial(ro, rd, tm, air_vis);
+				light = light * air.transmittance + air.inscatter;
+			} else {
+				light = mix(haze, light, exp(-tm * 0.000018));
+			}
+			float alpha = 1.0 - exp(-d * dt);
+			acc.rgb += acc.a * alpha * light;
+			acc.a *= 1.0 - alpha;
+		}
+		t += dt;
+	}
+}

@@ -7,6 +7,14 @@ extends CompositorEffect
 
 const RAYMARCH_SRC := "res://addons/clouds/raymarch.glsl"
 const COMPOSITE_SRC := "res://addons/clouds/composite.glsl"
+const VIEW_SRC := "res://addons/clouds/view_raymarch.glsl"
+# ponytail: one mono viewport, fixed 32 MiB cache; add per-eye caches only for XR.
+const VIEW_SIZE := Vector3i(240, 135, 128)
+var view_texture := Texture3DRD.new()
+var view_ready := false
+var _view_tex: RID
+var _view_shader: RID
+var _view_pipe: RID
 
 @export var clouds_enabled := true
 var sun: DirectionalLight3D
@@ -72,9 +80,10 @@ var last_names := ""
 
 
 func _init() -> void:
-	effect_callback_type = EFFECT_CALLBACK_TYPE_POST_TRANSPARENT
-	access_resolved_color = false
-	access_resolved_depth = false
+	# After the atmosphere, before back-buffer capture and transparent draws.
+	effect_callback_type = EFFECT_CALLBACK_TYPE_POST_SKY
+	access_resolved_color = true
+	access_resolved_depth = true
 	needs_motion_vectors = false
 	needs_normal_roughness = false
 	rd = RenderingServer.get_rendering_device()
@@ -89,7 +98,9 @@ func _notification(what: int) -> void:
 		for rid in _field_resources:
 			if rid.is_valid():
 				rd.free_rid(rid)
+		view_texture.texture_rd_rid = RID()
 		for rid in [_raymarch_pipe, _composite_pipe, _raymarch_shader,
+				_view_pipe, _view_shader, _view_tex,
 				_composite_shader, _ubo, _sampler, _screen_sampler, _no_shadow,
 				_cloud_tex, _noise3d, _noise3d_lo, _weather, _weather_lo,
 				_density_pipe, _density_shader, _density_buffer]:
@@ -113,7 +124,7 @@ static func _compile_compute_dev(dev: RenderingDevice, path: String) -> RID:
 	var raw := FileAccess.get_file_as_string(path)
 	# RDShaderSource has no resource-relative include resolver. Both the
 	# light bake and camera compile this exact density definition.
-	for include in ["density.glslinc", "atmosphere.glslinc"]:
+	for include in ["cloud_march.glslinc", "density.glslinc", "atmosphere.glslinc"]:
 		raw = raw.replace('#include "%s"' % include,
 				FileAccess.get_file_as_string("res://addons/clouds/" + include))
 	var lines := raw.split("\n")
@@ -141,6 +152,18 @@ func _compile_compute(path: String) -> RID:
 func _build_pipelines() -> void:
 	_raymarch_shader = _compile_compute(RAYMARCH_SRC)
 	_composite_shader = _compile_compute(COMPOSITE_SRC)
+	_view_shader = _compile_compute(VIEW_SRC)
+	if _view_shader.is_valid():
+		_view_pipe = rd.compute_pipeline_create(_view_shader)
+	var view_format := RDTextureFormat.new()
+	view_format.texture_type = RenderingDevice.TEXTURE_TYPE_3D
+	view_format.format = RenderingDevice.DATA_FORMAT_R16G16B16A16_SFLOAT
+	view_format.width = VIEW_SIZE.x
+	view_format.height = VIEW_SIZE.y
+	view_format.depth = VIEW_SIZE.z
+	view_format.usage_bits = RenderingDevice.TEXTURE_USAGE_STORAGE_BIT | RenderingDevice.TEXTURE_USAGE_SAMPLING_BIT
+	_view_tex = rd.texture_create(view_format, RDTextureView.new(), [])
+	view_texture.texture_rd_rid = _view_tex
 	if _raymarch_shader.is_valid():
 		_raymarch_pipe = rd.compute_pipeline_create(_raymarch_shader)
 	if _composite_shader.is_valid():
@@ -394,7 +417,7 @@ static func _basis_to_cols(t: Transform3D, out: PackedFloat32Array) -> void:
 
 
 func _render_callback(cb_type: int, render_data: RenderData) -> void:
-	if cb_type != EFFECT_CALLBACK_TYPE_POST_TRANSPARENT:
+	if cb_type != EFFECT_CALLBACK_TYPE_POST_SKY:
 		return
 	if rd == null or not _raymarch_pipe.is_valid() or not _composite_pipe.is_valid():
 		return
@@ -511,6 +534,19 @@ func _render_view(sb: RenderSceneBuffersRD, sd: RenderSceneData,
 	rd.compute_list_dispatch(cl,
 			(_cloud_size.x + 7) / 8, (_cloud_size.y + 7) / 8, 1)
 	rd.compute_list_add_barrier(cl)
+
+	if clouds_enabled and _view_pipe.is_valid():
+		var view_img := RDUniform.new()
+		view_img.uniform_type = RenderingDevice.UNIFORM_TYPE_IMAGE
+		view_img.binding = 1
+		view_img.add_id(_view_tex)
+		var view_set := UniformSetCacheRD.get_cache(_view_shader, 0,
+			[u_ubo, view_img, u_noise, u_weather, u_noise_lo, u_weather_lo, u_shadow])
+		rd.compute_list_bind_compute_pipeline(cl, _view_pipe)
+		rd.compute_list_bind_uniform_set(cl, view_set, 0)
+		rd.compute_list_dispatch(cl, (VIEW_SIZE.x + 7) / 8, (VIEW_SIZE.y + 7) / 8, 1)
+		rd.compute_list_add_barrier(cl)
+		view_ready = true
 
 	if clouds_enabled:
 		var c_img := RDUniform.new()
